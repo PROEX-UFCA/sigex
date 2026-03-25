@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id()->primary();
             $table->uuid('uuid')->unique();
+            $table->uuid('id_instituicao')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -21,8 +22,10 @@ return new class extends Migration
             $table->boolean('status')->default(0);
             $table->rememberToken();
             $table->string('cpf')->nullable();
+            $table->string('centro_departamento')->nullable();
+            $table->string('matricula_siape')->nullable();
+            $table->string('perfil_ativo')->nullable();
             $table->string('phone')->nullable();
-            $table->string('birth')->nullable();
             $table->timestamp('last_login_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
