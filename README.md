@@ -228,8 +228,7 @@ sudo docker image prune
 
 ### ER das prmeiras tabelas
 
-```
-mermaid
+```mermaid
 erDiagram
     USUARIO ||--o{ ACAO : "coordena"
     ACAO ||--o{ EQUIPE_ACAO : "possui_membros"
