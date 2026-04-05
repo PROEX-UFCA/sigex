@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('instituicao_externa_agenda', function (Blueprint $table) {
+        Schema::create('parametro', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('id_instituicao');
-            $table->foreign('id_instituicao')->references('id')->on('instituicao_externa')->onDelete('cascade');
-            $table->date('data_disponivel');
-            $table->time('hora_inicio');
-            $table->time('hora_fim');
-            $table->string('observacao');
+            $table->text('function');
+            $table->text('value');
+            $table->boolean('status')->default(1);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('instituicao_externa_agenda');
+        Schema::dropIfExists('parametro');
     }
 };

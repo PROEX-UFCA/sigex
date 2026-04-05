@@ -2,12 +2,17 @@
 
 namespace App\Providers;
 
+use App\Repositories\Actions\ActionsRepository;
+use App\Repositories\Actions\EloquentActionsRepository;
+use App\Repositories\Parametros\EloquentParametrosRepository;
+use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\Roles\EloquentRolesRepository;
 use App\Repositories\Settings\Roles\RolesRepository;
 use App\Repositories\Settings\User\EloquentUsersRepository;
 use App\Repositories\Settings\User\UsersRepository;
 use App\Repositories\Tokens\UserTokens\EloquentUsersTokensRepository;
 use App\Repositories\Tokens\UserTokens\UsersTokensRepository;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UsersRepository::class, EloquentUsersRepository::class);
         $this->app->bind(UsersTokensRepository::class, EloquentUsersTokensRepository::class);
         $this->app->bind(RolesRepository::class, EloquentRolesRepository::class);
+        $this->app->bind(ActionsRepository::class, EloquentActionsRepository::class);
+        $this->app->bind(ParametrosRepository::class, EloquentParametrosRepository::class);
     }
 
     /**
@@ -27,6 +34,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Paginator::useBootstrapFive();
     }
 }

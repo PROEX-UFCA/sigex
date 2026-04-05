@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('interesse_acao', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('id_instituicao');
+            $table->foreign('id_instituicao')->references('id')->on('instituicao_externa')->onDelete('cascade');
             $table->uuid('id_acao');
+            $table->foreign('id_acao')->references('id')->on('acao')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

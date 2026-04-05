@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Parametro;
 use App\Models\User;
 use Carbon\Carbon;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -258,5 +259,70 @@ class DatabaseSeeder extends Seeder
             'id_instituicao' => $idInstituicao,
             'id_acao' => $idAcao1,
         ]);
+
+        //////////////////////
+        ///// Parâmetros /////
+        //////////////////////
+
+        $parametros = [
+            "MODALIDADE" => [
+                "AÇÃO DE FLUXO CONTÍNUO",
+                "VINCULADA A EDITAL",
+                "UFCA ITINERANTE",
+                "PROPE",
+                "AMPLA CONCORRÊNCIA",
+            ],
+            "AREA_TEMATICA" => [
+                "COMUNICAÇÃO",
+                "EDUCAÇÃO",
+                "TECNOLOGIA E PRODUÇÃO",
+                "SAÚDE",
+                "TRABALHO",
+                "CULTURA",
+                "MEIO AMBIENTE",
+                "DIREITOS HUMANOS E JUSTIÇA",
+            ],
+            "TIPO" => [
+                "PRESTAÇÃO DE SERVIÇOS",
+                "EVENTO",
+                "CURSO",
+                "PROJETO",
+                "PROGRAMA",
+            ],
+            "PERFIL" => [
+                "Coordenador",
+                "Administrador"
+            ],
+            "CENTRO_DEPARTAMENTO" => [
+                "INSTITUTO INTERDISCIPLINAR DE SOCIEDADE, CULTURA E ARTE",
+                "COORDENADORIA DE GESTÃO DAS AÇÕES",
+                "CENTRO DE CIÊNCIAS E TECNOLOGIA",
+                "CENTRO DE CIÊNCIAS SOCIAIS APLICADAS",
+                "FACULDADE DE MEDICINA",
+                "CENTRO DE CIÊNCIAS AGRÁRIAS E DA BIODIVERSIDADE",
+                "INSTITUTO DE FORMAÇÃO DE EDUCADORES",
+                "PRÓ-REITORIA DE EXTENSÃO",
+                "DIVISÃO DE GESTÃO PEDAGÓGICA",
+                "DIVISÃO DE ADMISSIBILIDADE E SELEÇÃO",
+                "PRÓ-REITORIA DE PLANEJAMENTO E ORÇAMENTO",
+                "COORDENAÇÃO DO CURSO DE MEDICINA",
+                "COORDENADORIA DE QUALIDADE DE VIDA NO TRABALHO",
+                "DIVISÃO DE SAÚDE E NUTRIÇÃO",
+                "DIVISÃO DE SERVIÇO SOCIAL E ARTICULAÇÃO ESTUDANTIL",
+                "COORDENADORIA DE INTEGRAÇÃO, FORTALECIMENTO E ASSESSORAMENTO DAS AÇÕES DE EXTENSÃO",
+                "NÚCLEO DE GESTÃO",
+                "DIRETORIA DO SISTEMA DE BIBLIOTECAS",
+                "DIVISÃO DE SISTEMAS DE INFORMAÇÃO EDUCACIONAIS",
+            ]
+        ];
+
+        foreach($parametros as $key => $parametro){
+            foreach($parametro as $item){
+                Parametro::create([
+                    "function" => $key, 
+                    "value" => $item 
+                ]);
+            }
+        }
     }
 }

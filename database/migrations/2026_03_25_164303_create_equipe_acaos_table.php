@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('equipe_acao', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('id_acao');
+            $table->foreign('id_acao')->references('id')->on('acao')->onDelete('cascade');
             $table->uuid('id_usuario');
+            $table->foreign('id_usuario')->references('uuid')->on('users')->onDelete('cascade');
             $table->string('categoria');
             $table->timestamps();
             $table->softDeletes();

@@ -14,16 +14,17 @@ return new class extends Migration
         Schema::create('acao', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('id_coordenador');
-            $table->string('id_atividade');
-            $table->string('id_projeto');
-            $table->string('titulo');
-            $table->string('centro_departamento');
-            $table->date('data_inicio');
-            $table->date('data_fim');
-            $table->year('ano');
-            $table->string('tipo_acao');
-            $table->string('area_tematica');
-            $table->string('modalidade');
+            $table->foreign('id_coordenador')->references('uuid')->on('users')->onDelete('cascade');
+            $table->string('id_atividade')->nullable();
+            $table->string('id_projeto')->nullable();
+            $table->string('titulo')->nullable();
+            $table->string('centro_departamento')->nullable();
+            $table->date('data_inicio')->nullable();
+            $table->date('data_fim')->nullable();
+            $table->year('ano')->nullable();
+            $table->string('tipo_acao')->nullable();
+            $table->string('area_tematica')->nullable();
+            $table->string('modalidade')->nullable();
             $table->integer('status')->default(1);
             $table->timestamps();
             $table->softDeletes();
