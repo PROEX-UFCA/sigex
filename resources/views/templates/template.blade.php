@@ -84,18 +84,24 @@
                 isActive="{{ request()->routeIs(['home.*']) ? true : false }}" icon="ti-home">
               </x-navbar.navbar-item>
 
+              <x-navbar.navbar-item route="{{ route('actions.my') }}" title="Minhas ações"
+                isActive="{{ request()->routeIs(['actions.my', 'actions.details']) ? true : false }}" icon="ti-clipboard-list">
+              </x-navbar.navbar-item>
+
               <x-navbar.navbar-item route="{{ route('actions.index') }}" title="Ações"
-                isActive="{{ request()->routeIs(['actions.*']) ? true : false }}" icon="ti-list-details">
+                isActive="{{ request()->routeIs(['actions.index', 'actions.create']) ? true : false }}" icon="ti-list-details">
+              </x-navbar.navbar-item>
+
+
+              <x-navbar.navbar-item route="{{ route('users.index') }}" title="Usuários"
+                isActive="{{ request()->routeIs(['users.*']) ? true : false }}" icon="ti-user">
               </x-navbar.navbar-item>
 
               @canany(['adicionar_usuário', 'adicionar_grupo', 'adicionar_permissões'])
                 <x-navbar.navbar-item route="" title="Configurações"
-                  isActive="{{ request()->routeIs(['users.*', 'roles.*', 'permissions.*']) ? true : false }}"
+                  isActive="{{ request()->routeIs(['roles.*', 'permissions.*']) ? true : false }}"
                   icon="ti-settings">
                   <x-slot:links>
-                    @can('adicionar_usuário')
-                      <a class="dropdown-item" href="{{ route('users.index') }}">Usuários</a>
-                    @endcan
                     @can('adicionar_grupo')
                       <a class="dropdown-item" href="{{ route('roles.index') }}">Grupos</a>
                     @endcan

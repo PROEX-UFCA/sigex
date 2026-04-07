@@ -12,6 +12,10 @@ class EloquentUsersRepository implements UsersRepository
         return User::where('email', $email)->first();
     }
 
+    public function getForCoordinator(){
+        return User::whereNull('id_instituicao')->get();
+    }
+
     public function getByUuid($uuid){
         return User::where('uuid', $uuid)->first();
     }

@@ -4,18 +4,12 @@
 @endsection
 @section('content')
 <div class="page-body row">
-  <div class="m-0 p-0 row mb-4">
-    <div class="btn-list col-12 col-md-6 p-0 m-0">
-      <a href="{{route('actions.create')}}" class="btn">Inserir</a>
-      <a href="" class="btn">Importar</a>
-      <bottom class="btn" data-bs-toggle="collapse" data-bs-target="#filtros" aria-expanded="false"
-        aria-controls="collapseExample">Filtros</bottom>
-    </div>
-    <div class="d-flex justify-content-end col-12 col-md-6 p-0 m-0">
-      <x-table.search route="{{ route('actions.index') }}"></x-table.search>
+  <div class="m-0 p-0 mb-4">
+    <div class="d-flex justify-content-end p-0 m-0">
+      <x-table.search route="{{ route('actions.my') }}"></x-table.search>
     </div>
   </div>
-  <div class="collapse m-0 p-0 mb-3" id="filtros">
+  {{-- <div class="collapse m-0 p-0 mb-3" id="filtros">
     <div class="card card-body m-0 p-3">
       <form action="{{ route('actions.index') }}" method="GET" class="row">
         @foreach ($parametros as $key => $parametro)
@@ -65,48 +59,52 @@
         </div>
       </form>
     </div>
-  </div>
+  </div> --}}
   <div class="table-responsive p-0">
     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
       <thead>
         <tr>
           <th class="text-wrap" style="min-width: 400px;">titulo</th>
-          <th>id_atividade</th>
-          <th>id_projeto</th>
-          <th>coordenador</th>
-          <th>centro_departamento</th>
+          {{-- <th>id_atividade</th>
+          <th>id_projeto</th> --}}
+          {{-- <th>coordenador</th> --}}
+          {{-- <th>centro_departamento</th> --}}
           <th>data_inicio</th>
           <th>data_fim</th>
           <th>ano</th>
-          <th>tipo_acao</th>
+          {{-- <th>tipo_acao</th>
           <th>area_tematica</th>
-          <th>modalidade</th>
+          <th>modalidade</th> --}}
           <th>status</th>
+          <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         @foreach ($actions as $item)
         <tr>
-          <td class="text-wrap" style="min-width: 400px;">{{$item->titulo}}</td>
-          <td>{{$item->id_atividade}}</td>
-          <td>{{$item->id_projeto}}</td>
-          <td>{{$item->coordenador->name}}</td>
-          <td>{{$item->centro_departamento}}</td>
-          <td>{{date('d-m-Y', strtotime($item->data_inicio))}}</td>
-          <td>{{date('d-m-Y', strtotime($item->data_fim))}}</td>
-          <td>{{$item->ano}}</td>
-          <td>{{$item->tipo_acao}}</td>
-          <td>{{$item->area_tematica}}</td>
-          <td>{{$item->modalidade}}</td>
-          <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
+          <td class="text-wrap" style="min-width: 400px;">{{$item->action->titulo}}</td>
+          {{-- <td>{{$item->action->id_atividade}}</td>
+          <td>{{$item->action->id_projeto}}</td> --}}
+          {{-- <td>{{$item->action->coordenador->name}}</td> --}}
+          {{-- <td>{{$item->action->centro_departamento}}</td> --}}
+          <td>{{date('d-m-Y', strtotime($item->action->data_inicio))}}</td>
+          <td>{{date('d-m-Y', strtotime($item->action->data_fim))}}</td>
+          <td>{{$item->action->ano}}</td>
+          {{-- <td>{{$item->action->tipo_acao}}</td>
+          <td>{{$item->action->area_tematica}}</td>
+          <td>{{$item->action->modalidade}}</td> --}}
+          <td>{{ $item->action->status == 0 ? 'Inativo' : ($item->action->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
+          <td class="text-center"><a href="{{ route('actions.details', $item->action->id) }}">Detalhar</a></td>
+          <td class="text-center"><a href="">Relatório</a></td>
         </tr>
         @endforeach
       </tbody>
     </table>
   </div>
-  <div class="d-flex justify-content-center mt-5">
+  {{-- <div class="d-flex justify-content-center mt-5">
     {{ $actions->links() }}
-  </div>
+  </div> --}}
 </div>
 @endsection
 @section('scripts')

@@ -3,6 +3,7 @@
 namespace App\Repositories\Settings\User;
 
 interface UsersRepository{
+  public function getForCoordinator();
   public function getByEmail($email); 
   public function getByUuid($uuid); 
   public function getAll(); 

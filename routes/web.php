@@ -55,5 +55,9 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('acoes', [ActionController::class, 'index'])->name('actions.index');
+    Route::get('acoes/adicionar', [ActionController::class, 'create'])->name('actions.create');
+    Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store');
+    Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
+    Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details');
 
 });

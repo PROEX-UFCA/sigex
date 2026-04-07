@@ -3,6 +3,7 @@
 namespace App\Repositories\Actions;
 
 use App\Models\Acao;
+use App\Models\Equipe_Acao;
 
 class EloquentActionsRepository implements ActionsRepository
 {
@@ -42,5 +43,40 @@ class EloquentActionsRepository implements ActionsRepository
         }
 
         return $query->paginate(30);
+    }
+
+    public function create($request)
+    {
+        $acao = Acao::create([
+            'titulo' => $request->titulo,
+            'tipo_acao' => $request->tipo,
+            'modalidade' => $request->modalidade,
+            'centro_departamento' => $request->centro_departamento,
+            'id_coordenador' => $request->id_coordenador,
+            'data_inicio' => $request->data_inicio,
+            'data_fim' => $request->data_fim,
+            'status' => $request->status,
+            'ano' => $request->ano,
+            'id_atividade' => $request->id_atividade,
+            'id_projeto' => $request->id_projeto,
+            'area_tematica' => $request->area_tematica,
+            'centro_departamento' => $request->centro_departamento,
+        ]);
+
+        Equipe_Acao::create([
+            'id_acao' => $acao->id, 
+            'id_usuario' => $request->id_coordenador, 
+            'categoria' => 'Coordenador'
+        ]);
+
+        return $acao;
+    }
+
+    public function getAllByUuid($uuid){
+        return Equipe_Acao::where('id_usuario', $uuid)->orderBy('created_at', 'asc')->get();
+    }
+
+    public function getByUserUuid($user_uuid, $uuid){
+        return Equipe_Acao::where(['id_usuario' => $user_uuid, 'id_acao' => $uuid])->first();
     }
 }
