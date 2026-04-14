@@ -6,7 +6,7 @@ interface UsersRepository{
   public function getForCoordinator();
   public function getByEmail($email); 
   public function getByUuid($uuid); 
-  public function getAll(); 
+  public function getAll(array $filtros = []); 
   public function store($request); 
   public function store_all($request, $password); 
   public function update($uuid, $request); 

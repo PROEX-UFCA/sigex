@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Settings\Users\StoreRequest;
 use App\Http\Requests\Web\Settings\Users\UpdateRequest;
 use App\Jobs\Auth\SendEmailToDoFirstAccess;
+use App\Jobs\Auth\SendEmailToDoFirstAccessOther;
+use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\Roles\RolesRepository;
 use App\Repositories\Settings\User\UsersRepository;
 use App\Repositories\Tokens\UserTokens\UsersTokensRepository;
@@ -19,21 +21,25 @@ class UsersController extends Controller
     private $usersRepository;
     private $rolesRepository;
     private $userTokensRepository;
+    private $parametrosRepository;
 
     public function __construct(
         UsersRepository $usersRepository,
         RolesRepository $rolesRepository,
-        UsersTokensRepository $userTokensRepository
+        UsersTokensRepository $userTokensRepository,
+        ParametrosRepository $parametrosRepository
     ) {
         $this->usersRepository = $usersRepository;
         $this->rolesRepository = $rolesRepository;
         $this->userTokensRepository = $userTokensRepository;
+        $this->parametrosRepository = $parametrosRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
 
-        $this->data['users'] = $this->usersRepository->getAll();
+        $this->data['users'] = $this->usersRepository->getAll($request->query());
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO_DEPARTAMENTO'])->groupBy('function');
         $this->data['roles'] = $this->rolesRepository->getAll();
 
         return view('pages.users.index')->with($this->data);
@@ -63,16 +69,25 @@ class UsersController extends Controller
             }
 
             $this->rolesRepository->set($user, $request->role);
-
             $token = $this->userTokensRepository->store($user, "first_access");
 
-            SendEmailToDoFirstAccess::dispatch(
-                $user,
-                $token->created_at,
-                $token->id,
-                $password,
-                $request->method
-            );
+            if($request->method == "1"){
+                SendEmailToDoFirstAccess::dispatch(
+                    $user,
+                    $token->created_at,
+                    $token->id,
+                    $password
+                );
+            }
+
+            if($request->method == "2"){
+                SendEmailToDoFirstAccessOther::dispatch(
+                    $user,
+                    $token->created_at,
+                    $token->id
+                );
+            }
+            
 
             return redirect()->back()->with("success", "Usuário inserido, peça-o para verificar o email para cadastrar uma senha.");
         } catch (\Throwable $th) {

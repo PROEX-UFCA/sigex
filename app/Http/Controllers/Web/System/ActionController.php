@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Web\System;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\Action\ScheduleRequest;
 use App\Http\Requests\Web\Action\StoreRequest;
+use App\Http\Requests\Web\Action\TeamRequest;
 use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\User\UsersRepository;
@@ -27,14 +29,14 @@ class ActionController extends Controller
     public function index(Request $request){
 
         $this->data['actions'] = $this->actionsRepository->getByFilter($request->query());
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', ''])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA'])->groupBy('function');
 
         return view('pages.actions.index', $this->data);
     }
 
     public function create(){
 
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', ''])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA'])->groupBy('function');
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
 
 
@@ -50,9 +52,27 @@ class ActionController extends Controller
         }
     }
 
-    public function my(){
+    public function storeTeam(TeamRequest $request, $id_acao){
+        try {
+            $this->actionsRepository->createTeam($request, $id_acao);
+            return redirect()->back()->with("success", "Usuário adicionado a ação com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->back()->with("error", "Erro. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
 
-        $this->data['actions'] = $this->actionsRepository->getAllByUuid(Auth::user()->uuid);
+    public function storeSchedule(ScheduleRequest $request, $id_acao){
+        try {
+            $this->actionsRepository->createSchedule($request, $id_acao);
+            return redirect()->back()->with("success", "Evento adicionado a ação com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->back()->with("error", "Erro. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
+
+    public function my(Request $request){
+
+        $this->data['actions'] = $this->actionsRepository->getAllByUuid(Auth::user()->uuid, $request->query());
 
         return view('pages.actions.my', $this->data);
     }
@@ -60,6 +80,8 @@ class ActionController extends Controller
     public function details($uuid){
 
         $this->data['action'] = $this->actionsRepository->getByUserUuid(Auth::user()->uuid, $uuid)->action;
+        $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
+        $this->data['categorias'] = $this->parametrosRepository->getAllActiveByFunctions(['CETAGORIA_COORDENADOR']);
 
         return view('pages.actions.details', $this->data);
     }

@@ -3,6 +3,7 @@
 namespace App\Repositories\Actions;
 
 use App\Models\Acao;
+use App\Models\Agenda_Acao;
 use App\Models\Equipe_Acao;
 
 class EloquentActionsRepository implements ActionsRepository
@@ -66,14 +67,48 @@ class EloquentActionsRepository implements ActionsRepository
         Equipe_Acao::create([
             'id_acao' => $acao->id, 
             'id_usuario' => $request->id_coordenador, 
-            'categoria' => 'Coordenador'
+            'categoria' => 'Coordenador Geral'
         ]);
 
         return $acao;
     }
 
-    public function getAllByUuid($uuid){
-        return Equipe_Acao::where('id_usuario', $uuid)->orderBy('created_at', 'asc')->get();
+    public function createTeam($request, $id_acao)
+    {
+        Equipe_Acao::create([
+            'id_acao' =>  $id_acao, 
+            'id_usuario' => $request->id_usuario, 
+            'categoria' => $request->categoria
+        ]);
+    }
+
+    public function createSchedule($request, $id_acao)
+    {
+        Agenda_Acao::create([
+            'id_acao' =>  $id_acao,  
+            'titulo_evento' => $request->titulo, 
+            'data_hora_inicio' => $request->data_hora_inicio, 
+            'data_hora_fim' => $request->data_hora_fim, 
+            'local_formato' => $request->local_formato, 
+            'descricao' => $request->descricao
+        ]);
+    }
+
+    public function getAllByUuid($uuid, array $filtros = [])
+    {
+        return Equipe_Acao::with('action')
+            ->where('id_usuario', $uuid)
+            ->when($filtros['search'] ?? null, function ($query, $search) {
+                $query->whereHas('action', function ($subQuery) use ($search) {
+                    $subQuery->where(function ($q) use ($search) {
+                        $q->where('titulo', 'like', "%{$search}%")
+                            ->orWhere('data_inicio', 'like', "%{$search}%")
+                            ->orWhere('data_fim', 'like', "%{$search}%")
+                            ->orWhere('ano', 'like', "%{$search}%")
+                            ->orWhere('status', 'like', "%{$search}%");
+                    });
+                });
+            })->orderBy('created_at', 'asc')->get();
     }
 
     public function getByUserUuid($user_uuid, $uuid){

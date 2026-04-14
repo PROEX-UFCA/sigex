@@ -33,7 +33,7 @@
   </div>
   <div class="collapse m-0 p-0 mb-3" id="filtros">
     <div class="card card-body m-0 p-3">
-      {{-- <form action="{{ route('actions.index') }}" method="GET" class="row">
+      <form action="{{ route('users.index') }}" method="GET" class="row">
         @foreach ($parametros as $key => $parametro)
         <x-form-elements.select.select title="{{ ucfirst(strtolower($key)) }}" id="{{ strtolower($key) }}"
           name="{{ strtolower($key) }}" class="col-12 col-md-4 col-lg-3">
@@ -59,27 +59,25 @@
           </x-slot:options>
         </x-form-elements.select.select>
 
-        @include('components.form-elements.input.input', [
-        'title' => 'Ano',
-        'type' => 'number',
-        'class' => 'mb-3 col-12 col-md-4 col-lg-3',
-        'name' => 'ano',
-        'required' => 'false',
-        'placeholder' => 'Ano',
-        'value' => request('ano')
-        ])
+        <x-form-elements.select.select title="Instituições" id="instituicao" name="instituicao" class="col-12 col-md-4 col-lg-3">
+          <x-slot:options>
+            <option value="" disabled {{ request('instituicao') === null ? 'selected' : '' }}>Selecione</option>
+            <option value="false" {{ request('instituicao') == 'false' ? 'selected' : '' }}>Não</option>
+            <option value="true" {{ request('instituicao') == 'true' ? 'selected' : '' }}>Sim</option>
+          </x-slot:options>
+        </x-form-elements.select.select>
 
         <div class="col-12 col-md-4 col-lg-3">
           <label class="form-label d-block">&nbsp;</label>
           <div class="d-flex gap-2">
             <button class="btn btn-green w-100" type="submit">Filtrar</button>
 
-            <a href="{{ route('actions.index') }}" class="btn btn-outline-secondary w-100">
+            <a href="{{ route('users.index') }}" class="btn btn-outline-secondary w-100">
               Limpar
             </a>
           </div>
         </div>
-      </form> --}}
+      </form>
     </div>
   </div>
   <div class="table-responsive p-0">
@@ -90,10 +88,12 @@
           <th>Email</th>
           <th>Instituição?</th>
           <th>Cpf</th>
+          <th>Telefone</th>
           <th>centro_departamento</th>
           <th>matricula_siape</th>
           <th>Grupo</th>
           <th>Status</th>
+          <th width="5%"></th>
           <th width="5%"></th>
         </tr>
       </thead>
@@ -104,10 +104,14 @@
           <td>{{$user->email}}</td>
           <td>{{ $user->id_instituicao == null ? 'Não' : 'Sim' }}</td>
           <td>{{ $user->cpf ?? "-" }}</td>
+          <td>{{ $user->phone ?? "-" }}</td>
           <td>{{ $user->centro_departamento ?? "-" }}</td>
           <td>{{ $user->matricula_siape ?? "-" }}</td>
           <td>{{ $user->roles->first()->name ?? "-" }}</td>
-          <td>{{ $user->status == 0 ? 'Inativo' : 'Finalizado' }}</td>
+          <td>{{ $user->status == 0 ? 'Inativo' : 'Ativo' }}</td>
+          <td>
+            <a href="">Editar</a>
+          </td>
           <td>
             <a href="">Detalhar</a>
           </td>

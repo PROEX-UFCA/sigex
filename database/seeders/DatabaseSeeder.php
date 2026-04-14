@@ -313,6 +313,12 @@ class DatabaseSeeder extends Seeder
                 "NÚCLEO DE GESTÃO",
                 "DIRETORIA DO SISTEMA DE BIBLIOTECAS",
                 "DIVISÃO DE SISTEMAS DE INFORMAÇÃO EDUCACIONAIS",
+            ],
+            "CETAGORIA_COORDENADOR" => [
+                "Coordenador Geral",
+                "Coordenador Secundário",
+                "Bolsista",
+                "Voluntário",
             ]
         ];
 

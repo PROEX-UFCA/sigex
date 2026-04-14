@@ -17,4 +17,8 @@ class Equipe_Acao extends Model
     public function action() :HasOne{
         return $this->hasOne(Acao::class, 'id', 'id_acao');
     }
+
+    public function user() :HasOne{
+        return $this->hasOne(User::class, 'uuid', 'id_usuario');
+    }
 }

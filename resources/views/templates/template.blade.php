@@ -33,14 +33,14 @@
 <body>
   <script src="{{ asset('assets/js/demo-theme.min.js?1684106062') }}"></script>
   <div class="page">
-    <header class="navbar navbar-expand-md d-print-none">
+    <header class="navbar navbar-expand-md d-print-none" style="background: #48362f">
       <div class="container-xl">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu"
           aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <h1 class="navbar-brand text-blue navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-          <a href="/dashboard" class="text-decoration-none">
+          <a href="/dashboard" class="text-decoration-none text-light">
             Proex
           </a>
         </h1>
@@ -55,15 +55,15 @@
               <i class="ti ti-sun icon"></i>
             </a>
           </div> --}}
-          <div class="nav-item dropdown">
+          <div class="nav-item dropdown text-light">
             <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
               aria-label="Open user menu">
-              <span class="avatar avatar-sm">
+              {{-- <span class="avatar avatar-sm">
                 <i class="ti ti-user icon"></i>
-              </span>
+              </span> --}}
               <div class="d-none d-xl-block ps-2">
                 <div>{{ Auth::user()->name }}</div>
-                <div class="mt-1 fs-6 text-muted">{{ ucfirst(Auth::user()->roles->first()->name) }}</div>
+                <div class="mt-1 fs-6 ">{{ ucfirst(Auth::user()->roles->first()->name) }}</div>
               </div>
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
@@ -97,27 +97,19 @@
                 isActive="{{ request()->routeIs(['users.*']) ? true : false }}" icon="ti-user">
               </x-navbar.navbar-item>
 
-              @canany(['adicionar_usuário', 'adicionar_grupo', 'adicionar_permissões'])
-                <x-navbar.navbar-item route="" title="Configurações"
-                  isActive="{{ request()->routeIs(['roles.*', 'permissions.*']) ? true : false }}"
-                  icon="ti-settings">
+              @canany(['adicionar_grupo', 'adicionar_permissões', 'ver_todos_os_logs', 'ver_seus_logs'])
+                <x-navbar.navbar-item route="" title="Dev Tools"
+                  isActive="{{ request()->routeIs(['roles.*', 'permissions.*', 'logs.*']) ? true : false }}"
+                  icon="ti-tools">
                   <x-slot:links>
                     @can('adicionar_grupo')
-                      <a class="dropdown-item" href="{{ route('roles.index') }}">Grupos</a>
+                      <a class="dropdown-item" href="{{ route('roles.index') }}">Grupos de permissões</a>
                     @endcan
-                  </x-slot:links>
-                </x-navbar.navbar-item>
-              @endcanany
-
-              @canany(['ver_todos_os_logs', 'ver_seus_logs'])
-                <x-navbar.navbar-item route="" title="Ferramentas"
-                  isActive="{{ request()->routeIs(['logs.*']) ? true : false }}" icon="ti-tools">
-                  <x-slot:links>
                     @can('ver_todos_os_logs')
-                      <a class="dropdown-item" href="{{ route('logs.index') }}">Logs</a>
+                      <a class="dropdown-item" href="{{ route('logs.index') }}">Registros de Logs</a>
                     @endcan
                     @can('ver_seus_logs')
-                      <a class="dropdown-item" href="{{ route('logs.user') }}">Registros de atividade</a>
+                      <a class="dropdown-item" href="{{ route('logs.user') }}">Sua atividade</a>
                     @endcan
                   </x-slot:links>
                 </x-navbar.navbar-item>

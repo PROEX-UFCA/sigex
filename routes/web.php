@@ -59,5 +59,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store');
     Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
     Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details');
+    Route::post('acoes/equipe/{uuid}', [ActionController::class, 'storeTeam'])->name('actions.storeTeam');
+    Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule');
 
 });

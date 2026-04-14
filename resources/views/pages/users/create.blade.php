@@ -26,7 +26,7 @@
   <div class="page-body">
     <form action="{{ route('users.store') }}" method="POST" class="row">
       @csrf
-      <div class="col-3">
+      <div class="col-12 col-md-3">
         <div class="card">
           <div class="card-body">
             <x-form-elements.select.select title="Método de inserção" id="method" name="method">
@@ -43,7 +43,7 @@
           </div>
         </div>
       </div>
-      <div class="col-9">
+      <div class="col-12 col-md-9">
         <div class="card">
           <div class="card-body">
             @include('components.form-elements.input.input', [

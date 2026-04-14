@@ -1,4 +1,6 @@
-### ER das prmeiras tabelas
+## Diagrama de Banco de Dados (ER)
+
+Abaixo está o modelo Entidade-Relacionamento das tabelas da primeira parte do sistema, ilustrando como usuários, ações e instituições se conectam.
 
 ```mermaid
 erDiagram
@@ -36,6 +38,7 @@ erDiagram
         string tipo_acao "Ex: Curso, Evento"
         string area_tematica "Ex: Educação, Saúde"
         string modalidade "Ex: Prope, Ampla Concorrência"
+        string img
         boolean status
     }
 
@@ -84,4 +87,28 @@ erDiagram
         string status "Ex: PENDENTE, EM_NEGOCIACAO, APROVADO, RECUSADO"
         string mensagem_observacao "Texto enviado pela instituição ao demonstrar interesse"
     }
+```
+
+---
+
+## Referência da API
+
+### Listar Ações
+Retorna todas as ações cadastradas no sistema com paginação.
+
+```http
+GET /api/acoes
+```
+
+### Filtrar Ações
+Você pode passar parâmetros na URL (Query Params) para filtrar os resultados. Ideal para barras de pesquisa e filtros no front-end.
+
+**Filtro Simples (Ex: por área temática)**
+```http
+GET /api/acoes?area_tematica=trabalho
+```
+
+**Filtros Combinados**
+```http
+GET /api/acoes?area_tematica=comunicacao&titulo=teste&modalidade=teste&centro_departamento=teste
 ```

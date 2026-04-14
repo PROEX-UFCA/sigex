@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('area_tematica')->nullable();
             $table->string('modalidade')->nullable();
             $table->integer('status')->default(1);
+            $table->text('img')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

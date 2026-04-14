@@ -20,8 +20,41 @@ class EloquentUsersRepository implements UsersRepository
         return User::where('uuid', $uuid)->first();
     }
 
-    public function getAll(){
-        return User::get();
+    public function getAll(array $filtros = [])
+    {
+        $query = User::query();
+
+        $query->when($filtros['search'] ?? null, function ($q, $search) {
+            $q->where(function ($subQuery) use ($search) {
+                $subQuery->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhere('centro_departamento', 'like', "%{$search}%")
+                    ->orWhere('matricula_siape', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        });
+
+        $camposFiltro = [
+            'centro_departamento', 'status'
+        ];
+
+        foreach ($camposFiltro as $campo) {
+            $query->when($filtros[$campo] ?? null, function ($q, $valor) use ($campo) {
+                $q->where($campo, $valor); 
+            });
+        }
+
+        if(isset($filtros['instituicao'])){
+            if($filtros['instituicao'] == 'true'){
+                $query->whereNotNull('id_instituicao');
+            }
+            if($filtros['instituicao'] == 'false'){
+                $query->whereNull('id_instituicao');
+            }
+        }
+
+        return $query->paginate(30);
     }
 
     public function store($request){

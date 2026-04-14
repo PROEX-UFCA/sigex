@@ -82,6 +82,7 @@
           <th>area_tematica</th>
           <th>modalidade</th>
           <th>status</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -99,6 +100,7 @@
           <td>{{$item->area_tematica}}</td>
           <td>{{$item->modalidade}}</td>
           <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
+          <td><a href="">Editar</a></td>
         </tr>
         @endforeach
       </tbody>

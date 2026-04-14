@@ -2,15 +2,13 @@
 
 namespace App\Jobs\Auth;
 
-use App\Mail\Auth\EmailToDoFirstAccess;
-use App\Mail\Auth\EmailToDoFirstAccessInvite;
-use App\Mail\Auth\EmailToDoFirstAccessManual;
-use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use App\Mail\Auth\EmailToDoFirstAccessInvite;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
-class SendEmailToDoFirstAccess implements ShouldQueue
+class SendEmailToDoFirstAccessOther implements ShouldQueue
 {
     use Queueable;
 
@@ -20,8 +18,7 @@ class SendEmailToDoFirstAccess implements ShouldQueue
     public function __construct(
         public readonly User $user,
         public readonly string $time,
-        public readonly string $token,
-        public readonly string $password
+        public readonly string $token
     )
     {
         //
@@ -32,13 +29,13 @@ class SendEmailToDoFirstAccess implements ShouldQueue
      */
     public function handle(): void
     {
-        $email = new EmailToDoFirstAccessManual(
+        $email = new EmailToDoFirstAccessInvite(
             $this->user->name,
             $this->user->email,
             $this->time,
-            $this->token,
-            $this->password
+            $this->token
         );
+
         Mail::to($this->user)->send($email);
     }
 }
