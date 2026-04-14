@@ -126,6 +126,7 @@
       <div class="card-body">
         <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
           <h3 class="m-0">Equipe da ação</h3>
+          @can('adicionar_equipe')
           <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-equipe"
             aria-controls="offcanvasExample">
             Inserir
@@ -158,6 +159,7 @@
               </x-form-elements.select.select>
             </x-slot:content>
           </x-modal.offcanvas>
+          @endcan
         </div>
         <div class="table-responsive p-0 mb-5">
           <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
@@ -191,6 +193,7 @@
       <div class="card-body">
         <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
           <h3 class="m-0">Agenda da ação</h3>
+          @can('adicionar_agenda')
           <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-agenda"
             aria-controls="offcanvasExample">
             Inserir
@@ -244,6 +247,7 @@
               ])
             </x-slot:content>
           </x-modal.offcanvas>
+          @endcan
         </div>
         <div class="table-responsive p-0 mb-3">
           <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">

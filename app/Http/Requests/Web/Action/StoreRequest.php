@@ -65,9 +65,9 @@ class StoreRequest extends FormRequest
             'area_tematica.string' => 'A área temática deve ser um texto.',
             'area_tematica.exists' => 'A área temática deve existir na nossa base de dados.',
 
-            'ceentro_departamento.required' => 'O curso é obrigatório.',
-            'ceentro_departamento.uuid' => 'O curso deve ser um UUID válido.',
-            'ceentro_departamento.exists' => 'O curso selecionado não existe.',
+            'centro_departamento.required' => 'O centro é obrigatório.',
+            'centro_departamento.uuid' => 'O centro deve ser um UUID válido.',
+            'centro_departamento.exists' => 'O centro selecionado não existe.',
 
             'id_coordenador.required' => 'O professor é obrigatório.',
             'id_coordenador.uuid' => 'O professor deve ser um UUID válido.',

@@ -95,8 +95,14 @@
           <td>{{$item->action->area_tematica}}</td>
           <td>{{$item->action->modalidade}}</td> --}}
           <td>{{ $item->action->status == 0 ? 'Inativo' : ($item->action->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
-          <td class="text-center"><a href="{{ route('actions.details', $item->action->id) }}">Detalhar</a></td>
-          <td class="text-center"><a href="">Relatório</a></td>
+          <td class="text-center">
+            @can('detalhar_ação')
+            <a href="{{ route('actions.details', $item->action->id) }}">Detalhar</a>
+            @endcan
+          </td>
+          <td class="text-center">
+            <a href="">Relatório</a>
+          </td>
         </tr>
         @endforeach
       </tbody>

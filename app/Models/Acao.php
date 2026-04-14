@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Acao extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes, LogsActivity;
 
     protected $table = 'acao';
 
@@ -26,5 +28,14 @@ class Acao extends Model
 
     public function agenda() : HasMany {
         return $this->hasMany(Agenda_Acao::class, 'id_acao', 'id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['id_coordenador', 'id_atividade', 'id_projeto', 'titulo', 'centro_departamento', 'data_inicio', 'data_fim', 'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'status', 'img'])
+            ->useLogName('acao')
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -47,6 +48,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function instituicao() : HasOne
+    {
+        return $this->hasOne(Instituicao_Externa::class, 'id', 'id_instituicao');
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -74,9 +80,14 @@ class User extends Authenticatable
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'email', 'password', 'uuid', 'status', 'id_instituicao', 'cpf', 'centro_departamento', 'matricula_siape', 'perfil_ativo', 'phone',])
+            ->logOnly(['name', 'email', 'uuid', 'status', 'id_instituicao', 'cpf', 'centro_departamento', 'matricula_siape', 'perfil_ativo', 'phone'])
             ->useLogName('users')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
+    // public function getActivitylogSubjectId()
+    // {
+    //     return $this->id; // força a usar o ID como subject_id
+    // }
 }

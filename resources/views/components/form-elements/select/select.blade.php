@@ -3,7 +3,7 @@
         for="{{ isset($id) ? $id : '' }}">{{ $title }}</label>
     <select class="form-select" {{ isset($multiple) && $multiple=='true' ? 'multiple' : '' }}
         id="{{ isset($id) ? $id : '' }}" name="{{ isset($name) ? $name : '' }}" {{ isset($required) && $required=='true'
-        ? $required : '' }}>
+        ? 'required' : '' }}>
         {{$options}}
     </select>
 </div>

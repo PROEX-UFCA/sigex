@@ -32,18 +32,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('perfil', [ProfileController::class, 'index'])->name('profile.index');
     Route::post('perfil', [ProfileController::class, 'update'])->name('profile.store');
     
-    Route::group(['middleware' => ['auth', 'permission:adicionar_grupo']], function () {
+    Route::group(['middleware' => ['auth', 'permission:adicionar_e_editar_grupo']], function () {
         Route::get('gupos', [RolesController::class, 'index'])->name('roles.index');
         Route::post('grupos/adicionar', [RolesController::class, 'store'])->name('roles.store');
         Route::post('grupos/atualizar/{id}', [RolesController::class, 'update'])->name('roles.update');
     });
 
-    Route::group(['middleware' => ['auth', 'permission:adicionar_usuário']], function () {
+    Route::group(['middleware' => ['auth', 'permission:ver_usuários']], function () {
         Route::get('usuarios', [UsersController::class, 'index'])->name('users.index');
-        Route::get('usuarios/adicionar', [UsersController::class, 'create'])->name('users.create');
-        Route::post('usuarios/adicionar', [UsersController::class, 'store'])->name('users.store');
-        Route::post('usuarios/atualizar/{id}', [UsersController::class, 'update'])->name('users.update');
-        Route::delete('usuarios/deletar/{id}', [UsersController::class, 'destroy'])->name('users.destroy');
+        Route::get('usuarios/adicionar', [UsersController::class, 'create'])->name('users.create')->middleware(['auth' => 'permission:adicionar_usuário']);
+        Route::post('usuarios/adicionar', [UsersController::class, 'store'])->name('users.store')->middleware(['auth' => 'permission:adicionar_usuário']);
+        Route::post('usuarios/atualizar/{id}', [UsersController::class, 'update'])->name('users.update')->middleware(['auth' => 'permission:editar_usuário']);
+        Route::delete('usuarios/deletar/{id}', [UsersController::class, 'destroy'])->name('users.destroy')->middleware(['auth' => 'permission:detalhar_usuário']);
     });
 
     Route::group(['middleware' => ['auth', 'permission:ver_todos_os_logs']], function () {
@@ -53,13 +53,23 @@ Route::middleware(['auth'])->group(function () {
     Route::group(['middleware' => ['auth', 'permission:ver_seus_logs']], function () {
         Route::get('usuarios/atividade', [LogsController::class, 'getUserLogs'])->name('logs.user');
     });
-
-    Route::get('acoes', [ActionController::class, 'index'])->name('actions.index');
-    Route::get('acoes/adicionar', [ActionController::class, 'create'])->name('actions.create');
-    Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store');
-    Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
-    Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details');
-    Route::post('acoes/equipe/{uuid}', [ActionController::class, 'storeTeam'])->name('actions.storeTeam');
-    Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule');
+    
+    Route::group(['middleware' => ['auth', 'permission:ver_todas_as_ações']], function () {
+        Route::get('acoes', [ActionController::class, 'index'])->name('actions.index');
+        Route::get('acoes/adicionar', [ActionController::class, 'create'])->name('actions.create')->middleware(['auth' => 'permission:adicionar_ação']);
+        Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);    
+        // "importar_ações"
+        // "editar_ação"
+    });
+        
+    Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {
+        Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
+        Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details')->middleware(['auth' => 'permission:detalhar_ação']);;
+        Route::post('acoes/equipe/{uuid}', [ActionController::class, 'storeTeam'])->name('actions.storeTeam')->middleware(['auth' => 'permission:adicionar_equipe']);;
+        Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);;
+        // "remover_equipe"
+        // "editar_agenda"
+        // "remover_agenda"
+    });
 
 });

@@ -57,7 +57,7 @@
 
       @foreach ($parametros as $key => $parametro)
       <x-form-elements.select.select title="{{ ucfirst(strtolower($key)) }}" id="{{ strtolower($key) }}"
-        name="{{ strtolower($key) }}" class="col-12 col-md-4 col-lg-3">
+        name="{{ strtolower($key) }}" class="col-12 col-md-4 col-lg-3" required="true">
 
         <x-slot:options>
           <option value="" disabled {{ old(strtolower($key))=='' ? 'selected' : '' }}>Selecione</option>
@@ -71,7 +71,7 @@
       </x-form-elements.select.select>
       @endforeach
 
-      <x-form-elements.select.select title="Status" id="status" name="status" class="col-12 col-md-4 col-lg-3">
+      <x-form-elements.select.select title="Status" id="status" name="status" class="col-12 col-md-4 col-lg-3" required="true">
         <x-slot:options>
           <option value="" disabled {{ request('status')===null ? 'selected' : '' }}>Selecione</option>
           <option value="0" {{ old('status')==='00' ? 'selected' : '' }}>Inativo</option>
@@ -85,7 +85,7 @@
       'type' => 'number',
       'class' => 'mb-3 col-12 col-md-4 col-lg-3',
       'name' => 'ano',
-      'required' => 'false',
+      'required' => 'true',
       'placeholder' => 'Ano',
       'value' => old('ano')
       ])

@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Equipe_Acao extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes, LogsActivity;
 
     protected $table = "equipe_acao";
     protected $fillable = ['id_acao', 'id_usuario', 'categoria'];
@@ -20,5 +22,14 @@ class Equipe_Acao extends Model
 
     public function user() :HasOne{
         return $this->hasOne(User::class, 'uuid', 'id_usuario');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['id_acao', 'id_usuario', 'categoria'])
+            ->useLogName('equipe_acao')
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

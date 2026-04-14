@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Web\Action;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TeamRequest extends FormRequest
 {
@@ -23,7 +24,14 @@ class TeamRequest extends FormRequest
     {
 
         return [
-            'id_usuario' => 'required|uuid|exists:users,uuid|unique:equipe_acao,id_usuario',
+            'id_usuario' => [
+            'required',
+            'uuid',
+            'exists:users,uuid',
+                Rule::unique('equipe_acao', 'id_usuario')->where(function ($query) {
+                    return $query->where('id_acao', $this->route('uuid'));
+                })
+            ],
             'categoria' => 'required|string|exists:parametro,value',
         ];
     }

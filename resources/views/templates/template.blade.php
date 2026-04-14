@@ -84,35 +84,42 @@
                 isActive="{{ request()->routeIs(['home.*']) ? true : false }}" icon="ti-home">
               </x-navbar.navbar-item>
 
+              @can('ver_suas_ações')
               <x-navbar.navbar-item route="{{ route('actions.my') }}" title="Minhas ações"
-                isActive="{{ request()->routeIs(['actions.my', 'actions.details']) ? true : false }}" icon="ti-clipboard-list">
+                isActive="{{ request()->routeIs(['actions.my', 'actions.details']) ? true : false }}"
+                icon="ti-clipboard-list">
               </x-navbar.navbar-item>
+              @endcan
 
+              @can('ver_todas_as_ações')
               <x-navbar.navbar-item route="{{ route('actions.index') }}" title="Ações"
-                isActive="{{ request()->routeIs(['actions.index', 'actions.create']) ? true : false }}" icon="ti-list-details">
-              </x-navbar.navbar-item>
+                isActive="{{ request()->routeIs(['actions.index', 'actions.create']) ? true : false }}"
+                icon="ti-list-details">
+              </x-navbar.navbar-item>    
+              @endcan
 
-
+              @can('ver_usuários')
               <x-navbar.navbar-item route="{{ route('users.index') }}" title="Usuários"
                 isActive="{{ request()->routeIs(['users.*']) ? true : false }}" icon="ti-user">
               </x-navbar.navbar-item>
+              @endcan
 
-              @canany(['adicionar_grupo', 'adicionar_permissões', 'ver_todos_os_logs', 'ver_seus_logs'])
-                <x-navbar.navbar-item route="" title="Dev Tools"
-                  isActive="{{ request()->routeIs(['roles.*', 'permissions.*', 'logs.*']) ? true : false }}"
-                  icon="ti-tools">
-                  <x-slot:links>
-                    @can('adicionar_grupo')
-                      <a class="dropdown-item" href="{{ route('roles.index') }}">Grupos de permissões</a>
-                    @endcan
-                    @can('ver_todos_os_logs')
-                      <a class="dropdown-item" href="{{ route('logs.index') }}">Registros de Logs</a>
-                    @endcan
-                    @can('ver_seus_logs')
-                      <a class="dropdown-item" href="{{ route('logs.user') }}">Sua atividade</a>
-                    @endcan
-                  </x-slot:links>
-                </x-navbar.navbar-item>
+              @canany(['adicionar_e_editar_grupo', 'ver_todos_os_logs', 'ver_seus_logs'])
+              <x-navbar.navbar-item route="" title="Dev Tools"
+                isActive="{{ request()->routeIs(['roles.*', 'permissions.*', 'logs.*']) ? true : false }}"
+                icon="ti-tools">
+                <x-slot:links>
+                  @can('adicionar_e_editar_grupo')
+                  <a class="dropdown-item" href="{{ route('roles.index') }}">Grupos de permissões</a>
+                  @endcan
+                  @can('ver_todos_os_logs')
+                  <a class="dropdown-item" href="{{ route('logs.index') }}">Registros de Logs</a>
+                  @endcan
+                  @can('ver_seus_logs')
+                  <a class="dropdown-item" href="{{ route('logs.user') }}">Sua atividade</a>
+                  @endcan
+                </x-slot:links>
+              </x-navbar.navbar-item>
               @endcanany
             </ul>
           </div>
@@ -130,14 +137,14 @@
           <div class="row text-center align-items-center flex-row-reverse">
             <div class="col-lg-auto ms-lg-auto">
               <ul class="list-inline list-inline-dots mb-0">
-                <li class="list-inline-item"><a href="" target="_blank" class="link-secondary"
-                    rel="noopener">Suport</a></li>
+                <li class="list-inline-item"><a href="" target="_blank" class="link-secondary" rel="noopener">Suport</a>
+                </li>
               </ul>
             </div>
             <div class="col-12 col-lg-auto mt-3 mt-lg-0">
               <ul class="list-inline list-inline-dots mb-0">
                 <li class="list-inline-item">
-                  <a href="." class="link-secondary">Otavio</a>&copy; 2025.
+                  <a href="." class="link-secondary">Proex</a>&copy; 2026.
                   All rights reserved.
                 </li>
                 <li class="list-inline-item">

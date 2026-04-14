@@ -6,8 +6,12 @@
 <div class="page-body row">
   <div class="m-0 p-0 row mb-4">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
+      @can('adicionar_ação')
       <a href="{{route('actions.create')}}" class="btn">Inserir</a>
+      @endcan
+      @can('importar_ações')
       <a href="" class="btn">Importar</a>
+      @endcan
       <bottom class="btn" data-bs-toggle="collapse" data-bs-target="#filtros" aria-expanded="false"
         aria-controls="collapseExample">Filtros</bottom>
     </div>
@@ -100,7 +104,10 @@
           <td>{{$item->area_tematica}}</td>
           <td>{{$item->modalidade}}</td>
           <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
-          <td><a href="">Editar</a></td>
+          <td>
+            @can('editar_ação')
+            <a href="">Editar</a></td>
+            @endcan
         </tr>
         @endforeach
       </tbody>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Settings\Profile\UpdateRequest;
+use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\User\UsersRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,16 +13,19 @@ class ProfileController extends Controller
 {
     private $data = [];
     private $usersRepository;
+    private $parametrosRepository;
 
     public function __construct(
         UsersRepository $usersRepository,
+        ParametrosRepository $parametrosRepository
     ) {
         $this->usersRepository = $usersRepository;
+        $this->parametrosRepository = $parametrosRepository;
     }
 
     public function index()
     {
-
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO_DEPARTAMENTO'])->groupBy('function');
         $this->data['user'] = Auth::user();
 
         return view('pages.profile.index', $this->data);

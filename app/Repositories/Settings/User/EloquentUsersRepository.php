@@ -94,14 +94,18 @@ class EloquentUsersRepository implements UsersRepository
         if ($request->filled('cpf')) {
             $user->cpf = $request->cpf;
         }
-
-        if ($request->filled('birth')) {
-            $user->birth = $request->birth;
-        }
-
+        
         if ($request->filled('phone')) {
             $user->phone = $request->phone;
         }        
+            
+        if ($request->filled('centro_departamento')) {
+            $user->centro_departamento = $request->centro_departamento;
+        }
+
+        if ($request->filled('matricula_siape')) {
+            $user->matricula_siape = $request->matricula_siape;
+        }
 
         $user->save();
 

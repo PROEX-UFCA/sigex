@@ -30,27 +30,124 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $permissions = [
-            "1" => "adicionar_grupo",
-            "2" => "adicionar_usuário",
-            "3" => "ver_dashboard",
-            "4" => "ver_todos_os_logs",
-            "5" => "ver_seus_logs",
+            "adicionar_e_editar_grupo",
+            "ver_todos_os_logs",
+            "ver_seus_logs",
+
+            "ver_usuários",
+            "adicionar_usuário",
+            "editar_usuário",
+            "detalhar_usuário",
+
+            "ver_todas_as_ações",
+            "adicionar_ação",
+            "importar_ações",
+            "editar_ação",
+            "ver_suas_ações",
+            "detalhar_ação",
+            "adicionar_equipe",
+            "remover_equipe",
+            "adicionar_agenda",
+            "editar_agenda",
+            "remover_agenda",
+
+            "ver_dashboard",
         ];
 
-        $role = Role::create([
-            'name' => 'Desenvolvimento',
-            'guard_name' => 'web',
-        ]);
+        $roles = [
+            [
+                "role" => "Desenvolvimento",
+                "permissions" => [
+                    "adicionar_e_editar_grupo",
+                    "ver_todos_os_logs",
+                    "ver_seus_logs",
+
+                    "ver_usuários",
+                    "adicionar_usuário",
+                    "editar_usuário",
+                    "detalhar_usuário",
+
+                    "ver_todas_as_ações",
+                    "adicionar_ação",
+                    "importar_ações",
+                    "editar_ação",
+                    "ver_suas_ações",
+                    "detalhar_ação",
+                    "adicionar_equipe",
+                    "remover_equipe",
+                    "adicionar_agenda",
+                    "editar_agenda",
+                    "remover_agenda",
+
+                    "ver_dashboard",
+                ]
+            ],
+            [
+                "role" => "Administrador",
+                "permissions" => [
+                    "ver_usuários",
+                    "adicionar_usuário",
+                    "editar_usuário",
+                    "detalhar_usuário",
+
+                    "ver_todas_as_ações",
+                    "adicionar_ação",
+                    "importar_ações",
+                    "editar_ação",
+                    "ver_suas_ações",
+                    "detalhar_ação",
+                    "adicionar_equipe",
+                    "remover_equipe",
+                    "adicionar_agenda",
+                    "editar_agenda",
+                    "remover_agenda",
+
+                    "ver_dashboard",
+                ]
+            ],
+            [
+                "role" => "Coordenador",
+                "permissions" => [
+                    "ver_suas_ações",
+                    "detalhar_ação",
+                    "adicionar_equipe",
+                    "remover_equipe",
+                    "adicionar_agenda",
+                    "editar_agenda",
+                    "remover_agenda",
+                ]
+            ],
+            [
+                "role" => "Aluno",
+                "permissions" => []
+            ],
+            [
+                "role" => "Instituição",
+                "permissions" => []
+            ],
+        ];
 
         foreach ($permissions as $permission) {
             Permission::create([
                 'name' => $permission,
                 'guard_name' => 'web'
             ]);
-            $role->givePermissionTo($permission);
         }
 
-        $user->assignRole($role);
+        foreach ($roles as $key => $role) {
+            $role_portal = Role::create([
+                'name' => $role['role'],
+                'guard_name' => 'web',
+            ]);
+
+            foreach ($role as $value) {
+                $role_portal->givePermissionTo($roles[$key]['permissions']);
+            }
+
+            if($key == 0){
+                $user->assignRole($role_portal);
+            }
+        }
 
         //////////////////////////////
         ////// TUPLAS DE TESTES //////

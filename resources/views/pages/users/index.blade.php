@@ -23,7 +23,9 @@
 <div class="page-body">
   <div class="m-0 p-0 row mb-4">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
+      @can('adicionar_usuário')
       <a href="{{ route('users.create') }}" class="btn">Inserir</a>
+      @endcan
       <bottom class="btn" data-bs-toggle="collapse" data-bs-target="#filtros" aria-expanded="false"
         aria-controls="collapseExample">Filtros</bottom>
     </div>
@@ -59,11 +61,12 @@
           </x-slot:options>
         </x-form-elements.select.select>
 
-        <x-form-elements.select.select title="Instituições" id="instituicao" name="instituicao" class="col-12 col-md-4 col-lg-3">
+        <x-form-elements.select.select title="Instituições" id="instituicao" name="instituicao"
+          class="col-12 col-md-4 col-lg-3">
           <x-slot:options>
-            <option value="" disabled {{ request('instituicao') === null ? 'selected' : '' }}>Selecione</option>
-            <option value="false" {{ request('instituicao') == 'false' ? 'selected' : '' }}>Não</option>
-            <option value="true" {{ request('instituicao') == 'true' ? 'selected' : '' }}>Sim</option>
+            <option value="" disabled {{ request('instituicao')===null ? 'selected' : '' }}>Selecione</option>
+            <option value="false" {{ request('instituicao')=='false' ? 'selected' : '' }}>Não</option>
+            <option value="true" {{ request('instituicao')=='true' ? 'selected' : '' }}>Sim</option>
           </x-slot:options>
         </x-form-elements.select.select>
 
@@ -110,10 +113,14 @@
           <td>{{ $user->roles->first()->name ?? "-" }}</td>
           <td>{{ $user->status == 0 ? 'Inativo' : 'Ativo' }}</td>
           <td>
+            @can('editar_usuário')
             <a href="">Editar</a>
+            @endcan
           </td>
           <td>
+            @can('detalhar_usuário')
             <a href="">Detalhar</a>
+            @endcan
           </td>
         </tr>
         @endforeach
@@ -121,7 +128,7 @@
     </table>
   </div>
   <div class="d-flex justify-content-center mt-5">
-    {{-- {{ $users->links() }} --}}
+    {{ $users->links() }}
   </div>
   {{-- <div class="">
     <div class="table-responsive">

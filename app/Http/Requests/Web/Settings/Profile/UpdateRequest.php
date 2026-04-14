@@ -31,8 +31,10 @@ class UpdateRequest extends FormRequest
 
             // Novos campos
             'cpf' => 'nullable|string|size:14|regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
-            'birth' => 'nullable|date|before:today',
+            // 'birth' => 'nullable|date|before:today',
             'phone' => 'nullable|string|max:20|regex:/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/',
+            'matricula_siape' => 'nullable|string',
+            'centro_departamento' => 'nullable|string|exists:parametro,value',
         ];
     }
 
@@ -42,6 +44,8 @@ class UpdateRequest extends FormRequest
             // Nome
             'name.string' => 'O nome deve ser um texto.',
             'name.max' => 'O nome não pode ter mais de 255 caracteres.',
+
+            'matricula_siape.string' => 'A matrícula ou siape deve ser um texto.',
 
             // Senha atual
             'actual_password.required_with' => 'A senha atual é obrigatória para alterar a senha.',
@@ -66,13 +70,16 @@ class UpdateRequest extends FormRequest
             'cpf.regex' => 'O formato do CPF é inválido.',
 
             // Data de nascimento
-            'birth.date' => 'A data de nascimento deve ser uma data válida.',
-            'birth.before' => 'A data de nascimento deve ser anterior à data atual.',
+            // 'birth.date' => 'A data de nascimento deve ser uma data válida.',
+            // 'birth.before' => 'A data de nascimento deve ser anterior à data atual.',
 
             // Telefone
             'phone.string' => 'O telefone deve ser um texto.',
             'phone.max' => 'O telefone não pode ter mais de 20 caracteres.',
             'phone.regex' => 'O formato do telefone é inválido. Use o formato (99) 99999-9999.',
+
+            'centro_departamento.uuid' => 'O curso deve ser um UUID válido.',
+            'centro_departamento.exists' => 'O curso selecionado não existe.',
         ];
     }
 }
