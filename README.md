@@ -1,4 +1,4 @@
-## Diagrama de Banco de Dados (ER)
+## Diagrama de Banco de Dados (ER) - Parte 1
 
 Abaixo está o modelo Entidade-Relacionamento das tabelas da primeira parte do sistema, ilustrando como usuários, ações e instituições se conectam.
 
@@ -89,6 +89,72 @@ erDiagram
     }
 ```
 
+## Diagrama de Banco de Dados (ER) - Parte 2
+
+Abaixo está o modelo Entidade-Relacionamento das tabelas da segunda parte do sistema, ilustrando como irá funcionar o mini forms.
+
+```mermaid
+erDiagram
+    FORMULARIO ||--o{ SECAO : possui
+    SECAO ||--o{ PERGUNTA : contem
+    PERGUNTA ||--o{ OPCAO_PERGUNTA : "tem (select, radio, checkbox)"
+    FORMULARIO ||--o{ SUBMISSAO : recebe
+    SUBMISSAO ||--o{ RESPOSTA : contem
+    PERGUNTA ||--o{ RESPOSTA : "referencia a"
+    OPCAO_PERGUNTA ||--o{ RESPOSTA : "vinculada a (se aplicavel)"
+
+    FORMULARIO {
+        uuid id PK
+        string titulo
+        text descricao
+        boolean status
+    }
+
+    SECAO {
+        uuid id PK
+        uuid id_formulario FK
+        string titulo
+        text descricao
+        int ordem "Controla a sequência das páginas"
+        boolean status
+    }
+
+    PERGUNTA {
+        uuid id PK
+        uuid id_secao FK
+        string tipo "Ex: text, textarea, select, checkbox, radio, file, number"
+        text enunciado
+        boolean obrigatoria
+        int min_length "Tamanho mínimo do texto"
+        int max_length "Tamanho máximo do texto"
+        string min_value "Valor mínimo (números ou datas)"
+        string max_value "Valor máximo (números ou datas)"
+        string step "Intervalo numérico (ex: 0.01)"
+        string accept "Extensões permitidas (ex: .pdf, image/*)"
+        string regex_pattern "Padrão de validação customizado"
+    }
+
+    OPCAO_PERGUNTA {
+        uuid id PK
+        uuid id_pergunta FK
+        string rotulo "Texto que aparece pro usuário"
+        string valor "Valor interno"
+    }
+
+    SUBMISSAO {
+        uuid id PK
+        uuid id_formulario FK
+        uuid id_usuario FK 
+        datetime finalizada_em
+    }
+
+    RESPOSTA {
+        uuid id PK
+        uuid submissao_id FK
+        uuid pergunta_id FK
+        text valor
+    }
+```
 ---
 
 ## Referência da API

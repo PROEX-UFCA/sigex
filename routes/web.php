@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\Settings\ProfileController;
 use App\Http\Controllers\Web\Settings\RolesController;
 use App\Http\Controllers\Web\Settings\UsersController;
 use App\Http\Controllers\Web\System\ActionController;
+use App\Http\Controllers\Web\System\FormController;
 use App\Http\Controllers\Web\System\HomeController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use Illuminate\Support\Facades\Route;
@@ -71,5 +72,9 @@ Route::middleware(['auth'])->group(function () {
         // "editar_agenda"
         // "remover_agenda"
     });
+
+    Route::get('formularios', [FormController::class, 'index'])->name('forms.index');
+    Route::post('formularios/adicionar', [FormController::class, 'store'])->name('forms.store');
+    Route::post('formularios/atualizar/{uuid}', [FormController::class, 'update'])->name('forms.update');
 
 });
