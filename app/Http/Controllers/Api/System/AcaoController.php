@@ -31,11 +31,23 @@ class AcaoController extends Controller
                 $query->where('modalidade', 'like', '%' . $request->input('modalidade') . '%');
             }
 
+            if ($request->has('tipo_acao')) {
+                $query->where('tipo_acao', 'like', '%' . $request->input('tipo_acao') . '%' );
+            }
+
+            if ($request->has('data_inicio')) {
+                $query->where('data_inicio', '<=', $request->input('data_inicio'))->where('data_fim', '>=', $request->input('data_inicio'));
+            }
+
+            if ($request->has('data_fim')) {
+                $query->where('data_fim', '>=', $request->input('data_fim'))->where('data_inicio','<=', $request->input('data_fim'));
+            }
+
             $sortBy = $request->input('sort_by', 'created_at');
             $sortOrder = $request->input('sort_order', 'desc');
             $query->orderBy($sortBy, $sortOrder);
 
-            $perPage = $request->input('per_page', 10);
+            $perPage = $request->input('per_page', 12);
 
             $acoes = $query->paginate($perPage);
 
