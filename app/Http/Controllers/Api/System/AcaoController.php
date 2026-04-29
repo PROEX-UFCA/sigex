@@ -62,6 +62,17 @@ class AcaoController extends Controller
         }
     }
 
+    public function getById($id)
+    {
+        try {
+            $acao = Acao::findOrFail($id);
+
+            return response()->json(['success' => true, 'data' => $acao]);
+        } catch (Throwable $th) {
+            return $this->handleError($th, 'Erro ao obter dados com id fornecido');
+        }
+    }
+
     private function handleError(Throwable $th, string $message)
     {
         return response()->json([
