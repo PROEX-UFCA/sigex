@@ -255,6 +255,11 @@ class DatabaseSeeder extends Seeder
                 'tipo_acao' => 'Curso',
                 'area_tematica' => 'Comunicação',
                 'modalidade' => 'Ampla Concorrência',
+                'status' => 1,
+                'img' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'deleted_at' => null
             ],
             [
                 'id' => $idAcao2,
@@ -269,6 +274,11 @@ class DatabaseSeeder extends Seeder
                 'tipo_acao' => 'Projeto',
                 'area_tematica' => 'Trabalho',
                 'modalidade' => 'Ampla Concorrência',
+                'status' => 1,
+                'img' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'deleted_at' => null
             ],
             [
                 'id' => $idAcao4,
@@ -283,6 +293,11 @@ class DatabaseSeeder extends Seeder
                 'tipo_acao' => 'Evento',
                 'area_tematica' => 'Cultura',
                 'modalidade' => 'Ampla Concorrência',
+                'status' => 1,
+                'img' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'deleted_at' => null
             ],
             [
                 'id' => $idAcao3,
@@ -297,6 +312,11 @@ class DatabaseSeeder extends Seeder
                 'tipo_acao' => 'Evento',
                 'area_tematica' => 'Direitos Humanos e Justiça',
                 'modalidade' => 'Ampla Concorrência',
+                'status' => 1,
+                'img' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'deleted_at' => null
             ],
             [
                 'id' => $idAcao10,
@@ -311,6 +331,11 @@ class DatabaseSeeder extends Seeder
                 'tipo_acao' => 'Evento',
                 'area_tematica' => 'Educação',
                 'modalidade' => 'Ampla Concorrência',
+                'status' => 1,
+                'img' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'deleted_at' => null
             ],
             [
                 'id' => $idAcao11,
@@ -325,6 +350,11 @@ class DatabaseSeeder extends Seeder
                 'tipo_acao' => 'Evento',
                 'area_tematica' => 'Educação Científica',
                 'modalidade' => 'Ampla Concorrência',
+                'status' => 1,
+                'img' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'deleted_at' => null
             ],
             [
                 'id' => $idAcao14,
@@ -339,6 +369,11 @@ class DatabaseSeeder extends Seeder
                 'tipo_acao' => 'Evento',
                 'area_tematica' => 'Meio Ambiente',
                 'modalidade' => 'Ampla Concorrência',
+                'status' => 1,
+                'img' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'deleted_at' => null
             ],
             [
                 'id' => $idAcao16,
@@ -353,6 +388,11 @@ class DatabaseSeeder extends Seeder
                 'tipo_acao' => 'Evento',
                 'area_tematica' => 'Saúde',
                 'modalidade' => 'Ampla Concorrência',
+                'status' => 1,
+                'img' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'deleted_at' => null
             ],
             [
                 'id' => $idAcao17,
@@ -367,10 +407,15 @@ class DatabaseSeeder extends Seeder
                 'tipo_acao' => 'Evento',
                 'area_tematica' => 'Tecnologia e Produção',
                 'modalidade' => 'Ampla Concorrência',
+                'status' => 1,
+                'img' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'deleted_at' => null
             ],
             [
                 'id' => 'cfa8c539-6fb6-51f4-a971-578bdc372b09',
-                'id_coordenador' => '806715e5-65ad-5476-9532-f46ebad23af8',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA001',
                 'id_projeto' => '2026AMPLA001',
                 'titulo' => 'PROJETO DE EXTENSÃO HORTOMED/UFCA: SABERES TRADICIONAIS, SAÚDE E PLANTAS MEDICINAIS NO CARIRI',
@@ -389,7 +434,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '593bbbc7-00cf-59e4-a13d-012b2625f4b9',
-                'id_coordenador' => '1d032fe7-90ca-5437-97c1-ed6aff62e707',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA002',
                 'id_projeto' => '2026AMPLA002',
                 'titulo' => 'VIVÊNCIAS INTERATIVAS E VALORIZAÇÃO DA ATENÇÃO AO ENVELHECIMENTO (VIVA): ATIVIDADES LÚDICAS EM COMBATE AO DECLÍNIO COGNITIVO NO IDOSO',
@@ -408,7 +453,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'd8401c7c-5be1-50e6-9826-d0ca3dedc477',
-                'id_coordenador' => '0f5a18cc-3f22-5da8-b143-88628dab596d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA003',
                 'id_projeto' => '2026AMPLA003',
                 'titulo' => 'PROJETO BEM-VIVER: PROMOVENDO SAÚDE, AFETO E UM ENVELHECER CHEIO DE SIGNIFICADO.',
@@ -427,7 +472,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'c1079304-0142-56e2-af6f-d67e7ff7dbdb',
-                'id_coordenador' => '6bcb205e-3b66-5ae6-882e-2208faa69a59',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA004',
                 'id_projeto' => '2026AMPLA004',
                 'titulo' => 'LIGA ACADÊMICA DE PRIMEIROS SOCORROS VETERINÁRIOS (LAPSVET)',
@@ -446,7 +491,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '414c0c79-c837-5f7f-9c28-ce87cb068b2b',
-                'id_coordenador' => '7d1e82f8-0e86-5e6f-a780-d0cf722077e6',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA005',
                 'id_projeto' => '2026AMPLA005',
                 'titulo' => 'INFECTOEDUCA: EDUCAR, PREVENIR E COMBATER DOENÇAS INFECCIOSAS E PARASITÁRIAS NO CARIRI CEARENSE',
@@ -465,7 +510,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '794ec695-b346-5928-9fcf-d2d4014f16cf',
-                'id_coordenador' => '26763f25-fba9-5df3-83f8-93aca0d1802c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA006',
                 'id_projeto' => '2026AMPLA006',
                 'titulo' => 'GLOSSÁRIO BILINGUE DE SINAIS DA LIBRAS RELACIONADOS À EDUCAÇÃO FÍSICA.',
@@ -484,7 +529,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2e4ccc9d-9e2c-5a5a-b756-ff82377218d4',
-                'id_coordenador' => 'e632ffc5-0b67-5655-9129-2f89288d2147',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA007',
                 'id_projeto' => '2026AMPLA007',
                 'titulo' => 'LIGA ACADÊMICA DE GINECOLOGIA E EMERGÊNCIAS OBSTÉTRICAS (LIGEO)',
@@ -503,7 +548,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'b7a6b581-b7d7-5870-80c9-26d5819076e0',
-                'id_coordenador' => '6462c5b9-c3ab-5a71-b721-d89cc688191c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA008',
                 'id_projeto' => '2026AMPLA008',
                 'titulo' => 'APRIMORANDO A MATEMÁTICA POR MEIO DE JOGOS EDUCATIVOS',
@@ -522,7 +567,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '1e6f386d-e3f5-5c92-9610-caece08104cd',
-                'id_coordenador' => '608cbecb-8ed9-5c31-baa9-c74ff5c815ef',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA009',
                 'id_projeto' => '2026AMPLA009',
                 'titulo' => 'SORRISOS QUE CURAM: HUMANIZAÇÃO E PROMOÇÃO DO BEM ESTAR DE CRIANÇAS HOSPITALIZADAS.',
@@ -541,7 +586,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '76702922-c8c2-5a0e-8a70-ed8ab3e25e68',
-                'id_coordenador' => '2f91133b-8b2b-5b12-98b6-7c3477eea5e7',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA010',
                 'id_projeto' => '2026AMPLA010',
                 'titulo' => 'PALHAÇO BARBALHINHO: PROMOÇÃO DA SAÚDE, SEGURANÇA E BEM-ESTAR INFANTIL EM INSTITUIÇÕES EDUCATIVAS E SOCIOASSISTENCIAIS DE BARBALHA–CE',
@@ -560,7 +605,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '45b1966b-2fc5-583a-b933-351c5fb9c9c9',
-                'id_coordenador' => '26763f25-fba9-5df3-83f8-93aca0d1802c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA011',
                 'id_projeto' => '2026AMPLA011',
                 'titulo' => 'CURSO DE LIBRAS BÁSICO',
@@ -579,7 +624,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '48bcfe98-546a-5bce-bcb1-b0ec0af1341e',
-                'id_coordenador' => 'f8cc976e-f5d3-51f2-9158-b450063a1d62',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA012',
                 'id_projeto' => '2026AMPLA012',
                 'titulo' => 'SAÚDE DO HOMEM: CONVERSANDO SOBRE A PRÓSTATA',
@@ -598,7 +643,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'ee179cf9-909c-594d-8eb0-c9d6edc46094',
-                'id_coordenador' => '13119ec7-09df-55c2-a7bb-81974a4b74d0',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA013',
                 'id_projeto' => '2026AMPLA013',
                 'titulo' => 'CORTE SECO - REVISTA DE AUDIOVISUAL',
@@ -617,7 +662,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e5812d0f-7057-5f0e-96cc-a8096ef9429b',
-                'id_coordenador' => '5c3feac3-dc63-580e-ba15-59fc2ba18117',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA014',
                 'id_projeto' => '2026AMPLA014',
                 'titulo' => 'PROJETO DE CUIDADO E APOIO PEDIÁTRICO E MATERNO-INFANTIL (PROCAPEM)',
@@ -636,7 +681,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a2a0c843-9d50-58b3-abb5-9edde8ec5f6c',
-                'id_coordenador' => 'e0027fa5-d265-5dae-a986-c66241fb721e',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA015',
                 'id_projeto' => '2026AMPLA015',
                 'titulo' => 'HANSCARE: PROGRAMA INTEGRADO DE CAPACITAÇÃO EM HANSENÍASE NA REGIÃO DO CARIRI',
@@ -655,7 +700,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '3b003462-5a5f-58ae-bd5d-197c137191a9',
-                'id_coordenador' => '4e880413-1040-5f6f-be6b-57552e0c347b',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA016',
                 'id_projeto' => '2026AMPLA016',
                 'titulo' => 'PROJETO PREVENÇÃO DE DOENÇAS CARDIOVASCULARES',
@@ -674,7 +719,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '117a7ee7-996d-5b6a-abb6-a04b2ff4f04d',
-                'id_coordenador' => 'f8cc976e-f5d3-51f2-9158-b450063a1d62',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA017',
                 'id_projeto' => '2026AMPLA017',
                 'titulo' => 'RESSIGNIFICANDO PRÁTICAS ALIMENTARES: O PAPEL DA NUTRIÇÃO NO CONTROLE DE AGRAVOS À SAÚDE (RPA)',
@@ -693,7 +738,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '225ae990-d14a-5a3c-8806-45fe54d47bc8',
-                'id_coordenador' => '4da240a1-c366-56d3-ad0c-873b3014627c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA018',
                 'id_projeto' => '2026AMPLA018',
                 'titulo' => 'RAÍZES E RESPEITO: A UNIÃO ENTRE CULTURA, TRADIÇÃO E O BEM-ESTAR ANIMAL',
@@ -712,7 +757,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '1ae27fa8-5180-5577-83b1-a1a358918f32',
-                'id_coordenador' => '6462c5b9-c3ab-5a71-b721-d89cc688191c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA019',
                 'id_projeto' => '2026AMPLA019',
                 'titulo' => 'SAÚDE EM EQUILÍBRIO: BEM-ESTAR, ESTILO DE VIDA E TECNOLOGIA FRENTE AOS DESAFIOS CONTEMPORÂNEOS',
@@ -731,7 +776,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '3cd714c0-8143-5e43-8e20-3594fb493e24',
-                'id_coordenador' => '6deb7887-e0e0-5f92-be21-a44dc409cf7d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA020',
                 'id_projeto' => '2026AMPLA020',
                 'titulo' => 'LIGA DE FARMACOLOGIA DO CARIRI – LIFAC',
@@ -750,7 +795,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '51e57ec1-09ec-515c-9b21-651e003ac1b2',
-                'id_coordenador' => '7d1e82f8-0e86-5e6f-a780-d0cf722077e6',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA021',
                 'id_projeto' => '2026AMPLA021',
                 'titulo' => 'LIGA ACADÊMICA DE DOENÇAS INFECCIOSAS DO CARIRI – LADIC',
@@ -769,7 +814,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a8e0623c-40ec-5f91-8d56-7d7be887e889',
-                'id_coordenador' => '56a3156a-d3fd-5604-966b-13b06b9b8c75',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA022',
                 'id_projeto' => '2026AMPLA022',
                 'titulo' => 'SAÚDE SEXUAL E PREVENÇÃO DE ISTS',
@@ -788,7 +833,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '0d66af48-e8ee-597b-ac5e-943231447eda',
-                'id_coordenador' => 'ce205340-8fe0-55b5-96b6-a4f27af5df83',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA023',
                 'id_projeto' => '2026AMPLA023',
                 'titulo' => 'LIGA ACADÊMICA DE CARDIOLOGIA DO CARIRI (LICARDIO - CARIRI)',
@@ -807,7 +852,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2221b8e1-83f7-595a-81fb-7fc490cd48e5',
-                'id_coordenador' => '1b083004-b8ec-54ca-aff5-93360f76fd97',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA024',
                 'id_projeto' => '2026AMPLA024',
                 'titulo' => 'INCUBAÇÃO DO GRUPO DE MULHERES DO BAIXIO DAS PALMEIRAS - ANO II',
@@ -826,7 +871,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'd60e4c9c-b418-5589-8bb1-ce37385f2b1a',
-                'id_coordenador' => '08da8b30-255e-59db-a518-742552a38460',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA025',
                 'id_projeto' => '2026AMPLA025',
                 'titulo' => 'COMUNICA SAÚDE: INCLUSÃO E PROMOÇÃO DE SAÚDE A PESSOAS COM DEFICIÊNCIA AUDITIVA',
@@ -845,7 +890,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e82bda7e-4321-5497-9f7e-408ae9a9f2ff',
-                'id_coordenador' => '1d0d476d-6a98-54db-9a3a-4b852cf5792d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA026',
                 'id_projeto' => '2026AMPLA026',
                 'titulo' => '“SAÚDE DO CICLO DA MULHER E CONDIÇÕES CRÔNICAS GINECOLÓGICAS ASSOCIADAS (PROCIG)”',
@@ -864,7 +909,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '3a00c3e5-a8f7-5ec4-a3b9-8a137aa06797',
-                'id_coordenador' => 'c09fcf3c-4c5c-5fff-8233-8335ac6bfb27',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA027',
                 'id_projeto' => '2026AMPLA027',
                 'titulo' => 'SABERES QUE CONSERVAM',
@@ -883,7 +928,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '18f39db2-bb90-57f1-b397-19f5d505c521',
-                'id_coordenador' => '2f91133b-8b2b-5b12-98b6-7c3477eea5e7',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA028',
                 'id_projeto' => '2026AMPLA028',
                 'titulo' => 'ESCOLA QUE ESCUTA: ACOLHIMENTO EMOCIONAL, FORTALECIMENTO DA CONVIVÊNCIA E PREVENÇÃO DO BULLYING EM COMUNIDADES ESCOLARES DE BARBALHA',
@@ -902,7 +947,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '939629de-a6be-5d98-83e8-7e52fa28cfae',
-                'id_coordenador' => '0faadb7a-f532-54c8-b5b3-6d25103e0485',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA029',
                 'id_projeto' => '2026AMPLA029',
                 'titulo' => 'ESTILO DE VIDA SAUDÁVEL NA ESCOLA',
@@ -921,7 +966,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'f20a61d5-e258-595d-9056-362c9a7a109a',
-                'id_coordenador' => '0b13170c-a08e-5e0f-a0e9-8f531f040b43',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA030',
                 'id_projeto' => '2026AMPLA030',
                 'titulo' => 'NEUROEDUCAR: ESTRATÉGIA DE RECONHECIMENTO E INTERVENÇÃO COMUNITÁRIA EM EMERGÊNCIAS NEUROLÓGICAS E TRAUMÁTICAS NO CARIRI',
@@ -940,7 +985,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'f4ab56af-345a-5af5-8664-53904e387445',
-                'id_coordenador' => '62a1ec43-c59c-5e14-b91e-3d680cf921f1',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA031',
                 'id_projeto' => '2026AMPLA031',
                 'titulo' => 'PEQUENOS CUIDADORES: BRINCAR, APRENDER E VIVER COM SAÚDE',
@@ -959,7 +1004,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'd2d5ae84-f010-582b-b9d0-86bf278fc58d',
-                'id_coordenador' => '940c9781-89ce-5e49-a785-37cd9ce5c5fc',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA032',
                 'id_projeto' => '2026AMPLA032',
                 'titulo' => 'MUITO SE VÊ, POUCO SE FALA: CUIDADO EM SAÚDE MENTAL DE MÃES CUIDADORAS DE CRIANÇAS COM TEA NA ATENÇÃO PRIMÁRIA À SAÚDE',
@@ -978,7 +1023,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'b1b69ee0-51e0-54d2-851c-c0503cb227e7',
-                'id_coordenador' => 'f6439683-c8d7-5c47-bcc0-84c729ef24e5',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA033',
                 'id_projeto' => '2026AMPLA033',
                 'titulo' => 'ESCOLA DE HABILIDADES SOCIOEMOCIONAIS: UMA FERRAMENTA DE COMBATE À VIOLÊNCIA E AO PRECONCEITO DE GÊNERO',
@@ -997,7 +1042,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '5c31dfeb-764e-5865-ae04-65dbaff1cb57',
-                'id_coordenador' => '2f1d5c0e-9df7-5c38-b377-45f427826d58',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA034',
                 'id_projeto' => '2026AMPLA034',
                 'titulo' => 'PROMOÇÃO DE EDUCAÇÃO EM SAÚDE PARA IDOSOS: VÍNCULO, CUIDADO E ACOLHIMENTO NA REDE DE ATENÇÃO PSICOSSOCIAL',
@@ -1016,7 +1061,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'd6e050b6-4916-5f4e-818c-6cd7fabef92a',
-                'id_coordenador' => '0125f7cd-fb1f-5de1-acc3-bd37106acffe',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA035',
                 'id_projeto' => '2026AMPLA035',
                 'titulo' => 'LIGA ACADÊMICA DE PNEUMOLOGIA',
@@ -1035,7 +1080,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '23ec312a-c612-5bb8-bab3-aad274bcbd7e',
-                'id_coordenador' => '9550d840-216a-523b-b799-6974c6f12ad3',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA036',
                 'id_projeto' => '2026AMPLA036',
                 'titulo' => 'CALANG.IO: FOMENTO À TRANSFORMAÇÃO DIGITAL E VIVÊNCIA EMPRESARIAL EM COMPUTAÇÃO NO CARIRI',
@@ -1054,7 +1099,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '61242a52-1643-5224-8fe3-faa9370eab42',
-                'id_coordenador' => '78d2b1b9-d00e-56e4-8a37-87a4bb14d980',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA037',
                 'id_projeto' => '2026AMPLA037',
                 'titulo' => 'SAÚDE EM AÇÃO: ATIVIDADES LÚDICAS PARA A PROMOÇÃO DA SAÚDE NAS ESCOLAS PÚBLICAS',
@@ -1073,7 +1118,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '44e4a4b2-4981-5711-8c05-71351e8b6164',
-                'id_coordenador' => '7091ab69-349a-52d8-9857-bcf054ebac86',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA038',
                 'id_projeto' => '2026AMPLA038',
                 'titulo' => 'DIVULGA FÍSICA I',
@@ -1092,7 +1137,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '55cf08e3-a5a1-5785-be9a-33e873b0d5dc',
-                'id_coordenador' => '6770bd30-11b5-55c4-a3cb-903a4038b534',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA039',
                 'id_projeto' => '2026AMPLA039',
                 'titulo' => 'DAS KARIRI – NÚCLEO DE DIVULGAÇÃO E DEBATE EM ECONOMIAS CRÍTICAS DO CARIRI',
@@ -1111,7 +1156,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '03dcc24c-f240-5ba6-94c2-05d7550e7195',
-                'id_coordenador' => '5c3feac3-dc63-580e-ba15-59fc2ba18117',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA040',
                 'id_projeto' => '2026AMPLA040',
                 'titulo' => 'LIGA ACADÊMICA DE NEONATOLOGIA (LANEO)',
@@ -1130,7 +1175,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a1445e45-f532-5e21-afd3-dc5472c33417',
-                'id_coordenador' => 'a74450c8-6a76-55cd-92a3-4f9ea41f2a36',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA041',
                 'id_projeto' => '2026AMPLA041',
                 'titulo' => 'LEITE COM LIBRAS – INCLUSÃO E BOAS PRÁTICAS EM QUALIDADE DO LEITE PARA A COMUNIDADE SURDA DE NOVA OLINDA',
@@ -1149,7 +1194,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '1dd74515-3f98-58ee-b8a9-4885ccb9cb1b',
-                'id_coordenador' => '2714cfb0-150a-51df-a3ff-0666e613e285',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA042',
                 'id_projeto' => '2026AMPLA042',
                 'titulo' => 'ANATOMIA EM AÇÃO: CONHECER PARA CUIDAR',
@@ -1168,7 +1213,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'dffd8690-eda2-5cac-b1f4-58e902510f9a',
-                'id_coordenador' => '9bf74d81-f511-5aa5-ac14-476d8d487162',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA043',
                 'id_projeto' => '2026AMPLA043',
                 'titulo' => 'LIGA ACADÊMICA DE MEDICINA DE EMERGÊNCIA DO CARIRI (LAMEC)',
@@ -1187,7 +1232,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'bcd250cb-c26b-502f-be96-30031d90898f',
-                'id_coordenador' => '51e8019c-a6d3-5254-8fcf-32ab5c51323a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA044',
                 'id_projeto' => '2026AMPLA044',
                 'titulo' => 'UNIDADES DEMONSTRATIVAS DE CULTURAS:IMPORTANTE FERRAMENTA EXTENSIONISTA DE DIFUSÃO DE TECNOLOGIA PARA AGRICULTORES FAMILIARES',
@@ -1206,7 +1251,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '0e76f817-c0bf-5908-bd91-f0fdb2c285a1',
-                'id_coordenador' => '2908427b-7f0a-501d-874b-63d54164213c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA045',
                 'id_projeto' => '2026AMPLA045',
                 'titulo' => 'LIGA ACADÊMICA DE HABILIDADES MÉDICAS (LAHMED)',
@@ -1225,7 +1270,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'c237b12f-9f8f-547b-8449-5eb206590656',
-                'id_coordenador' => '1d032fe7-90ca-5437-97c1-ed6aff62e707',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA046',
                 'id_projeto' => '2026AMPLA046',
                 'titulo' => 'PROJETO SAÚDE PARA TODOS (PROSAUT)',
@@ -1244,7 +1289,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'da439b84-d6ba-53ba-aadb-2146e11ac4c2',
-                'id_coordenador' => 'fd08152b-eb7c-57a0-9797-b767ed403b73',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA047',
                 'id_projeto' => '2026AMPLA047',
                 'titulo' => 'COMPREENDENDO A EDUCAÇÃO FISCAL PARA O EXERCÍCIO DA CIDADANIA',
@@ -1263,7 +1308,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e20319e2-7098-5e77-9c67-8ab749f42300',
-                'id_coordenador' => '8000f180-c261-555e-b849-c7e5be8e5191',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA048',
                 'id_projeto' => '2026AMPLA048',
                 'titulo' => 'LIGA ACADÊMICA DE MEDICINA FELINA DA UFCA- LIAMEF UFCA',
@@ -1282,7 +1327,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '0cc8ed72-03fa-534d-8162-c99ad1df78d3',
-                'id_coordenador' => '637c6fe2-418c-5e0f-af9b-fdd8204d82e6',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA049',
                 'id_projeto' => '2026AMPLA049',
                 'titulo' => 'NO MEU BAIRRO TAMBÉM TEM: PERFIS E VISUALIZAÇÕES SOBRE O DIA A DIA NO CRAJUBAR',
@@ -1301,7 +1346,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '31202219-428f-5193-aa0c-b5f27d59e14a',
-                'id_coordenador' => '0f5a18cc-3f22-5da8-b143-88628dab596d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA050',
                 'id_projeto' => '2026AMPLA050',
                 'titulo' => 'EQUILIBRACARIRI: PREVENÇÃO DE QUEDAS E PROMOÇÃO DA AUTONOMIA DE IDOSOS NA COMUNIDADE.',
@@ -1320,7 +1365,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '94696740-db73-5983-947f-e64a1c7c0eb3',
-                'id_coordenador' => 'af3d47f7-1292-52f5-8785-f4c106a98979',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA051',
                 'id_projeto' => '2026AMPLA051',
                 'titulo' => 'ESCRITÓRIO HABITAR',
@@ -1339,7 +1384,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '70c9e251-e1a5-5748-9b8b-ea4a987ccab0',
-                'id_coordenador' => '5ad30f9c-09da-530b-9d73-01f5798da295',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA052',
                 'id_projeto' => '2026AMPLA052',
                 'titulo' => 'CONVERSAS DRAMATÚRGICAS',
@@ -1358,7 +1403,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'ca0c6af6-96f2-5072-ab67-fbb3dfcddde2',
-                'id_coordenador' => '08da8b30-255e-59db-a518-742552a38460',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA053',
                 'id_projeto' => '2026AMPLA053',
                 'titulo' => 'LIGA ACADÊMICA DE UROLOGIA DA UFCA (LAURO-UFCA)',
@@ -1377,7 +1422,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '9b0beae2-7f18-55c3-a9d0-ee41ea27dce9',
-                'id_coordenador' => 'c796e7bf-dabf-5758-9eae-6f0b1e1b393c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA054',
                 'id_projeto' => '2026AMPLA054',
                 'titulo' => 'PLATAFORMA SIGEX: SISTEMA INTEGRADO DE GESTÃO E TRANSPARÊNCIA DAS AÇÕES DE EXTENSÃO DA UFCA',
@@ -1396,7 +1441,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'bf300aa5-d5f6-5c3b-a789-9e32a09f3187',
-                'id_coordenador' => '6deb7887-e0e0-5f92-be21-a44dc409cf7d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA055',
                 'id_projeto' => '2026AMPLA055',
                 'titulo' => 'PROJETO CUIDADOS COM A SAÚDE NA TERCEIRA IDADE',
@@ -1415,7 +1460,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '9b0c6d12-90c6-56a9-9bd9-1dae632f6e91',
-                'id_coordenador' => '2908427b-7f0a-501d-874b-63d54164213c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA056',
                 'id_projeto' => '2026AMPLA056',
                 'titulo' => 'PRIMEIROS SOCORROS NAS ESCOLAS: FORMANDO CIDADÃOS ATIVOS NA PROMOÇÃO DE SAÚDE.',
@@ -1434,7 +1479,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e03fdd64-3e82-5a02-94ca-ccbddc816868',
-                'id_coordenador' => 'ea89300d-70ea-5f33-b630-1ca915db9e6a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA057',
                 'id_projeto' => '2026AMPLA057',
                 'titulo' => 'RAÍZES DE RESISTÊNCIA: A DESIGUALDADE DE GÊNERO E OS FATORES DE ADOECIMENTO LABORAL DA MULHER CARIRIENSE.',
@@ -1453,7 +1498,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'f9ce189f-7df0-5c19-b37b-745235fdd8ed',
-                'id_coordenador' => '35226a0e-455c-5abf-8b66-ae0e9c7bdf1c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA058',
                 'id_projeto' => '2026AMPLA058',
                 'titulo' => 'O CÉU TÁ ON NAS ESCOLAS',
@@ -1472,7 +1517,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '99de0ae2-2d23-5222-8644-2a0408419f9a',
-                'id_coordenador' => '08da8b30-255e-59db-a518-742552a38460',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA059',
                 'id_projeto' => '2026AMPLA059',
                 'titulo' => 'LIGA ACADÊMICA DE GASTROENTEROLOGIA DO CARIRI (LIAGEC)',
@@ -1491,7 +1536,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'facf65f6-1f40-5518-8bd7-d10ea7a5eda8',
-                'id_coordenador' => '4abb61c8-6551-5c32-8f2c-e998d63dfbe7',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA060',
                 'id_projeto' => '2026AMPLA060',
                 'titulo' => 'LABIM – LIGA ACADÊMICA DE BUILDING INFORMATION MODELING',
@@ -1510,7 +1555,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a7832859-e9da-5deb-87aa-6ed246486dfb',
-                'id_coordenador' => '14e9183f-1a03-59b0-82d4-2433edae668c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA061',
                 'id_projeto' => '2026AMPLA061',
                 'titulo' => 'PROJETO DE COMBATE À NOMOFOBIA NO CARIRI',
@@ -1529,7 +1574,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '4c478e9f-c756-5854-8afa-b842fe62b185',
-                'id_coordenador' => 'a1831950-de30-5828-af26-f572f18b61a5',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA062',
                 'id_projeto' => '2026AMPLA062',
                 'titulo' => 'LIGA DE CIRURGIA VASCULAR DO CARIRI - LICIVASC',
@@ -1548,7 +1593,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '978931d1-24ff-5655-8dc1-b68bc16270f9',
-                'id_coordenador' => 'c74fb699-f5c6-538a-bd6b-a3ed7d8f4e35',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA063',
                 'id_projeto' => '2026AMPLA063',
                 'titulo' => 'EDUCAÇÃO EM EMERGÊNCIA POR OBSTRUÇÃO DE VIAS AÉREAS POR CORPO ESTRANHO',
@@ -1567,7 +1612,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'ee13cccc-8ba3-5261-88f6-50daa77a7ac1',
-                'id_coordenador' => '635cd1a3-42ed-5652-a55f-066429f2cb58',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA064',
                 'id_projeto' => '2026AMPLA064',
                 'titulo' => 'LIGA ACADÊMICA DE OFTALMOLOGIA DA UFCA (LAOF)',
@@ -1586,7 +1631,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2898271e-380d-5861-9109-15d02d248e93',
-                'id_coordenador' => '1d032fe7-90ca-5437-97c1-ed6aff62e707',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA065',
                 'id_projeto' => '2026AMPLA065',
                 'titulo' => 'LIGA ACADÊMICA DE CLÍNICA MÉDICA (LACM)',
@@ -1605,7 +1650,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '10782efd-4e74-541a-b435-9ff748c42ece',
-                'id_coordenador' => '8000f180-c261-555e-b849-c7e5be8e5191',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA066',
                 'id_projeto' => '2026AMPLA066',
                 'titulo' => 'PROGRAMA DE EXTENSÃO ACADÊMICA EM TERAPIA ASSISTIDA POR ANIMAIS',
@@ -1624,7 +1669,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2f857146-34fc-579f-b6c0-1d18a4a9d2d3',
-                'id_coordenador' => 'ea89300d-70ea-5f33-b630-1ca915db9e6a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA067',
                 'id_projeto' => '2026AMPLA067',
                 'titulo' => 'CARIRI EM HARMONIA: SAÚDE, TRABALHO DECENTE E PREVENÇÃO DO ESTRESSE E BURNOUT.',
@@ -1643,7 +1688,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '18b17b78-628c-5904-b366-a04188fdaf15',
-                'id_coordenador' => 'b0eaccf2-73a1-51a4-900f-d7f921cfd1cf',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA068',
                 'id_projeto' => '2026AMPLA068',
                 'titulo' => 'DIREITOS FUNDAMENTAIS EM MOVIMENTO: OFICINAS DEMOCRÁTICAS E PESQUISA HISTÓRICA SOBRE DIREITOS HUMANOS E INSTITUIÇÕES NO BRASIL E NO MUNDO',
@@ -1662,7 +1707,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a5900e30-1c00-5f03-9145-935e16db8148',
-                'id_coordenador' => '4a5786f3-1d1b-59b4-8ec3-d4bb23e0718f',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA069',
                 'id_projeto' => '2026AMPLA069',
                 'titulo' => 'PROJETO DE EXTENSÃO EM DOR NO CÂNCER E EM CUIDADOS PALIATIVOS E DE APOIO À GESTÃO DO PROGRAMA MAIS MÉDICOS PELO BRASIL',
@@ -1681,7 +1726,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'd9ba3714-ef1f-574e-b547-d246abe185bb',
-                'id_coordenador' => '5c3feac3-dc63-580e-ba15-59fc2ba18117',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA070',
                 'id_projeto' => '2026AMPLA070',
                 'titulo' => 'ONCOPED: NÚCLEO DE AÇÃO E ESTUDO EM ONCOLOGIA PEDIÁTRICA NO CARIRI',
@@ -1700,7 +1745,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'bd4c9e6d-9b8d-53ca-8b9d-1df8ded1102d',
-                'id_coordenador' => '3e05f0ad-f42d-5974-8625-d18914f2ab10',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA071',
                 'id_projeto' => '2026AMPLA071',
                 'titulo' => 'HUB DE INOVAÇÃO DA UFCA (UFCA HUB)',
@@ -1719,7 +1764,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '0d9a50de-01bc-56a5-a547-2c2dde0cb5e8',
-                'id_coordenador' => '0b13170c-a08e-5e0f-a0e9-8f531f040b43',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA072',
                 'id_projeto' => '2026AMPLA072',
                 'titulo' => 'LIGA ACADÊMICA DE NEUROCIRURGIA E NEUROLOGIA DO CARIRI (LANNEC)',
@@ -1738,7 +1783,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '1d1a43e0-27a0-5f7b-ba37-41d20b5abf19',
-                'id_coordenador' => 'f8cc976e-f5d3-51f2-9158-b450063a1d62',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA073',
                 'id_projeto' => '2026AMPLA073',
                 'titulo' => 'LIGA ACADÊMICA DE MEDICINA ESPORTIVA E NUTROLOGIA',
@@ -1757,7 +1802,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '982bc370-0a93-529d-883e-d1e11d8aa2fa',
-                'id_coordenador' => '6302044c-4412-514b-bc13-6cc1d9d18f2e',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA074',
                 'id_projeto' => '2026AMPLA074',
                 'titulo' => 'LATIPOA E FUNDAMENTOS PARA EDUCAÇÃO SANITÁRIA',
@@ -1776,7 +1821,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '06c85139-f530-592a-a2d3-0086faeb2441',
-                'id_coordenador' => 'e0027fa5-d265-5dae-a986-c66241fb721e',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA075',
                 'id_projeto' => '2026AMPLA075',
                 'titulo' => 'PROGRAMA CARIRIENSE DE EMERGÊNCIA E TRAUMA - PCET',
@@ -1795,7 +1840,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a01517e1-b841-5a14-8e6d-61aa6a7eb69f',
-                'id_coordenador' => 'a12f526b-bde5-51a8-b025-faa95a559e20',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA076',
                 'id_projeto' => '2026AMPLA076',
                 'titulo' => 'OFICINA DE CONSULTORIA INTELIGENTE',
@@ -1814,7 +1859,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a19eba44-4eb4-5511-9f50-d4cdffb86c4a',
-                'id_coordenador' => 'bf258a0b-147a-5933-8793-fcb7ae00f3d2',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA077',
                 'id_projeto' => '2026AMPLA077',
                 'titulo' => 'LIGA ACADÊMICA DE CIRURGIA PLÁSTICA (LIACIP)',
@@ -1833,7 +1878,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '6ebade48-95fc-5051-955a-2bec1ad6c5c4',
-                'id_coordenador' => 'f8a7ce66-5e6a-5dc2-96ab-f06d0a271390',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA078',
                 'id_projeto' => '2026AMPLA078',
                 'titulo' => 'ATLÉTICA ACADÊMICA DE ADMINISTRAÇÃO ATHENA',
@@ -1852,7 +1897,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '23597823-2bfc-5fc8-b25f-eb622acc26ea',
-                'id_coordenador' => '0b13170c-a08e-5e0f-a0e9-8f531f040b43',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA079',
                 'id_projeto' => '2026AMPLA079',
                 'titulo' => 'PREVENIR PARA VIVER: UM OLHAR INTEGRAL PARA PREVENÇÃO DE DOENÇAS CEREBROVASCULARES',
@@ -1871,7 +1916,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '5f29e82a-87c3-5da7-920a-9c67c51c7154',
-                'id_coordenador' => 'cfb2e5fa-efc1-538a-a314-4b01d4f738ad',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA080',
                 'id_projeto' => '2026AMPLA080',
                 'titulo' => 'INSTALAÇÃO DE CAPINEIRAS NAS PROPRIEDADES DE AGRICULTORES FAMILIARES DA REGIÃO DO CARIRI NO CEARÁ.',
@@ -1890,7 +1935,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e407012f-6e7d-5800-b672-2723d62f0737',
-                'id_coordenador' => 'a12f526b-bde5-51a8-b025-faa95a559e20',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA081',
                 'id_projeto' => '2026AMPLA081',
                 'titulo' => 'REDE DE SABERES E NEGÓCIOS – UNIVERSIDADE E COMUNIDADE EM AÇÃO',
@@ -1909,7 +1954,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '1c28e9c0-21f3-58ed-86cc-4239289af272',
-                'id_coordenador' => '8484a1b3-27ed-5d86-b7bf-ebfee6b6103f',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA082',
                 'id_projeto' => '2026AMPLA082',
                 'titulo' => 'GRUPO DE ESTUDOS EM FENOMENOLOGIA-HERMENÊUTICA E PENSAMENTO EXISTENCIAL',
@@ -1928,7 +1973,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '599ca8fd-0e2e-5c66-8c2a-92720b565f65',
-                'id_coordenador' => '501a4c16-9af9-5c0e-a897-a4c87187ea42',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA083',
                 'id_projeto' => '2026AMPLA083',
                 'titulo' => 'CAMINHADA INTERATIVA NO HORTO DIDÁTICO: PROMOVENDO A EDUCAÇÃO AMBIENTAL E O CONHECIMENTO SOBRE AS PLANTAS MEDICINAIS, ALIMENTÍCIAS E ORNAMENTAIS',
@@ -1947,7 +1992,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'cd6a9be9-bf06-587d-b780-c27ed90f1079',
-                'id_coordenador' => '7ed429c3-731d-5eb2-ae75-f72823e14b84',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA084',
                 'id_projeto' => '2026AMPLA084',
                 'titulo' => 'INVISIBILIDADE: DANDO VOZ ÀS DOENÇAS SILENCIADAS',
@@ -1966,7 +2011,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e19c4df0-8bf7-5e71-b85d-f1855968e74e',
-                'id_coordenador' => 'b3ba4ab2-3845-5940-a51f-0ad17d9b205c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA085',
                 'id_projeto' => '2026AMPLA085',
                 'titulo' => 'PROGRAMA DE PROMOÇÃO DA SAÚDE E SEGURANÇA ALIMENTAR NO MEIO RURAL (PROSAN',
@@ -1985,7 +2030,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '4a466eec-c364-567a-80e8-cf8ce60fad2f',
-                'id_coordenador' => 'dcf82a76-867c-5992-88e7-98994f67464d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA086',
                 'id_projeto' => '2026AMPLA086',
                 'titulo' => 'LIGA ACADÊMICA DE ORTOPEDIA E TRAUMATOLOGIA DA UNIVERSIDADE FEDERAL DO CARIRI',
@@ -2004,7 +2049,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2b60adfa-0c8f-5e00-a0ce-808458550945',
-                'id_coordenador' => '89f8ccd2-b15f-506a-a0c7-1f706de749ef',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA087',
                 'id_projeto' => '2026AMPLA087',
                 'titulo' => 'DIAGNÓSTICO DAS CONDIÇÕES DE ACESSIBILIDADE EM ESTABELECIMENTOS PÚBLICOS DE ENSINO DA CIDADE DE JUAZEIRO DO NORTE/CE',
@@ -2023,7 +2068,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2af41b41-532b-5341-86fd-17367c4c78d5',
-                'id_coordenador' => '1bdeca93-4ac3-544c-a2d5-cccc87fd172a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA088',
                 'id_projeto' => '2026AMPLA088',
                 'titulo' => 'PENSOTECH DIGITAL: DESENVOLVIMENTO DE RECURSOS EDUCACIONAIS DIGITAIS PARA O ENSINO BÁSICO',
@@ -2042,7 +2087,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '6a3a9ac7-fe93-5aaf-af64-bfc13e151d9b',
-                'id_coordenador' => '6bcb205e-3b66-5ae6-882e-2208faa69a59',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA089',
                 'id_projeto' => '2026AMPLA089',
                 'titulo' => 'LIGA ACADÊMICA DE CIRURGIA E ANESTESIOLOGIA VETERINÁRIA (LACAV)',
@@ -2061,7 +2106,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '30a78297-f443-5382-b30d-7d1b13146c5e',
-                'id_coordenador' => '3efeaf5f-4767-5eab-b7c2-c9dc6c65b84e',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA090',
                 'id_projeto' => '2026AMPLA090',
                 'titulo' => 'MELHORAMENTO GENÉTICO: DA TEORIA À PRÁTICA NA BOVINOCULTURA DE LEITE DA CIDADE DO CRATO-CE',
@@ -2080,7 +2125,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '4facd915-7e63-5aea-81a1-41a6351f618d',
-                'id_coordenador' => 'cd3cd9cd-c8d8-536e-bdda-bbd3f342012c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA091',
                 'id_projeto' => '2026AMPLA091',
                 'titulo' => 'LÓGICA E PROGRAMAÇÃO PARA A OBI.',
@@ -2099,7 +2144,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '4edab507-4535-5ef2-ba23-2688f8325f80',
-                'id_coordenador' => '4ed8387e-d0c8-566b-96c7-c52c9b8d91f9',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA092',
                 'id_projeto' => '2026AMPLA092',
                 'titulo' => 'DATAJOR CARIRI: TRANSPARÊNCIA PÚBLICA E COMBATE À DESIGUALDADE INFORMACIONAL',
@@ -2118,7 +2163,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '632346f9-9d51-5447-978f-1fbd02a39975',
-                'id_coordenador' => 'fd08152b-eb7c-57a0-9797-b767ed403b73',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA093',
                 'id_projeto' => '2026AMPLA093',
                 'titulo' => 'NAGES - NÚCLEO DE APOIO À GESTÃO EM ENTIDADES SOCIAIS',
@@ -2137,7 +2182,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '33bfa8e7-17c2-57bb-8bc8-c2b8685281d0',
-                'id_coordenador' => '0faadb7a-f532-54c8-b5b3-6d25103e0485',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA094',
                 'id_projeto' => '2026AMPLA094',
                 'titulo' => 'LIGA ACADÊMICA CARIRIENSE DE ENDOCRINOLOGIA E METABOLOGIA (LACEM)',
@@ -2156,7 +2201,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'c32d4f71-da4c-5196-ad2c-dea8cc73b915',
-                'id_coordenador' => '8b977946-4c13-5644-9cea-6b05bc6b5904',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA095',
                 'id_projeto' => '2026AMPLA095',
                 'titulo' => 'LIGA ACADÊMICA DE CIRURGIA DO APARELHO DIGESTIVO (LACAD)',
@@ -2175,7 +2220,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '047592fe-0a47-5050-8775-9c5e3caeb193',
-                'id_coordenador' => '8b9936ea-6cc9-50ac-a356-186468881a5d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA096',
                 'id_projeto' => '2026AMPLA096',
                 'titulo' => 'DESEMBUXA – PODCAST DO CURSO DE DESIGN - UFCA',
@@ -2194,7 +2239,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '66f02794-e59f-5f4c-90d2-b678b53c364c',
-                'id_coordenador' => 'ceb0002e-dda4-526e-9a17-bc91b60d5171',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA097',
                 'id_projeto' => '2026AMPLA097',
                 'titulo' => 'REVISTA MEMÓRIAS KARIRI',
@@ -2213,7 +2258,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2c237767-91d1-5568-9c62-c9839b6a5726',
-                'id_coordenador' => 'f6494420-7e67-5597-9e5c-440c648823d8',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA098',
                 'id_projeto' => '2026AMPLA098',
                 'titulo' => 'OBSERVATÓRIO DE CADEIAS ALIMENTARES SUSTENTÁVEIS – OCAS: USO INTELIGENTE E RESPONSÁVEL DAS PANC POR MEIO DA MEDIAÇÃO DA INFORMAÇÃO',
@@ -2232,7 +2277,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'bff68913-c73c-5998-8a16-0256a86903f9',
-                'id_coordenador' => '376596a8-a045-568a-88f4-f3d804a761bd',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA099',
                 'id_projeto' => '2026AMPLA099',
                 'titulo' => 'EDUCAÇÃO CONTINUADA EM NEFROLOGIA AO ALCANCE DE TODOS - LIGA DE NEFROLOGIA DO CARIRI',
@@ -2251,7 +2296,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '19afd9d9-fa8c-58ad-90af-e1423380486a',
-                'id_coordenador' => '69aa0f36-ba8a-59ff-a585-8716b39fe8cf',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA100',
                 'id_projeto' => '2026AMPLA100',
                 'titulo' => 'LIGA ACADÊMICA DE CARDIOLOGIA E CATETERISMO',
@@ -2270,7 +2315,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2e308a01-30be-5407-bbec-ff6207b09b52',
-                'id_coordenador' => '5e70dacd-4724-5e25-aa41-d4a6121ece66',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA101',
                 'id_projeto' => '2026AMPLA101',
                 'titulo' => 'QUÍMICA, SOCIEDADE E OPORTUNIDADE',
@@ -2289,7 +2334,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'eb3a2b98-4081-5ae1-a97f-95a474b8dd48',
-                'id_coordenador' => '33f44931-3378-59bf-b853-93a2ae93ed06',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA102',
                 'id_projeto' => '2026AMPLA102',
                 'titulo' => 'PROGRAMA DE APOIO À PESSOA COM DEFICIÊNCIA (PRAPED)',
@@ -2308,7 +2353,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e2070011-0001-5a23-9d0a-e1ea14426d13',
-                'id_coordenador' => 'f7594396-155f-585c-8833-9999c667b1e4',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA103',
                 'id_projeto' => '2026AMPLA103',
                 'titulo' => 'GRUPO DE ESTUDO EM MICROBIOLOGIA E PATOLOGIA CLÍNICA VETERINÁRIA (GEMPAC)',
@@ -2327,7 +2372,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'df3a7fa6-f613-52c3-b32b-d4f65c507545',
-                'id_coordenador' => '608cbecb-8ed9-5c31-baa9-c74ff5c815ef',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA104',
                 'id_projeto' => '2026AMPLA104',
                 'titulo' => 'LOGUS: CURSINHO PRÉ-VESTIBULAR COMUNITÁRIO DO CARIRI',
@@ -2346,7 +2391,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '977e15ee-44df-5b29-9b3d-8ab15c6673f3',
-                'id_coordenador' => '608cbecb-8ed9-5c31-baa9-c74ff5c815ef',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA105',
                 'id_projeto' => '2026AMPLA105',
                 'titulo' => 'NÚCLEO EM GESTÃO DE PESSOAS – NUGEP',
@@ -2365,7 +2410,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a5ddec61-5c35-5beb-bd49-83204ac3fc5b',
-                'id_coordenador' => 'e632ffc5-0b67-5655-9129-2f89288d2147',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA106',
                 'id_projeto' => '2026AMPLA106',
                 'titulo' => 'PROGEST - PROGRAMA DE ATENÇÃO À GESTANTE',
@@ -2384,7 +2429,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a66aa3dc-6783-5374-8bc2-7f3dfb893f52',
-                'id_coordenador' => 'e3da4789-2f9b-5948-8bd5-c2ead34ef172',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA107',
                 'id_projeto' => '2026AMPLA107',
                 'titulo' => 'GENFAUNA – CONSERVAÇÃO GENÉTICA DA FAUNA DO CARIRI',
@@ -2403,7 +2448,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '3d9af17d-f79c-520f-9a09-6e04711adc95',
-                'id_coordenador' => '21aa55cf-0c21-59ce-93a6-3a7507381ade',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA108',
                 'id_projeto' => '2026AMPLA108',
                 'titulo' => 'LIGA ACADÊMICA DE HISTOLOGIA E PATOLOGIA ANIMAL (LAHPATO)',
@@ -2422,7 +2467,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '6a746dcc-c58f-594e-bbea-45c1a46bacb6',
-                'id_coordenador' => 'c69e845b-9f06-5c24-888a-93c8a13779bb',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA109',
                 'id_projeto' => '2026AMPLA109',
                 'titulo' => 'TECNOLOGIA, SAÚDE E SOCIEDADE: CAPACITAÇÃO EM INTELIGÊNCIA ARTIFICIAL PARA PROFISSIONAIS DA SAÚDE',
@@ -2441,7 +2486,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'ee38c257-202c-5ffb-9fa0-a1386e4c760f',
-                'id_coordenador' => '30f1ac73-53ba-5a91-9a3f-7fb637a6529f',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA110',
                 'id_projeto' => '2026AMPLA110',
                 'titulo' => 'FORMANDO CIENTISTAS',
@@ -2460,7 +2505,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'aa0783e9-f318-5ac4-8b7e-c81f52647620',
-                'id_coordenador' => '89ba0655-32ec-5426-aa79-52922efa4de3',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA111',
                 'id_projeto' => '2026AMPLA111',
                 'titulo' => 'PLANETARIUM KARIRI: INTEGRAÇÃO ENTRE CIÊNCIA E EDUCAÇÃO',
@@ -2479,7 +2524,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'c9ec2339-cdb3-51b6-86e7-a7dddd5dc606',
-                'id_coordenador' => 'fd08152b-eb7c-57a0-9797-b767ed403b73',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA112',
                 'id_projeto' => '2026AMPLA112',
                 'titulo' => 'CARIRI CONSCIENTE: O CONHECIMENTO TRANSFORMA O CIDADÃO',
@@ -2498,7 +2543,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '5c872754-febd-590c-adc1-66b527857af5',
-                'id_coordenador' => 'c022c815-a908-5141-ab55-658536dd2a9f',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA113',
                 'id_projeto' => '2026AMPLA113',
                 'titulo' => 'WROBWI: MATERIAIS DIDÁTICOS INDÍGENAS',
@@ -2517,7 +2562,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '0ffdf900-af1c-512a-b0a2-9f0d04496b7f',
-                'id_coordenador' => '3f7adfee-10f3-5706-bbf8-729043945d0f',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA114',
                 'id_projeto' => '2026AMPLA114',
                 'titulo' => 'GRUPO DE ESTUDOS EM REUMATOLOGIA E IMUNOLOGIA DO CARIRI (GERIC)',
@@ -2536,7 +2581,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2138ce13-449f-56cf-8fcb-a861306fab66',
-                'id_coordenador' => '51e8019c-a6d3-5254-8fcf-32ab5c51323a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA115',
                 'id_projeto' => '2026AMPLA115',
                 'titulo' => 'AQUAPONIA: SISTEMA DE PRODUÇÃO SUSTENTÁVEL E EDUCATIVO',
@@ -2555,7 +2600,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '988ba1cb-713c-55b0-9715-7ddad67a4f49',
-                'id_coordenador' => '6968b97f-9f52-5548-96ff-33de02406202',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA116',
                 'id_projeto' => '2026AMPLA116',
                 'titulo' => 'OBSERVATÓRIO DAS CIDADES DO CARIRI',
@@ -2574,7 +2619,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '64f21aa2-977b-578e-b01f-efe805a6ad10',
-                'id_coordenador' => '11f059e7-5186-5908-8333-10e46607d54a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA117',
                 'id_projeto' => '2026AMPLA117',
                 'titulo' => 'PENSAMENTO COMPUTACIONAL',
@@ -2593,7 +2638,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '89a7dad4-24a3-57e3-b2d6-2a934b91d9be',
-                'id_coordenador' => '2a4fe96a-d3b8-56d5-add0-c584183214a3',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA118',
                 'id_projeto' => '2026AMPLA118',
                 'titulo' => 'LIGA ACADÊMICA DE GRANDES ANIMAIS - LIAGA',
@@ -2612,7 +2657,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '820d044e-e981-5980-b559-a263f29ee635',
-                'id_coordenador' => '135425f5-148f-5be2-8e7f-bb8aa9600c6a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA119',
                 'id_projeto' => '2026AMPLA119',
                 'titulo' => 'GEAS UFCA - GRUPO DE ESTUDOS DE ANIMAIS SILVESTRES DA UNIVERSIDADE FEDERAL DO CARIRI.',
@@ -2631,7 +2676,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '395dfd02-e604-5bf9-9455-060740102f75',
-                'id_coordenador' => '9f212136-7628-51b1-9750-5dff54c37a37',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA120',
                 'id_projeto' => '2026AMPLA120',
                 'titulo' => 'MULHERES.H',
@@ -2650,7 +2695,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'b075cd7b-c413-5892-ae83-2e3b9952b1b5',
-                'id_coordenador' => '5d780094-416c-51fb-beb5-e581791fc415',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA121',
                 'id_projeto' => '2026AMPLA121',
                 'titulo' => 'GRUPO DE ESTUDOS EM BUIATRIA DA UNIVERSIDADE FEDERAL DO CARIRI (GEBUI-UFCA)',
@@ -2669,7 +2714,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'd542990e-f70b-572d-aade-c32a230c2a3f',
-                'id_coordenador' => 'd787747c-0ae2-53fb-a7b7-0e980c40631f',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA122',
                 'id_projeto' => '2026AMPLA122',
                 'titulo' => 'PROMUS: EDUCAÇÃO E PRODUÇÃO MUSICAL.',
@@ -2688,7 +2733,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '063f34d9-483d-5b7e-9f6b-a58394bd5162',
-                'id_coordenador' => '1b083004-b8ec-54ca-aff5-93360f76fd97',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA123',
                 'id_projeto' => '2026AMPLA123',
                 'titulo' => 'PROGRAMA ENACTUS UFCA',
@@ -2707,7 +2752,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '846d3633-d136-5634-9d1a-2b438e5d316e',
-                'id_coordenador' => 'f3c3bb9e-21f6-5703-91aa-1669c93258e5',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA124',
                 'id_projeto' => '2026AMPLA124',
                 'titulo' => 'PROEQUI-PROGRAMA DE MEDICINA DE EQUÍDEOS: PROMOÇÃO DE SAÚDE, BEM-ESTAR BOAS PRÁTICAS NA CRIAÇÃO DE EQUÍDEOS NA MACRORREGIÃO DO CARIRI/CENTRO SUL DO ESTADO DO CEARÁ.',
@@ -2726,7 +2771,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '16069e15-7cee-5ce5-b23a-39ab14c8a5b5',
-                'id_coordenador' => '7cd86daf-371c-5f0f-8136-d3faf6388612',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA125',
                 'id_projeto' => '2026AMPLA125',
                 'titulo' => 'SEMINÁRIO O QUE É...?',
@@ -2745,7 +2790,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '25d46d23-6495-5aa9-a56e-8e2b05318a88',
-                'id_coordenador' => '8779abbf-6b51-504e-9b16-2cbf21c59b60',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA126',
                 'id_projeto' => '2026AMPLA126',
                 'titulo' => 'GRUPO DE PESQUISA EM PARASITOLOGIA E DOENÇAS PARASITÁRIAS',
@@ -2764,7 +2809,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'cb6c0a54-51a0-5994-9d45-50293a8805e1',
-                'id_coordenador' => 'ccf206f7-5b68-5883-b2c2-73d9755c2cfd',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA127',
                 'id_projeto' => '2026AMPLA127',
                 'titulo' => 'LIGA ACADÊMICA DE HEMATOLOGIA E HEMOTERAPIA DO CARIRI',
@@ -2783,7 +2828,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '39f8c26c-f4f0-52d6-8d5c-0b4f01b4f552',
-                'id_coordenador' => '08da8b30-255e-59db-a518-742552a38460',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA128',
                 'id_projeto' => '2026AMPLA128',
                 'titulo' => 'VALORIZANDO VIDAS',
@@ -2802,7 +2847,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'fc193654-6e2d-5937-955b-8f0103621ba2',
-                'id_coordenador' => '608cbecb-8ed9-5c31-baa9-c74ff5c815ef',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA129',
                 'id_projeto' => '2026AMPLA129',
                 'titulo' => 'LIGA DE SAÚDE MENTAL- LISAM',
@@ -2821,7 +2866,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '188d8564-1b48-5590-bfa6-6b5aed018687',
-                'id_coordenador' => '9a753a68-df56-5e1f-9289-52997f321dd3',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA130',
                 'id_projeto' => '2026AMPLA130',
                 'titulo' => 'EDIFIQUE AÇÕES',
@@ -2840,7 +2885,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '6dae8162-284c-5fbf-b33a-f13b9b127a3e',
-                'id_coordenador' => '4be29b0a-bf68-5627-971f-f35d4ee5ec7f',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA131',
                 'id_projeto' => '2026AMPLA131',
                 'titulo' => 'NÚCLEO DE APOIO CONTÁBIL E FISCAL - NAF',
@@ -2859,7 +2904,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2a62caa0-5ab7-5bf3-9b11-374412b8c0af',
-                'id_coordenador' => 'c775c5da-0498-56f5-8c05-204a391553c4',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA132',
                 'id_projeto' => '2026AMPLA132',
                 'titulo' => 'PROGRAMA MEVECOL PROGRAMA DE MEDICINA VETERINÁRIA DO COLETIVO DO CURSO DE MEDICINA VETERINÁRIA DA UFCA',
@@ -2878,7 +2923,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '685e8a80-8a4b-5953-9201-21fa8c01bcf5',
-                'id_coordenador' => '9bf74d81-f511-5aa5-ac14-476d8d487162',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA133',
                 'id_projeto' => '2026AMPLA133',
                 'titulo' => 'LIGA DE SAÚDE COMUNITÁRIA DO CARIRI (LISAC)',
@@ -2897,7 +2942,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '8dc28fd7-fdab-572e-a25b-5d8b5f52cd07',
-                'id_coordenador' => 'f6439683-c8d7-5c47-bcc0-84c729ef24e5',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA134',
                 'id_projeto' => '2026AMPLA134',
                 'titulo' => 'LIGA ACADÊMICA DE PSIQUIATRIA DA UFCA: VALORIZAÇÃO DA VIDA E COMBATE AOS PARADIGMAS E ESTEREÓTIPOS RELACIONADOS AOS TRANSTORNOS MENTAIS',
@@ -2916,7 +2961,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '1c3bee16-f878-5990-99a4-33e598b42139',
-                'id_coordenador' => 'ffdb3856-b750-54bc-a23d-d322cd867422',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA135',
                 'id_projeto' => '2026AMPLA135',
                 'titulo' => 'LAMAC - SUSTENTABILIDADE NA INTERAÇÃO DA EXTENSÃO, ENSINO, PESQUISA E CULTURA EM MATERIAIS DE CONSTRUÇÃO',
@@ -2935,7 +2980,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '862adc85-2780-559a-8d95-600b302f3fbf',
-                'id_coordenador' => '81488b5c-b8ca-5ddf-af0d-abb2fca29243',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA136',
                 'id_projeto' => '2026AMPLA136',
                 'titulo' => 'ENGENHARIA ACOLHEDORA',
@@ -2954,7 +2999,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '89d88086-15bf-5c0d-aeb0-282e0700d8a1',
-                'id_coordenador' => 'e0027fa5-d265-5dae-a986-c66241fb721e',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA137',
                 'id_projeto' => '2026AMPLA137',
                 'titulo' => 'LUPAC - LIGA UNIVERSITÁRIA DE PATOLOGIA DO CARIRI',
@@ -2973,7 +3018,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'bd47b923-20ef-541f-9e85-01121c68174c',
-                'id_coordenador' => 'acfb23ac-ae54-55e4-8e86-6cf6cfb252e5',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026AMPLA138',
                 'id_projeto' => '2026AMPLA138',
                 'titulo' => 'PREMIUM CONSULTORIA JÚNIOR',
@@ -2992,7 +3037,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'bfa29d1a-fe11-5f48-94a1-47ec8d5d3a78',
-                'id_coordenador' => 'cd5c3b5f-bf7e-59e2-88d0-b977a1ee6d0a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE139',
                 'id_projeto' => '2026PROPE139',
                 'titulo' => 'PROJETO CAPACITAÇÃO EM EMERGÊNCIAS MÉDICAS (PROCEM)',
@@ -3011,7 +3056,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'b5d3e173-1345-5d05-ad4e-4452aee75f1e',
-                'id_coordenador' => 'ef95e783-ac16-5d9b-aed8-f58e95755e2e',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE140',
                 'id_projeto' => '2026PROPE140',
                 'titulo' => 'AÇÕES INTERDISCIPLINARES PARA O CUIDADO, PREVENÇÃO E PROMOÇÃO À SAÚDE DA CRIANÇA',
@@ -3030,7 +3075,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '73232576-e241-5401-bc05-7551b8eba1e2',
-                'id_coordenador' => '1ad5ca12-c8f1-5198-9264-c9503614307c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE141',
                 'id_projeto' => '2026PROPE141',
                 'titulo' => 'CARIRI SEM ESTIGMA: PREVENÇÃO DA PSICOFOBIA E PROMOÇÃO DA SAÚDE MENTAL.',
@@ -3049,7 +3094,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'f994b64f-89cc-5c62-af62-2984dc1b947b',
-                'id_coordenador' => '9e471365-f7e0-5222-87ed-8c646456107c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE142',
                 'id_projeto' => '2026PROPE142',
                 'titulo' => 'BEM-ME-QUER: SAÚDE DA MULHER NO CARIRI',
@@ -3068,7 +3113,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '6fe71d80-168e-5a9a-9056-07921e4d6b06',
-                'id_coordenador' => 'f707a83a-ff91-5663-83d4-a73dca2a75c9',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE143',
                 'id_projeto' => '2026PROPE143',
                 'titulo' => 'HORTA VERTICAL COMO TERAPIA: BEM-ESTAR E ACESSIBILIDADE PARA OS IDOSOS DO MUNICÍPIO DO CRATO, CE',
@@ -3087,7 +3132,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e578e838-cf75-5104-b7a7-6bcc7e3a61d2',
-                'id_coordenador' => '01d3ef6d-d3ef-5f88-b914-87680a8e337a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE144',
                 'id_projeto' => '2026PROPE144',
                 'titulo' => 'ESCOLHAS QUE TRANSFORMAM: PREVENÇÃO INTEGRADA DE RISCOS EM ADOLESCENTES DO CRAJUBAR',
@@ -3106,7 +3151,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'eda7475a-be7c-585c-8172-acfcded7ecc5',
-                'id_coordenador' => '0a9825ab-dad8-57e0-aff5-1081a592c468',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE145',
                 'id_projeto' => '2026PROPE145',
                 'titulo' => 'LIDER UFCA - LABORATÓRIO DE INTEGRAÇÃO, DESENVOLVIMENTO, EMPREGABILIDADE E RECRUTAMENTO',
@@ -3125,7 +3170,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'b19659d0-bad3-5e74-a2c1-5b58cfaa179a',
-                'id_coordenador' => 'f2a7a99c-bd99-500d-9d50-462724dc106d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE146',
                 'id_projeto' => '2026PROPE146',
                 'titulo' => 'CARTONERA DIGITAL DO CARIRI: ARTE, SUSTENTABILIDADE E LEITURA ACESSÍVEL',
@@ -3144,7 +3189,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'd59603ee-f187-57df-a5f2-03b203ac6ed9',
-                'id_coordenador' => 'c7046da9-a146-50bb-936d-3ba61b5d7ce2',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE147',
                 'id_projeto' => '2026PROPE147',
                 'titulo' => 'EDI - EDUCAÇÃO DIGITAL PARA IDOSOS',
@@ -3163,7 +3208,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '3a4f1ef7-aca0-5387-a820-129b53357f6d',
-                'id_coordenador' => '0939b26e-060f-5479-b227-aefa07994e5e',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE148',
                 'id_projeto' => '2026PROPE148',
                 'titulo' => 'CARIRI MAIS CONSCIENTE: PROGRAMA DE EDUCAÇÃO FINANCEIRA PARA ESTUDANTES',
@@ -3182,7 +3227,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e80bac4b-2078-51a9-924a-76b7ec43dc59',
-                'id_coordenador' => '92cf4470-ed0d-5910-9128-6b4ea2291f36',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE149',
                 'id_projeto' => '2026PROPE149',
                 'titulo' => 'DETECÇÃO PRECOCE E CUIDADO INTEGRAL CONTRA O CÂNCER DE PELE NA APS',
@@ -3201,7 +3246,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '59d37473-4d73-5f41-9ead-1385db08e68e',
-                'id_coordenador' => 'ad5dbece-d75c-580c-9b7a-56be42d54b8c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE150',
                 'id_projeto' => '2026PROPE150',
                 'titulo' => 'ONE HEALTH EM AÇÃO: VIGILÂNCIA ZOONÓTICA E EDUCAÇÃO EM SAÚDE NO CARIRI.',
@@ -3220,7 +3265,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '7550d619-8750-555d-a718-732b2ae55d24',
-                'id_coordenador' => 'c83b97e7-7ac7-525d-8572-2de5c1195ac3',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE151',
                 'id_projeto' => '2026PROPE151',
                 'titulo' => 'CÍRCULOS DE LEITURA: EDUCAÇÃO FILOSÓFICA EM ESCOLAS.',
@@ -3239,7 +3284,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'b98870df-eef8-5c07-8403-d79684fd41dc',
-                'id_coordenador' => '75e97308-8b77-5e51-8474-7abca514959f',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE152',
                 'id_projeto' => '2026PROPE152',
                 'titulo' => 'BOM CARROCEIRO',
@@ -3258,7 +3303,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '05fa4b74-cc37-5142-a04d-7a273a5c428b',
-                'id_coordenador' => 'ad8ab7cc-51b2-52a0-bf5f-aefa0500f166',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE153',
                 'id_projeto' => '2026PROPE153',
                 'titulo' => 'LABORATÓRIO SOCIAL DE MATEMÁTICA: EDUCAÇÃO E INCLUSÃO SOCIAL',
@@ -3277,7 +3322,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '28d869dd-1e12-5a74-a2bb-1a4ad5e059ec',
-                'id_coordenador' => 'f24e09ed-615c-594d-87aa-ecfa624708ee',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE154',
                 'id_projeto' => '2026PROPE154',
                 'titulo' => 'CAPACITAÇÃO EM MANEJO HUMANITÁRIO DE EQUINOS DE VAQUEJADA: ESTRATÉGIAS DE BEM-ESTAR, SAÚDE E DESEMPENHO ADAPTADAS AO SEMIÁRIDO NORDESTINO',
@@ -3296,7 +3341,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '974c6dee-6f24-55d8-9450-d46059b1b05a',
-                'id_coordenador' => 'c32d0159-d5ca-5de4-9b3a-4004fd6361ea',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE155',
                 'id_projeto' => '2026PROPE155',
                 'titulo' => 'PRIMEIROS SOCORROS E O JOVEM CIDADÃO: CAPACITAÇÃO EM EMERGÊNCIAS PARA ALUNOS DE ESCOLAS PÚBLICAS DO ENSINO MÉDIO',
@@ -3315,7 +3360,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '96bf5a53-7ba6-54f0-8849-b3ce438bd2b9',
-                'id_coordenador' => 'da346adb-4639-5166-953a-b5abecc93fa9',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE156',
                 'id_projeto' => '2026PROPE156',
                 'titulo' => 'RAÍZES E ESTRUTURAS: INTERAÇÕES DIALÓGICAS ENTRE ENGENHARIA DE MATERIAIS E PERMACULTURA E CIÊNCIA DA INFORMAÇÃO',
@@ -3334,7 +3379,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2d855ae5-6681-56eb-b3b9-6d116a1421cb',
-                'id_coordenador' => 'b6ec7b0b-83e9-565d-88cc-f40f4b1ef720',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE157',
                 'id_projeto' => '2026PROPE157',
                 'titulo' => 'EDUCAÇÃO PARA ADOÇÃO RESPONSÁVEL DE ANIMAIS EM AMBIENTE ESCOLAR',
@@ -3353,7 +3398,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '3952490b-e380-594d-a5dd-141999d2f490',
-                'id_coordenador' => '7c98f9ca-ec7b-5f59-9039-6a18e466e739',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE158',
                 'id_projeto' => '2026PROPE158',
                 'titulo' => 'PROJETO: "CAMINHOS DO JOVEM TRABALHADOR": MINHAS FINANÇAS, MINHA CIDADANIA.',
@@ -3372,7 +3417,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2e13932f-4bb9-5a37-9c05-55651a349104',
-                'id_coordenador' => '59abd05b-5bf9-5a79-be4b-b9945d5ea5c1',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE159',
                 'id_projeto' => '2026PROPE159',
                 'titulo' => 'CLIMA ORGANIZACIONAL E QUALIDADE DE VIDA: ESTRATÉGIAS PARA A REDUÇÃO DE RISCOS PSICOSSOCIAIS E O DESENVOLVIMENTO DE COMPETÊNCIAS NO CARIRI.',
@@ -3391,7 +3436,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '3ad50b50-70c5-5fd0-87c0-e6a82f46ea65',
-                'id_coordenador' => '0d0b5daa-7f14-5526-8a29-073ae273deab',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE160',
                 'id_projeto' => '2026PROPE160',
                 'titulo' => 'EU TAMBÉM QUERO SER JORNALISTA: EDUCOMUNICAÇÃO E PROTAGONISMO JUVENIL NA ESCOLA',
@@ -3410,7 +3455,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '0104644a-94ce-52cb-a41f-3ed0f0b6bbe7',
-                'id_coordenador' => '19085a4c-1237-5757-b989-4f0ec269c21a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE161',
                 'id_projeto' => '2026PROPE161',
                 'titulo' => 'TRILHA UNIVERSITÁRIA: DESVENDANDO CAMINHOS PARA O INGRESSO ACADÊMICO.',
@@ -3429,7 +3474,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '13a7b42b-10ba-5ff2-be24-b187b6ff6239',
-                'id_coordenador' => 'a5e0790b-63bf-523f-acb0-314925db4abb',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE162',
                 'id_projeto' => '2026PROPE162',
                 'titulo' => 'TECHREPRO: REPRODUÇÃO, MELHORAMENTO E BEM-ESTAR ANIMAL POR MEIO DE TECNOLOGIAS DIGITAIS',
@@ -3448,7 +3493,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2e48dc15-fac5-5743-8fd2-f254c377b9a3',
-                'id_coordenador' => '48aac35a-c354-589e-8aa4-f0a4fb209b52',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE163',
                 'id_projeto' => '2026PROPE163',
                 'titulo' => 'BRASIL CONTEMPORÂNEO: OS IMPACTOS SOCIAIS E FISCAIS DAS REFORMAS ESTRUTURANTES DA ÚLTIMA DÉCADA - UM OLHAR SOBRE A PERSPECTIVA DO MUNICÍPIO',
@@ -3467,7 +3512,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '46aae58a-7a27-53ae-a20a-55606b79ac19',
-                'id_coordenador' => '963f4991-f11e-523d-8338-3114bbf8f681',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE164',
                 'id_projeto' => '2026PROPE164',
                 'titulo' => 'FARMÁCIA VIVA ESCOLA',
@@ -3486,7 +3531,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '527e1623-0d87-54ff-9c8d-c8a477ee1394',
-                'id_coordenador' => '88d2bec9-d6a7-5b65-9577-3d5f8afc467d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE165',
                 'id_projeto' => '2026PROPE165',
                 'titulo' => 'CARIRI CAIPIRA EM MONTE ALVERNE: FORTALECIMENTO DA PRODUÇÃO FAMILIAR DE AVES E SUÍNOS ENTRE OS INDÍGENAS KARIRI',
@@ -3505,7 +3550,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '8cde87ab-59ca-57a6-8778-6a9ea3d91689',
-                'id_coordenador' => 'bacd8843-2686-551e-86d6-f4557928baa0',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE166',
                 'id_projeto' => '2026PROPE166',
                 'titulo' => 'LABEVE',
@@ -3524,7 +3569,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '1c4fa90b-bbee-5e0e-a231-2b16900806fa',
-                'id_coordenador' => 'd200b5fe-d581-52bc-81d4-7ae3102ac8f8',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE167',
                 'id_projeto' => '2026PROPE167',
                 'titulo' => 'FACHADAS A VER O SOL',
@@ -3543,7 +3588,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '12eb82e3-acb8-5ada-80a6-b70f4f72b242',
-                'id_coordenador' => '23ef4b83-6600-59df-b9c4-b9cc28dada60',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE168',
                 'id_projeto' => '2026PROPE168',
                 'titulo' => 'TRANSMUTAÇÃO TÊXTIL: O UPCYCLING SOB A ÓTICA DA EXPRESSÃO QUEER',
@@ -3562,7 +3607,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'b9b3e622-5c9f-5122-b1f7-e28bbd09e8da',
-                'id_coordenador' => 'ff31c37d-c0c4-5ae9-8dc5-c3d4c6468485',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE169',
                 'id_projeto' => '2026PROPE169',
                 'titulo' => 'PODCAST ALÉM DA LINHA',
@@ -3581,7 +3626,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '212defbf-22a4-5242-8973-680365673e0a',
-                'id_coordenador' => 'a010f50a-0371-584e-8278-cfb662662537',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026PROPE170',
                 'id_projeto' => '2026PROPE170',
                 'titulo' => 'POLINIZE',
@@ -3600,7 +3645,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'c348f510-1f73-5c64-bd7f-78ac0f4cd1a1',
-                'id_coordenador' => '4a50a2cb-b6b9-554d-9e6c-354d812d3373',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026ITINERANTE171',
                 'id_projeto' => '2026ITINERANTE171',
                 'titulo' => 'DO CAMPO À MESA: VALORIZANDO OS SABERES REGIONAIS',
@@ -3619,7 +3664,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e377a1cd-8136-5e00-8e7c-2f135f52b2f4',
-                'id_coordenador' => 'acfb23ac-ae54-55e4-8e86-6cf6cfb252e5',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026ITINERANTE172',
                 'id_projeto' => '2026ITINERANTE172',
                 'titulo' => 'EDUCAÇÃO FINANCEIRA EM CENA: UM GUIA INTERATIVO PARA JOVENS ESTUDANTES',
@@ -3638,7 +3683,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a578f8c2-537d-51a6-8896-bb371c13aba3',
-                'id_coordenador' => 'a74450c8-6a76-55cd-92a3-4f9ea41f2a36',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026ITINERANTE173',
                 'id_projeto' => '2026ITINERANTE173',
                 'titulo' => 'FAUNA SILVESTRE DO CARIRI: ESTRATÉGIAS EDUCATIVAS PARA CONSERVAÇÃO E PREVENÇÃO DE ZOONOSES',
@@ -3657,7 +3702,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '9df71aaf-d2d3-5424-86e8-b8def8e09bd0',
-                'id_coordenador' => '08da8b30-255e-59db-a518-742552a38460',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026ITINERANTE174',
                 'id_projeto' => '2026ITINERANTE174',
                 'titulo' => 'MÃOS QUE SALVAM: EDUCAÇÃO E PROTAGONISMO JUVENIL EM EMERGÊNCIAS',
@@ -3676,7 +3721,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'c64dd545-5d99-5a33-8f08-511a75e2a590',
-                'id_coordenador' => '5ad30f9c-09da-530b-9d73-01f5798da295',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026ITINERANTE175',
                 'id_projeto' => '2026ITINERANTE175',
                 'titulo' => 'NARRATIVAS DO ESPORTE CARIRIENSE',
@@ -3695,7 +3740,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a4b9be95-9af8-5d9a-895d-9302c28e6bd5',
-                'id_coordenador' => '940c9781-89ce-5e49-a785-37cd9ce5c5fc',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026ITINERANTE176',
                 'id_projeto' => '2026ITINERANTE176',
                 'titulo' => 'SABER AGIR PARA SALVAR VIDAS: EDUCAÇÃO EM PRIMEIROS SOCORROS',
@@ -3714,7 +3759,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'b3d89aa4-da34-5e86-873d-78c624e430f7',
-                'id_coordenador' => '40ff0d75-a6a9-529c-8a29-2523c556904e',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO177',
                 'id_projeto' => '2026CONTINUO177',
                 'titulo' => 'ELAS NAS EXATAS – CONSTRUINDO CONEXÕES EDUCATIVAS PARA O PLANO DE SECAS E SEGURANÇA HÍDRICA NA REGIÃO HIDROGRÁFICA DO SALGADO/CE',
@@ -3733,7 +3778,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '988856c7-e893-5576-9b93-faf89c5bc575',
-                'id_coordenador' => 'b1407117-cb78-5859-9d27-6d459eed88fe',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO178',
                 'id_projeto' => '2026CONTINUO178',
                 'titulo' => 'INVESTIGAÇÃO GEOTÉCNICA POR MEIO DE ENSAIOS DE LABORATÓRIO E DE CAMPO',
@@ -3752,7 +3797,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '485fee11-9462-54c6-8fe3-6e5e5d87aa34',
-                'id_coordenador' => 'a74450c8-6a76-55cd-92a3-4f9ea41f2a36',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO179',
                 'id_projeto' => '2026CONTINUO179',
                 'titulo' => 'QUINTAIS PRODUTIVOS DO CARIRI CAIPIRA – PROGRAMA DE INCENTIVO E DE VALORIZAÇÃO DA PRODUÇÃO ANIMAL E DA CULTURA ALIMENTAR CAIPIRA DO CARIRI',
@@ -3771,7 +3816,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a64e1b93-6c89-59d1-a906-72b205c25654',
-                'id_coordenador' => '6f2c45d2-3943-5986-b6c6-c7e7f42e961b',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO180',
                 'id_projeto' => '2026CONTINUO180',
                 'titulo' => 'OBSERVATÓRIO KARIRI DE ECONOMIA CRIATIVA',
@@ -3790,7 +3835,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '4d6e1d5c-0757-54a2-9878-c96f98cf78cb',
-                'id_coordenador' => '27b9f5de-eed2-57c0-af5f-57c35b6f3c0d',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO181',
                 'id_projeto' => '2026CONTINUO181',
                 'titulo' => 'EMBAIXADORES DAS ENGENHARIAS',
@@ -3809,7 +3854,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '7730cd90-ce3d-5945-90c6-ccbe0af0cb66',
-                'id_coordenador' => '488bd9d4-f524-52c5-889b-5113080eacca',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO182',
                 'id_projeto' => '2026CONTINUO182',
                 'titulo' => 'LABORATÓRIO DE EXTENSÃO, CULTURA E INOVAÇÃO : LABKARIRI',
@@ -3828,7 +3873,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '7e893372-a33f-500a-b784-dea45da65eb2',
-                'id_coordenador' => '096e53b8-cf32-547d-ac5a-3ae50772e0bc',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO183',
                 'id_projeto' => '2026CONTINUO183',
                 'titulo' => 'LIGA ACADÊMICA DE SAÚDE ÚNICA - LIASU',
@@ -3847,7 +3892,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'ee75fb6c-194d-5bf4-ba93-86fbbf9de325',
-                'id_coordenador' => 'fd08152b-eb7c-57a0-9797-b767ed403b73',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO184',
                 'id_projeto' => '2026CONTINUO184',
                 'titulo' => 'EDUCAÇÃO FISCAL E FINANCEIRA: DIÁLOGO DE CIDADANIA',
@@ -3866,7 +3911,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '3e561054-c860-5d34-8c67-6c461a8362f2',
-                'id_coordenador' => 'b6fa5593-bceb-5335-bc7f-099668850027',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO185',
                 'id_projeto' => '2026CONTINUO185',
                 'titulo' => 'PROJETO DE EXTENSÃO EM INFECTO-PARASITOLOGIA: INTEGRALIZAÇÃO DA EXTENSÃO NO ÂMBITO DO MÓDULO RELAÇÃO PARASITO-HOSPEDEIRO',
@@ -3885,7 +3930,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a8a2fbc6-8883-5f77-94a5-7c26d7419eb6',
-                'id_coordenador' => '671e9744-cb7a-5894-8e4f-0d279b81fd65',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO186',
                 'id_projeto' => '2026CONTINUO186',
                 'titulo' => 'PROJETO DE EXTENSÃO DE IMUNOPATOLOGIA',
@@ -3904,7 +3949,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'cd21c4b9-8c3b-50a8-a874-e18ec78c8066',
-                'id_coordenador' => 'acfb23ac-ae54-55e4-8e86-6cf6cfb252e5',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO187',
                 'id_projeto' => '2026CONTINUO187',
                 'titulo' => 'PLANEJAMENTO FINANCEIRO E CONSUMO CONSCIENTE: UMA ABORDAGEM EDUCACIONAL PARA ESCOLAS PÚBLICAS',
@@ -3923,7 +3968,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '070e7288-450e-5f22-859f-0f0f0fec453d',
-                'id_coordenador' => '671e9744-cb7a-5894-8e4f-0d279b81fd65',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO188',
                 'id_projeto' => '2026CONTINUO188',
                 'titulo' => 'PROJETO CORES VIVAS',
@@ -3942,7 +3987,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '7b3e98b1-3a0c-533d-b6eb-43b33e4729ff',
-                'id_coordenador' => '89ba0655-32ec-5426-aa79-52922efa4de3',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO189',
                 'id_projeto' => '2026CONTINUO189',
                 'titulo' => 'PLANETARIUM KARIRI: CONECTANDO CIÊNCIA, EDUCAÇÃO E COMUNIDADES CEARENSES',
@@ -3961,7 +4006,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'fdaf3694-35cd-521e-87ff-f6b21e314520',
-                'id_coordenador' => 'a7b6bd3b-843c-5b79-a5aa-739b3acdde14',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO190',
                 'id_projeto' => '2026CONTINUO190',
                 'titulo' => 'CONTRIBUIÇÃO AO PROJETO VIVER EM SANTANA DO CARIRI',
@@ -3980,7 +4025,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '9ac1bbfb-e888-542d-a408-8319682fde93',
-                'id_coordenador' => '608cbecb-8ed9-5c31-baa9-c74ff5c815ef',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO191',
                 'id_projeto' => '2026CONTINUO191',
                 'titulo' => 'INTEGRA ADM',
@@ -3999,7 +4044,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'c32fcf27-7ae4-5a93-ac98-16fa646f4e81',
-                'id_coordenador' => 'a12f526b-bde5-51a8-b025-faa95a559e20',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO192',
                 'id_projeto' => '2026CONTINUO192',
                 'titulo' => 'OFICINA DE CONSULTORIA ORGANIZACIONAL',
@@ -4018,7 +4063,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '74295f14-5b03-51e4-971a-4e2ca457455f',
-                'id_coordenador' => '797d3219-922b-54f9-be8e-5e9ea323aaac',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO193',
                 'id_projeto' => '2026CONTINUO193',
                 'titulo' => 'MONITOR QUEIMADAS CARIRI: MAPEAMENTO E MONITORAMENTO DE QUEIMADAS ATRAVÉS DO PORTAL VIRTUAL COM USO DE INTELIGÊNCIA ARTIFICIAL (IA)',
@@ -4037,7 +4082,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'edf5b8e5-fe44-5fe4-940d-e5312edaaf91',
-                'id_coordenador' => '90f76330-d14d-5def-ab4c-3539f8b18c9a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO194',
                 'id_projeto' => '2026CONTINUO194',
                 'titulo' => 'GESTÃO PARA EMPREENDEDORES LOCAIS - GEL',
@@ -4056,7 +4101,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'b39e4535-f08f-5bd5-9c63-92fd53881c73',
-                'id_coordenador' => '21b1f247-1a86-5b30-bdda-4d107ce872c0',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO195',
                 'id_projeto' => '2026CONTINUO195',
                 'titulo' => 'CONECTE-SE: INTEGRAÇÃO PROFISSIONAL E DESENVOLVIMENTO REGIONAL',
@@ -4075,7 +4120,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'c9af6f1c-1319-5add-a08a-e8bf5cac4ba8',
-                'id_coordenador' => 'c74fb699-f5c6-538a-bd6b-a3ed7d8f4e35',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO196',
                 'id_projeto' => '2026CONTINUO196',
                 'titulo' => 'MAMULENGOS DA SAÚDE',
@@ -4094,7 +4139,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '397a33da-00f4-5a5f-858f-c98996595ff4',
-                'id_coordenador' => '09167111-319a-5ad4-886e-4613a2dbab76',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO197',
                 'id_projeto' => '2026CONTINUO197',
                 'titulo' => 'PROMOVENDO O CURSO DE ARQUIVOLOGIA DA UNIVERSIDADE FEDERAL DO CARIRI',
@@ -4113,7 +4158,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '858b66b6-2097-5130-9cb6-b7af5aaaf484',
-                'id_coordenador' => '1bdeca93-4ac3-544c-a2d5-cccc87fd172a',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO198',
                 'id_projeto' => '2026CONTINUO198',
                 'titulo' => 'A WIKIVERSIDADE COMO REPOSITÓRIO DE CONHECIMENTO LIVRE DO CCT/UFCA',
@@ -4132,7 +4177,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '33b06684-f404-5019-ba03-4273ddbd8c69',
-                'id_coordenador' => '26763f25-fba9-5df3-83f8-93aca0d1802c',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO199',
                 'id_projeto' => '2026CONTINUO199',
                 'titulo' => 'LITERATURA DE CORDEL EM LIBRAS PARA PESSOAS SURDAS',
@@ -4151,7 +4196,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '96ba6884-e68e-565e-920e-c75c4f4f9bd6',
-                'id_coordenador' => '9b212bef-4418-56a6-9837-8479d010f3d8',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO200',
                 'id_projeto' => '2026CONTINUO200',
                 'titulo' => 'LIVIAS - LIGA ACADÊMICA DE VIAS E TRANSPORTES',
@@ -4170,7 +4215,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '85c918ce-cdc6-5a51-ad27-8a889fe0d284',
-                'id_coordenador' => '0d64918e-1ceb-5773-b9b8-6715f746bea3',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO201',
                 'id_projeto' => '2026CONTINUO201',
                 'titulo' => 'CENTRO DE REFERÊNCIA EM FORMAÇÃO CONTINUADA PARA EQUIDADE RACIAL NO CARIRI',
@@ -4189,7 +4234,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'a0a8b75f-7c02-5a21-b1f9-07acfcf20785',
-                'id_coordenador' => 'ffdb3856-b750-54bc-a23d-d322cd867422',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO202',
                 'id_projeto' => '2026CONTINUO202',
                 'titulo' => 'LAMAC – SUSTENTABILIDADE NA INTERAÇÃO DA EXTENSÃO, ENSINO, PESQUISA E CULTURA EM MATERIAIS DE CONSTRUÇÃO',
@@ -4208,7 +4253,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'caa3ce56-4fab-5f48-ab5e-af53d12cb8fb',
-                'id_coordenador' => 'c53d0c24-c37b-5514-be6f-ab49d3c50725',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO203',
                 'id_projeto' => '2026CONTINUO203',
                 'titulo' => 'GRUPO DE ESTUDOS EM INSTITUIÇÕES, ORGANIZAÇÕES E ALGORITMOS.',
@@ -4227,7 +4272,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '355f7886-09dc-5577-9736-49225d093fda',
-                'id_coordenador' => 'c53d0c24-c37b-5514-be6f-ab49d3c50725',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO204',
                 'id_projeto' => '2026CONTINUO204',
                 'titulo' => 'ENTRE SABERES: GRUPO DE ESTUDOS EM INTERCULTURALIDADE DO PET REDE ENCONTRO DE SABERES DO CARIRI',
@@ -4246,7 +4291,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '5a04aedc-5554-53d8-809a-3318e35125fe',
-                'id_coordenador' => '9ad1d65b-23ba-5dcc-ac49-d21ffdd9a650',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO205',
                 'id_projeto' => '2026CONTINUO205',
                 'titulo' => 'CURSO SOBRE GÊNERO',
@@ -4265,7 +4310,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '63f0780a-77ef-5189-a497-90d7931bd430',
-                'id_coordenador' => '5ff373fe-f019-58e7-932a-da1899bbb479',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO206',
                 'id_projeto' => '2026CONTINUO206',
                 'titulo' => 'CURSO DE MATEMÁTICA BÁSICA: CONCEITOS MATEMÁTICOS E RECURSOS DIDÁTICOS',
@@ -4284,7 +4329,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => 'e21019fb-978e-5326-b805-0718c81bd3cb',
-                'id_coordenador' => 'c022c815-a908-5141-ab55-658536dd2a9f',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO207',
                 'id_projeto' => '2026CONTINUO207',
                 'titulo' => 'ENSINO DE CIÊNCIAS PARA A EDUCAÇÃO INDÍGENA TRUKÁ',
@@ -4303,7 +4348,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '97dc17ac-40b1-53db-acee-76faad61496c',
-                'id_coordenador' => 'ffdb3856-b750-54bc-a23d-d322cd867422',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO208',
                 'id_projeto' => '2026CONTINUO208',
                 'titulo' => 'PRÁTICA DE TECNOLOGIA SUSTENTÁVEL: TIJOLO SOLO-CIMENTO',
@@ -4322,7 +4367,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '1bc4f08b-b1b7-5b28-8160-cb3ab4b093ee',
-                'id_coordenador' => 'f963efbc-93bc-5e11-b255-ebd5d704eb5e',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO209',
                 'id_projeto' => '2026CONTINUO209',
                 'titulo' => 'FILOSOFIA E VIDA COTIDIANA: O CONSULTÓRIO DE FILOSOFIA',
@@ -4341,7 +4386,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '7aa75a1b-5f00-5c50-b80c-bf7495069109',
-                'id_coordenador' => '3e05f0ad-f42d-5974-8625-d18914f2ab10',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO210',
                 'id_projeto' => '2026CONTINUO210',
                 'titulo' => 'LABORATÓRIO DE EXTENSÃO EM DESENVOLVIMENTO DE SOFTWARE (LABEX)',
@@ -4360,7 +4405,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '91e5c53c-6e31-506f-8fc0-0b51c02427fd',
-                'id_coordenador' => '40a2fa24-85c6-5432-b1d6-20a109371862',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO211',
                 'id_projeto' => '2026CONTINUO211',
                 'titulo' => 'RAÍZES DO AMANHÃ: COOPERATIVISMO E SABERES LOCAIS CONSTRUINDO A RESILIÊNCIA DA AGRICULTURA FAMILIAR E A SUSTENTABILIDADE SOCIOAMBIENTAL',
@@ -4379,7 +4424,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '1aa73205-e452-52ea-a8d3-fab3da012e47',
-                'id_coordenador' => 'c80bb61e-2bd6-5991-8957-2ad5b3d147b9',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO212',
                 'id_projeto' => '2026CONTINUO212',
                 'titulo' => '3ª EXPO SABERES E SABORES',
@@ -4398,7 +4443,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '6c66f5ff-0b93-5a97-b748-95ab0f032755',
-                'id_coordenador' => '7cd86daf-371c-5f0f-8136-d3faf6388612',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO213',
                 'id_projeto' => '2026CONTINUO213',
                 'titulo' => 'SEMANA DA LICENCIATURA EM MATEMÁTICA DO INSTITUTO DE FORMAÇÃO DE EDUCADORES - SEMATIFE',
@@ -4417,7 +4462,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'id' => '2f1e1bd0-2804-5551-bc5e-3e970d455c0d',
-                'id_coordenador' => 'c5e4e27f-a64b-57ce-b2f3-d09548093508',
+                'id_coordenador' => $idCoordenador,
                 'id_atividade' => '2026CONTINUO214',
                 'id_projeto' => '2026CONTINUO214',
                 'titulo' => 'NÚCLEO DE ESTUDOS EM CUIDADO FARMACÊUTICO',
