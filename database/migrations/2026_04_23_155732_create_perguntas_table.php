@@ -21,8 +21,8 @@ return new class extends Migration
             $table->double('min')->nullable();
             $table->double('max')->nullable();
             $table->double('step')->nullable();
-            $table->string('accept');
-            $table->string('regex');
+            $table->string('accept')->nullable();
+            $table->string('regex')->nullable();
             $table->timestamps();
         });
     }

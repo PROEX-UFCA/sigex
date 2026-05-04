@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('opcao_pergunta', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('id_pergunta');
+            $table->foreign('id_pergunta')->references('id')->on('pergunta')->onDelete('cascade');
+            $table->text('rotulo');
+            $table->text('valor');
             $table->timestamps();
         });
     }

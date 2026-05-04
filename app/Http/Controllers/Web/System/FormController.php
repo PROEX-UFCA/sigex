@@ -29,6 +29,16 @@ class FormController extends Controller
             return redirect()->back()->with("error", "Erro ao cadastrar formulário. Por favor, tente novamente mais tarde.")->withInput();
         }
     }
+
+    public function storeQuestion(Request $request, $uuid){
+        // dd($request->all());
+        try {
+            $this->formsRepository->createQuestion($request, $uuid);
+            return redirect()->back()->with("success", "Formulário cadastrado com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->back()->with("error", "Erro ao cadastrar formulário. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
     
     public function update(Request $request, $uuid){
         try {
@@ -38,4 +48,19 @@ class FormController extends Controller
             return redirect()->back()->with("error", "Erro ao atualizar formulário. Por favor, tente novamente mais tarde.")->withInput();
         }
     }
+
+    public function sessionUpdate(Request $request, $uuid){
+        try {
+            $this->formsRepository->updateSession($request, $uuid);
+            return redirect()->back()->with("success", "Seção atualizado com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->back()->with("error", "Erro ao atualizar seção. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
+
+    public function session($uuid){
+        $this->data['session'] = $this->formsRepository->getSessionById($uuid);
+        return view('pages.forms.session', $this->data);
+    }
+
 }

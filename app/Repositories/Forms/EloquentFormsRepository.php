@@ -3,6 +3,8 @@
 namespace App\Repositories\Forms;
 
 use App\Models\Formulario;
+use App\Models\Opcao_Pergunta;
+use App\Models\Pergunta;
 use App\Models\Secao;
 
 class EloquentFormsRepository implements FormsRepository
@@ -39,6 +41,33 @@ class EloquentFormsRepository implements FormsRepository
         return $form;
     }
 
+    public function createQuestion($request, $uuid)
+    {
+        $pergunta = Pergunta::create([
+            'id_secao' => $uuid, 
+            'tipo' => $request->tipo, 
+            'enunciado' => $request->enunciado, 
+            'obrigatoria' => $request->obrigatoria, 
+            'min' => $request->min ?? null, 
+            'max' => $request->max ?? null, 
+            'step' => $request->step ?? null, 
+            'accept' => $request->has('accept') ? implode(',', $request->accept) : null, 
+            'regex' => $request->regex ?? null  
+        ]);
+
+        if(isset($request->opcoes)){
+            foreach ($request->opcoes as $value) {
+                Opcao_Pergunta::create([
+                    'id_pergunta' => $pergunta->id, 
+                    'rotulo' => $value, 
+                    'valor' => $value
+                ]);
+            }
+        }
+
+        return $pergunta;
+    }
+
     public function update($request, $uuid)
     {
         $form = Formulario::findOrFail($uuid);
@@ -53,5 +82,21 @@ class EloquentFormsRepository implements FormsRepository
         $form->save();
         
         return $form;
+    }
+
+    public function updateSession($request, $uuid)
+    {
+        $session = Secao::findOrFail($uuid);
+
+        $session->titulo = $request->titulo;
+        $session->descricao = $request->descricao;
+        $session->ordem = $request->ordem;
+        $session->save();
+        
+        return $session;
+    }
+
+    public function getSessionById($uuid){
+        return Secao::findOrFail($uuid);
     }
 }

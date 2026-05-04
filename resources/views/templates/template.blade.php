@@ -99,7 +99,7 @@
               @endcan
 
               <x-navbar.navbar-item route="{{ route('forms.index') }}" title="Formulários"
-                isActive="{{ request()->routeIs(['forms.index']) ? true : false }}"
+                isActive="{{ request()->routeIs(['forms.index', 'sessions.*']) ? true : false }}"
                 icon="ti-clipboard-text">
               </x-navbar.navbar-item>    
 

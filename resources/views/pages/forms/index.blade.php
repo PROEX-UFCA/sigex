@@ -103,7 +103,7 @@
     <x-slot:content>
       <ol class="list-group list-group-numbered">
         @foreach ($item->secoes as $secao)
-        <li class="list-group-item d-flex justify-content-between align-items-start">
+        <a href="{{route('sessions.index', $secao->id)}}" class="text-decoration-none list-group-item d-flex justify-content-between align-items-start">
           <div class="ms-2 me-auto">
             <div class="fw-bold">{{$secao->titulo}}</div>
             {{$secao->descricao}}
@@ -111,7 +111,7 @@
           <span class="badge rounded-pill {{$secao->perguntas->count() == 0 ? 'text-bg-danger' : 'text-bg-primary'}}">
             {{$secao->perguntas->count()}} Perguntas
           </span>
-        </li>
+        </a>
         @endforeach
       </ol>
     </x-slot:content>
@@ -137,7 +137,7 @@
       'placeholder' => 'Insira uma descrição para o formulário',
       'value' => $item->descricao
       ])
-      <x-form-elements.select.select title="Status" id="status" name="status" class="col-12">
+      <x-form-elements.select.select title="Status" id="status" name="status" class="col-12" required="true">
         <x-slot:options>
           <option value="" disabled>Selecione</option>
           <option value="0" {{ $item->status =='0' ? 'selected' : '' }}>Inativo</option>
