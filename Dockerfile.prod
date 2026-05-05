@@ -1,0 +1,73 @@
+FROM php:8.2-fpm AS vendor
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    libonig-dev \
+    libpng-dev \
+    libxml2-dev \
+    libzip-dev \
+    unzip \
+    zip \
+    && pecl install -o -f redis \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip sockets \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/pear
+
+WORKDIR /var/www
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+COPY composer.json composer.lock ./
+
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --no-progress \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-scripts
+
+COPY . .
+
+RUN composer dump-autoload --no-dev --classmap-authoritative
+
+FROM php:8.2-fpm
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    libonig-dev \
+    libpng-dev \
+    libxml2-dev \
+    libzip-dev \
+    unzip \
+    zip \
+    && pecl install -o -f redis \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip sockets \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/pear
+
+WORKDIR /var/www
+
+COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
+COPY --from=vendor /var/www /var/www
+COPY docker/php/entrypoint.prod.sh /usr/local/bin/entrypoint.prod.sh
+
+RUN chmod +x /usr/local/bin/entrypoint.prod.sh \
+    && mkdir -p \
+        /var/www/bootstrap/cache \
+        /var/www/storage/app/public \
+        /var/www/storage/framework/cache/data \
+        /var/www/storage/framework/sessions \
+        /var/www/storage/framework/testing \
+        /var/www/storage/framework/views \
+        /var/www/storage/logs \
+    && chown -R www-data:www-data /var/www
+
+USER www-data
+
+ENTRYPOINT ["entrypoint.prod.sh"]
+CMD ["php-fpm", "-F"]

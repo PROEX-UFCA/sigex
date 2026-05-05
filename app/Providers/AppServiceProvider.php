@@ -15,6 +15,7 @@ use App\Repositories\Settings\User\UsersRepository;
 use App\Repositories\Tokens\UserTokens\EloquentUsersTokensRepository;
 use App\Repositories\Tokens\UserTokens\UsersTokensRepository;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -37,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         Paginator::useBootstrapFive();
     }
 }

@@ -10,9 +10,7 @@ use App\Http\Controllers\Web\System\HomeController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return to_route('login');
-});
+Route::redirect('/', '/login');
 
 
 Route::get('login', [LoginController::class, 'index'])->name('login');
