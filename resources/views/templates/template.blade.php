@@ -98,6 +98,11 @@
               </x-navbar.navbar-item>    
               @endcan
 
+              <x-navbar.navbar-item route="{{ route('forms.index') }}" title="Formulários"
+                isActive="{{ request()->routeIs(['forms.index', 'sessions.*']) ? true : false }}"
+                icon="ti-clipboard-text">
+              </x-navbar.navbar-item>    
+
               @can('ver_usuários')
               <x-navbar.navbar-item route="{{ route('users.index') }}" title="Usuários"
                 isActive="{{ request()->routeIs(['users.*']) ? true : false }}" icon="ti-user">

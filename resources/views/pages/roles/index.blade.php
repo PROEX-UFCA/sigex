@@ -57,7 +57,7 @@
                   </div>
                 </div>
               </x-slot:content>
-              </x-modal.offcanv>
+            </x-modal.offcanvas>
           </div>
         </div>
       </div>
