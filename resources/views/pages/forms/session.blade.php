@@ -1,14 +1,64 @@
 @extends('templates.template')
 
 @section('styles')
+<style>
+  .active-tab {
+    background-color: #066fd1 !important;
+  }
+</style>
 @endsection
 @section('content')
 <div class="page-body row">
   <div class="m-0 p-0 mb-4 row">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
+      @if($form->published == 0)
       <bottom class="btn" data-bs-toggle="collapse" data-bs-target="#editar" aria-expanded="false"
         aria-controls="collapseExample">Editar seção</bottom>
-      <a href="" class="btn">Excluir seção</a>
+
+      <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#modal-add"
+        aria-controls="offcanvasExample">Adicionar seção</button>
+
+      <bottom class="btn" data-bs-toggle="modal" data-bs-target="#deletar" aria-expanded="false"
+        aria-controls="modalExample">Excluir seção</bottom>
+
+      <x-modal.modal-alert route="{{ route('sessions.delete', $session->id) }}" id="deletar"
+        class="modal-dialog-centered modal-sm" background="bg-danger" classBody="text-center py-4" title="Excluír seção"
+        typeBtnClose="button" classBtnClose="me-auto w-100" textBtnClose="Cancelar" typeBtnSave="submit"
+        classBtnSave="btn-danger w-100" textBtnSave="Deletar">
+        <x-slot:content>
+          <i class="ti ti-alert-triangle icon icon-lg text-danger"></i>
+          <h3>Tem certeza?</h3>
+          <div class="text-secondary">
+            Você realmente deseja remover esse registro? Não será possível restaurá-lo depois!
+          </div>
+        </x-slot:content>
+      </x-modal.modal-alert>
+      <x-modal.offcanvas route="{{ route('sessions.store', $form->id) }}" id="modal-add" class="offcanvas-end"
+        title="Adicionar seção">
+        <x-slot:content>
+          @include('components.form-elements.input.input', [
+          'title' => 'Título',
+          'type' => 'text',
+          'class' => 'mb-3 col-12',
+          'name' => 'titulo',
+          'required' => 'true',
+          'placeholder' => 'Insira um título para a seção',
+          'value' => ''
+          ])
+
+          @include('components.form-elements.textarea.textarea', [
+          'title' => 'Descrição',
+          'class' => 'mb-3 col-12',
+          'name' => 'descricao',
+          'required' => 'true',
+          'placeholder' => 'Insira uma descrição para a seção',
+          'value' => ''
+          ])
+        </x-slot:content>
+      </x-modal.offcanvas>
+      @endif
+
+
       <a href="{{route('forms.index')}}" class="btn">Voltar página</a>
     </div>
   </div>
@@ -58,6 +108,16 @@
       </form>
     </div>
   </div>
+  <div class="card mb-3">
+    <ul class="nav nav-pills p-2">
+      @foreach ($form->secoes as $key => $secao)
+      <li class="nav-item">
+        <a class="nav-link {{$session->id == $secao->id ? 'active-tab text-white' : ''}}" aria-current="page"
+          href="{{route('sessions.index', $secao->id)}}">Seção {{$key + 1}}</a>
+      </li>
+      @endforeach
+    </ul>
+  </div>
   <div class="row m-0 p-0 gap-1">
     <div class="col-12 col-md m-0 p-0">
       <div class="card shadow-sm mb-4">
@@ -68,13 +128,19 @@
           @foreach ($session->perguntas as $pergunta)
           <div class="pergunta-item mb-4">
             {{-- Enunciado da Pergunta --}}
-            <label class="form-label fw-bold fs-6 mb-2">
-              {{ $pergunta->enunciado }}
-              @if($pergunta->obrigatoria)
-              <span class="text-danger" title="Obrigatório">*</span>
+            <div class="d-flex mb-2 justify-content-between">
+              <label class="form-label fw-bold fs-6">
+                {{ $pergunta->enunciado }}
+                @if($pergunta->obrigatoria)
+                <span class="text-danger" title="Obrigatório">*</span>
+                @endif
+              </label>
+              @if($form->published == 0)
+              <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
+                data-bs-target="#deletar-pergunta-{{$pergunta->id}}" aria-expanded="false"
+                aria-controls="modalExample"><i class="ti ti-trash"></i></button>
               @endif
-            </label>
-
+            </div>
             {{-- Renderiza o input de acordo com o tipo --}}
             @switch($pergunta->tipo)
 
@@ -190,13 +256,28 @@
           @if(!$loop->last)
           <hr class="text-muted opacity-25 my-4">
           @endif
+          @if($form->published == 0)
 
+          <x-modal.modal-alert route="{{ route('sessions.deleteQuestion', $pergunta->id) }}"
+            id="deletar-pergunta-{{$pergunta->id}}" class="modal-dialog-centered modal-sm" background="bg-danger"
+            classBody="text-center py-4" title="Excluír seção" typeBtnClose="button" classBtnClose="me-auto w-100"
+            textBtnClose="Cancelar" typeBtnSave="submit" classBtnSave="btn-danger w-100" textBtnSave="Deletar">
+            <x-slot:content>
+              <i class="ti ti-alert-triangle icon icon-lg text-danger"></i>
+              <h3>Tem certeza?</h3>
+              <div class="text-secondary">
+                Você realmente deseja remover esse registro? Não será possível restaurá-lo depois!
+              </div>
+            </x-slot:content>
+          </x-modal.modal-alert>
+          @endif
           @endforeach
         </div>
       </div>
     </div>
     <div class="col-12 col-md m-0 p-0">
-      <div class="card">
+      <div class="card pb-0 mb-0">
+        @if($form->published == 0)
         <form method="post" action="{{route('sessions.storeQuestion', $session->id)}}" class="card-body">
           @csrf
           <p class="fw-bold">Adicionar nova pergunta</p>
@@ -320,6 +401,12 @@
           </div>
 
         </form>
+        @else
+        <div class="alert alert-danger mb-0">
+          Esse formulário já foi publicado, logo não é possível adicionar mais perguntas a essa seção, editá-la ou
+          excluí-la.
+        </div>
+        @endif
       </div>
     </div>
   </div>
@@ -330,45 +417,31 @@
   document.addEventListener('DOMContentLoaded', function () {
         const selectTipo = document.getElementById('tipo');
         
-        // Contêineres principais
         const areaValidacoes = document.getElementById('area-validacoes');
         const areaOpcoes = document.getElementById('area-opcoes');
         
-        // Contêineres específicos de validação
         const containerMinMax = document.getElementById('container-min-max');
         const containerStep = document.getElementById('container-step');
         const containerAccept = document.getElementById('container-accept');
         const containerRegex = document.getElementById('container-regex');
         
-        // Labels dinâmicos
         const labelMin = document.getElementById('label-min');
         const labelMax = document.getElementById('label-max');
 
         selectTipo.addEventListener('change', function () {
             const tipo = this.value;
 
-            // ==========================================
-            // 1. ZERAR TODOS OS DADOS (Prevenção de dados fantasmas)
-            // ==========================================
-            
-            // Limpar inputs de texto/número
             document.querySelector('input[name="min"]').value = '';
             document.querySelector('input[name="max"]').value = '';
             document.querySelector('input[name="step"]').value = '';
             document.querySelector('input[name="regex"]').value = '';
 
-            // Desmarcar todos os checkboxes de "Accept"
             const checkboxesAccept = document.querySelectorAll('input[name="accept[]"]');
             checkboxesAccept.forEach(checkbox => checkbox.checked = false);
 
-            // Limpar a lista de opções dinâmicas (esvazia a div)
             const listaOpcoes = document.getElementById('lista-opcoes');
             listaOpcoes.innerHTML = ''; 
 
-
-            // ==========================================
-            // 2. ESCONDER TUDO (Reset visual)
-            // ==========================================
             areaValidacoes.classList.add('d-none');
             areaOpcoes.classList.add('d-none');
             containerMinMax.classList.add('d-none');
@@ -376,10 +449,6 @@
             containerAccept.classList.add('d-none');
             containerRegex.classList.add('d-none');
 
-
-            // ==========================================
-            // 3. MOSTRAR APENAS O NECESSÁRIO
-            // ==========================================
             if (['text', 'textarea'].includes(tipo)) {
                 areaValidacoes.classList.remove('d-none');
                 containerMinMax.classList.remove('d-none');
@@ -403,14 +472,11 @@
             } else if (['select', 'checkbox', 'radio'].includes(tipo)) {
                 areaOpcoes.classList.remove('d-none');
                 
-                // Como limpamos a lista ali em cima, sempre vai estar vazia ao selecionar isso,
-                // então já adicionamos a primeira opção automaticamente pro usuário não ter que clicar no botão.
                 adicionarOpcao();
             }
         });
     });
 
-    // Função para adicionar uma nova opção de select/radio/checkbox
     function adicionarOpcao() {
         const lista = document.getElementById('lista-opcoes');
         const index = lista.children.length; 

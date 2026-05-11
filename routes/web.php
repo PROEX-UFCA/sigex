@@ -78,6 +78,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('formularios/atualizar/{uuid}', [FormController::class, 'update'])->name('forms.update');
     
     Route::get('secao/{uuid}', [FormController::class, 'session'])->name('sessions.index');
+    Route::delete('secao/deletar/{uuid}', [FormController::class, 'sessionDelete'])->name('sessions.delete');
+    Route::post('secao/inserir/{uuid}', [FormController::class, 'sessionStore'])->name('sessions.store');
     Route::post('secao/atualizar/{uuid}', [FormController::class, 'sessionUpdate'])->name('sessions.update');
     Route::post('secao/adicionar/pergunta/{uuid}', [FormController::class, 'storeQuestion'])->name('sessions.storeQuestion');
+    Route::delete('secao/deletar/pergunta/{uuid}', [FormController::class, 'deleteQuestion'])->name('sessions.deleteQuestion');
 });

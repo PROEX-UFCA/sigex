@@ -19,6 +19,7 @@ return new class extends Migration
             $table->text('descricao');
             $table->integer('ordem');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

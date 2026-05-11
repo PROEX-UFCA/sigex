@@ -9,4 +9,8 @@ interface FormsRepository{
   public function getSessionById($uuid);
   public function updateSession($request, $uuid);
   public function createQuestion($request, $uuid);
+  public function getFormById($uuid);
+  public function deleteSessions($uuid);
+  public function storeSessions($request, $uuid);
+  public function deleteQuestion($uuid);
 } 

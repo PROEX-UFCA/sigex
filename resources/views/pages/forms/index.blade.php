@@ -79,13 +79,13 @@
           <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
           <td>{{date('d-m-Y', strtotime($item->created_at))}}</td>
           <td class="text-center">
-            <button class="btn btn-sm p-1 px-2" data-bs-toggle="offcanvas" data-bs-target="#modal-config"
+            <button class="btn btn-sm p-1 px-2" data-bs-toggle="offcanvas" data-bs-target="#modal-config-{{$item->id}}"
               aria-controls="offcanvasExample">
-              Configurações
+              Seções
             </button>
           </td>
           <td class="text-center">
-            <button class="btn btn-sm p-1 px-2" data-bs-toggle="offcanvas" data-bs-target="#modal-edit"
+            <button class="btn btn-sm p-1 px-2" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-{{$item->id}}"
               aria-controls="offcanvasExample">
               Editar
             </button>
@@ -99,7 +99,7 @@
     {{ $forms->links() }}
   </div>
   @foreach ($forms as $item)
-  <x-modal.offcanvas id="modal-config" class="offcanvas-end" title="Seções do formulário {{$item->titulo}}">
+  <x-modal.offcanvas id="modal-config-{{$item->id}}" class="offcanvas-end" title="Seções do formulário {{$item->titulo}}">
     <x-slot:content>
       <ol class="list-group list-group-numbered">
         @foreach ($item->secoes as $secao)
@@ -113,11 +113,19 @@
           </span>
         </a>
         @endforeach
+
+        @if($item->published == 0)
+        <button class="btn btn-azure  mt-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#modal-add-{{$item->id}}" aria-controls="offcanvasExample">Adicionar seção</button>
+        @else
+        <div class="alert alert-danger mt-3">
+          Não é possível mais adicionar seções pois o formulário já foi publicado
+        </div>
+        @endif
       </ol>
     </x-slot:content>
   </x-modal.offcanvas>
 
-  <x-modal.offcanvas route="{{ route('forms.update', $item->id) }}" id="modal-edit" class="offcanvas-end" title="Editar formulário">
+  <x-modal.offcanvas route="{{ route('forms.update', $item->id) }}" id="modal-edit-{{$item->id}}" class="offcanvas-end" title="Editar formulário">
     <x-slot:content>
       @include('components.form-elements.input.input', [
       'title' => 'Título',
@@ -150,6 +158,29 @@
         Ao mudar o status do formulário para ativo pela primeira vez não será mais possível mudar ou editar suas seções e perguntas. 
       </div>
       @endif
+    </x-slot:content>
+  </x-modal.offcanvas>
+
+  <x-modal.offcanvas route="{{ route('sessions.store', $item->id) }}" id="modal-add-{{$item->id}}" class="offcanvas-end" title="Adicionar seção">
+    <x-slot:content>
+      @include('components.form-elements.input.input', [
+      'title' => 'Título',
+      'type' => 'text',
+      'class' => 'mb-3 col-12',
+      'name' => 'titulo',
+      'required' => 'true',
+      'placeholder' => 'Insira um título para a seção',
+      'value' => ''
+      ])
+
+      @include('components.form-elements.textarea.textarea', [
+      'title' => 'Descrição',
+      'class' => 'mb-3 col-12',
+      'name' => 'descricao',
+      'required' => 'true',
+      'placeholder' => 'Insira uma descrição para a seção',
+      'value' => ''
+      ])
     </x-slot:content>
   </x-modal.offcanvas>
   @endforeach

@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('accept')->nullable();
             $table->string('regex')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
