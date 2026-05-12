@@ -102,22 +102,22 @@
       </form>
     </div>
   </div>
-  <div class="table-responsive p-0">
+  <div class="table-responsive p-0" style="max-height: 60vh;">
     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
       <thead>
-        <tr>
+        <tr style="position:sticky; top: 0; z-index: 1;">
           <th class="text-wrap" style="min-width: 400px;">titulo</th>
-          <th>id_atividade</th>
-          <th>id_projeto</th>
-          <th>coordenador</th>
-          <th>centro_departamento</th>
-          <th>data_inicio</th>
-          <th>data_fim</th>
-          <th>ano</th>
-          <th>tipo_acao</th>
-          <th>area_tematica</th>
-          <th>modalidade</th>
-          <th>status</th>
+          <th style="">id_atividade</th>
+          <th style="">id_projeto</th>
+          <th style="">coordenador</th>
+          <th style="">centro_departamento</th>
+          <th style="">data_inicio</th>
+          <th style="">data_fim</th>
+          <th style="">ano</th>
+          <th style="">tipo_acao</th>
+          <th style="">area_tematica</th>
+          <th style="">modalidade</th>
+          <th style="">status</th>
           <th></th>
         </tr>
       </thead>
