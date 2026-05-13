@@ -123,8 +123,8 @@
             'modalidade' => 'modalidade',
             'area_tematica' => 'area_tematica',
             'centro_departamento' => 'centro_departamento',
-            'id_atividade' => 'id_atividade',
-            'id_projeto' => 'id_projeto',
+            // 'id_atividade' => 'id_atividade',
+            // 'id_projeto' => 'id_projeto',
           ] as $field => $label)
           <th>
             <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}" class="text-reset text-decoration-none d-flex align-items-center gap-1">
@@ -151,8 +151,8 @@
           <td>{{$item->modalidade}}</td>
           <td>{{$item->area_tematica}}</td>
           <td>{{$item->centro_departamento}}</td>
-          <td>{{$item->id_atividade}}</td>
-          <td>{{$item->id_projeto}}</td>
+          {{-- <td>{{$item->id_atividade}}</td> --}}
+          {{-- <td>{{$item->id_projeto}}</td> --}}
           @can('editar_ação')
           <td>
             <a href="" data-bs-toggle="modal"
