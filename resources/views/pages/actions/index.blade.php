@@ -106,36 +106,53 @@
     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
       <thead>
         <tr style="position:sticky; top: 0; z-index: 1;">
-          <th class="text-wrap" style="min-width: 400px;">titulo</th>
-          <th style="">id_atividade</th>
-          <th style="">id_projeto</th>
-          <th style="">coordenador</th>
-          <th style="">centro_departamento</th>
-          <th style="">data_inicio</th>
-          <th style="">data_fim</th>
-          <th style="">ano</th>
-          <th style="">tipo_acao</th>
-          <th style="">area_tematica</th>
-          <th style="">modalidade</th>
-          <th style="">status</th>
-          <th></th>
+          @php
+            $sortField = request('sort', 'ano');
+            $sortDirection = request('dir', 'desc');
+            $nextDirection = $sortDirection === 'asc' ? 'desc' : 'asc';
+          @endphp
+
+          @foreach ([
+            'ano' => 'ano',
+            'titulo' => 'titulo',
+            'status' => 'status',
+            'data_inicio' => 'data_inicio',
+            'data_fim' => 'data_fim',
+            'coordenador' => 'coordenador',
+            'tipo_acao' => 'tipo_acao',
+            'modalidade' => 'modalidade',
+            'area_tematica' => 'area_tematica',
+            'centro_departamento' => 'centro_departamento',
+            'id_atividade' => 'id_atividade',
+            'id_projeto' => 'id_projeto',
+          ] as $field => $label)
+          <th>
+            <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}" class="text-reset text-decoration-none d-flex align-items-center gap-1">
+              {{ $label }}
+              @if ($sortField === $field)
+                {{ $sortDirection === 'asc' ? '↑' : '↓' }}
+              @endif
+            </a>
+          </th>
+          
+          @endforeach
         </tr>
       </thead>
       <tbody>
         @foreach ($actions as $item)
         <tr>
+          <td>{{$item->ano}}</td>
           <td class="text-wrap" style="min-width: 400px;">{{$item->titulo}}</td>
-          <td>{{$item->id_atividade}}</td>
-          <td>{{$item->id_projeto}}</td>
-          <td>{{$item->coordenador->name}}</td>
-          <td>{{$item->centro_departamento}}</td>
+          <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
           <td>{{date('d-m-Y', strtotime($item->data_inicio))}}</td>
           <td>{{date('d-m-Y', strtotime($item->data_fim))}}</td>
-          <td>{{$item->ano}}</td>
+          <td>{{$item->coordenador->name}}</td>
           <td>{{$item->tipo_acao}}</td>
-          <td>{{$item->area_tematica}}</td>
           <td>{{$item->modalidade}}</td>
-          <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
+          <td>{{$item->area_tematica}}</td>
+          <td>{{$item->centro_departamento}}</td>
+          <td>{{$item->id_atividade}}</td>
+          <td>{{$item->id_projeto}}</td>
           @can('editar_ação')
           <td>
             <a href="" data-bs-toggle="modal"

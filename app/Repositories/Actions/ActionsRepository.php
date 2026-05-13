@@ -3,7 +3,7 @@
 namespace App\Repositories\Actions;
 
 interface ActionsRepository{
-  public function getByFilter(array $filtros = []);
+  public function getByFilter(array $filtros = [], string $sort = 'ano', string $direction = 'desc');
   public function getAllByUuid($uuid, array $filtros = []);
   public function getByUserUuid($user_uuid, $uuid);
   public function create($request);

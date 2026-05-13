@@ -32,9 +32,17 @@ class ActionController extends Controller
         $this->usersRepository = $usersRepository;
     }
 
-    public function index(Request $request){
+    public function index(Request $request)
+    {
+        $sort = $request->get('sort', 'ano');
+        $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $this->data['actions'] = $this->actionsRepository->getByFilter($request->query());
+        $allowedFields = ['ano', 'titulo', 'status', 'data_inicio', 'data_fim', 'tipo_acao', 'modalidade', 'area_tematica', 'centro_departamento', 'id_atividade', 'id_projeto'];
+
+        if (!in_array($sort, $allowedFields)) $sort = 'ano';
+
+
+        $this->data['actions'] = $this->actionsRepository->getByFilter($request->query(), $sort, $direction);
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA'])->groupBy('function');
 
         return view('pages.actions.index', $this->data);
