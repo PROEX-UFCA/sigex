@@ -164,7 +164,7 @@
     {{ $actions->links() }}
   </div>
   @can('editar_ação')
-  <x-modal.modal id="editarAcao" class="modal-center" title="Editar dados" route="#" textBtnClose="Cancelar" textBtnSave="Enviar" classBtnSave="btn-primary">
+  <x-modal.modal id="editarAcao" class="modal-center" title="Editar dados" route="#" textBtnClose="Cancelar" typeBtnClose="button" textBtnSave="Enviar" classBtnSave="btn-primary">
     <x-slot:content>
       <input type="hidden" name="_method" value="PATCH">
       <input type="hidden" name="id" id="edit-id">
