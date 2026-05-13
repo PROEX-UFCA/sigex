@@ -136,9 +136,23 @@
           <td>{{$item->area_tematica}}</td>
           <td>{{$item->modalidade}}</td>
           <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
+          @can('editar_ação')
           <td>
-            @can('editar_ação')
-            <a href="">Editar</a>
+            <a href="" data-bs-toggle="modal"
+              data-bs-target="#editarAcao"
+              data-id="{{ $item->id }}"
+              data-titulo="{{ $item->titulo }}"
+              data-coordenador="{{ $item->coordenador->name }}"
+              data-centro="{{ $item->centro_departamento }}"
+              data-ano="{{ $item->ano }}"
+              data-data-inicio="{{ $item->data_inicio }}"
+              data-data-fim="{{ $item->data_fim }}"
+              data-tipo="{{ $item->tipo_acao }}"
+              data-area="{{ $item->area_tematica }}"
+              data-modalidade="{{ $item->modalidade }}"
+              data-status="{{ $item->status }}">
+              Editar
+            </a>
           </td>
           @endcan
         </tr>
@@ -149,6 +163,117 @@
   <div class="d-flex justify-content-center mt-5">
     {{ $actions->links() }}
   </div>
+  @can('editar_ação')
+  <x-modal.modal id="editarAcao" class="modal-center" title="Editar dados" route="#" textBtnClose="Cancelar" textBtnSave="Enviar" classBtnSave="btn-primary">
+    <x-slot:content>
+      <input type="hidden" name="_method" value="PATCH">
+      <input type="hidden" name="id" id="edit-id">
+
+      <div class="row g-2">
+        @include('components.form-elements.input.input', [
+          'title' => 'Título',
+          'type' => 'text',
+          'name' => 'titulo',
+          'id' => 'edit-titulo',
+          'required' => 'true',
+          'value' => '',
+          'class' => 'col-12'
+        ])
+
+        @include('components.form-elements.input.input', [
+          'title' => 'Coordenador',
+          'type' => 'text',
+          'name' => 'coordenador',
+          'id' => 'edit-coordenador',
+          'required' => 'true',
+          'value' => '',
+          'class' => 'col-12 col-md-6'
+        ])
+
+        @include('components.form-elements.input.input', [
+          'title' => 'Centro/Departamento',
+          'type' => 'text',
+          'name' => 'centro_departamento',
+          'id' => 'edit-centro',
+          'required' => 'true',
+          'value' => '',
+          'class' => 'col-12 col-md-6'
+        ])
+
+        @include('components.form-elements.input.input', [
+          'title' => 'Ano',
+          'type' => 'number',
+          'name' => 'ano',
+          'id' => 'edit-ano',
+          'required' => 'true',
+          'value' => '',
+          'class' => 'col-12 col-md-4'
+        ])
+
+        @include('components.form-elements.input.input', [
+          'title' => 'Data de Início',
+          'type' => 'date',
+          'name' => 'data_inicio',
+          'id' => 'edit-data-inicio',
+          'required' => 'true',
+          'value' => '',
+          'class' => 'col-12 col-md-4'
+        ])
+
+        @include('components.form-elements.input.input', [
+          'title' => 'Data de Finalização',
+          'type' => 'date',
+          'name' => 'data_fim',
+          'id' => 'edit-data-fim',
+          'required' => 'true',
+          'value' => '',
+          'class' => 'col-12 col-md-4'
+        ])
+
+        <x-form-elements.select.select title="Tipo da Ação" id="edit-tipo" name="tipo_acao">
+          <x-slot:options>
+            <option value="Prestação de Serviços">Prestação de Serviços</option>
+            <option value="Evento">Evento</option>
+            <option value="Curso">Curso</option>
+            <option value="Projeto">Projeto</option>
+            <option value="Programa">Programa</option>
+          </x-slot:options>
+        </x-form-elements.select.select>
+
+        <x-form-elements.select.select title="Área Temática" id="edit-area" name="area_tematica">
+          <x-slot:options>
+            <option value="Comunicação">Comunicação</option>
+            <option value="Educação">Educação</option>
+            <option value="Tecnologia e Produção">Tecnologia e Produção</option>
+            <option value="Saúde">Saúde</option>
+            <option value="Trabalho">Trabalho</option>
+            <option value="Cultura">Cultura</option>
+            <option value="Meio Ambiente">Meio Ambiente</option>
+            <option value="Direitos Humanos e Justiça">Direitos Humanos e Justiça</option>
+          </x-slot:options>
+        </x-form-elements.select.select>
+
+        <x-form-elements.select.select title="Modalidade" id="edit-modalidade" name="modalidade">
+          <x-slot:options>
+            <option value="Ampla Concorrência">Ampla Concorrência</option>
+            <option value="Ação de Fluxo Contínuo">Ação de Fluxo Contínuo</option>
+            <option value="Vinculada a Edital">Vinculada a Edital</option>
+            <option value="UFCA Itinerante">UFCA Itinerante</option>
+            <option value="PROPE">PROPE</option>
+          </x-slot:options>
+        </x-form-elements.select.select>
+
+        <x-form-elements.select.select title="Status" id="edit-status" name="status">
+          <x-slot:options>
+            <option value="0">Inativo</option>
+            <option value="1">Ativo</option>
+            <option value="2">Finalizado</option>
+          </x-slot:options>
+        </x-form-elements.select.select>
+      </div>
+    </x-slot:content>
+  </x-modal.modal>
+  @endcan
 </div>
 @endsection
 @section('scripts')
@@ -210,5 +335,25 @@
         handleFile(file);
       });
     });
+  
+  const editModal = document.getElementById('editarAcao');
+  editModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+
+    document.getElementById('edit-id').value = button.dataset.id;
+    document.getElementById('edit-titulo').value = button.dataset.titulo;
+    document.getElementById('edit-coordenador').value = button.dataset.coordenador;
+    document.getElementById('edit-centro').value = button.dataset.centro;
+    document.getElementById('edit-ano').value = button.dataset.ano;
+    document.getElementById('edit-data-inicio').value = button.dataset.dataInicio;
+    document.getElementById('edit-data-fim').value = button.dataset.dataFim;
+    document.getElementById('edit-tipo').value = button.dataset.tipo;
+    document.getElementById('edit-area').value = button.dataset.area;
+    document.getElementById('edit-modalidade').value = button.dataset.modalidade;
+    document.getElementById('edit-status').value = button.dataset.status;
+
+    const form = editModal.querySelector('form');
+    form.action = `/acoes/editar/${button.dataset.id}`;
+  })
 </script>
 @endsection
