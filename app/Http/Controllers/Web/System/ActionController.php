@@ -303,4 +303,17 @@ class ActionController extends Controller
             return redirect()->route('actions.index')->with("error", "Erro ao salvar os dados: " . $e->getMessage());
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        // dd($id, $request->all(), $request->method());
+        try {
+            $acao = Acao::findOrFail($id);
+            $acao->update($request->only(["titulo", "coordenador", "centro_departamento", "data_inicio", "data_fim", "ano", "tipo_acao", "area_tematica", "modalidade", "status"]));
+
+            return redirect()->back()->with("success", "Ação atualizada com sucesso");
+        } catch (\Throwable $e) {
+            return redirect()->back()->with("error", "Erro ao atualizar ação" /* . " - " . $e->getMessage() */)->withInput();
+        }
+    }
 }
