@@ -32,9 +32,17 @@ class ActionController extends Controller
         $this->usersRepository = $usersRepository;
     }
 
-    public function index(Request $request){
+    public function index(Request $request)
+    {
+        $sort = $request->get('sort', 'ano');
+        $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $this->data['actions'] = $this->actionsRepository->getByFilter($request->query());
+        $allowedFields = ['ano', 'titulo', 'status', 'data_inicio', 'data_fim', 'tipo_acao', 'modalidade', 'area_tematica', 'centro_departamento', 'id_atividade', 'id_projeto'];
+
+        if (!in_array($sort, $allowedFields)) $sort = 'ano';
+
+
+        $this->data['actions'] = $this->actionsRepository->getByFilter($request->query(), $sort, $direction);
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA'])->groupBy('function');
 
         return view('pages.actions.index', $this->data);
@@ -301,6 +309,19 @@ class ActionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('actions.index')->with("error", "Erro ao salvar os dados: " . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        // dd($id, $request->all(), $request->method());
+        try {
+            $acao = Acao::findOrFail($id);
+            $acao->update($request->only(["titulo", "coordenador", "centro_departamento", "data_inicio", "data_fim", "ano", "tipo_acao", "area_tematica", "modalidade", "status"]));
+
+            return redirect()->back()->with("success", "Ação atualizada com sucesso");
+        } catch (\Throwable $e) {
+            return redirect()->back()->with("error", "Erro ao atualizar ação" /* . " - " . $e->getMessage() */)->withInput();
         }
     }
 }

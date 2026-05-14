@@ -8,7 +8,7 @@ use App\Models\Equipe_Acao;
 
 class EloquentActionsRepository implements ActionsRepository
 {
-    public function getByFilter(array $filtros = [])
+    public function getByFilter(array $filtros = [], string $sort = 'ano', string $direction = 'desc')
     {
         $query = Acao::query();
 
@@ -43,7 +43,7 @@ class EloquentActionsRepository implements ActionsRepository
             });
         }
 
-        return $query->paginate(30);
+        return $query->orderBy($sort, $direction)->paginate(30)->withQueryString();
     }
 
     public function create($request)
