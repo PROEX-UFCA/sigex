@@ -69,6 +69,7 @@
           <th>Data de criação</th>
           <th width="5%"></th>
           <th width="5%"></th>
+          <th width="5%"></th>
         </tr>
       </thead>
       <tbody>
@@ -89,6 +90,16 @@
               aria-controls="offcanvasExample">
               Editar
             </button>
+          </td>
+          <td class="text-center">
+            <form action="{{ route('forms.destroy', $item->id) }}" method="POST"
+                  onsubmit="return confirm('Deseja realmente deletar este formulário?')">
+              @csrf
+              @method('DELETE')
+              <button class="btn btn-sm btn-danger p-1 px-2" type="submit">
+                Deletar
+              </button>
+            </form>
           </td>
         </tr>
         @endforeach
