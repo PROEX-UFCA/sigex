@@ -13,9 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: Configure Git Safe Directory
-        run: git config --global --add safe.directory /var/www
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -24,11 +21,11 @@ jobs:
       - name: Build Docker Compose and Start Services
         run: docker compose up -d --build
 
-      - name: Configure Git Safe Directory in Container
-        run: docker compose exec -T app git config --global --add safe.directory /var/www
+      - name: Fix permissions
+        run: docker compose exec -T --user root app chmod -R 777 /var/www
 
       - name: Composer Install
-        run: docker compose exec -T app composer install
+        run: docker compose exec -T app composer install --no-interaction --prefer-dist
       
       - name: Test PHP Artisan
         run: docker compose exec -T app php artisan --version
