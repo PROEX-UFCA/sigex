@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\User\UsersRepository;
+use App\Support\DateFormatter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -126,8 +127,8 @@ class ActionController extends Controller
 
             $row = array_pad($row, 13, null);
 
-            $startDate = $this->formatDateSafe($row[7]);
-            $endDate = $this->formatDateSafe($row[8]);
+            $startDate = DateFormatter::formatDateSafe($row[7]);
+            $endDate = DateFormatter::formatDateSafe($row[8]);
 
             $email = strtolower($row[5] ?? '');
             
@@ -186,19 +187,6 @@ class ActionController extends Controller
         $totalErrors = collect($projectsData)->filter(fn($item) => count($item['errors']) > 0)->count();
 
         return view('pages.actions.preview', compact('projectsData', 'totalErrors', 'duplicadosIgnorados'));
-    }
-
-    private function formatDateSafe($dateString) {
-        if (empty($dateString)) return null;
-        try {
-            return \Carbon\Carbon::createFromFormat('d/m/Y', $dateString)->format('Y-m-d');
-        } catch (\Exception $e) {
-            try {
-                return \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $dateString)->format('Y-m-d');
-            } catch (\Exception $e) {
-                return null;
-            }
-        }
     }
 
     public function storeImport(Request $request)

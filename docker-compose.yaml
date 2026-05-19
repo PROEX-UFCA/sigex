@@ -9,7 +9,10 @@ services:
         volumes:
             - ./:/var/www
         depends_on:
-            - redis
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
         networks:
             - laravel
 
@@ -41,6 +44,12 @@ services:
             - ./.docker/mysql/dbdata:/var/lib/mysql
         # ports:
         #     - "3300:3306"
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 10s
         networks:
             - laravel
 
