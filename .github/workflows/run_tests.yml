@@ -20,6 +20,9 @@ jobs:
       
       - name: Build Docker Compose and Start Services
         run: docker compose up -d --build
+
+      - name: Composer Install
+        run: docker compose exec -T app composer install
       
       - name: Test PHP Artisan
         run: docker compose exec -T app php artisan --version
