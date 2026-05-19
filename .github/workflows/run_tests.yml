@@ -18,4 +18,18 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       
-      # TODO: terminar fluxo após conseguir fazer os testes rodarem
+      - name: Build Docker Compose and Start Services
+        run: docker compose up -d --build
+      
+      - name: Test PHP Artisan
+        run: docker compose exec -T app php artisan --version
+      
+      - name: Run migrations
+        run: docker compose exec -T app php artisan migrate --force
+      
+      - name: Run tests
+        run: docker compose exec -T app php artisan test
+      
+      - name: Tear down
+        if: always()
+        run: docker compose down -v --remove-orphans
