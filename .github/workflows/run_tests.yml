@@ -24,6 +24,9 @@ jobs:
       - name: Build Docker Compose and Start Services
         run: docker compose up -d --build
 
+      - name: Configure Git Safe Directory in Container
+        run: docker compose exec -T app git config --global --add safe.directory /var/www
+
       - name: Composer Install
         run: docker compose exec -T app composer install
       
