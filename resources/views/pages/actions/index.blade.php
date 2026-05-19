@@ -114,15 +114,15 @@
 
           @foreach ([
             'ano' => 'ano',
-            'titulo' => 'titulo',
+            'titulo' => 'Título',
             'status' => 'status',
-            'data_inicio' => 'data_inicio',
-            'data_fim' => 'data_fim',
-            'coordenador' => 'coordenador',
-            'tipo_acao' => 'tipo_acao',
-            'modalidade' => 'modalidade',
-            'area_tematica' => 'area_tematica',
-            'centro_departamento' => 'centro_departamento',
+            'data_inicio' => 'Data de Início',
+            'data_fim' => 'Data de Finalização',
+            'coordenador' => 'Coordenador',
+            'tipo_acao' => 'Tipo de Ação',
+            'modalidade' => 'Modalidade',
+            'area_tematica' => 'Área Temática',
+            'centro_departamento' => 'Centro/Departamento',
             // 'id_atividade' => 'id_atividade',
             // 'id_projeto' => 'id_projeto',
           ] as $field => $label)
@@ -136,6 +136,7 @@
           </th>
           
           @endforeach
+          <th></th>
         </tr>
       </thead>
       <tbody>

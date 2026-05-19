@@ -17,8 +17,10 @@ services:
     nginx:
         image: nginx:alpine
         restart: unless-stopped
+        depends_on:
+            - app
         ports:
-            - "8000:80"
+            - "8001:80"
         volumes:
             - ./:/var/www
             - ./docker/nginx/:/etc/nginx/conf.d/
@@ -37,8 +39,8 @@ services:
             MYSQL_PASSWORD: ${DB_PASSWORD}
         volumes:
             - ./.docker/mysql/dbdata:/var/lib/mysql
-        ports:
-            - "3300:3306"
+        # ports:
+        #     - "3300:3306"
         networks:
             - laravel
 
@@ -48,7 +50,7 @@ services:
         platform: linux/x86_64
         restart: unless-stopped
         ports:
-            - "8080:80"
+            - "8081:80"
         environment:
             PMA_HOST: db
             PMA_PORT: 3306

@@ -37,8 +37,14 @@ class UsersController extends Controller
 
     public function index(Request $request)
     {
+        $sort = $request->get('sort', 'name');
+        $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $this->data['users'] = $this->usersRepository->getAll($request->query());
+        $allowedFields = ['name', 'email', 'id_instituicao', 'cpf', 'phone', 'centro_departamento', 'matricula_siape', 'group', 'status'];
+
+        if (!in_array($sort, $allowedFields)) $sort = 'name';
+
+        $this->data['users'] = $this->usersRepository->getAll($request->query(), $sort, $direction);
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO_DEPARTAMENTO'])->groupBy('function');
         $this->data['roles'] = $this->rolesRepository->getAll();
 

@@ -20,7 +20,7 @@ class EloquentUsersRepository implements UsersRepository
         return User::where('uuid', $uuid)->first();
     }
 
-    public function getAll(array $filtros = [])
+    public function getAll(array $filtros = [], string $sort = 'name', string $direction = 'desc')
     {
         $query = User::query();
 
@@ -54,7 +54,7 @@ class EloquentUsersRepository implements UsersRepository
             }
         }
 
-        return $query->paginate(30);
+        return $query->orderBy($sort, $direction)->paginate(30)->withQueryString();
     }
 
     public function store($request){
