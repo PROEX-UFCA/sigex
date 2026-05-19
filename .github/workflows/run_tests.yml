@@ -30,6 +30,11 @@ jobs:
       - name: Test PHP Artisan
         run: docker compose exec -T app php artisan --version
       
+      - name: Prepare .env
+        run: |
+          docker compose exec -T app cp .env.example .env
+          docker compose exec -T app php artisan key:generate
+
       - name: Run migrations
         run: docker compose exec -T app php artisan migrate --force
       
