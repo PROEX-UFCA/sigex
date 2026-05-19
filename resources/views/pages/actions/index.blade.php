@@ -136,6 +136,7 @@
           </th>
           
           @endforeach
+          <th></th>
         </tr>
       </thead>
       <tbody>

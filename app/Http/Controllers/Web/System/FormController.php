@@ -17,7 +17,15 @@ class FormController extends Controller
     }
 
     public function index(Request $request){
-        $this->data['forms'] = $this->formsRepository->getByFilter($request->query());
+
+        $sort = $request->get('sort', 'created_at');
+        $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
+
+        $allowedFields = ['titulo', 'status', 'created_at'];
+
+        if (!in_array($sort, $allowedFields)) $sort = 'created_at';
+
+        $this->data['forms'] = $this->formsRepository->getByFilter($request->query(), $sort, $direction);
         return view('pages.forms.index', $this->data);
     }
 
