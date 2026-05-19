@@ -35,6 +35,14 @@ jobs:
           docker compose exec -T app cp .env.example .env
           docker compose exec -T app php artisan key:generate
 
+      - name: Wait for MySQL
+        run: |
+          timeout 60 bash -c 'until docker compose exec -T db mysqladmin ping -h localhost --silent 2>/dev/null; do
+            echo "aguardando MySQL..."
+            sleep 3
+          done'
+          echo "MySQL pronto!"
+          
       - name: Run migrations
         run: docker compose exec -T app php artisan migrate --force
       
