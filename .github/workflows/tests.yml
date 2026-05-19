@@ -1,0 +1,21 @@
+name: Testes do Sistema
+
+on:
+  push:
+    branches: ["**", "!main", "!develop"]
+  workflow_run:
+    workflows: ["Teste de Build no Docker"]
+    types: [completed]
+    branches: [main, develop]
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      
+      # TODO: terminar fluxo após conseguir fazer os testes rodarem
