@@ -1,0 +1,38 @@
+name: Teste de Build no Docker
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  run_build_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-buildx-
+
+      - name: Build Docker Compose
+        run: docker compose build
+
+      - name: Start services
+        run: |
+          docker compose up -d
+      
+      - name: Diagnose
+        run: docker compose ps
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v --remove-orphans
