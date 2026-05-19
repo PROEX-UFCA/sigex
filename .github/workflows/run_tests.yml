@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
-      
+
       - name: Build Docker Compose and Start Services
         run: docker compose up -d --build
 
@@ -26,15 +26,15 @@ jobs:
 
       - name: Composer Install
         run: docker compose exec -T app composer install --no-interaction --prefer-dist
-      
+
       - name: Test PHP Artisan
         run: docker compose exec -T app php artisan --version
-      
+
       - name: Prepare .env
         run: |
           docker compose exec -T app cp .env.example .env
           docker compose exec -T app php artisan key:generate
-      
+
       - name: Generate app key
         run: docker compose exec -T app php artisan key:generate
 
@@ -47,11 +47,11 @@ jobs:
           echo "MySQL pronto!"
 
       - name: Run migrations
-        run: docker compose exec -T app php artisan migrate:fresh --seed
-      
+        run: docker compose exec -T app php artisan migrate --force
+
       - name: Run tests
         run: docker compose exec -T app php artisan test
-      
+
       - name: Tear down
         if: always()
         run: docker compose down -v --remove-orphans
