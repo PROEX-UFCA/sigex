@@ -7,7 +7,6 @@ erDiagram
     USUARIO ||--o{ ACAO : "coordena"
     ACAO ||--o{ EQUIPE_ACAO : "possui_membros"
     USUARIO ||--o{ EQUIPE_ACAO : "atua_como_membro"
-    INSTITUICAO_EXTERNA ||--o{ USUARIO : "possui_representantes"
 
     ACAO ||--o{ AGENDA_ACAO : "possui_eventos"
     INSTITUICAO_EXTERNA ||--o{ AGENDA_INSTITUICAO_EXTERNA : "informa_disponibilidade"
@@ -23,6 +22,8 @@ erDiagram
         string numero
         string complemento
         string telefone_contato
+        string email
+        string senha
     }
 
     ACAO {
@@ -50,14 +51,12 @@ erDiagram
 
     USUARIO {
         uuid id PK
-        uuid id_instituicao FK "Nulo se for usuário interno da universidade"
         string nome
         string email
         string senha "Hash"
         string cpf
         string centro_departamento
-        string matricula_siape "Nulo se for representante externo"
-        string perfil_ativo "Sinalizador: 'ADMIN', 'COORDENADOR', 'ESTUDANTE'"
+        string matricula_siape
         boolean status "Sinaliza se a conta está ativa"
     }
 
@@ -75,8 +74,6 @@ erDiagram
         uuid id PK
         uuid id_instituicao FK
         date data_disponivel
-        time hora_inicio
-        time hora_fim
         string observacao "Ex: Auditório com 50 lugares disponível"
     }
 
@@ -84,7 +81,7 @@ erDiagram
         uuid id_instituicao PK, FK
         uuid id_acao PK, FK
         datetime data_manifestacao
-        string status "Ex: PENDENTE, EM_NEGOCIACAO, APROVADO, RECUSADO"
+        string status "Ex: PENDENTE, APROVADO, RECUSADO"
         string mensagem_observacao "Texto enviado pela instituição ao demonstrar interesse"
     }
 ```
