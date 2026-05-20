@@ -21,8 +21,8 @@ jobs:
       - name: Build Docker Compose and Start Services
         run: docker compose up -d --build
 
-      # - name: Fix permissions
-      #   run: docker compose exec -T --user root app chmod -R 777 /var/www
+      - name: Fix permissions
+        run: docker compose exec -T --user root app chown -R www-data:www-data /var/www
 
       - name: Composer Install
         run: docker compose exec -T app composer install --no-interaction --prefer-dist
