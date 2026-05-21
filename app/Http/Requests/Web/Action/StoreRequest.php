@@ -24,7 +24,6 @@ class StoreRequest extends FormRequest
 
         return [
             'titulo' => 'required|string',
-            'id_atividade' => 'required|string',
             'id_projeto' => 'required|string',
             'ano' => 'required|integer',
             'tipo' => 'required|string|exists:parametro,value',
@@ -34,7 +33,10 @@ class StoreRequest extends FormRequest
             'id_coordenador' => 'required|uuid|exists:users,uuid',
             'data_inicio' => 'required|date|before_or_equal:data_fim',
             'data_fim' => 'required|date|after_or_equal:data_inicio',
-            'status' => 'required|integer|in:0,1,2',
+            'situacao' => 'required|string|exists:parametro,value',
+            'resumo' => 'required|string',
+            'palavras_chave' => 'required|string',
+            'ods' => 'required|array',
         ];
     }
 
@@ -43,9 +45,6 @@ class StoreRequest extends FormRequest
         return [
             'titulo.required' => 'O campo título é obrigatório.',
             'titulo.string' => 'O título deve ser um texto.',
-
-            'id_atividade.required' => 'O campo id da atividade é obrigatório.',
-            'id_atividade.string' => 'O id da atividade deve ser um texto.',
 
             'id_projeto.required' => 'O campo id do projeto é obrigatório.',
             'id_projeto.string' => 'O id do projeto deve ser um texto.',
@@ -81,9 +80,12 @@ class StoreRequest extends FormRequest
             'data_fim.date' => 'A data de término deve ser uma data válida.',
             'data_fim.after_or_equal' => 'A data de término não pode ser anterior à data de início.',
 
-            'status.required' => 'O status é obrigatório.',
-            'status.integer' => 'O status deve ser um número inteiro.',
-            'status.in' => 'O status deve ser 0 (Rascunho), 1 (Ativo) ou 2 (Concluído).',
+            'situacao.required' => 'A situação é obrigatório.',
+            'situacao.string' => 'A situação deve ser válida.',
+            'situacao.exists' => 'A situação selecionada não existe.',
+
+            'ods.required' => 'Selecione no mínimo uma ods.',
+            'ods.array' => 'As ods devem ser válidas',
         ];
     }
 }

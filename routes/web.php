@@ -69,6 +69,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);;
         Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);;
         Route::post('acoes/importar/salvar', [ActionController::class, 'storeImport'])->name('actions.storeImport')->middleware(['auth' => 'permission:importar_ações']);;
+        
+        Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);;
         // "remover_equipe"
         // "editar_agenda"
         // "remover_agenda"

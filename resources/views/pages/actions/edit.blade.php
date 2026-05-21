@@ -19,7 +19,7 @@
       'name' => 'titulo',
       'required' => 'true',
       'placeholder' => 'Digite o título',
-      'value' => old('titulo') ?? '',
+      'value' => $action->titulo,
       ])
 
       @include('components.form-elements.input.input', [
@@ -29,7 +29,7 @@
       'name' => 'palavras_chave',
       'required' => 'true',
       'placeholder' => 'Digite as palavras chaves',
-      'value' => old('palavras_chave') ?? '',
+      'value' => $action->palavras_chave,
       ])
 
       <div class="mb-3 col-12 col-md-6">
@@ -37,9 +37,8 @@
         <select class="form-select" id="teachers" name="id_coordenador">
           <option value="">Selecione</option>
           @foreach ($coordinators as $coordinator)
-          <option value="{{ $coordinator->uuid }}" {{ old('id_coordenador') ? (old('id_coordenador')==$coordinator->id ?
-            'selected' : '') : ' '
-            }}>
+          <option value="{{ $coordinator->uuid }}" {{ $action->id_proponente == $coordinator->uuid ?
+            'selected' : '' }}>
             {{ $coordinator->name }}</option>
           @endforeach
         </select>

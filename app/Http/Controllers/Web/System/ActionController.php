@@ -15,6 +15,7 @@ use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\User\UsersRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -43,14 +44,14 @@ class ActionController extends Controller
 
 
         $this->data['actions'] = $this->actionsRepository->getByFilter($request->query(), $sort, $direction);
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA'])->groupBy('function');
-
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
+        
         return view('pages.actions.index', $this->data);
     }
 
     public function create(){
 
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
 
 
@@ -126,9 +127,6 @@ class ActionController extends Controller
 
             $row = array_pad($row, 17, null);
 
-            $startDate = $this->formatDateSafe($row[6]);
-            $endDate = $this->formatDateSafe($row[7]);
-
             $email = strtolower($row[17] ?? '');
 
             $user = !empty($email) ? User::where('email', $email)->first() : null;
@@ -136,20 +134,21 @@ class ActionController extends Controller
             $checkData = [
                 'ano' => $row[1] ?? null,
                 'id_projeto' => $row[2] ?? null,
-                'titulo' => $row[3] ?? null,
-                'centro_departamento' => $row[4] ?? null,
-                'situacao' => $row[5] ?? null,
-                'data_inicio' => $startDate,
-                'data_fim' => $endDate,
-                'data_atualizacao' => $row[8] ?? null,
-                'resumo' => $row[9] ?? null,
-                'palavras_chave' => $row[10] ?? null,
-                'tipo_acao' => $row[11] ?? null,
-                'area_tematica' => $row[12] ?? null,
-                'modalidade' => $row[13] ?? null,
-                'com_bolsa' => $row[14] ?? null,
-                'ods' => $row[15] ?? null,
-                'id_proponente'   => $user->uuid ?? null,
+                'data_inicio' => $row[6] ?? null,
+                'data_fim' => $row[7] ?? null,
+                'id_proponente' => $user->uuid ?? null,
+                
+                // 'titulo' => $row[3] ?? null,
+                // 'centro_departamento' => $row[4] ?? null,
+                // 'area_tematica' => $row[12] ?? null,
+                // 'palavras_chave' => $row[10] ?? null,
+                // 'tipo_acao' => $row[11] ?? null,
+                // 'modalidade' => $row[13] ?? null,
+                //'situacao' => $row[5] ?? null,
+                //'data_atualizacao' => $row[8] ?? null,
+                // 'resumo' => $row[9] ?? null,
+                //'com_bolsa' => $row[14] ?? null,
+                //'ods' => $row[15] ?? null,
             ];
 
             $exists = Acao::where($checkData)->exists();
@@ -159,7 +158,6 @@ class ActionController extends Controller
                 $rowIndex++;
                 continue; 
             }
-            
             $errors = [];
             if (empty($row[3])) $errors['titulo'] = 'Título é obrigatório';
             if (empty($row[16])) $errors['proponente'] = 'Nome do proponente é obrigatório';
@@ -171,8 +169,8 @@ class ActionController extends Controller
                 'titulo' => $row[3],
                 'centro_departamento' => $row[4],
                 'situacao' => $row[5],
-                'data_inicio' => $startDate ?? $row[6],
-                'data_fim' => $endDate ?? $row[6],
+                'data_inicio' => $row[6],
+                'data_fim' => $row[7],
                 'data_atualizacao' => $row[8],
                 'resumo' => $row[9],
                 'palavras_chave' => $row[10],
@@ -194,20 +192,11 @@ class ActionController extends Controller
 
         $totalErrors = collect($projectsData)->filter(fn($item) => count($item['errors']) > 0)->count();
 
-        return view('pages.actions.preview', compact('projectsData', 'totalErrors', 'duplicadosIgnorados'));
-    }
+        $projectsData = collect($projectsData)->sortByDesc(function ($project) {
+            return !empty($project['errors']); 
+        })->values()->all();
 
-    private function formatDateSafe($dateString) {
-        if (empty($dateString)) return null;
-        try {
-            return \Carbon\Carbon::createFromFormat('d/m/Y', $dateString)->format('Y-m-d');
-        } catch (\Exception $e) {
-            try {
-                return \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $dateString)->format('Y-m-d');
-            } catch (\Exception $e) {
-                return null;
-            }
-        }
+        return view('pages.actions.preview', compact('projectsData', 'totalErrors', 'duplicadosIgnorados'));
     }
 
     public function storeImport(Request $request)
@@ -251,6 +240,12 @@ class ActionController extends Controller
                     ? Parametro::firstOrCreate([
                         'function' => 'MODALIDADE', 
                         'value' => mb_strtoupper(trim($linha['modalidade']), 'UTF-8')
+                    ]) : null;
+
+                $situacao = !empty($linha['situacao']) 
+                    ? Parametro::firstOrCreate([
+                        'function' => 'SITUACAO', 
+                        'value' => mb_strtoupper(trim($linha['situacao']), 'UTF-8')
                     ]) : null;
 
                 $emailCoordenador = strtolower(trim($linha['email_proponente'] ?? ''));
@@ -328,6 +323,14 @@ class ActionController extends Controller
             DB::rollBack();
             return redirect()->route('actions.index')->with("error", "Erro ao salvar os dados: " . $e->getMessage());
         }
+    }
+
+    public function edit($uuid){
+        $this->data['action'] = $this->actionsRepository->getByUuid($uuid);
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
+        $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
+
+        return view('pages.actions.edit', $this->data);
     }
 
     public function update(Request $request, $id)
