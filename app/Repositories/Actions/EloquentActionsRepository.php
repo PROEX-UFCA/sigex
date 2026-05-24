@@ -63,6 +63,7 @@ class EloquentActionsRepository implements ActionsRepository
             'resumo' => $request->resumo,
             'id_projeto' => $request->id_projeto,
             'area_tematica' => $request->area_tematica,
+            'com_bolsa' => $request->com_bolsa,
             'ods' => implode('; ', $request->ods), 
         ]);
 
@@ -119,5 +120,30 @@ class EloquentActionsRepository implements ActionsRepository
 
     public function getByUuid($uuid){
         return Acao::findOrFail($uuid);
+    }
+
+    public function update($request, $uuid){
+        $acao = Acao::findOrFail($uuid);
+
+        $acao->titulo = $request->titulo;
+        $acao->palavras_chave = $request->palavras_chave;
+        $acao->tipo_acao = $request->tipo;
+        $acao->modalidade = $request->modalidade;
+        $acao->centro_departamento = $request->centro_departamento;
+        $acao->id_proponente = $request->id_coordenador;
+        $acao->data_inicio = $request->data_inicio;
+        $acao->data_fim = $request->data_fim;
+        $acao->data_atualizacao = now();
+        $acao->situacao = $request->situacao;
+        $acao->ano = $request->ano;
+        $acao->resumo = $request->resumo;
+        $acao->id_projeto = $request->id_projeto;
+        $acao->area_tematica = $request->area_tematica;
+        $acao->com_bolsa = $request->com_bolsa;
+        $acao->ods = implode('; ', $request->ods);
+
+        $acao->save();
+
+        return $acao;
     }
 }

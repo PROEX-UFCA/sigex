@@ -335,14 +335,12 @@ class ActionController extends Controller
 
     public function update(Request $request, $id)
     {
-        // dd($id, $request->all(), $request->method());
         try {
-            $acao = Acao::findOrFail($id);
-            $acao->update($request->only(["titulo", "coordenador", "centro_departamento", "data_inicio", "data_fim", "ano", "tipo_acao", "area_tematica", "modalidade", "status"]));
+            $this->actionsRepository->update($request, $id);
 
             return redirect()->back()->with("success", "Ação atualizada com sucesso");
         } catch (\Throwable $e) {
-            return redirect()->back()->with("error", "Erro ao atualizar ação" /* . " - " . $e->getMessage() */)->withInput();
+            return redirect()->back()->with("error", "Erro ao atualizar ação");
         }
     }
 }

@@ -156,8 +156,6 @@
           <td>{{$item->modalidade}}</td>
           <td>{{$item->area_tematica}}</td>
           <td>{{$item->centro_departamento}}</td>
-          {{-- <td>{{$item->id_atividade}}</td> --}}
-          {{-- <td>{{$item->id_projeto}}</td> --}}
           @can('editar_ação')
           <td>
             @can('editar_ação')
