@@ -112,4 +112,12 @@ class FormController extends Controller
         }
     }
 
+    public function destroy(Request $request, $uuid) {
+        try {
+            $this->formsRepository->destroy($uuid);
+            return to_route('forms.index')->with('success', 'Formulário deletado com sucesso.');
+        } catch (\Throwable $err) {
+            return redirect()->back()->with('error', 'Erro ao deletar formulário. Por favor, tente novamente mais tarde.');
+        }
+    }
 }

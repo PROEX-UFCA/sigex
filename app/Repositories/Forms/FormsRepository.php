@@ -13,4 +13,5 @@ interface FormsRepository{
   public function deleteSessions($uuid);
   public function storeSessions($request, $uuid);
   public function deleteQuestion($uuid);
+  public function destroy($uuid);
 } 

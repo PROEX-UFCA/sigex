@@ -129,7 +129,7 @@
           <div class="pergunta-item mb-4">
             {{-- Enunciado da Pergunta --}}
             <div class="d-flex mb-2 justify-content-between">
-              <label class="form-label fw-bold fs-6">
+              <label class="form-label fw-bold fs-4">
                 {{ $pergunta->enunciado }}
                 @if($pergunta->obrigatoria)
                 <span class="text-danger" title="Obrigatório">*</span>
@@ -287,7 +287,7 @@
               <option value="" disabled selected>Selecione</option>
               <option value="text">Texto normal</option>
               <option value="textarea">Texto grande</option>
-              <option value="select">Seletor</option>
+              <option value="select">Pergunta de Múltipla Escolha</option>
               <option value="checkbox">Caixas de verificação (Checkbox)</option>
               <option value="radio">Botão de opção (Radio)</option>
               <option value="file">Arquivo</option>

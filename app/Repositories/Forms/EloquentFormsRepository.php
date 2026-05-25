@@ -128,4 +128,15 @@ class EloquentFormsRepository implements FormsRepository
             'ordem' => $count
         ]);
     }
+
+    public function destroy($uuid) {
+        $form = Formulario::findOrFail($uuid);
+
+        foreach ($form->secoes() as $section) {
+            $section->perguntas()->delete();
+        }
+        
+        $form->secoes()->delete();
+        $form->delete();
+    }
 }
