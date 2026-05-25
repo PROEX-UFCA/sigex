@@ -86,8 +86,34 @@
   <div class="table-responsive p-0">
     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
       <thead>
-        <tr>
-          <th>Nome</th>
+        <tr style="position:sticky; top: 0; z-index: 1;">
+          @php
+            $sortField = request('sort', 'nome');
+            $sortDirection = request('dir', 'desc');
+            $nextDirection = $sortDirection === 'asc' ? 'desc' : 'asc';
+          @endphp
+
+          @foreach ([
+            'name' => 'Nome',
+            'email' => 'Email',
+            'instituicao' => 'Instituição?',
+            'cpf' => 'CPF',
+            'telefone' => 'Telefone',
+            'centro_departamento' => 'Centro/Departamento',
+            'matricula_siape' => 'Matrícula SIAPE',
+            'grupo' => 'Grupo',
+            'status' => 'Status',
+          ] as $field => $label)
+          <th>
+            <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}" class="text-reset text-decoration-none d-flex align-items-center gap-1">
+              {{ $label }}
+              @if ($sortField === $field)
+                {{ $sortDirection === 'asc' ? '↑' : '↓' }}
+              @endif
+            </a>
+          </th>
+          @endforeach
+          {{-- <th>Nome</th>
           <th>Email</th>
           <th>Instituição?</th>
           <th>Cpf</th>
@@ -97,7 +123,7 @@
           <th>Grupo</th>
           <th>Status</th>
           <th width="5%"></th>
-          <th width="5%"></th>
+          <th width="5%"></th> --}}
         </tr>
       </thead>
       <tbody>

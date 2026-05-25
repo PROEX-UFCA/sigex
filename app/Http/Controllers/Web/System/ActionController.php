@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\User\UsersRepository;
+use App\Support\DateFormatter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -128,6 +129,8 @@ class ActionController extends Controller
             $row = array_pad($row, 17, null);
 
             $email = strtolower($row[17] ?? '');
+            $startDate = DateFormatter::formatDateSafe($row[7]);
+            $endDate = DateFormatter::formatDateSafe($row[8]);
 
             $user = !empty($email) ? User::where('email', $email)->first() : null;
 
