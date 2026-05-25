@@ -16,10 +16,10 @@ class Acao extends Model
 
     protected $table = 'acao';
 
-    protected $fillable = ['id_coordenador', 'id_atividade', 'id_projeto', 'titulo', 'centro_departamento', 'data_inicio', 'data_fim', 'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'status', 'img'];
+    protected $fillable = ['id_proponente', 'id_projeto', 'titulo', 'palavras_chave', 'resumo', 'centro_departamento', 'com_bolsa', 'ods', 'data_inicio', 'data_fim', 'data_atualizacao', 'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'situacao', 'status', 'img'];
 
     public function coordenador() : BelongsTo {
-        return $this->belongsTo(User::class, 'id_coordenador', 'uuid');
+        return $this->belongsTo(User::class, 'id_proponente', 'uuid');
     }
 
     public function equipe() : HasMany {
@@ -33,7 +33,7 @@ class Acao extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['id_coordenador', 'id_atividade', 'id_projeto', 'titulo', 'centro_departamento', 'data_inicio', 'data_fim', 'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'status', 'img'])
+            ->logOnly(['id_proponente', 'id_projeto', 'titulo', 'palavras_chave', 'centro_departamento', 'com_bolsa', 'ods', 'data_inicio', 'data_fim', 'data_atualizacao', 'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'situacao', 'status', 'img'])
             ->useLogName('acao')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

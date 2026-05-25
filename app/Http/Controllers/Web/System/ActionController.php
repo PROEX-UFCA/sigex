@@ -16,6 +16,7 @@ use App\Repositories\Settings\User\UsersRepository;
 use App\Support\DateFormatter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -44,14 +45,14 @@ class ActionController extends Controller
 
 
         $this->data['actions'] = $this->actionsRepository->getByFilter($request->query(), $sort, $direction);
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA'])->groupBy('function');
-
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
+        
         return view('pages.actions.index', $this->data);
     }
 
     public function create(){
 
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
 
 
@@ -125,27 +126,32 @@ class ActionController extends Controller
                 return trim(mb_convert_encoding($field, 'UTF-8', 'auto'));
             }, $row);
 
-            $row = array_pad($row, 13, null);
+            $row = array_pad($row, 17, null);
 
+            $email = strtolower($row[17] ?? '');
             $startDate = DateFormatter::formatDateSafe($row[7]);
             $endDate = DateFormatter::formatDateSafe($row[8]);
 
-            $email = strtolower($row[5] ?? '');
-            
             $user = !empty($email) ? User::where('email', $email)->first() : null;
 
             $checkData = [
-                'id_atividade'  => $row[0] ?? null,
-                'id_projeto'    => $row[1] ?? null,
-                'titulo'         => $row[2] ?? null,
-                'id_coordenador'   => $user->uuid ?? null,
-                'centro_departamento'        => $row[6] ?? null,
-                'data_inicio'    => $startDate,
-                'data_fim'      => $endDate,
-                'ano'          => $row[9] ?? null,
-                'tipo_acao'          => $row[10] ?? null,
-                'area_tematica' => $row[11] ?? null,
-                'modalidade'      => $row[12] ?? null
+                'ano' => $row[1] ?? null,
+                'id_projeto' => $row[2] ?? null,
+                'data_inicio' => $row[6] ?? null,
+                'data_fim' => $row[7] ?? null,
+                'id_proponente' => $user->uuid ?? null,
+                
+                // 'titulo' => $row[3] ?? null,
+                // 'centro_departamento' => $row[4] ?? null,
+                // 'area_tematica' => $row[12] ?? null,
+                // 'palavras_chave' => $row[10] ?? null,
+                // 'tipo_acao' => $row[11] ?? null,
+                // 'modalidade' => $row[13] ?? null,
+                //'situacao' => $row[5] ?? null,
+                //'data_atualizacao' => $row[8] ?? null,
+                // 'resumo' => $row[9] ?? null,
+                //'com_bolsa' => $row[14] ?? null,
+                //'ods' => $row[15] ?? null,
             ];
 
             $exists = Acao::where($checkData)->exists();
@@ -155,28 +161,31 @@ class ActionController extends Controller
                 $rowIndex++;
                 continue; 
             }
-            
             $errors = [];
-            if (empty($row[2])) $errors['titulo'] = 'Título é obrigatório';
-            if (empty($row[3])) $errors['coordenador'] = 'Coordenador é obrigatório';
-            if (empty($row[5])) $errors['email'] = 'Email é obrigatório';
+            if (empty($row[3])) $errors['titulo'] = 'Título é obrigatório';
+            if (empty($row[16])) $errors['proponente'] = 'Nome do proponente é obrigatório';
+            if (empty($row[17])) $errors['email'] = 'Email é obrigatório';
 
             $projectsData[] = [
-                'id_atividade'        => $row[0],
-                'id_projeto'          => $row[1],
-                'titulo'              => $row[2],
-                'coordenador' => $row[3],
-                'siape' => $row[4],
-                'email' => strtolower($row[5] ?? ''),
-                'centro_departamento' => $row[6],
-                'data_inicio'         => $startDate ?? $row[7],
-                'data_fim'            => $endDate ?? $row[8],
-                'ano'                 => $row[9],
-                'tipo_acao'           => $row[10],
-                'area_tematica'       => $row[11],
-                'modalidade'          => $row[12],
-                'errors'              => $errors,
-                'row_index'           => $rowIndex
+                'ano' => $row[1],
+                'id_projeto' => $row[2],
+                'titulo' => $row[3],
+                'centro_departamento' => $row[4],
+                'situacao' => $row[5],
+                'data_inicio' => $row[6],
+                'data_fim' => $row[7],
+                'data_atualizacao' => $row[8],
+                'resumo' => $row[9],
+                'palavras_chave' => $row[10],
+                'tipo_acao' => $row[11],
+                'area_tematica' => $row[12],
+                'modalidade' => $row[13],
+                'com_bolsa' => $row[14],
+                'ods' => $row[15],
+                'proponente' => $row[16],
+                'email_proponente' => strtolower($row[17] ?? ''),
+                'errors' => $errors,
+                'row_index' => $rowIndex
             ];
             
             $rowIndex++;
@@ -185,6 +194,10 @@ class ActionController extends Controller
         fclose($handle);
 
         $totalErrors = collect($projectsData)->filter(fn($item) => count($item['errors']) > 0)->count();
+
+        $projectsData = collect($projectsData)->sortByDesc(function ($project) {
+            return !empty($project['errors']); 
+        })->values()->all();
 
         return view('pages.actions.preview', compact('projectsData', 'totalErrors', 'duplicadosIgnorados'));
     }
@@ -204,6 +217,10 @@ class ActionController extends Controller
 
             foreach ($projetos as $linha) {
                 
+                if(count($linha) != 17){
+                    continue;
+                }
+
                 $centroDepartamento = !empty($linha['centro_departamento']) 
                     ? Parametro::firstOrCreate([
                         'function' => 'CENTRO_DEPARTAMENTO', 
@@ -228,7 +245,13 @@ class ActionController extends Controller
                         'value' => mb_strtoupper(trim($linha['modalidade']), 'UTF-8')
                     ]) : null;
 
-                $emailCoordenador = strtolower(trim($linha['email'] ?? ''));
+                $situacao = !empty($linha['situacao']) 
+                    ? Parametro::firstOrCreate([
+                        'function' => 'SITUACAO', 
+                        'value' => mb_strtoupper(trim($linha['situacao']), 'UTF-8')
+                    ]) : null;
+
+                $emailCoordenador = strtolower(trim($linha['email_proponente'] ?? ''));
                 $idCoordenador = null;
 
                 if (!empty($emailCoordenador)) {
@@ -236,34 +259,39 @@ class ActionController extends Controller
                     
                     if (!$usuario) {
                         $usuario = User::create([
-                            'name' => mb_strtoupper(trim($linha['coordenador']), 'UTF-8'),
+                            'name' => mb_strtoupper(trim($linha['proponente']), 'UTF-8'),
                             'email' => $emailCoordenador,
-                            'matricula_siape' => trim($linha['siape'] ?? null),
                             'status' => 2,
-                            // 'password' => bcrypt('Mudar123') // Descomente e ajuste se sua model User exigir senha
+                            // 'password' => bcrypt('Mudar123')
                         ]);
                         $usuario->assignRole("Coordenador");
                     }
                     $idCoordenador = $usuario->uuid;
                 }
 
+
                 // 3. Montar o array da Ação
                 $acoesParaInserir[] = [
-                    'id'                  => (string) Str::uuid(), // Se sua tabela acoes NÃO usar UUID, apague esta linha
-                    'titulo'              => $linha['titulo'] ?? null,
-                    'id_atividade'        => $linha['id_atividade'] ?? null,
-                    'id_projeto'          => $linha['id_projeto'] ?? null,
-                    'id_coordenador'      => $idCoordenador,
+                    'id' => (string) Str::uuid(),
+                    'id_proponente' => $idCoordenador,
+                    'ano' => $linha['ano'] ?? null,
+                    'id_projeto' => $linha['id_projeto'] ?? null,
+                    'titulo' => $linha['titulo'] ?? null,
                     'centro_departamento' => $centroDepartamento ? $centroDepartamento->value : null,
-                    'data_inicio'         => !empty($linha['data_inicio']) ? $linha['data_inicio'] : null,
-                    'data_fim'            => !empty($linha['data_fim']) ? $linha['data_fim'] : null,
-                    'ano'                 => $linha['ano'] ?? null,
-                    'tipo_acao'           => $tipoAcao ? $tipoAcao->value : null,
-                    'area_tematica'       => $areaTematica ? $areaTematica->value : null,
-                    'modalidade'          => $modalidade ? $modalidade->value : null,
-                    'status'              => 1,
-                    'created_at'          => $agora,
-                    'updated_at'          => $agora,
+                    'situacao' => $linha['situacao'] ?? null,
+                    'data_inicio' => $linha['data_inicio'] ?? null, 
+                    'data_fim' => $linha['data_fim'] ?? null,
+                    'data_atualizacao' => $linha['data_atualizacao'] ?? null,
+                    'resumo' => $linha['resumo'] ?? null,
+                    'palavras_chave' => $linha['palavras_chave'] ?? null,
+                    'tipo_acao' => $tipoAcao ? $tipoAcao->value : null,
+                    'area_tematica' => $areaTematica ? $areaTematica->value : null,
+                    'modalidade' => $modalidade ? $modalidade->value : null,
+                    'com_bolsa' => $linha['com_bolsa'] ?? null,
+                    'ods' => $linha['ods'] ?? null,
+                    'status' => 1,
+                    'created_at' => $agora,
+                    'updated_at' => $agora,
                 ];
             }
 
@@ -300,16 +328,22 @@ class ActionController extends Controller
         }
     }
 
+    public function edit($uuid){
+        $this->data['action'] = $this->actionsRepository->getByUuid($uuid);
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
+        $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
+
+        return view('pages.actions.edit', $this->data);
+    }
+
     public function update(Request $request, $id)
     {
-        // dd($id, $request->all(), $request->method());
         try {
-            $acao = Acao::findOrFail($id);
-            $acao->update($request->only(["titulo", "coordenador", "centro_departamento", "data_inicio", "data_fim", "ano", "tipo_acao", "area_tematica", "modalidade", "status"]));
+            $this->actionsRepository->update($request, $id);
 
             return redirect()->back()->with("success", "Ação atualizada com sucesso");
         } catch (\Throwable $e) {
-            return redirect()->back()->with("error", "Erro ao atualizar ação" /* . " - " . $e->getMessage() */)->withInput();
+            return redirect()->back()->with("error", "Erro ao atualizar ação");
         }
     }
 }

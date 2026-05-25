@@ -9,4 +9,6 @@ interface ActionsRepository{
   public function create($request);
   public function createTeam($request, $id_acao);
   public function createSchedule($request, $id_acao);
+  public function getByUuid($uuid);
+  public function update($request, $uuid);
 } 
