@@ -99,4 +99,44 @@ class EloquentFormsRepository implements FormsRepository
     public function getSessionById($uuid){
         return Secao::findOrFail($uuid);
     }
+
+    public function getFormById($uuid){
+        return Formulario::findOrFail($uuid);
+    }
+
+    public function deleteSessions($uuid){
+        Secao::findOrFail($uuid)->delete();   
+    }
+
+    public function deleteQuestion($uuid){
+        Pergunta::findOrFail($uuid)->delete();   
+    }
+  
+    public function storeSessions($request, $uuid){
+        
+        $form = Formulario::findOrFail($uuid);
+        $count = 1;
+
+        if($form && $form->secoes->count() > 0){
+            $count = $count + $form->secoes->last()->ordem;
+        }
+
+        return Secao::create([
+            "id_formulario" => $uuid, 
+            'titulo' => $request->titulo, 
+            'descricao' => $request->titulo, 
+            'ordem' => $count
+        ]);
+    }
+
+    public function destroy($uuid) {
+        $form = Formulario::findOrFail($uuid);
+
+        foreach ($form->secoes() as $section) {
+            $section->perguntas()->delete();
+        }
+        
+        $form->secoes()->delete();
+        $form->delete();
+    }
 }
