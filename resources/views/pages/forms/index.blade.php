@@ -63,12 +63,34 @@
     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
       <thead>
         <tr>
-          <th class="text-wrap" style="min-width: 200px;">titulo</th>
+          @php
+            $sortField = request('sort', 'created_at');
+            $sortDirection = request('dir', 'desc');
+            $nextDirection = $sortDirection === 'asc' ? 'desc' : 'asc';
+          @endphp
+
+          @foreach ([
+            'created_at' => 'Data de Criação',
+            'titulo' => 'Título',
+            'status' => 'Status'
+          ] as $field => $label)
+          <th>
+            <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}" class="text-reset text-decoration-none d-flex align-items-center gap-1" style="{{ $label === 'Título' ? 'min-width: 200px;' : '' }}" class="{{ $label === 'Título' ? 'text-wrap' : '' }}">
+              {{ $label }}
+              @if ($sortField === $field)
+                {{ $sortDirection === 'asc' ? '↑' : '↓' }}
+              @endif
+            </a>
+          </th>
+          @endforeach
+          <th></th>
+          <th></th>
+          {{-- <th class="text-wrap" style="min-width: 200px;">titulo</th>
           <th>Descrição</th>
-          <th>status</th>
-          <th>Data de criação</th>
+          <th>Status</th>
+          <th>Data de Criação</th>
           <th width="5%"></th>
-          <th width="5%"></th>
+          <th width="5%"></th> --}}
         </tr>
       </thead>
       <tbody>

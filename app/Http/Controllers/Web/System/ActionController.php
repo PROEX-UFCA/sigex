@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\User\UsersRepository;
+use App\Support\DateFormatter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,9 +33,17 @@ class ActionController extends Controller
         $this->usersRepository = $usersRepository;
     }
 
-    public function index(Request $request){
+    public function index(Request $request)
+    {
+        $sort = $request->get('sort', 'ano');
+        $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $this->data['actions'] = $this->actionsRepository->getByFilter($request->query());
+        $allowedFields = ['ano', 'titulo', 'status', 'data_inicio', 'data_fim', 'tipo_acao', 'modalidade', 'area_tematica', 'centro_departamento', 'id_atividade', 'id_projeto'];
+
+        if (!in_array($sort, $allowedFields)) $sort = 'ano';
+
+
+        $this->data['actions'] = $this->actionsRepository->getByFilter($request->query(), $sort, $direction);
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA'])->groupBy('function');
 
         return view('pages.actions.index', $this->data);
@@ -118,8 +127,8 @@ class ActionController extends Controller
 
             $row = array_pad($row, 13, null);
 
-            $startDate = $this->formatDateSafe($row[7]);
-            $endDate = $this->formatDateSafe($row[8]);
+            $startDate = DateFormatter::formatDateSafe($row[7]);
+            $endDate = DateFormatter::formatDateSafe($row[8]);
 
             $email = strtolower($row[5] ?? '');
             
@@ -178,19 +187,6 @@ class ActionController extends Controller
         $totalErrors = collect($projectsData)->filter(fn($item) => count($item['errors']) > 0)->count();
 
         return view('pages.actions.preview', compact('projectsData', 'totalErrors', 'duplicadosIgnorados'));
-    }
-
-    private function formatDateSafe($dateString) {
-        if (empty($dateString)) return null;
-        try {
-            return \Carbon\Carbon::createFromFormat('d/m/Y', $dateString)->format('Y-m-d');
-        } catch (\Exception $e) {
-            try {
-                return \Carbon\Carbon::createFromFormat('d/m/Y H:i:s', $dateString)->format('Y-m-d');
-            } catch (\Exception $e) {
-                return null;
-            }
-        }
     }
 
     public function storeImport(Request $request)
@@ -301,6 +297,19 @@ class ActionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('actions.index')->with("error", "Erro ao salvar os dados: " . $e->getMessage());
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        // dd($id, $request->all(), $request->method());
+        try {
+            $acao = Acao::findOrFail($id);
+            $acao->update($request->only(["titulo", "coordenador", "centro_departamento", "data_inicio", "data_fim", "ano", "tipo_acao", "area_tematica", "modalidade", "status"]));
+
+            return redirect()->back()->with("success", "Ação atualizada com sucesso");
+        } catch (\Throwable $e) {
+            return redirect()->back()->with("error", "Erro ao atualizar ação" /* . " - " . $e->getMessage() */)->withInput();
         }
     }
 }

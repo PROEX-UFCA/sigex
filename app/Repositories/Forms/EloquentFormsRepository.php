@@ -9,7 +9,7 @@ use App\Models\Secao;
 
 class EloquentFormsRepository implements FormsRepository
 {
-    public function getByFilter(array $filtros = [])
+    public function getByFilter(array $filtros = [], string $sort = 'desc', string $direction = 'desc')
     {
         $query = Formulario::query();
 
@@ -19,7 +19,7 @@ class EloquentFormsRepository implements FormsRepository
             });
         });
 
-        return $query->orderBy('created_at', 'desc')->paginate(30);
+        return $query->orderBy($sort, $direction)->paginate(30);
     }
 
     public function create($request)

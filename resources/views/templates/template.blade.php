@@ -63,7 +63,7 @@
               </span> --}}
               <div class="d-none d-xl-block ps-2">
                 <div>{{ Auth::user()->name }}</div>
-                <div class="mt-1 fs-6 ">{{ ucfirst(Auth::user()->roles->first()->name) }}</div>
+                <div class="mt-1 fs-6 ">{{ ucfirst(Auth::user()->roles->first()->name) ?? '' }}</div>
               </div>
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
