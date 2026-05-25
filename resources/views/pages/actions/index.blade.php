@@ -12,27 +12,40 @@
       @can('importar_ações')
       <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar" aria-expanded="false"
         aria-controls="modalExample">Importar</bottom>
-      <x-modal.modal id="importar" class="modal-center" title="Importar dados" route="{{route('actions.import')}}" textBtnClose="Cancelar"
-        textBtnSave="Importar" classBtnSave="btn-primary">
+      <x-modal.modal id="importar" class="modal-center" title="Importar dados" route="{{route('actions.import')}}"
+        textBtnClose="Cancelar" textBtnSave="Importar" classBtnSave="btn-primary">
         <x-slot:content>
-          <h3>Atenção para a Importação de Dados</h3>
-          <p>Para importar os dados corretamente, o seu arquivo .csv deve conter as
-            seguintes colunas, na ordem exata especificada abaixo:</p>
-          <div class="mb-2">
-            <span class="badge badge-dark mb-1">ID Projeto</span>
-            <span class="badge badge-dark mb-1">Título</span>
-            <span class="badge badge-dark mb-1">Coordenador</span>
-            <span class="badge badge-dark mb-1">SIAPE</span>
-            <span class="badge badge-dark mb-1">Centro/Departamento</span>
-            <span class="badge badge-dark mb-1">Data Inicio</span>
-            <span class="badge badge-dark mb-1">Data Fim</span>
-            <span class="badge badge-dark mb-1">Ano</span>
-            <span class="badge badge-dark mb-1">Tipo Ação</span>
-            <span class="badge badge-dark mb-1">Area Tematica</span>
-            <span class="badge badge-dark mb-1">Modalidade</span>
+          <div class="card-body mb-3">
+            <h3>Atenção para a Importação de Dados</h3>
+            <p>
+              Para garantir que a importação ocorra sem erros, seu arquivo <strong>.csv</strong> precisa conter as
+              seguintes <strong>18 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no cabeçalho:
+            </p>
+
+            <div class="mb-3">
+              <span class="badge badge-dark mb-1">vazio com valores auto incrementado</span>
+              <span class="badge badge-dark mb-1">ano</span>
+              <span class="badge badge-dark mb-1">id_projeto</span>
+              <span class="badge badge-dark mb-1">titulo</span>
+              <span class="badge badge-dark mb-1">sigla</span>
+              <span class="badge badge-dark mb-1">situacao</span>
+              <span class="badge badge-dark mb-1">data_inicio</span>
+              <span class="badge badge-dark mb-1">data_fim</span>
+              <span class="badge badge-dark mb-1">data_atualizacao</span>
+              <span class="badge badge-dark mb-1">resumo</span>
+              <span class="badge badge-dark mb-1">palavras_chave</span>
+              <span class="badge badge-dark mb-1">tipo_atividade</span>
+              <span class="badge badge-dark mb-1">area_tematica</span>
+              <span class="badge badge-dark mb-1">modalidade</span>
+              <span class="badge badge-dark mb-1">com_bolsa</span>
+              <span class="badge badge-dark mb-1">ods</span>
+              <span class="badge badge-dark mb-1">proponente</span>
+              <span class="badge badge-dark mb-1">email_proponente</span>
+            </div>
+
+            <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter
+              <strong>exatamente</strong> os nomes acima.</p>
           </div>
-          <p><strong class="text-danger">Importante:</strong> Certifique-se de que o cabeçalho do seu arquivo .csv
-            corresponda exatamente a estes nomes para evitar erros durante o processo de importação.</p>
           <div id="drop-area"
             class="rounded-4 d-flex flex-column justify-content-center align-items-center bg-light p-4 text-center"
             style="height: 150px; cursor: pointer; border: dashed 2px gray">
@@ -70,15 +83,6 @@
         </x-form-elements.select.select>
         @endforeach
 
-        <x-form-elements.select.select title="Status" id="status" name="status" class="col-12 col-md-4 col-lg-3">
-          <x-slot:options>
-            <option value="" disabled {{ request('status')===null ? 'selected' : '' }}>Selecione</option>
-            <option value="00" {{ request('status')==='00' ? 'selected' : '' }}>Inativo</option>
-            <option value="1" {{ request('status')=='1' ? 'selected' : '' }}>Ativo</option>
-            <option value="2" {{ request('status')=='2' ? 'selected' : '' }}>Finalizado</option>
-          </x-slot:options>
-        </x-form-elements.select.select>
-
         @include('components.form-elements.input.input', [
         'title' => 'Ano',
         'type' => 'number',
@@ -107,9 +111,9 @@
       <thead>
         <tr style="position:sticky; top: 0; z-index: 1;">
           @php
-            $sortField = request('sort', 'ano');
-            $sortDirection = request('dir', 'desc');
-            $nextDirection = $sortDirection === 'asc' ? 'desc' : 'asc';
+          $sortField = request('sort', 'ano');
+          $sortDirection = request('dir', 'desc');
+          $nextDirection = $sortDirection === 'asc' ? 'desc' : 'asc';
           @endphp
 
           @foreach ([
@@ -127,14 +131,15 @@
             // 'id_projeto' => 'id_projeto',
           ] as $field => $label)
           <th>
-            <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}" class="text-reset text-decoration-none d-flex align-items-center gap-1">
+            <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}"
+              class="text-reset text-decoration-none d-flex align-items-center gap-1">
               {{ $label }}
               @if ($sortField === $field)
-                {{ $sortDirection === 'asc' ? '↑' : '↓' }}
+              {{ $sortDirection === 'asc' ? '↑' : '↓' }}
               @endif
             </a>
           </th>
-          
+
           @endforeach
           <th></th>
         </tr>
@@ -144,7 +149,7 @@
         <tr>
           <td>{{$item->ano}}</td>
           <td class="text-wrap" style="min-width: 400px;">{{$item->titulo}}</td>
-          <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
+          <td>{{ $item->situacao }}</td>
           <td>{{date('d-m-Y', strtotime($item->data_inicio))}}</td>
           <td>{{date('d-m-Y', strtotime($item->data_fim))}}</td>
           <td>{{$item->coordenador->name}}</td>
@@ -152,25 +157,13 @@
           <td>{{$item->modalidade}}</td>
           <td>{{$item->area_tematica}}</td>
           <td>{{$item->centro_departamento}}</td>
-          {{-- <td>{{$item->id_atividade}}</td> --}}
-          {{-- <td>{{$item->id_projeto}}</td> --}}
           @can('editar_ação')
           <td>
-            <a href="" data-bs-toggle="modal"
-              data-bs-target="#editarAcao"
-              data-id="{{ $item->id }}"
-              data-titulo="{{ $item->titulo }}"
-              data-coordenador="{{ $item->coordenador->name }}"
-              data-centro="{{ $item->centro_departamento }}"
-              data-ano="{{ $item->ano }}"
-              data-data-inicio="{{ $item->data_inicio }}"
-              data-data-fim="{{ $item->data_fim }}"
-              data-tipo="{{ $item->tipo_acao }}"
-              data-area="{{ $item->area_tematica }}"
-              data-modalidade="{{ $item->modalidade }}"
-              data-status="{{ $item->status }}">
+            @can('editar_ação')
+            <a href="{{route('actions.edit', $item->id)}}">
               Editar
             </a>
+            @endcan
           </td>
           @endcan
         </tr>
@@ -181,117 +174,6 @@
   <div class="d-flex justify-content-center mt-5">
     {{ $actions->links() }}
   </div>
-  @can('editar_ação')
-  <x-modal.modal id="editarAcao" class="modal-center" title="Editar dados" route="#" textBtnClose="Cancelar" typeBtnClose="button" textBtnSave="Enviar" classBtnSave="btn-primary">
-    <x-slot:content>
-      <input type="hidden" name="_method" value="PATCH">
-      <input type="hidden" name="id" id="edit-id">
-
-      <div class="row g-2">
-        @include('components.form-elements.input.input', [
-          'title' => 'Título',
-          'type' => 'text',
-          'name' => 'titulo',
-          'id' => 'edit-titulo',
-          'required' => 'true',
-          'value' => '',
-          'class' => 'col-12'
-        ])
-
-        @include('components.form-elements.input.input', [
-          'title' => 'Coordenador',
-          'type' => 'text',
-          'name' => 'coordenador',
-          'id' => 'edit-coordenador',
-          'required' => 'true',
-          'value' => '',
-          'class' => 'col-12 col-md-6'
-        ])
-
-        @include('components.form-elements.input.input', [
-          'title' => 'Centro/Departamento',
-          'type' => 'text',
-          'name' => 'centro_departamento',
-          'id' => 'edit-centro',
-          'required' => 'true',
-          'value' => '',
-          'class' => 'col-12 col-md-6'
-        ])
-
-        @include('components.form-elements.input.input', [
-          'title' => 'Ano',
-          'type' => 'number',
-          'name' => 'ano',
-          'id' => 'edit-ano',
-          'required' => 'true',
-          'value' => '',
-          'class' => 'col-12 col-md-4'
-        ])
-
-        @include('components.form-elements.input.input', [
-          'title' => 'Data de Início',
-          'type' => 'date',
-          'name' => 'data_inicio',
-          'id' => 'edit-data-inicio',
-          'required' => 'true',
-          'value' => '',
-          'class' => 'col-12 col-md-4'
-        ])
-
-        @include('components.form-elements.input.input', [
-          'title' => 'Data de Finalização',
-          'type' => 'date',
-          'name' => 'data_fim',
-          'id' => 'edit-data-fim',
-          'required' => 'true',
-          'value' => '',
-          'class' => 'col-12 col-md-4'
-        ])
-
-        <x-form-elements.select.select title="Tipo da Ação" id="edit-tipo" name="tipo_acao">
-          <x-slot:options>
-            <option value="Prestação de Serviços">Prestação de Serviços</option>
-            <option value="Evento">Evento</option>
-            <option value="Curso">Curso</option>
-            <option value="Projeto">Projeto</option>
-            <option value="Programa">Programa</option>
-          </x-slot:options>
-        </x-form-elements.select.select>
-
-        <x-form-elements.select.select title="Área Temática" id="edit-area" name="area_tematica">
-          <x-slot:options>
-            <option value="Comunicação">Comunicação</option>
-            <option value="Educação">Educação</option>
-            <option value="Tecnologia e Produção">Tecnologia e Produção</option>
-            <option value="Saúde">Saúde</option>
-            <option value="Trabalho">Trabalho</option>
-            <option value="Cultura">Cultura</option>
-            <option value="Meio Ambiente">Meio Ambiente</option>
-            <option value="Direitos Humanos e Justiça">Direitos Humanos e Justiça</option>
-          </x-slot:options>
-        </x-form-elements.select.select>
-
-        <x-form-elements.select.select title="Modalidade" id="edit-modalidade" name="modalidade">
-          <x-slot:options>
-            <option value="Ampla Concorrência">Ampla Concorrência</option>
-            <option value="Ação de Fluxo Contínuo">Ação de Fluxo Contínuo</option>
-            <option value="Vinculada a Edital">Vinculada a Edital</option>
-            <option value="UFCA Itinerante">UFCA Itinerante</option>
-            <option value="PROPE">PROPE</option>
-          </x-slot:options>
-        </x-form-elements.select.select>
-
-        <x-form-elements.select.select title="Status" id="edit-status" name="status">
-          <x-slot:options>
-            <option value="0">Inativo</option>
-            <option value="1">Ativo</option>
-            <option value="2">Finalizado</option>
-          </x-slot:options>
-        </x-form-elements.select.select>
-      </div>
-    </x-slot:content>
-  </x-modal.modal>
-  @endcan
 </div>
 @endsection
 @section('scripts')
@@ -353,25 +235,5 @@
         handleFile(file);
       });
     });
-  
-  const editModal = document.getElementById('editarAcao');
-  editModal.addEventListener('show.bs.modal', function (event) {
-    const button = event.relatedTarget;
-
-    document.getElementById('edit-id').value = button.dataset.id;
-    document.getElementById('edit-titulo').value = button.dataset.titulo;
-    document.getElementById('edit-coordenador').value = button.dataset.coordenador;
-    document.getElementById('edit-centro').value = button.dataset.centro;
-    document.getElementById('edit-ano').value = button.dataset.ano;
-    document.getElementById('edit-data-inicio').value = button.dataset.dataInicio;
-    document.getElementById('edit-data-fim').value = button.dataset.dataFim;
-    document.getElementById('edit-tipo').value = button.dataset.tipo;
-    document.getElementById('edit-area').value = button.dataset.area;
-    document.getElementById('edit-modalidade').value = button.dataset.modalidade;
-    document.getElementById('edit-status').value = button.dataset.status;
-
-    const form = editModal.querySelector('form');
-    form.action = `/acoes/editar/${button.dataset.id}`;
-  })
 </script>
 @endsection

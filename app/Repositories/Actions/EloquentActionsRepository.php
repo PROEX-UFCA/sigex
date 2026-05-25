@@ -14,8 +14,7 @@ class EloquentActionsRepository implements ActionsRepository
 
         $query->when($filtros['search'] ?? null, function ($q, $search) {
             $q->where(function ($subQuery) use ($search) {
-                $subQuery->where('id_atividade', 'like', "%{$search}%")
-                    ->orWhere('id_projeto', 'like', "%{$search}%")
+                $subQuery->where('id_projeto', 'like', "%{$search}%")
                     ->orWhere('titulo', 'like', "%{$search}%")
                     ->orWhere('centro_departamento', 'like', "%{$search}%")
                     ->orWhere('data_inicio', 'like', "%{$search}%")
@@ -24,7 +23,7 @@ class EloquentActionsRepository implements ActionsRepository
                     ->orWhere('tipo_acao', 'like', "%{$search}%")
                     ->orWhere('area_tematica', 'like', "%{$search}%")
                     ->orWhere('modalidade', 'like', "%{$search}%")
-                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhere('situacao', 'like', "%{$search}%")
                     
                     ->orWhereHas('coordenador', function ($qCoordenador) use ($search) {
                         $qCoordenador->where('name', 'like', "%{$search}%"); 
@@ -34,7 +33,7 @@ class EloquentActionsRepository implements ActionsRepository
 
         $camposFiltro = [
             'centro_departamento', 'data_inicio', 'data_fim', 
-            'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'status'
+            'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'situacao'
         ];
 
         foreach ($camposFiltro as $campo) {
@@ -53,21 +52,25 @@ class EloquentActionsRepository implements ActionsRepository
             'tipo_acao' => $request->tipo,
             'modalidade' => $request->modalidade,
             'centro_departamento' => $request->centro_departamento,
-            'id_coordenador' => $request->id_coordenador,
+            'id_proponente' => $request->id_coordenador,
             'data_inicio' => $request->data_inicio,
             'data_fim' => $request->data_fim,
-            'status' => $request->status,
+            'data_atualizacao' => now(),
+            'status' => 1,
+            'situacao' => $request->situacao,
+            'palavras_chave' => $request->palavras_chave,
             'ano' => $request->ano,
-            'id_atividade' => $request->id_atividade,
+            'resumo' => $request->resumo,
             'id_projeto' => $request->id_projeto,
             'area_tematica' => $request->area_tematica,
-            'centro_departamento' => $request->centro_departamento,
+            'com_bolsa' => $request->com_bolsa,
+            'ods' => implode('; ', $request->ods), 
         ]);
 
         Equipe_Acao::create([
             'id_acao' => $acao->id, 
             'id_usuario' => $request->id_coordenador, 
-            'categoria' => 'Coordenador Geral'
+            'categoria' => 'Proponente'
         ]);
 
         return $acao;
@@ -113,5 +116,34 @@ class EloquentActionsRepository implements ActionsRepository
 
     public function getByUserUuid($user_uuid, $uuid){
         return Equipe_Acao::where(['id_usuario' => $user_uuid, 'id_acao' => $uuid])->first();
+    }
+
+    public function getByUuid($uuid){
+        return Acao::findOrFail($uuid);
+    }
+
+    public function update($request, $uuid){
+        $acao = Acao::findOrFail($uuid);
+
+        $acao->titulo = $request->titulo;
+        $acao->palavras_chave = $request->palavras_chave;
+        $acao->tipo_acao = $request->tipo;
+        $acao->modalidade = $request->modalidade;
+        $acao->centro_departamento = $request->centro_departamento;
+        $acao->id_proponente = $request->id_coordenador;
+        $acao->data_inicio = $request->data_inicio;
+        $acao->data_fim = $request->data_fim;
+        $acao->data_atualizacao = now();
+        $acao->situacao = $request->situacao;
+        $acao->ano = $request->ano;
+        $acao->resumo = $request->resumo;
+        $acao->id_projeto = $request->id_projeto;
+        $acao->area_tematica = $request->area_tematica;
+        $acao->com_bolsa = $request->com_bolsa;
+        $acao->ods = implode('; ', $request->ods);
+
+        $acao->save();
+
+        return $acao;
     }
 }
