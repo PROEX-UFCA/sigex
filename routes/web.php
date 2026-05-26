@@ -59,7 +59,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);    
         // "importar_ações"
         // "editar_ação"        
-        Route::patch('acoes/editar/{id}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);;
     });
         
     Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {
