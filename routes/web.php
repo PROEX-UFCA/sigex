@@ -55,25 +55,30 @@ Route::middleware(['auth'])->group(function () {
     
     Route::group(['middleware' => ['auth', 'permission:ver_todas_as_ações']], function () {
         Route::get('acoes', [ActionController::class, 'index'])->name('actions.index');
+        
         Route::get('acoes/adicionar', [ActionController::class, 'create'])->name('actions.create')->middleware(['auth' => 'permission:adicionar_ação']);
-        Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);    
-        // "importar_ações"
-        // "editar_ação"        
+
+        Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);
+
+        Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
+
+        Route::get('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
+
+        Route::post('acoes/importar/salvar', [ActionController::class, 'storeImport'])->name('actions.storeImport')->middleware(['auth' => 'permission:importar_ações']);
+        
+        Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);
+
+        Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);
     });
         
     Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {
         Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
-        Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details')->middleware(['auth' => 'permission:detalhar_ação']);;
-        Route::post('acoes/equipe/{uuid}', [ActionController::class, 'storeTeam'])->name('actions.storeTeam')->middleware(['auth' => 'permission:adicionar_equipe']);;
-        Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);;
-        Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);;
-        Route::post('acoes/importar/salvar', [ActionController::class, 'storeImport'])->name('actions.storeImport')->middleware(['auth' => 'permission:importar_ações']);;
-        
-        Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);;
-        Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);;
-        // "remover_equipe"
-        // "editar_agenda"
-        // "remover_agenda"
+
+        Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details')->middleware(['auth' => 'permission:detalhar_ação']);
+
+        Route::post('acoes/equipe/{uuid}', [ActionController::class, 'storeTeam'])->name('actions.storeTeam')->middleware(['auth' => 'permission:adicionar_equipe']);
+
+        Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);
     });
 
     Route::get('formularios', [FormController::class, 'index'])->name('forms.index');

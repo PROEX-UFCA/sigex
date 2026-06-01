@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Web\System;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Web\Action\ImportRequest;
 use App\Http\Requests\Web\Action\ScheduleRequest;
 use App\Http\Requests\Web\Action\StoreRequest;
 use App\Http\Requests\Web\Action\TeamRequest;
@@ -13,12 +12,12 @@ use App\Models\User;
 use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\User\UsersRepository;
-use App\Support\DateFormatter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 
 class ActionController extends Controller
 {
@@ -104,110 +103,198 @@ class ActionController extends Controller
 
     public function previewImport(Request $request)
     {
-        $file = $request->file('csv');
-        $handle = fopen($file->getRealPath(), "r");
+        $cacheKey = 'import_preview_' . auth()->id();
 
-        $headerLine = fgets($handle);
-        if ($headerLine === false) {
-            fclose($handle);
-            return redirect()->back()->with("toast_error", "Arquivo CSV vazio ou inválido.");
-        }
+        if ($request->hasFile('csv')) {
+            $request->validate([
+                'csv' => 'required|file|mimes:csv,txt|max:10240'
+            ], [
+                'csv.mimes' => 'O arquivo precisa ser um CSV válido.'
+            ]);
 
-        $commaCount = substr_count($headerLine, ',');
-        $semicolonCount = substr_count($headerLine, ';');
-        $delimiter = $semicolonCount > $commaCount ? ';' : ',';
+            $file = $request->file('csv');
+            $handle = fopen($file->getRealPath(), "r");
 
-        $projectsData = [];
-        $rowIndex = 1;
-        $duplicadosIgnorados = 0;
-
-        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
-            $row = array_map(function ($field) {
-                return trim(mb_convert_encoding($field, 'UTF-8', 'auto'));
-            }, $row);
-
-            $row = array_pad($row, 17, null);
-
-            $email = strtolower($row[17] ?? '');
-            $startDate = DateFormatter::formatDateSafe($row[7]);
-            $endDate = DateFormatter::formatDateSafe($row[8]);
-
-            $user = !empty($email) ? User::where('email', $email)->first() : null;
-
-            $checkData = [
-                'ano' => $row[1] ?? null,
-                'id_projeto' => $row[2] ?? null,
-                'data_inicio' => $row[6] ?? null,
-                'data_fim' => $row[7] ?? null,
-                'id_proponente' => $user->uuid ?? null,
-                
-                // 'titulo' => $row[3] ?? null,
-                // 'centro_departamento' => $row[4] ?? null,
-                // 'area_tematica' => $row[12] ?? null,
-                // 'palavras_chave' => $row[10] ?? null,
-                // 'tipo_acao' => $row[11] ?? null,
-                // 'modalidade' => $row[13] ?? null,
-                //'situacao' => $row[5] ?? null,
-                //'data_atualizacao' => $row[8] ?? null,
-                // 'resumo' => $row[9] ?? null,
-                //'com_bolsa' => $row[14] ?? null,
-                //'ods' => $row[15] ?? null,
-            ];
-
-            $exists = Acao::where($checkData)->exists();
-
-            if ($exists) {
-                $duplicadosIgnorados++;
-                $rowIndex++;
-                continue; 
+            $headerLine = fgets($handle);
+            if ($headerLine === false) {
+                fclose($handle);
+                return redirect()->back()->with("toast_error", "Arquivo CSV vazio ou inválido.");
             }
-            $errors = [];
-            if (empty($row[3])) $errors['titulo'] = 'Título é obrigatório';
-            if (empty($row[16])) $errors['proponente'] = 'Nome do proponente é obrigatório';
-            if (empty($row[17])) $errors['email'] = 'Email é obrigatório';
 
-            $projectsData[] = [
-                'ano' => $row[1],
-                'id_projeto' => $row[2],
-                'titulo' => $row[3],
-                'centro_departamento' => $row[4],
-                'situacao' => $row[5],
-                'data_inicio' => $row[6],
-                'data_fim' => $row[7],
-                'data_atualizacao' => $row[8],
-                'resumo' => $row[9],
-                'palavras_chave' => $row[10],
-                'tipo_acao' => $row[11],
-                'area_tematica' => $row[12],
-                'modalidade' => $row[13],
-                'com_bolsa' => $row[14],
-                'ods' => $row[15],
-                'proponente' => $row[16],
-                'email_proponente' => strtolower($row[17] ?? ''),
-                'errors' => $errors,
-                'row_index' => $rowIndex
-            ];
+            $delimiter = substr_count($headerLine, ';') > substr_count($headerLine, ',') ? ';' : ',';
+
+            $projectsData = [];
+            $rowIndex = 1;
+            $duplicadosIgnorados = 0;
+
+            while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+                $row = array_map(fn($field) => trim(mb_convert_encoding($field, 'UTF-8', 'auto')), $row);
+                $row = array_pad($row, 17, null);
+
+                $email = strtolower($row[17] ?? '');
+                
+                $user = !empty($email) ? User::where('email', $email)->first() : null;
+
+                $checkData = [
+                    'ano' => $row[1] ?? null,
+                    'id_projeto' => $row[2] ?? null,
+                    'data_inicio' => $row[6] ?? null,
+                    'data_fim' => $row[7] ?? null,
+                    'id_proponente' => $user->uuid ?? null,
+                ];
+
+                if (Acao::where($checkData)->exists()) {
+                    $duplicadosIgnorados++;
+                    $rowIndex++;
+                    continue; 
+                }
+
+                $errors = [];
+                if (empty($row[3])) $errors['titulo'] = 'Título é obrigatório';
+                if (empty($row[16])) $errors['proponente'] = 'Nome do proponente é obrigatório';
+                if (empty($row[17])) $errors['email'] = 'Email é obrigatório';
+
+                $projectsData[$rowIndex] = [
+                    'ano' => $row[1],
+                    'id_projeto' => $row[2],
+                    'titulo' => $row[3],
+                    'centro_departamento' => $row[4],
+                    'situacao' => $row[5],
+                    'data_inicio' => $row[6],
+                    'data_fim' => $row[7],
+                    'data_atualizacao' => $row[8],
+                    'resumo' => $row[9],
+                    'palavras_chave' => $row[10],
+                    'tipo_acao' => $row[11],
+                    'area_tematica' => $row[12],
+                    'modalidade' => $row[13],
+                    'com_bolsa' => $row[14],
+                    'ods' => $row[15],
+                    'proponente' => $row[16],
+                    'email_proponente' => $email,
+                    'errors' => $errors,
+                    'row_index' => $rowIndex
+                ];
+                $rowIndex++;
+            }
+            fclose($handle);
+
+            Cache::put($cacheKey, [
+                'projects' => $projectsData,
+                'duplicados' => $duplicadosIgnorados
+            ], now()->addHours(2));
+
+        } else {
+            $cacheData = Cache::get($cacheKey);
+            if (!$cacheData || empty($cacheData['projects'])) {
+                return redirect()->route('actions.index')->with('toast_error', 'A sessão de importação expirou ou não há dados.');
+            }
             
-            $rowIndex++;
+            $allProjects = $cacheData['projects'];
+            $duplicadosIgnorados = $cacheData['duplicados'];
+            $cacheFoiAtualizado = false;
+
+            if ($request->filled('deleted_indexes')) {
+                $deletedIndexes = explode(',', $request->deleted_indexes);
+                foreach ($deletedIndexes as $idx) {
+                    if (isset($allProjects[$idx])) {
+                        unset($allProjects[$idx]);
+                        $cacheFoiAtualizado = true;
+                    }
+                }
+            }
+
+            if ($request->has('projects')) {
+                foreach ($request->projects as $index => $submittedData) {
+                    if (isset($allProjects[$index])) {
+                        $allProjects[$index] = array_merge($allProjects[$index], $submittedData);
+                        
+                        $errors = [];
+                        if (empty($allProjects[$index]['titulo'])) $errors['titulo'] = 'Título é obrigatório';
+                        if (empty($allProjects[$index]['proponente'])) $errors['proponente'] = 'Nome do proponente é obrigatório';
+                        if (empty($allProjects[$index]['email_proponente'])) $errors['email'] = 'Email é obrigatório';
+                        
+                        $allProjects[$index]['errors'] = $errors;
+                        $cacheFoiAtualizado = true;
+                    }
+                }
+            }
+
+            if ($cacheFoiAtualizado) {
+                Cache::put($cacheKey, [
+                    'projects' => $allProjects,
+                    'duplicados' => $duplicadosIgnorados
+                ], now()->addHours(2));
+            }
+
+            $projectsData = $allProjects;
         }
 
-        fclose($handle);
+        $collection = collect($projectsData)->sortByDesc(fn($project) => !empty($project['errors']))->values();
+        
+        $totalErrors = $collection->filter(fn($item) => count($item['errors']) > 0)->count();
 
-        $totalErrors = collect($projectsData)->filter(fn($item) => count($item['errors']) > 0)->count();
+        $perPage = 50;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentItems = $collection->slice(($currentPage - 1) * $perPage, $perPage)->all();
 
-        $projectsData = collect($projectsData)->sortByDesc(function ($project) {
-            return !empty($project['errors']); 
-        })->values()->all();
+        $paginatedProjects = new LengthAwarePaginator(
+            $currentItems, 
+            $collection->count(), 
+            $perPage,
+            $currentPage,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()]
+        );
 
-        return view('pages.actions.preview', compact('projectsData', 'totalErrors', 'duplicadosIgnorados'));
+        return view('pages.actions.preview', compact('paginatedProjects', 'totalErrors', 'duplicadosIgnorados'));
     }
 
     public function storeImport(Request $request)
     {
-        $projetos = $request->input('projects', []);
+        $cacheKey = 'import_preview_' . auth()->id();
+        $cacheData = Cache::get($cacheKey);
 
-        if (empty($projetos)) {
-            return redirect()->route('actions.index')->with('error', 'Nenhum dado válido para importar.');
+        if (!$cacheData || empty($cacheData['projects'])) {
+            return redirect()->route('actions.index')->with('toast_error', 'Sessão de importação expirada ou sem dados válidos.');
+        }
+
+        $allProjects = $cacheData['projects'];
+        $duplicadosIgnorados = $cacheData['duplicados'];
+
+        if ($request->filled('deleted_indexes')) {
+            $deletedIndexes = explode(',', $request->deleted_indexes);
+            foreach ($deletedIndexes as $idx) {
+                if (isset($allProjects[$idx])) {
+                    unset($allProjects[$idx]);
+                }
+            }
+        }
+
+        if ($request->has('projects')) {
+            foreach ($request->projects as $index => $submittedData) {
+                if (isset($allProjects[$index])) {
+                    $allProjects[$index] = array_merge($allProjects[$index], $submittedData);
+                    
+                    $errors = [];
+                    if (empty($allProjects[$index]['titulo'])) $errors['titulo'] = 'Título é obrigatório';
+                    if (empty($allProjects[$index]['proponente'])) $errors['proponente'] = 'Nome do proponente é obrigatório';
+                    if (empty($allProjects[$index]['email_proponente'])) $errors['email'] = 'Email é obrigatório';
+                    
+                    $allProjects[$index]['errors'] = $errors;
+                }
+            }
+        }
+
+        Cache::put($cacheKey, ['projects' => $allProjects, 'duplicados' => $duplicadosIgnorados], now()->addHours(2));
+
+        $totalErrors = collect($allProjects)->filter(fn($item) => count($item['errors']) > 0)->count();
+
+        if ($totalErrors > 0) {
+            return redirect()->back()->with('toast_error', "Não foi possível salvar. Ainda existem {$totalErrors} linha(s) com erro no lote. Corrija ou exclua as linhas.");
+        }
+
+        if (empty($allProjects)) {
+            return redirect()->route('actions.index')->with('toast_info', 'Nenhuma linha restou para ser importada.');
         }
 
         DB::beginTransaction();
@@ -215,12 +302,8 @@ class ActionController extends Controller
             $acoesParaInserir = [];
             $agora = now();
 
-            foreach ($projetos as $linha) {
+            foreach ($allProjects as $linha) {
                 
-                if(count($linha) != 17){
-                    continue;
-                }
-
                 $centroDepartamento = !empty($linha['centro_departamento']) 
                     ? Parametro::firstOrCreate([
                         'function' => 'CENTRO_DEPARTAMENTO', 
@@ -262,47 +345,41 @@ class ActionController extends Controller
                             'name' => mb_strtoupper(trim($linha['proponente']), 'UTF-8'),
                             'email' => $emailCoordenador,
                             'status' => 2,
-                            // 'password' => bcrypt('Mudar123')
                         ]);
                         $usuario->assignRole("Coordenador");
                     }
                     $idCoordenador = $usuario->uuid;
                 }
 
-
-                // 3. Montar o array da Ação
                 $acoesParaInserir[] = [
-                    'id' => (string) Str::uuid(),
-                    'id_proponente' => $idCoordenador,
-                    'ano' => $linha['ano'] ?? null,
-                    'id_projeto' => $linha['id_projeto'] ?? null,
-                    'titulo' => $linha['titulo'] ?? null,
+                    'id'                  => (string) Str::uuid(),
+                    'id_proponente'       => $idCoordenador,
+                    'ano'                 => $linha['ano'] ?? null,
+                    'id_projeto'          => $linha['id_projeto'] ?? null,
+                    'titulo'              => $linha['titulo'] ?? null,
                     'centro_departamento' => $centroDepartamento ? $centroDepartamento->value : null,
-                    'situacao' => $linha['situacao'] ?? null,
-                    'data_inicio' => $linha['data_inicio'] ?? null, 
-                    'data_fim' => $linha['data_fim'] ?? null,
-                    'data_atualizacao' => $linha['data_atualizacao'] ?? null,
-                    'resumo' => $linha['resumo'] ?? null,
-                    'palavras_chave' => $linha['palavras_chave'] ?? null,
-                    'tipo_acao' => $tipoAcao ? $tipoAcao->value : null,
-                    'area_tematica' => $areaTematica ? $areaTematica->value : null,
-                    'modalidade' => $modalidade ? $modalidade->value : null,
-                    'com_bolsa' => $linha['com_bolsa'] ?? null,
-                    'ods' => $linha['ods'] ?? null,
-                    'status' => 1,
-                    'created_at' => $agora,
-                    'updated_at' => $agora,
+                    'situacao'            => $situacao ? $situacao->value : null,
+                    'data_inicio'         => $linha['data_inicio'] ?? null, 
+                    'data_fim'            => $linha['data_fim'] ?? null,
+                    'data_atualizacao'    => $linha['data_atualizacao'] ?? null,
+                    'resumo'              => $linha['resumo'] ?? null,
+                    'palavras_chave'      => $linha['palavras_chave'] ?? null,
+                    'tipo_acao'           => $tipoAcao ? $tipoAcao->value : null,
+                    'area_tematica'       => $areaTematica ? $areaTematica->value : null,
+                    'modalidade'          => $modalidade ? $modalidade->value : null,
+                    'com_bolsa'           => $linha['com_bolsa'] ?? null,
+                    'ods'                 => $linha['ods'] ?? null,
+                    'status'              => 1,
+                    'created_at'          => $agora,
+                    'updated_at'          => $agora,
                 ];
             }
 
-            // 4. Inserção em Lote (Batch Insert)
             if (!empty($acoesParaInserir)) {
-                // Usando o DB::table ou Eloquent insert para máxima velocidade
                 Acao::insert($acoesParaInserir);
 
-                // Log de Atividade (Opcional, usando spatie/laravel-activitylog)
                 $usuarioLogado = auth()->user();
-                $acaoReferencia = Acao::first(); // Pega apenas como model de referência pro log
+                $acaoReferencia = Acao::first();
                 
                 if ($acaoReferencia && $usuarioLogado) {
                     activity()
@@ -319,12 +396,13 @@ class ActionController extends Controller
             }
 
             DB::commit();
-            // Substitua 'acoes.index' pela rota correta de redirecionamento do seu sistema
-            return redirect()->route('actions.index')->with("success", "Ações importadas e salvas com sucesso!");
+            Cache::forget($cacheKey);
+
+            return redirect()->route('actions.index')->with("toast_success", "Ações importadas e salvas com sucesso!");
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('actions.index')->with("error", "Erro ao salvar os dados: " . $e->getMessage());
+            return redirect()->route('actions.index')->with("toast_error", "Erro ao salvar os dados: " . $e->getMessage());
         }
     }
 
