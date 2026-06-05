@@ -152,6 +152,11 @@
             @if($pergunta->regex) pattern="{{ $pergunta->regex }}" @endif
             placeholder="Sua resposta aqui">
 
+            @case('location')
+            <input type="text" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            'required' : '' }}
+            placeholder="Sua resposta aqui">
+
             {{-- Infozinho para Text --}}
             @if($pergunta->min || $pergunta->max || $pergunta->regex)
             <div class="form-text text-muted">
@@ -292,6 +297,7 @@
               <option value="radio">Botão de opção (Radio)</option>
               <option value="file">Arquivo</option>
               <option value="number">Número</option>
+              <option value="location">Localização</option>
             </x-slot:options>
           </x-form-elements.select.select>
 

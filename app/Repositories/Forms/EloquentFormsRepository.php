@@ -100,6 +100,10 @@ class EloquentFormsRepository implements FormsRepository
         return Secao::findOrFail($uuid);
     }
 
+    public function getQuestionById($uuid){
+        return Pergunta::findOrFail($uuid);
+    }
+
     public function getFormById($uuid){
         return Formulario::findOrFail($uuid);
     }
