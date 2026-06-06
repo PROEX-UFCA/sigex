@@ -21,8 +21,6 @@ class AuthController extends Controller
             return response()->json(['message' => 'Credenciais inválidas'], 401);
         }
 
-        $request->session()->regenerate();
-
         $user = Auth::user();
         return response()->json([
             'role' => $user->getRoleNames()->first(),
