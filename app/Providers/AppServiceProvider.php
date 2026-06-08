@@ -8,6 +8,8 @@ use App\Repositories\Forms\EloquentFormsRepository;
 use App\Repositories\Forms\FormsRepository;
 use App\Repositories\Parametros\EloquentParametrosRepository;
 use App\Repositories\Parametros\ParametrosRepository;
+use App\Repositories\Reports\EloquentReportsRepository;
+use App\Repositories\Reports\ReportsRepository;
 use App\Repositories\Settings\Roles\EloquentRolesRepository;
 use App\Repositories\Settings\Roles\RolesRepository;
 use App\Repositories\Settings\User\EloquentUsersRepository;
@@ -31,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ActionsRepository::class, EloquentActionsRepository::class);
         $this->app->bind(ParametrosRepository::class, EloquentParametrosRepository::class);
         $this->app->bind(FormsRepository::class, EloquentFormsRepository::class);
+        $this->app->bind(ReportsRepository::class, EloquentReportsRepository::class);
     }
 
     /**

@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('submissao', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('id_relatorio');
+            $table->foreign('id_relatorio')->references('id')->on('relatorio')->onDelete('cascade');
+            $table->uuid('id_acao')->nullable();
+            $table->foreign('id_acao')->references('id')->on('acao')->onDelete('cascade');
+            $table->uuid('id_user')->nullable();
+            $table->foreign('id_user')->references('uuid')->on('users')->onDelete('cascade');
+            $table->datetime('finalizada_em')->nullable();
             $table->timestamps();
         });
     }

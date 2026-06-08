@@ -146,4 +146,42 @@ class EloquentActionsRepository implements ActionsRepository
 
         return $acao;
     }
+
+    public function getParameters($parameter){
+        return Acao::select($parameter)->groupBy($parameter)->pluck($parameter);
+    }
+
+    public function getActionsForReports(array $filtros)
+    {
+        $query = Acao::query();
+
+        if (isset($filtros['parametros']) && is_array($filtros['parametros'])) {
+            
+            if (!empty($filtros['parametros']['tipo'])) {
+                $query->whereIn('tipo_acao', $filtros['parametros']['tipo']);
+            }
+            
+            if (!empty($filtros['parametros']['modalidade'])) {
+                $query->whereIn('modalidade', $filtros['parametros']['modalidade']);
+            }
+
+            if (!empty($filtros['parametros']['situacao'])) {
+                $query->whereIn('situacao', $filtros['parametros']['situacao']);
+            }
+        }
+
+        if (!empty($filtros['ano_acao'])) {
+            $query->where('ano', $filtros['ano_acao']);
+        }
+
+        if (!empty($filtros['ano_inicio'])) {
+            $query->whereYear('data_inicio', $filtros['ano_inicio']);
+        }
+
+        if (!empty($filtros['ano_fim'])) {
+            $query->whereYear('data_fim', $filtros['ano_fim']);
+        }
+
+        return $query->get();
+    }
 }

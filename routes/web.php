@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\Settings\UsersController;
 use App\Http\Controllers\Web\System\ActionController;
 use App\Http\Controllers\Web\System\FormController;
 use App\Http\Controllers\Web\System\HomeController;
+use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use Illuminate\Support\Facades\Route;
 
@@ -95,4 +96,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('secao/atualizar/{uuid}', [FormController::class, 'sessionUpdate'])->name('sessions.update');
     Route::post('secao/adicionar/pergunta/{uuid}', [FormController::class, 'storeQuestion'])->name('sessions.storeQuestion');
     Route::delete('secao/deletar/pergunta/{uuid}', [FormController::class, 'deleteQuestion'])->name('sessions.deleteQuestion');
+
+    Route::get('relatorios', [ReportController::class, 'index'])->name('report.index');
+    Route::get('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create');
+    Route::post('relatorios/inserir', [ReportController::class, 'store'])->name('report.store');
+    Route::post('relatorios/atualizar/{uuid}', [ReportController::class, 'update'])->name('report.update');
+
 });

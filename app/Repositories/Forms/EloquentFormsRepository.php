@@ -22,6 +22,10 @@ class EloquentFormsRepository implements FormsRepository
         return $query->orderBy($sort, $direction)->paginate(30);
     }
 
+    public function getAllActive(){
+        return Formulario::where('status', 1)->get();
+    }
+
     public function create($request)
     {
         $form = Formulario::create([

@@ -98,10 +98,20 @@
               </x-navbar.navbar-item>    
               @endcan
 
-              <x-navbar.navbar-item route="{{ route('forms.index') }}" title="Formulários"
-                isActive="{{ request()->routeIs(['forms.index', 'sessions.*']) ? true : false }}"
+              {{-- @canany(['', '']) --}}
+              <x-navbar.navbar-item route="" title="Formulários"
+                isActive="{{ request()->routeIs(['forms.index', 'sessions.*', 'report.*']) ? true : false }}"
                 icon="ti-clipboard-text">
-              </x-navbar.navbar-item>    
+                <x-slot:links>
+                  {{-- @can('adicionar_e_editar_grupo') --}}
+                  <a class="dropdown-item" href="{{ route('forms.index') }}">Formulários</a>
+                  {{-- @endcan
+                  @can('ver_todos_os_logs') --}}
+                  <a class="dropdown-item" href="{{ route('report.index') }}">Relatórios</a>
+                  {{-- @endcan --}}
+                </x-slot:links>
+              </x-navbar.navbar-item>
+              {{-- @endcanany --}}
 
               @can('ver_usuários')
               <x-navbar.navbar-item route="{{ route('users.index') }}" title="Usuários"
