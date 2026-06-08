@@ -125,6 +125,14 @@ class EloquentActionsRepository implements ActionsRepository
     public function update($request, $uuid){
         $acao = Acao::findOrFail($uuid);
 
+        $membro = Equipe_Acao::where([
+            'id_acao' => $acao->id, 
+            'id_usuario' => $acao->id_proponente
+        ])->first();
+
+        $membro->id_usuario = $request->id_coordenador;
+        $membro->save();
+
         $acao->titulo = $request->titulo;
         $acao->palavras_chave = $request->palavras_chave;
         $acao->tipo_acao = $request->tipo;

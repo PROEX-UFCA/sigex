@@ -97,21 +97,20 @@
                 icon="ti-list-details">
               </x-navbar.navbar-item>    
               @endcan
-
-              {{-- @canany(['', '']) --}}
+              @canany(['ver_formulários', 'ver_relatórios'])
               <x-navbar.navbar-item route="" title="Formulários"
                 isActive="{{ request()->routeIs(['forms.index', 'sessions.*', 'report.*']) ? true : false }}"
                 icon="ti-clipboard-text">
                 <x-slot:links>
-                  {{-- @can('adicionar_e_editar_grupo') --}}
+                  @can('ver_formulários')
                   <a class="dropdown-item" href="{{ route('forms.index') }}">Formulários</a>
-                  {{-- @endcan
-                  @can('ver_todos_os_logs') --}}
+                  @endcan
+                  @can('ver_relatórios')
                   <a class="dropdown-item" href="{{ route('report.index') }}">Relatórios</a>
-                  {{-- @endcan --}}
+                  @endcan
                 </x-slot:links>
               </x-navbar.navbar-item>
-              {{-- @endcanany --}}
+              @endcanany
 
               @can('ver_usuários')
               <x-navbar.navbar-item route="{{ route('users.index') }}" title="Usuários"

@@ -95,7 +95,8 @@ erDiagram
     FORMULARIO ||--o{ SECAO : possui
     SECAO ||--o{ PERGUNTA : contem
     PERGUNTA ||--o{ OPCAO_PERGUNTA : "tem (select, radio, checkbox)"
-    FORMULARIO ||--o{ SUBMISSAO : recebe
+    FORMULARIO ||--o{ RELATORIO : recebe
+    RELATORIO ||--o{ SUBMISSAO : recebe
     SUBMISSAO ||--o{ RESPOSTA : contem
     PERGUNTA ||--o{ RESPOSTA : "referencia a"
     OPCAO_PERGUNTA ||--o{ RESPOSTA : "vinculada a (se aplicavel)"
@@ -138,10 +139,20 @@ erDiagram
         string valor "Valor interno"
     }
 
-    SUBMISSAO {
+    RELATORIO {
         uuid id PK
         uuid id_formulario FK
-        uuid id_usuario FK 
+        string nome
+        datetime data_inicio
+        datetime prazo
+        boolean status
+    }
+
+    SUBMISSAO {
+        uuid id PK
+        uuid id_relatorio FK 
+        uuid id_action FK
+        uuid id_user FK
         datetime finalizada_em
     }
 

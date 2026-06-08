@@ -6,7 +6,9 @@
 <div class="page-body row">
   <div class="m-0 p-0 mb-4 row">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
+      @can('adicionar_relatórios')
       <a href="{{ route('report.create') }}" class="btn">Novo relatório</a>
+      @endcan
     </div>
     <div class="d-flex justify-content-end col-12 col-md-6 p-0 m-0">
       <x-table.search route="{{ route('report.index') }}"></x-table.search>
@@ -41,8 +43,12 @@
           </th>
           @endforeach
           <th width="5%">Qtd. Ações</th>
+          @can('editar_relatórios')
           <th width="5%"></th>
+          @endcan
+          @can('monitorar_relatórios')
           <th width="5%"></th>
+          @endcan
         </tr>
       </thead>
       <tbody>
@@ -53,15 +59,19 @@
           <td>{{date('d/m/Y H:i', strtotime($item->prazo))}}</td>
           <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
           <td>{{$item->submissoes->count()}}</td>
+          @can('editar_relatórios')
           <td class="text-center">
             <button class="btn btn-sm p-1 px-2" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-{{$item->id}}"
               aria-controls="offcanvasExample">
               Editar
             </button>
           </td>
+          @endcan
+          @can('monitorar_relatórios')
           <td class="text-center">
             <a href="" class="btn btn-sm btn-success disabled">Monitorar</a>
           </td>
+          @endcan
         </tr>
         @endforeach
       </tbody>
@@ -70,6 +80,7 @@
   <div class="d-flex justify-content-center mt-5">
     {{ $reports->links() }}
   </div>
+  @can('editar_relatórios')
   @foreach ($reports as $item)
   <x-modal.offcanvas route="{{ route('report.update', $item->id) }}" id="modal-edit-{{$item->id}}" class="offcanvas-end"
     title="Editar relatório">
@@ -116,6 +127,7 @@
     </x-slot:content>
   </x-modal.offcanvas>
   @endforeach
+  @endcan
 </div>
 @endsection
 @section('scripts')

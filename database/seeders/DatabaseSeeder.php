@@ -51,7 +51,16 @@ class DatabaseSeeder extends Seeder
             "editar_agenda",
             "remover_agenda",
 
-            "deletar_formulario",
+            "ver_formulários",
+            "adicionar_formulários",
+            "editar_formulários",
+            "deletar_formulários",
+
+            "ver_relatórios",
+            "adicionar_relatórios",
+            "editar_relatórios",
+            "responder_relatórios",
+            "monitorar_relatórios",
 
             "ver_dashboard",
         ];
@@ -81,7 +90,16 @@ class DatabaseSeeder extends Seeder
                     "editar_agenda",
                     "remover_agenda",
 
-                    "deletar_formulario",
+                    "ver_formulários",
+                    "adicionar_formulários",
+                    "editar_formulários",
+                    "deletar_formulários",
+
+                    "ver_relatórios",
+                    "adicionar_relatórios",
+                    "editar_relatórios",
+                    "responder_relatórios",
+                    "monitorar_relatórios",
 
                     "ver_dashboard",
                 ]

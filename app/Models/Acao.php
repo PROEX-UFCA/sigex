@@ -30,6 +30,10 @@ class Acao extends Model
         return $this->hasMany(Agenda_Acao::class, 'id_acao', 'id');
     }
 
+    public function submissoes() : HasMany {
+        return $this->hasMany(Submissao::class, 'id_acao', 'id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

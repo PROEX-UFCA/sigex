@@ -82,24 +82,26 @@ Route::middleware(['auth'])->group(function () {
         Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);
     });
 
-    Route::get('formularios', [FormController::class, 'index'])->name('forms.index');
-    Route::post('formularios/adicionar', [FormController::class, 'store'])->name('forms.store');
-    Route::post('formularios/atualizar/{uuid}', [FormController::class, 'update'])->name('forms.update');
-
-    Route::group(['middleware' => ['auth', 'permission:deletar_formulario']], function () {
-        Route::delete('formularios/remover/{uuid}', [FormController::class, 'destroy'])->name('forms.destroy');
+    Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
+    Route::delete('formularios/remover/{uuid}', [FormController::class, 'destroy'])->name('forms.destroy')->middleware(['auth' => 'permission:deletar_formulários']);
+    Route::post('formularios/atualizar/{uuid}', [FormController::class, 'update'])->name('forms.update')->middleware(['auth' => 'permission:editar_formulários']);
+    
+    Route::group(['middleware' => ['auth', 'permission:adicionar_formulários']], function () {
+        Route::post('formularios/adicionar', [FormController::class, 'store'])->name('forms.store')->middleware(['auth' => 'permission:deletar_formulários']);
+        Route::get('secao/{uuid}', [FormController::class, 'session'])->name('sessions.index');
+        Route::delete('secao/deletar/{uuid}', [FormController::class, 'sessionDelete'])->name('sessions.delete');
+        Route::post('secao/inserir/{uuid}', [FormController::class, 'sessionStore'])->name('sessions.store');
+        Route::post('secao/atualizar/{uuid}', [FormController::class, 'sessionUpdate'])->name('sessions.update');
+        Route::post('secao/adicionar/pergunta/{uuid}', [FormController::class, 'storeQuestion'])->name('sessions.storeQuestion');
+        Route::delete('secao/deletar/pergunta/{uuid}', [FormController::class, 'deleteQuestion'])->name('sessions.deleteQuestion');
     });
     
-    Route::get('secao/{uuid}', [FormController::class, 'session'])->name('sessions.index');
-    Route::delete('secao/deletar/{uuid}', [FormController::class, 'sessionDelete'])->name('sessions.delete');
-    Route::post('secao/inserir/{uuid}', [FormController::class, 'sessionStore'])->name('sessions.store');
-    Route::post('secao/atualizar/{uuid}', [FormController::class, 'sessionUpdate'])->name('sessions.update');
-    Route::post('secao/adicionar/pergunta/{uuid}', [FormController::class, 'storeQuestion'])->name('sessions.storeQuestion');
-    Route::delete('secao/deletar/pergunta/{uuid}', [FormController::class, 'deleteQuestion'])->name('sessions.deleteQuestion');
+    Route::get('relatorios', [ReportController::class, 'index'])->name('report.index')->middleware(['auth' => 'permission:ver_relatórios']);
 
-    Route::get('relatorios', [ReportController::class, 'index'])->name('report.index');
-    Route::get('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create');
-    Route::post('relatorios/inserir', [ReportController::class, 'store'])->name('report.store');
-    Route::post('relatorios/atualizar/{uuid}', [ReportController::class, 'update'])->name('report.update');
+    Route::get('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create')->middleware(['auth' => 'permission:adicionar_relatórios']);
+
+    Route::post('relatorios/inserir', [ReportController::class, 'store'])->name('report.store')->middleware(['auth' => 'permission:adicionar_relatórios']);
+
+    Route::post('relatorios/atualizar/{uuid}', [ReportController::class, 'update'])->name('report.update')->middleware(['auth' => 'permission:editar_relatórios']);
 
 });

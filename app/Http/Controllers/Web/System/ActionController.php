@@ -7,6 +7,7 @@ use App\Http\Requests\Web\Action\ScheduleRequest;
 use App\Http\Requests\Web\Action\StoreRequest;
 use App\Http\Requests\Web\Action\TeamRequest;
 use App\Models\Acao;
+use App\Models\Equipe_Acao;
 use App\Models\Parametro;
 use App\Models\User;
 use App\Repositories\Actions\ActionsRepository;
@@ -300,6 +301,7 @@ class ActionController extends Controller
         DB::beginTransaction();
         try {
             $acoesParaInserir = [];
+            $membrosParaInserir = [];
             $agora = now();
 
             foreach ($allProjects as $linha) {
@@ -351,8 +353,10 @@ class ActionController extends Controller
                     $idCoordenador = $usuario->uuid;
                 }
 
+                $id = (string) Str::uuid();
+
                 $acoesParaInserir[] = [
-                    'id'                  => (string) Str::uuid(),
+                    'id'                  => $id,
                     'id_proponente'       => $idCoordenador,
                     'ano'                 => $linha['ano'] ?? null,
                     'id_projeto'          => $linha['id_projeto'] ?? null,
@@ -373,10 +377,18 @@ class ActionController extends Controller
                     'created_at'          => $agora,
                     'updated_at'          => $agora,
                 ];
+
+                $membrosParaInserir[] = [
+                    'id' => (string) Str::uuid(),
+                    'id_acao' => $id, 
+                    'id_usuario' => $idCoordenador, 
+                    'categoria' => 'Proponente'
+                ];
             }
 
             if (!empty($acoesParaInserir)) {
                 Acao::insert($acoesParaInserir);
+                Equipe_Acao::insert($membrosParaInserir);
 
                 $usuarioLogado = auth()->user();
                 $acaoReferencia = Acao::first();
