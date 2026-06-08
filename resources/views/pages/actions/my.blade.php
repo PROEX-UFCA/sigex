@@ -13,8 +13,8 @@
     <div class="card card-body m-0 p-3">
       <form action="{{ route('actions.index') }}" method="GET" class="row">
         @foreach ($parametros as $key => $parametro)
-        <x-form-elements.select.select title="{{ ucfirst(strtolower($key)) }}" id="{{ strtolower($key) }}" name="{{ strtolower($key) }}"
-          class="col-12 col-md-4 col-lg-3">
+        <x-form-elements.select.select title="{{ ucfirst(strtolower($key)) }}" id="{{ strtolower($key) }}"
+          name="{{ strtolower($key) }}" class="col-12 col-md-4 col-lg-3">
 
           <x-slot:options>
             <option value="" disabled {{ request(strtolower($key))=='' ? 'selected' : '' }}>Selecione</option>
@@ -38,13 +38,13 @@
         </x-form-elements.select.select>
 
         @include('components.form-elements.input.input', [
-          'title' => 'Ano',
-          'type' => 'number',
-          'class' => 'mb-3 col-12 col-md-4 col-lg-3',
-          'name' => 'ano',
-          'required' => 'false',
-          'placeholder' => 'Ano',
-          'value' => request('ano')
+        'title' => 'Ano',
+        'type' => 'number',
+        'class' => 'mb-3 col-12 col-md-4 col-lg-3',
+        'name' => 'ano',
+        'required' => 'false',
+        'placeholder' => 'Ano',
+        'value' => request('ano')
         ])
 
         <div class="col-12 col-md-4 col-lg-3">
@@ -97,11 +97,14 @@
           <td>{{ $item->action->status == 0 ? 'Inativo' : ($item->action->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
           <td class="text-center">
             @can('detalhar_ação')
-            <a href="{{ route('actions.details', $item->action->id) }}">Detalhar</a>
+            <a href="{{ route('actions.details', $item->action->id) }}" class="btn btn-sm">Detalhar</a>
             @endcan
           </td>
           <td class="text-center">
-            <a href="">Relatório</a>
+            <button class="btn btn-sm p-1 px-2" data-bs-toggle="offcanvas"
+              data-bs-target="#modal-relatorios-{{$item->id}}" aria-controls="offcanvasExample">
+              Relatórios
+            </button>
           </td>
         </tr>
         @endforeach
@@ -111,6 +114,43 @@
   {{-- <div class="d-flex justify-content-center mt-5">
     {{ $actions->links() }}
   </div> --}}
+  @foreach ($actions as $item)
+  <x-modal.offcanvas id="modal-relatorios-{{$item->id}}" class="offcanvas-end"
+    title="Relatórios para a ação: {{$item->titulo}}">
+    <x-slot:content>
+      <div class="list-group shadow-sm">
+        @foreach ($item->action->submissoes as $submissao)
+        <a href="{{ route('sessions.index', $submissao->id) }}" class="list-group-item list-group-item-action p-3">
+          <div class="d-flex w-100 justify-content-between align-items-start gap-2 mb-2">
+            <h6 class="fw-bold mb-0 text-dark text-break">
+              {{ $submissao->relatorio->titulo }}
+            </h6>
+            <span class="badge rounded-pill flex-shrink-0 {{ $submissao->status == 0 ? 'text-bg-danger' : ($submissao->status == 1 ? 'text-bg-primary' : 'text-bg-success') }}">
+              {{ $submissao->status == 0 ? 'Inativo' : ($submissao->status == 1 ? 'Ativo' : 'Finalizado') }}
+            </span>
+          </div>
+          <div class="d-flex flex-column text-muted" style="font-size: 0.85rem;">
+            <div class="mb-1">
+              <span class="fw-semibold text-secondary">Início:</span>
+              {{ date('d/m/Y H:i', strtotime($submissao->relatorio->data_inicio)) }}
+            </div>
+            <div class="mb-1">
+              <span class="fw-semibold text-secondary">Prazo:</span>
+              {{ date('d/m/Y H:i', strtotime($submissao->relatorio->prazo)) }}
+            </div>
+            <div>
+              <span class="fw-semibold text-secondary">Finalizado:</span>
+              <span class="{{ $submissao->finalizado_em == null ? 'text-danger' : 'text-success fw-bold' }}">
+                {{ $submissao->finalizado_em == null ? 'Não' : 'Sim' }}
+              </span>
+            </div>
+          </div>
+        </a>
+        @endforeach
+      </div>
+    </x-slot:content>
+  </x-modal.offcanvas>
+  @endforeach
 </div>
 @endsection
 @section('scripts')

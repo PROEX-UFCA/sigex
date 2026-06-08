@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\Settings\UsersController;
 use App\Http\Controllers\Web\System\ActionController;
 use App\Http\Controllers\Web\System\FormController;
 use App\Http\Controllers\Web\System\HomeController;
+use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,39 +56,52 @@ Route::middleware(['auth'])->group(function () {
     
     Route::group(['middleware' => ['auth', 'permission:ver_todas_as_ações']], function () {
         Route::get('acoes', [ActionController::class, 'index'])->name('actions.index');
+        
         Route::get('acoes/adicionar', [ActionController::class, 'create'])->name('actions.create')->middleware(['auth' => 'permission:adicionar_ação']);
-        Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);    
-        // "importar_ações"
-        // "editar_ação"        
+
+        Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);
+
+        Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
+
+        Route::get('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
+
+        Route::post('acoes/importar/salvar', [ActionController::class, 'storeImport'])->name('actions.storeImport')->middleware(['auth' => 'permission:importar_ações']);
+        
+        Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);
+
+        Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);
     });
         
     Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {
         Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
-        Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details')->middleware(['auth' => 'permission:detalhar_ação']);;
-        Route::post('acoes/equipe/{uuid}', [ActionController::class, 'storeTeam'])->name('actions.storeTeam')->middleware(['auth' => 'permission:adicionar_equipe']);;
-        Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);;
-        Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);;
-        Route::post('acoes/importar/salvar', [ActionController::class, 'storeImport'])->name('actions.storeImport')->middleware(['auth' => 'permission:importar_ações']);;
-        
-        Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);;
-        Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);;
-        // "remover_equipe"
-        // "editar_agenda"
-        // "remover_agenda"
+
+        Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details')->middleware(['auth' => 'permission:detalhar_ação']);
+
+        Route::post('acoes/equipe/{uuid}', [ActionController::class, 'storeTeam'])->name('actions.storeTeam')->middleware(['auth' => 'permission:adicionar_equipe']);
+
+        Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);
     });
 
-    Route::get('formularios', [FormController::class, 'index'])->name('forms.index');
-    Route::post('formularios/adicionar', [FormController::class, 'store'])->name('forms.store');
-    Route::post('formularios/atualizar/{uuid}', [FormController::class, 'update'])->name('forms.update');
-
-    Route::group(['middleware' => ['auth', 'permission:deletar_formulario']], function () {
-        Route::delete('formularios/remover/{uuid}', [FormController::class, 'destroy'])->name('forms.destroy');
+    Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
+    Route::delete('formularios/remover/{uuid}', [FormController::class, 'destroy'])->name('forms.destroy')->middleware(['auth' => 'permission:deletar_formulários']);
+    Route::post('formularios/atualizar/{uuid}', [FormController::class, 'update'])->name('forms.update')->middleware(['auth' => 'permission:editar_formulários']);
+    
+    Route::group(['middleware' => ['auth', 'permission:adicionar_formulários']], function () {
+        Route::post('formularios/adicionar', [FormController::class, 'store'])->name('forms.store')->middleware(['auth' => 'permission:deletar_formulários']);
+        Route::get('secao/{uuid}', [FormController::class, 'session'])->name('sessions.index');
+        Route::delete('secao/deletar/{uuid}', [FormController::class, 'sessionDelete'])->name('sessions.delete');
+        Route::post('secao/inserir/{uuid}', [FormController::class, 'sessionStore'])->name('sessions.store');
+        Route::post('secao/atualizar/{uuid}', [FormController::class, 'sessionUpdate'])->name('sessions.update');
+        Route::post('secao/adicionar/pergunta/{uuid}', [FormController::class, 'storeQuestion'])->name('sessions.storeQuestion');
+        Route::delete('secao/deletar/pergunta/{uuid}', [FormController::class, 'deleteQuestion'])->name('sessions.deleteQuestion');
     });
     
-    Route::get('secao/{uuid}', [FormController::class, 'session'])->name('sessions.index');
-    Route::delete('secao/deletar/{uuid}', [FormController::class, 'sessionDelete'])->name('sessions.delete');
-    Route::post('secao/inserir/{uuid}', [FormController::class, 'sessionStore'])->name('sessions.store');
-    Route::post('secao/atualizar/{uuid}', [FormController::class, 'sessionUpdate'])->name('sessions.update');
-    Route::post('secao/adicionar/pergunta/{uuid}', [FormController::class, 'storeQuestion'])->name('sessions.storeQuestion');
-    Route::delete('secao/deletar/pergunta/{uuid}', [FormController::class, 'deleteQuestion'])->name('sessions.deleteQuestion');
+    Route::get('relatorios', [ReportController::class, 'index'])->name('report.index')->middleware(['auth' => 'permission:ver_relatórios']);
+
+    Route::get('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create')->middleware(['auth' => 'permission:adicionar_relatórios']);
+
+    Route::post('relatorios/inserir', [ReportController::class, 'store'])->name('report.store')->middleware(['auth' => 'permission:adicionar_relatórios']);
+
+    Route::post('relatorios/atualizar/{uuid}', [ReportController::class, 'update'])->name('report.update')->middleware(['auth' => 'permission:editar_relatórios']);
+
 });

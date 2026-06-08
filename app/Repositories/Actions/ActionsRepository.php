@@ -11,4 +11,6 @@ interface ActionsRepository{
   public function createSchedule($request, $id_acao);
   public function getByUuid($uuid);
   public function update($request, $uuid);
+  public function getParameters($parameter);
+  public function getActionsForReports(array $filtros);
 } 

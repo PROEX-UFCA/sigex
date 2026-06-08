@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('submissao', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->timestamps();
+        Schema::table('formulario', function (Blueprint $table) {
+            $table->softDeletes();
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('submissao');
+        Schema::table('formulario', function (Blueprint $table) {
+            //
+        });
     }
 };

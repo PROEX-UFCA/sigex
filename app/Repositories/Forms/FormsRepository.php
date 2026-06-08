@@ -7,6 +7,7 @@ interface FormsRepository{
   public function create($request);
   public function update($request, $uuid);
   public function getSessionById($uuid);
+  public function getQuestionById($uuid);
   public function updateSession($request, $uuid);
   public function createQuestion($request, $uuid);
   public function getFormById($uuid);
@@ -14,4 +15,5 @@ interface FormsRepository{
   public function storeSessions($request, $uuid);
   public function deleteQuestion($uuid);
   public function destroy($uuid);
+  public function getAllActive();
 } 

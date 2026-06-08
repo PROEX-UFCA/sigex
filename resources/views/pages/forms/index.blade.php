@@ -6,13 +6,16 @@
 <div class="page-body row">
   <div class="m-0 p-0 mb-4 row">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
+      @can('adicionar_formulários')
       <bottom class="btn" data-bs-toggle="collapse" data-bs-target="#inserir" aria-expanded="false"
         aria-controls="collapseExample">Inserir</bottom>
+      @endcan
     </div>
     <div class="d-flex justify-content-end col-12 col-md-6 p-0 m-0">
       <x-table.search route="{{ route('forms.index') }}"></x-table.search>
     </div>
   </div>
+  @can('adicionar_formulários')
   <div class="collapse m-0 p-0 mb-3" id="inserir">
     <div class="card card-body m-0 p-3">
       <form action="{{ route('forms.store') }}" method="POST" class="row">
@@ -59,38 +62,44 @@
       </form>
     </div>
   </div>
+  @endcan
   <div class="table-responsive p-0">
     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
       <thead>
         <tr>
           @php
-            $sortField = request('sort', 'created_at');
-            $sortDirection = request('dir', 'desc');
-            $nextDirection = $sortDirection === 'asc' ? 'desc' : 'asc';
+          $sortField = request('sort', 'created_at');
+          $sortDirection = request('dir', 'desc');
+          $nextDirection = $sortDirection === 'asc' ? 'desc' : 'asc';
           @endphp
 
           @foreach ([
-            'created_at' => 'Data de Criação',
-            'titulo' => 'Título',
-            'status' => 'Status'
+          'titulo' => 'Título',
+          'descricao' => 'Descrição',
+          'status' => 'Status',
+          'created_at' => 'Data de Criação',
           ] as $field => $label)
           <th>
-            <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}" class="text-reset text-decoration-none d-flex align-items-center gap-1" style="{{ $label === 'Título' ? 'min-width: 200px;' : '' }}" class="{{ $label === 'Título' ? 'text-wrap' : '' }}">
+            <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}"
+              class="text-reset text-decoration-none d-flex align-items-center gap-1"
+              style="{{ $label === 'Título' ? 'min-width: 200px;' : '' }}"
+              class="{{ $label === 'Título' ? 'text-wrap' : '' }}">
               {{ $label }}
               @if ($sortField === $field)
-                {{ $sortDirection === 'asc' ? '↑' : '↓' }}
+              {{ $sortDirection === 'asc' ? '↑' : '↓' }}
               @endif
             </a>
           </th>
           @endforeach
-          <th></th>
-          <th></th>
-          {{-- <th class="text-wrap" style="min-width: 200px;">titulo</th>
-          <th>Descrição</th>
-          <th>Status</th>
-          <th>Data de Criação</th>
+          @can('adicionar_formulários')
           <th width="5%"></th>
-          <th width="5%"></th> --}}
+          @endcan
+          @can('editar_formulários')
+          <th width="5%"></th>
+          @endcan
+          @can('deletar_formulários')
+          <th width="5%"></th>
+          @endcan
         </tr>
       </thead>
       <tbody>
@@ -100,28 +109,35 @@
           <td>{{$item->descricao}}</td>
           <td>{{ $item->status == 0 ? 'Inativo' : ($item->status == 1 ? 'Ativo' : 'Finalizado') }}</td>
           <td>{{date('d-m-Y', strtotime($item->created_at))}}</td>
+          @can('adicionar_formulários')
           <td class="text-center">
             <button class="btn btn-sm p-1 px-2" data-bs-toggle="offcanvas" data-bs-target="#modal-config-{{$item->id}}"
               aria-controls="offcanvasExample">
               Seções
             </button>
           </td>
+          @endcan
+          @can('editar_formulários')
           <td class="text-center">
             <button class="btn btn-sm p-1 px-2" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-{{$item->id}}"
               aria-controls="offcanvasExample">
               Editar
             </button>
           </td>
+          @endcan
+          @can('deletar_formulários')
           <td class="text-center">
             <form action="{{ route('forms.destroy', $item->id) }}" method="POST"
-                  onsubmit="return confirm('Deseja realmente deletar este formulário?')">
+              onsubmit="return confirm('Deseja realmente deletar este formulário?')">
               @csrf
               @method('DELETE')
-              <button class="btn btn-sm btn-danger p-1 px-2" type="submit">
+              <button class="btn btn-sm btn-danger p-1 px-2 {{ $item->published == 0 ? '' : 'disabled' }}"
+                type="submit">
                 Deletar
               </button>
             </form>
           </td>
+          @endcan
         </tr>
         @endforeach
       </tbody>
@@ -131,11 +147,15 @@
     {{ $forms->links() }}
   </div>
   @foreach ($forms as $item)
-  <x-modal.offcanvas id="modal-config-{{$item->id}}" class="offcanvas-end" title="Seções do formulário {{$item->titulo}}">
+
+  @can('adicionar_formulários')
+  <x-modal.offcanvas id="modal-config-{{$item->id}}" class="offcanvas-end"
+    title="Seções do formulário {{$item->titulo}}">
     <x-slot:content>
       <ol class="list-group list-group-numbered">
         @foreach ($item->secoes as $secao)
-        <a href="{{route('sessions.index', $secao->id)}}" class="text-decoration-none list-group-item d-flex justify-content-between align-items-start">
+        <a href="{{route('sessions.index', $secao->id)}}"
+          class="text-decoration-none list-group-item d-flex justify-content-between align-items-start">
           <div class="ms-2 me-auto">
             <div class="fw-bold">{{$secao->titulo}}</div>
             {{$secao->descricao}}
@@ -147,7 +167,8 @@
         @endforeach
 
         @if($item->published == 0)
-        <button class="btn btn-azure  mt-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#modal-add-{{$item->id}}" aria-controls="offcanvasExample">Adicionar seção</button>
+        <button class="btn btn-azure  mt-3" type="button" data-bs-toggle="offcanvas"
+          data-bs-target="#modal-add-{{$item->id}}" aria-controls="offcanvasExample">Adicionar seção</button>
         @else
         <div class="alert alert-danger mt-3">
           Não é possível mais adicionar seções pois o formulário já foi publicado
@@ -156,8 +177,10 @@
       </ol>
     </x-slot:content>
   </x-modal.offcanvas>
-
-  <x-modal.offcanvas route="{{ route('forms.update', $item->id) }}" id="modal-edit-{{$item->id}}" class="offcanvas-end" title="Editar formulário">
+  @endcan
+  @can('editar_formulários')
+  <x-modal.offcanvas route="{{ route('forms.update', $item->id) }}" id="modal-edit-{{$item->id}}" class="offcanvas-end"
+    title="Editar formulário">
     <x-slot:content>
       @include('components.form-elements.input.input', [
       'title' => 'Título',
@@ -187,13 +210,16 @@
 
       @if ($item->published == 0)
       <div class="alert alert-danger">
-        Ao mudar o status do formulário para ativo pela primeira vez não será mais possível mudar ou editar suas seções e perguntas. 
+        Ao mudar o status do formulário para ativo pela primeira vez não será mais possível mudar ou editar suas seções
+        e perguntas.
       </div>
       @endif
     </x-slot:content>
   </x-modal.offcanvas>
-
-  <x-modal.offcanvas route="{{ route('sessions.store', $item->id) }}" id="modal-add-{{$item->id}}" class="offcanvas-end" title="Adicionar seção">
+  @endcan
+  @can('deletar_formulários')
+  <x-modal.offcanvas route="{{ route('sessions.store', $item->id) }}" id="modal-add-{{$item->id}}" class="offcanvas-end"
+    title="Adicionar seção">
     <x-slot:content>
       @include('components.form-elements.input.input', [
       'title' => 'Título',
@@ -215,6 +241,7 @@
       ])
     </x-slot:content>
   </x-modal.offcanvas>
+  @endcan
   @endforeach
 </div>
 @endsection
