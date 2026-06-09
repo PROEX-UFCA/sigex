@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('formulario')) {
+            return;
+        }
+
         Schema::create('formulario', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->text('titulo');

@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('instituicao_externa')) {
+            return;
+        }
+
         Schema::create('instituicao_externa', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('nome');

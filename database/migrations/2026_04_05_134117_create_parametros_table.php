@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('parametro')) {
+            return;
+        }
+
         Schema::create('parametro', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->text('function');

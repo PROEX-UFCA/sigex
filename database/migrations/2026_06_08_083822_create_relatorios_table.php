@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('relatorio')) {
+            return;
+        }
+
         Schema::create('relatorio', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('id_formulario');
