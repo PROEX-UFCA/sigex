@@ -12,7 +12,7 @@
       @can('importar_ações')
       <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar" aria-expanded="false"
         aria-controls="modalExample">Importar</bottom>
-      <x-modal.modal id="importar" class="modal-center" title="Importar dados" route="{{route('actions.import')}}"
+      <x-modal.modal id="importar" class="modal-center" title="Importar dados" route="{{route('actions.previewImport')}}"
         textBtnClose="Cancelar" textBtnSave="Importar" classBtnSave="btn-primary">
         <x-slot:content>
           <div class="card-body mb-3">

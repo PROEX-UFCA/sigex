@@ -61,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);
 
-        Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
+        Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.previewImport')->middleware(['auth' => 'permission:importar_ações']);
 
         Route::get('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
 
