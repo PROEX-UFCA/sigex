@@ -17,11 +17,11 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($credentials)) {
+        if (!Auth::guard('web')->attempt($credentials)) {
             return response()->json(['message' => 'Credenciais inválidas'], 401);
         }
 
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
         return response()->json([
             'role' => $user->getRoleNames()->first(),
         ]);
