@@ -19,8 +19,8 @@ return [
     */
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s%s',
-        'localhost,localhost:5173',
+        '%s%s%s',
+        'localhost,localhost:5173,https://front.sigex.danielnasc.com.br',
         Sanctum::currentApplicationUrlWithPort(),
         // Sanctum::currentRequestHost(),
     ))),
