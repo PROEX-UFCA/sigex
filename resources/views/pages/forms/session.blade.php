@@ -151,6 +151,7 @@
             @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif
             @if($pergunta->regex) pattern="{{ $pergunta->regex }}" @endif
             placeholder="Sua resposta aqui">
+            @break
 
             @case('location')
             <input type="text" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
@@ -251,6 +252,18 @@
             </div>
             @break
 
+            @case('date')
+            <input type="date" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            'required' : '' }}
+            placeholder="Sua resposta aqui">
+            @break
+
+            @case('datetime-local')
+            <input type="datetime-local" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            'required' : '' }}
+            placeholder="Sua resposta aqui">
+            @break
+
             @default
             <p class="text-muted">Tipo de pergunta não suportado.</p>
 
@@ -292,12 +305,14 @@
               <option value="" disabled selected>Selecione</option>
               <option value="text">Texto normal</option>
               <option value="textarea">Texto grande</option>
-              <option value="select">Pergunta de Múltipla Escolha</option>
-              <option value="checkbox">Caixas de verificação (Checkbox)</option>
-              <option value="radio">Botão de opção (Radio)</option>
+              <option value="select">Seletor</option>
+              <option value="checkbox">Múltiplas opções com várias alternativas certas</option>
+              <option value="radio">Múltiplas opções com uma alternativa certa</option>
               <option value="file">Arquivo</option>
               <option value="number">Número</option>
               <option value="location">Localização</option>
+              <option value="date">Data</option>
+              <option value="datetime-local">Data e hora</option>
             </x-slot:options>
           </x-form-elements.select.select>
 
