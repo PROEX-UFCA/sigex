@@ -44,7 +44,6 @@ class ReportController extends Controller
 
     public function create(){
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'SITUACAO'])->groupBy('function');
-        $this->data['years'] = $this->actionsRepository->getParameters('ano');
         $this->data['formularios'] = $this->formsRepository->getAllActive();
 
         return view('pages.report.create', $this->data);

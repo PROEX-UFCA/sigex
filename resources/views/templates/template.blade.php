@@ -103,7 +103,7 @@
                 icon="ti-clipboard-text">
                 <x-slot:links>
                   @can('ver_formulários')
-                  <a class="dropdown-item" href="{{ route('forms.index') }}">Formulários</a>
+                  <a class="dropdown-item" href="{{ route('forms.index') }}">Templates</a>
                   @endcan
                   @can('ver_relatórios')
                   <a class="dropdown-item" href="{{ route('report.index') }}">Relatórios</a>

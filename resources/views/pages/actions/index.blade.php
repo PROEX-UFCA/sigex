@@ -7,11 +7,13 @@
   <div class="m-0 p-0 row mb-4">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
       @can('adicionar_ação')
-      <a href="{{route('actions.create')}}" class="btn">Inserir</a>
+      <a href="{{route('actions.create')}}" class="btn">Inserir ação</a>
       @endcan
       @can('importar_ações')
       <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar" aria-expanded="false"
-        aria-controls="modalExample">Importar</bottom>
+        aria-controls="modalExample">Importar ações</bottom>
+      <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar" aria-expanded="false"
+        aria-controls="modalExample">Importar membros</bottom>
       <x-modal.modal id="importar" class="modal-center" title="Importar dados" route="{{route('actions.previewImport')}}"
         textBtnClose="Cancelar" textBtnSave="Importar" classBtnSave="btn-primary">
         <x-slot:content>

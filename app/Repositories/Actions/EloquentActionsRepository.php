@@ -178,17 +178,17 @@ class EloquentActionsRepository implements ActionsRepository
             }
         }
 
-        if (!empty($filtros['ano_acao'])) {
-            $query->where('ano', $filtros['ano_acao']);
-        }
+        // if (!empty($filtros['ano_acao'])) {
+        //     $query->where('ano', $filtros['ano_acao']);
+        // }
 
-        if (!empty($filtros['ano_inicio'])) {
-            $query->whereYear('data_inicio', $filtros['ano_inicio']);
-        }
+        // if (!empty($filtros['ano_inicio'])) {
+        //     $query->whereYear('data_inicio', $filtros['ano_inicio']);
+        // }
 
-        if (!empty($filtros['ano_fim'])) {
-            $query->whereYear('data_fim', $filtros['ano_fim']);
-        }
+        // if (!empty($filtros['ano_fim'])) {
+        //     $query->whereYear('data_fim', $filtros['ano_fim']);
+        // }
 
         return $query->get();
     }
