@@ -54,7 +54,6 @@ erDiagram
         string nome
         string email
         string senha "Hash"
-        string cpf
         string centro_departamento
         string matricula_siape
         boolean status "Sinaliza se a conta está ativa"
