@@ -40,7 +40,7 @@ class UsersController extends Controller
         $sort = $request->get('sort', 'name');
         $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $allowedFields = ['name', 'email', 'id_instituicao', 'cpf', 'phone', 'centro_departamento', 'matricula_siape', 'group', 'status'];
+        $allowedFields = ['name', 'email', 'phone', 'centro_departamento', 'matricula_siape', 'group', 'status'];
 
         if (!in_array($sort, $allowedFields)) $sort = 'name';
 

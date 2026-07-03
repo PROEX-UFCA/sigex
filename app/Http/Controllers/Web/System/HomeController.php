@@ -41,9 +41,6 @@ class HomeController extends Controller
 
         $profile = 100;
 
-        if($this->data['user']->cpf == null){
-            $profile -= 20;
-        }
         if($this->data['user']->birth == null){
             $profile -= 20;
         }
