@@ -96,6 +96,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('secao/deletar/pergunta/{uuid}', [FormController::class, 'deleteQuestion'])->name('sessions.deleteQuestion');
     });
     
+    Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('membros.previewImport');
+
     Route::get('relatorios', [ReportController::class, 'index'])->name('report.index')->middleware(['auth' => 'permission:ver_relatórios']);
 
     Route::get('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create')->middleware(['auth' => 'permission:adicionar_relatórios']);

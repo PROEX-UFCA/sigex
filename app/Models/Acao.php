@@ -16,7 +16,7 @@ class Acao extends Model
 
     protected $table = 'acao';
 
-    protected $fillable = ['id_proponente', 'id_projeto', 'titulo', 'palavras_chave', 'resumo', 'centro_departamento', 'com_bolsa', 'ods', 'data_inicio', 'data_fim', 'data_atualizacao', 'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'situacao', 'status', 'img'];
+    protected $fillable = ['id_projeto', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'bolsas_concedidas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'resumo', 'palavras_chave', 'ods', 'contexto', 'status', 'img'];
 
     public function coordenador() : BelongsTo {
         return $this->belongsTo(User::class, 'id_proponente', 'uuid');
@@ -37,7 +37,7 @@ class Acao extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['id_proponente', 'id_projeto', 'titulo', 'palavras_chave', 'centro_departamento', 'com_bolsa', 'ods', 'data_inicio', 'data_fim', 'data_atualizacao', 'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'situacao', 'status', 'img'])
+            ->logOnly(['id_projeto', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'resumo', 'palavras_chave', 'ods', 'contexto', 'status', 'img'])
             ->useLogName('acao')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

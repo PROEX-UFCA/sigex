@@ -16,24 +16,20 @@ class EloquentActionsRepository implements ActionsRepository
             $q->where(function ($subQuery) use ($search) {
                 $subQuery->where('id_projeto', 'like', "%{$search}%")
                     ->orWhere('titulo', 'like', "%{$search}%")
-                    ->orWhere('centro_departamento', 'like', "%{$search}%")
+                    ->orWhere('centro_departamento_sigla', 'like', "%{$search}%")
                     ->orWhere('data_inicio', 'like', "%{$search}%")
                     ->orWhere('data_fim', 'like', "%{$search}%")
                     ->orWhere('ano', 'like', "%{$search}%")
                     ->orWhere('tipo_acao', 'like', "%{$search}%")
                     ->orWhere('area_tematica', 'like', "%{$search}%")
-                    ->orWhere('modalidade', 'like', "%{$search}%")
-                    ->orWhere('situacao', 'like', "%{$search}%")
-                    
-                    ->orWhereHas('coordenador', function ($qCoordenador) use ($search) {
-                        $qCoordenador->where('name', 'like', "%{$search}%"); 
-                    });
+                    ->orWhere('modalidade_edital', 'like', "%{$search}%")
+                    ->orWhere('situacao', 'like', "%{$search}%");
             });
         });
 
         $camposFiltro = [
-            'centro_departamento', 'data_inicio', 'data_fim', 
-            'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'situacao'
+            'centro_departamento_sigla', 'data_inicio', 'data_fim', 
+            'ano', 'tipo_acao', 'area_tematica', 'modalidade_edital', 'situacao'
         ];
 
         foreach ($camposFiltro as $campo) {
@@ -50,12 +46,10 @@ class EloquentActionsRepository implements ActionsRepository
         $acao = Acao::create([
             'titulo' => $request->titulo,
             'tipo_acao' => $request->tipo,
-            'modalidade' => $request->modalidade,
-            'centro_departamento' => $request->centro_departamento,
-            'id_proponente' => $request->id_coordenador,
+            'modalidade_edital' => $request->modalidade,
+            'centro_departamento_sigla' => $request->centro_departamento,
             'data_inicio' => $request->data_inicio,
             'data_fim' => $request->data_fim,
-            'data_atualizacao' => now(),
             'status' => 1,
             'situacao' => $request->situacao,
             'palavras_chave' => $request->palavras_chave,
@@ -63,14 +57,20 @@ class EloquentActionsRepository implements ActionsRepository
             'resumo' => $request->resumo,
             'id_projeto' => $request->id_projeto,
             'area_tematica' => $request->area_tematica,
-            'com_bolsa' => $request->com_bolsa,
-            'ods' => implode('; ', $request->ods), 
+            'ods' => implode('; ', $request->ods),
+            'bolsas_solicitadas' => $request->bolsas_solicitadas,
+            'bolsas_concedidas' => $request->bolsas_concedidas,
+            'financiamento_interno' => $request->financiamento_interno,
+            'financiamento_externo' => $request->financiamento_externo,
+            'data_cadastro' => now(),
+            'data_atualizacao' => now(),
+            'contexto' => $request->contexto
         ]);
 
         Equipe_Acao::create([
             'id_acao' => $acao->id, 
             'id_usuario' => $request->id_coordenador, 
-            'categoria' => 'Proponente'
+            'categoria' => 'COORDENADOR'
         ]);
 
         return $acao;
@@ -127,7 +127,7 @@ class EloquentActionsRepository implements ActionsRepository
 
         $membro = Equipe_Acao::where([
             'id_acao' => $acao->id, 
-            'id_usuario' => $acao->id_proponente
+            'categoria' => 'COORDENADOR'
         ])->first();
 
         $membro->id_usuario = $request->id_coordenador;
@@ -136,9 +136,8 @@ class EloquentActionsRepository implements ActionsRepository
         $acao->titulo = $request->titulo;
         $acao->palavras_chave = $request->palavras_chave;
         $acao->tipo_acao = $request->tipo;
-        $acao->modalidade = $request->modalidade;
-        $acao->centro_departamento = $request->centro_departamento;
-        $acao->id_proponente = $request->id_coordenador;
+        $acao->modalidade_edital = $request->modalidade;
+        $acao->centro_departamento_sigla = $request->centro_departamento;
         $acao->data_inicio = $request->data_inicio;
         $acao->data_fim = $request->data_fim;
         $acao->data_atualizacao = now();
@@ -147,8 +146,13 @@ class EloquentActionsRepository implements ActionsRepository
         $acao->resumo = $request->resumo;
         $acao->id_projeto = $request->id_projeto;
         $acao->area_tematica = $request->area_tematica;
-        $acao->com_bolsa = $request->com_bolsa;
         $acao->ods = implode('; ', $request->ods);
+        $acao->bolsas_solicitadas = $request->bolsas_solicitadas;
+        $acao->bolsas_concedidas = $request->bolsas_concedidas;
+        $acao->financiamento_interno = $request->financiamento_interno;
+        $acao->financiamento_externo = $request->financiamento_externo;
+        $acao->data_atualizacao = now();
+        $acao->contexto = $request->contexto;
 
         $acao->save();
 

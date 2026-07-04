@@ -39,7 +39,7 @@ class ActionController extends Controller
         $sort = $request->get('sort', 'ano');
         $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $allowedFields = ['ano', 'titulo', 'status', 'data_inicio', 'data_fim', 'tipo_acao', 'modalidade', 'area_tematica', 'centro_departamento', 'id_atividade', 'id_projeto'];
+        $allowedFields = ['ano', 'titulo', 'status', 'data_inicio', 'data_fim', 'tipo_acao', 'modalidade_edital', 'area_tematica', 'centro_departamento_sigla'];
 
         if (!in_array($sort, $allowedFields)) $sort = 'ano';
 
@@ -52,7 +52,7 @@ class ActionController extends Controller
 
     public function create(){
 
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO', 'CONTEXTO'])->groupBy('function');
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
 
 
@@ -130,18 +130,28 @@ class ActionController extends Controller
 
             while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
                 $row = array_map(fn($field) => trim(mb_convert_encoding($field, 'UTF-8', 'auto')), $row);
-                $row = array_pad($row, 17, null);
-
-                $email = strtolower($row[17] ?? '');
-                
-                $user = !empty($email) ? User::where('email', $email)->first() : null;
 
                 $checkData = [
+                    'id_projeto' => $row[0] ?? null,
                     'ano' => $row[1] ?? null,
-                    'id_projeto' => $row[2] ?? null,
-                    'data_inicio' => $row[6] ?? null,
-                    'data_fim' => $row[7] ?? null,
-                    'id_proponente' => $user->uuid ?? null,
+                    'titulo' => $row[2] ?? null,
+                    'modalidade_edital' => $row[3] ?? null,
+                    'bolsas_solicitadas' => $row[4] ?? null,
+                    'bolsas_concedidas' => $row[5] ?? null,
+                    'financiamento_interno' => $row[6] ?? null,
+                    'financiamento_externo' => $row[7] ?? null,
+                    'situacao' => $row[8] ?? null,
+                    'data_cadastro' => $row[9] ?? null,
+                    'data_inicio' => $row[10] ?? null,
+                    'data_fim' => $row[11] ?? null,
+                    'data_atualizacao' => $row[12] ?? null,
+                    'centro_departamento_sigla' => $row[13] ?? null,
+                    'tipo_acao' => $row[14] ?? null,
+                    'area_tematica' => $row[15] ?? null,
+                    'resumo' => $row[16] ?? null,
+                    'palavras_chave' => $row[17] ?? null,
+                    'ods' => $row[18] ?? null,
+                    'contexto' => $row[19] ?? null
                 ];
 
                 if (Acao::where($checkData)->exists()) {
@@ -151,28 +161,48 @@ class ActionController extends Controller
                 }
 
                 $errors = [];
-                if (empty($row[3])) $errors['titulo'] = 'Título é obrigatório';
-                if (empty($row[16])) $errors['proponente'] = 'Nome do proponente é obrigatório';
-                if (empty($row[17])) $errors['email'] = 'Email é obrigatório';
+                if (empty($row[0])) $errors['id_projeto'] = 'Campo obrigatório';
+                if (empty($row[1])) $errors['ano'] = 'Campo obrigatório';
+                if (empty($row[2])) $errors['titulo'] = 'Campo obrigatório';
+                if (empty($row[3])) $errors['modalidade_edital'] = 'Campo obrigatório';
+                if (!isset($row[4]) || trim((string) $row[4]) === '') $errors['bolsas_solicitadas'] = 'Campo obrigatório';
+                if (!isset($row[5]) || trim((string) $row[5]) === '') $errors['bolsas_concedidas'] = 'Campo obrigatório';
+                if (empty($row[6])) $errors['financiamento_interno'] = 'Campo obrigatório';
+                if (empty($row[7])) $errors['financiamento_externo'] = 'Campo obrigatório';
+                if (empty($row[8])) $errors['situacao'] = 'Campo obrigatório';
+                if (empty($row[9])) $errors['data_cadastro'] = 'Campo obrigatório';
+                if (empty($row[10])) $errors['data_inicio'] = 'Campo obrigatório';
+                if (empty($row[11])) $errors['data_fim'] = 'Campo obrigatório';
+                if (empty($row[12])) $errors['data_atualizacao'] = 'Campo obrigatório';
+                if (empty($row[13])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
+                if (empty($row[14])) $errors['tipo_acao'] = 'Campo obrigatório';
+                if (empty($row[15])) $errors['area_tematica'] = 'Campo obrigatório';
+                // if (empty($row[16])) $errors['resumo'] = 'Campo obrigatório';
+                // if (empty($row[17])) $errors['palavras_chave'] = 'Campo obrigatório';
+                // if (empty($row[18])) $errors['ods'] = 'Campo obrigatório';
+                if (empty($row[19])) $errors['contexto'] = 'Campo obrigatório';
 
                 $projectsData[$rowIndex] = [
-                    'ano' => $row[1],
-                    'id_projeto' => $row[2],
-                    'titulo' => $row[3],
-                    'centro_departamento' => $row[4],
-                    'situacao' => $row[5],
-                    'data_inicio' => $row[6],
-                    'data_fim' => $row[7],
-                    'data_atualizacao' => $row[8],
-                    'resumo' => $row[9],
-                    'palavras_chave' => $row[10],
-                    'tipo_acao' => $row[11],
-                    'area_tematica' => $row[12],
-                    'modalidade' => $row[13],
-                    'com_bolsa' => $row[14],
-                    'ods' => $row[15],
-                    'proponente' => $row[16],
-                    'email_proponente' => $email,
+                    'id_projeto' => $row[0] ?? null,
+                    'ano' => $row[1] ?? null,
+                    'titulo' => $row[2] ?? null,
+                    'modalidade_edital' => $row[3] ?? null,
+                    'bolsas_solicitadas' => $row[4] ?? null,
+                    'bolsas_concedidas' => $row[5] ?? null,
+                    'financiamento_interno' => $row[6] ?? null,
+                    'financiamento_externo' => $row[7] ?? null,
+                    'situacao' => $row[8] ?? null,
+                    'data_cadastro' => $row[9] ?? null,
+                    'data_inicio' => $row[10] ?? null,
+                    'data_fim' => $row[11] ?? null,
+                    'data_atualizacao' => $row[12] ?? null,
+                    'centro_departamento_sigla' => $row[13] ?? null,
+                    'tipo_acao' => $row[14] ?? null,
+                    'area_tematica' => $row[15] ?? null,
+                    'resumo' => $row[16] ?? null,
+                    'palavras_chave' => $row[17] ?? null,
+                    'ods' => $row[18] ?? null,
+                    'contexto' => $row[19] ?? null,
                     'errors' => $errors,
                     'row_index' => $rowIndex
                 ];
@@ -211,10 +241,27 @@ class ActionController extends Controller
                         $allProjects[$index] = array_merge($allProjects[$index], $submittedData);
                         
                         $errors = [];
-                        if (empty($allProjects[$index]['titulo'])) $errors['titulo'] = 'Título é obrigatório';
-                        if (empty($allProjects[$index]['proponente'])) $errors['proponente'] = 'Nome do proponente é obrigatório';
-                        if (empty($allProjects[$index]['email_proponente'])) $errors['email'] = 'Email é obrigatório';
-                        
+                        if (empty($allProjects[$index]['id_projeto'])) $errors['id_projeto'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['ano'])) $errors['ano'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['titulo'])) $errors['titulo'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['modalidade_edital'])) $errors['modalidade_edital'] = 'Campo obrigatório';
+                        if (!isset($allProjects[$index]['bolsas_solicitadas']) || trim((string) $allProjects[$index]['bolsas_solicitadas']) === '') $errors['bolsas_solicitadas'] = 'Campo obrigatório';
+                        if (!isset($allProjects[$index]['bolsas_concedidas']) || trim((string) $allProjects[$index]['bolsas_concedidas']) === '') $errors['bolsas_concedidas'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['financiamento_interno'])) $errors['financiamento_interno'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['financiamento_externo'])) $errors['financiamento_externo'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['situacao'])) $errors['situacao'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['data_cadastro'])) $errors['data_cadastro'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['data_inicio'])) $errors['data_inicio'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['data_fim'])) $errors['data_fim'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['data_atualizacao'])) $errors['data_atualizacao'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['centro_departamento_sigla'])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['tipo_acao'])) $errors['tipo_acao'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['area_tematica'])) $errors['area_tematica'] = 'Campo obrigatório';
+                        // if (empty($allProjects[$index]['resumo'])) $errors['resumo'] = 'Campo obrigatório';
+                        // if (empty($allProjects[$index]['palavras_chave'])) $errors['palavras_chave'] = 'Campo obrigatório';
+                        // if (empty($allProjects[$index]['ods'])) $errors['ods'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['contexto'])) $errors['contexto'] = 'Campo obrigatório';
+
                         $allProjects[$index]['errors'] = $errors;
                         $cacheFoiAtualizado = true;
                     }
@@ -277,9 +324,26 @@ class ActionController extends Controller
                     $allProjects[$index] = array_merge($allProjects[$index], $submittedData);
                     
                     $errors = [];
-                    if (empty($allProjects[$index]['titulo'])) $errors['titulo'] = 'Título é obrigatório';
-                    if (empty($allProjects[$index]['proponente'])) $errors['proponente'] = 'Nome do proponente é obrigatório';
-                    if (empty($allProjects[$index]['email_proponente'])) $errors['email'] = 'Email é obrigatório';
+                    if (empty($allProjects[$index]['id_projeto'])) $errors['id_projeto'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['ano'])) $errors['ano'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['titulo'])) $errors['titulo'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['modalidade_edital'])) $errors['modalidade_edital'] = 'Campo obrigatório';
+                    if (!isset($allProjects[$index]['bolsas_solicitadas']) || trim((string) $allProjects[$index]['bolsas_solicitadas']) === '') $errors['bolsas_solicitadas'] = 'Campo obrigatório';
+                    if (!isset($allProjects[$index]['bolsas_concedidas']) || trim((string) $allProjects[$index]['bolsas_concedidas']) === '') $errors['bolsas_concedidas'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['financiamento_interno'])) $errors['financiamento_interno'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['financiamento_externo'])) $errors['financiamento_externo'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['situacao'])) $errors['situacao'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['data_cadastro'])) $errors['data_cadastro'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['data_inicio'])) $errors['data_inicio'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['data_fim'])) $errors['data_fim'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['data_atualizacao'])) $errors['data_atualizacao'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['centro_departamento_sigla'])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['tipo_acao'])) $errors['tipo_acao'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['area_tematica'])) $errors['area_tematica'] = 'Campo obrigatório';
+                    // if (empty($allProjects[$index]['resumo'])) $errors['resumo'] = 'Campo obrigatório';
+                    // if (empty($allProjects[$index]['palavras_chave'])) $errors['palavras_chave'] = 'Campo obrigatório';
+                    // if (empty($allProjects[$index]['ods'])) $errors['ods'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['contexto'])) $errors['contexto'] = 'Campo obrigatório';
                     
                     $allProjects[$index]['errors'] = $errors;
                 }
@@ -306,10 +370,10 @@ class ActionController extends Controller
 
             foreach ($allProjects as $linha) {
                 
-                $centroDepartamento = !empty($linha['centro_departamento']) 
+                $centroDepartamento = !empty($linha['centro_departamento_sigla']) 
                     ? Parametro::firstOrCreate([
                         'function' => 'CENTRO_DEPARTAMENTO', 
-                        'value' => mb_strtoupper(trim($linha['centro_departamento']), 'UTF-8')
+                        'value' => mb_strtoupper(trim($linha['centro_departamento_sigla']), 'UTF-8')
                     ]) : null;
 
                 $tipoAcao = !empty($linha['tipo_acao']) 
@@ -324,10 +388,10 @@ class ActionController extends Controller
                         'value' => mb_strtoupper(trim($linha['area_tematica']), 'UTF-8')
                     ]) : null;
 
-                $modalidade = !empty($linha['modalidade']) 
+                $modalidade = !empty($linha['modalidade_edital']) 
                     ? Parametro::firstOrCreate([
                         'function' => 'MODALIDADE', 
-                        'value' => mb_strtoupper(trim($linha['modalidade']), 'UTF-8')
+                        'value' => mb_strtoupper(trim($linha['modalidade_edital']), 'UTF-8')
                     ]) : null;
 
                 $situacao = !empty($linha['situacao']) 
@@ -336,59 +400,44 @@ class ActionController extends Controller
                         'value' => mb_strtoupper(trim($linha['situacao']), 'UTF-8')
                     ]) : null;
 
-                $emailCoordenador = strtolower(trim($linha['email_proponente'] ?? ''));
-                $idCoordenador = null;
-
-                if (!empty($emailCoordenador)) {
-                    $usuario = User::where('email', $emailCoordenador)->first();
-                    
-                    if (!$usuario) {
-                        $usuario = User::create([
-                            'name' => mb_strtoupper(trim($linha['proponente']), 'UTF-8'),
-                            'email' => $emailCoordenador,
-                            'status' => 2,
-                        ]);
-                        $usuario->assignRole("Coordenador");
-                    }
-                    $idCoordenador = $usuario->uuid;
-                }
+                $situacao = !empty($linha['contexto']) 
+                    ? Parametro::firstOrCreate([
+                        'function' => 'CONTEXTO', 
+                        'value' => mb_strtoupper(trim($linha['contexto']), 'UTF-8')
+                    ]) : null;
 
                 $id = (string) Str::uuid();
 
                 $acoesParaInserir[] = [
-                    'id'                  => $id,
-                    'id_proponente'       => $idCoordenador,
-                    'ano'                 => $linha['ano'] ?? null,
-                    'id_projeto'          => $linha['id_projeto'] ?? null,
-                    'titulo'              => $linha['titulo'] ?? null,
-                    'centro_departamento' => $centroDepartamento ? $centroDepartamento->value : null,
-                    'situacao'            => $situacao ? $situacao->value : null,
-                    'data_inicio'         => $linha['data_inicio'] ?? null, 
-                    'data_fim'            => $linha['data_fim'] ?? null,
-                    'data_atualizacao'    => $linha['data_atualizacao'] ?? null,
-                    'resumo'              => $linha['resumo'] ?? null,
-                    'palavras_chave'      => $linha['palavras_chave'] ?? null,
-                    'tipo_acao'           => $tipoAcao ? $tipoAcao->value : null,
-                    'area_tematica'       => $areaTematica ? $areaTematica->value : null,
-                    'modalidade'          => $modalidade ? $modalidade->value : null,
-                    'com_bolsa'           => $linha['com_bolsa'] ?? null,
-                    'ods'                 => $linha['ods'] ?? null,
-                    'status'              => 1,
-                    'created_at'          => $agora,
-                    'updated_at'          => $agora,
-                ];
-
-                $membrosParaInserir[] = [
-                    'id' => (string) Str::uuid(),
-                    'id_acao' => $id, 
-                    'id_usuario' => $idCoordenador, 
-                    'categoria' => 'Proponente'
+                    'id'=> $id,
+                    'id_projeto' => $linha['id_projeto'] ?? null,
+                    'ano' => $linha['ano'] ?? null,
+                    'titulo' => $linha['titulo'] ?? null,
+                    'modalidade_edital' => $modalidade ? $modalidade->value : null,
+                    'bolsas_solicitadas' => $linha['bolsas_solicitadas'] ?? null,
+                    'bolsas_concedidas' => $linha['bolsas_concedidas'] ?? null,
+                    'financiamento_interno' => $linha['financiamento_interno'] ?? null,
+                    'financiamento_externo' => $linha['financiamento_externo'] ?? null,
+                    'situacao' => $situacao ? $situacao->value : null,
+                    'data_cadastro' => $linha['data_cadastro'] ?? null,
+                    'data_inicio' => $linha['data_inicio'] ?? null,
+                    'data_fim' => $linha['data_fim'] ?? null,
+                    'data_atualizacao' => $linha['data_atualizacao'] ?? null,
+                    'centro_departamento_sigla' => $centroDepartamento ? $centroDepartamento->value : null,
+                    'tipo_acao' => $tipoAcao ? $tipoAcao->value : null,
+                    'area_tematica' => $areaTematica ? $areaTematica->value : null,
+                    'resumo' => $linha['resumo'] ?? null,
+                    'palavras_chave' => $linha['palavras_chave'] ?? null,
+                    'ods' => $linha['ods'] ?? null,
+                    'contexto' => $linha['contexto'] ?? null,
+                    'status' => 1,
+                    'created_at' => $agora,
+                    'updated_at' => $agora,
                 ];
             }
 
             if (!empty($acoesParaInserir)) {
                 Acao::insert($acoesParaInserir);
-                Equipe_Acao::insert($membrosParaInserir);
 
                 $usuarioLogado = auth()->user();
                 $acaoReferencia = Acao::first();
@@ -420,8 +469,9 @@ class ActionController extends Controller
 
     public function edit($uuid){
         $this->data['action'] = $this->actionsRepository->getByUuid($uuid);
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO', 'CONTEXTO'])->groupBy('function');
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
+        $this->data['actual_coordinator'] = Equipe_Acao::where(['id_acao' => $uuid, 'categoria' => 'COORDENADOR'])->first();
 
         return view('pages.actions.edit', $this->data);
     }

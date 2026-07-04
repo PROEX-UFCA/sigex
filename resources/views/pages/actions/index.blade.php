@@ -12,7 +12,7 @@
       @can('importar_ações')
       <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar" aria-expanded="false"
         aria-controls="modalExample">Importar ações</bottom>
-      <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar" aria-expanded="false"
+      <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar-membros" aria-expanded="false"
         aria-controls="modalExample">Importar membros</bottom>
       <x-modal.modal id="importar" class="modal-center" title="Importar dados" route="{{route('actions.previewImport')}}"
         textBtnClose="Cancelar" textBtnSave="Importar" classBtnSave="btn-primary">
@@ -21,28 +21,65 @@
             <h3>Atenção para a Importação de Dados</h3>
             <p>
               Para garantir que a importação ocorra sem erros, seu arquivo <strong>.csv</strong> precisa conter as
-              seguintes <strong>18 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no cabeçalho:
+              seguintes <strong>20 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no cabeçalho:
             </p>
 
             <div class="mb-3">
-              <span class="badge badge-dark mb-1">vazio com valores auto incrementado</span>
-              <span class="badge badge-dark mb-1">ano</span>
-              <span class="badge badge-dark mb-1">id_projeto</span>
-              <span class="badge badge-dark mb-1">titulo</span>
-              <span class="badge badge-dark mb-1">sigla</span>
-              <span class="badge badge-dark mb-1">situacao</span>
-              <span class="badge badge-dark mb-1">data_inicio</span>
-              <span class="badge badge-dark mb-1">data_fim</span>
-              <span class="badge badge-dark mb-1">data_atualizacao</span>
-              <span class="badge badge-dark mb-1">resumo</span>
-              <span class="badge badge-dark mb-1">palavras_chave</span>
-              <span class="badge badge-dark mb-1">tipo_atividade</span>
-              <span class="badge badge-dark mb-1">area_tematica</span>
-              <span class="badge badge-dark mb-1">modalidade</span>
-              <span class="badge badge-dark mb-1">com_bolsa</span>
-              <span class="badge badge-dark mb-1">ods</span>
-              <span class="badge badge-dark mb-1">proponente</span>
-              <span class="badge badge-dark mb-1">email_proponente</span>
+              <span class="badge badge-dark mb-1">ID_PROJETO</span>
+              <span class="badge badge-dark mb-1">ANO</span>
+              <span class="badge badge-dark mb-1">TITULO</span>
+              <span class="badge badge-dark mb-1">EDITAL</span>
+              <span class="badge badge-dark mb-1">BOLSAS_SOLICITADAS</span>
+              <span class="badge badge-dark mb-1">BOLSAS_CONCEDIDAS</span>
+              <span class="badge badge-dark mb-1">FINANCIAMENTO_INTERNO</span>
+              <span class="badge badge-dark mb-1">FINANCIAMENTO_EXTERNO</span>
+              <span class="badge badge-dark mb-1">SITUACAO</span>
+              <span class="badge badge-dark mb-1">DATA_CADASTRO</span>
+              <span class="badge badge-dark mb-1">DATA_INICIO</span>
+              <span class="badge badge-dark mb-1">DATA_FIM</span>
+              <span class="badge badge-dark mb-1">DATA_ATUALIZACAO</span>
+              <span class="badge badge-dark mb-1">SIGLA</span>
+              <span class="badge badge-dark mb-1">TIPO_ACAO</span>
+              <span class="badge badge-dark mb-1">AREA_TEMATICA</span>
+              <span class="badge badge-dark mb-1">RESUMO</span>
+              <span class="badge badge-dark mb-1">PALAVRAS_CHAVE</span>
+              <span class="badge badge-dark mb-1">ODS</span>
+              <span class="badge badge-dark mb-1">CONTEXTO</span>
+            </div>
+
+            <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter
+              <strong>exatamente</strong> os nomes acima.</p>
+          </div>
+          <div id="drop-area"
+            class="rounded-4 d-flex flex-column justify-content-center align-items-center bg-light p-4 text-center"
+            style="height: 150px; cursor: pointer; border: dashed 2px gray">
+            <p class="text-muted mb-2">Arraste o .csv aqui ou clique para selecionar</p>
+            <p class="text-red mb-2">Máximo 10MB</p>
+            <input type="file" name="csv" id="csv" accept=".csv" required hidden>
+            <div id="file-info" class="text-muted small mt-2"></div>
+          </div>
+        </x-slot:content>
+      </x-modal.modal>
+      <x-modal.modal id="importar-membros" class="modal-center" title="Importar dados" route="{{route('membros.previewImport')}}"
+        textBtnClose="Cancelar" textBtnSave="Importar" classBtnSave="btn-primary">
+        <x-slot:content>
+          <div class="card-body mb-3">
+            <h3>Atenção para a Importação de Dados</h3>
+            <p>
+              Para garantir que a importação ocorra sem erros, seu arquivo <strong>.csv</strong> precisa conter as
+              seguintes <strong>9 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no cabeçalho:
+            </p>
+
+            <div class="mb-3">
+              <span class="badge badge-dark mb-1">ID_PROJETO</span>
+              <span class="badge badge-dark mb-1">ID_PESSOA</span>
+              <span class="badge badge-dark mb-1">NOME</span>
+              <span class="badge badge-dark mb-1">TIPO_MEMBRO</span>
+              <span class="badge badge-dark mb-1">CATEGORIA_MEMBRO</span>
+              <span class="badge badge-dark mb-1">E-MAIL</span>
+              <span class="badge badge-dark mb-1">STATUS</span>
+              <span class="badge badge-dark mb-1">DATA_INICIO</span>
+              <span class="badge badge-dark mb-1">DATA_FI</span>
             </div>
 
             <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter
@@ -121,16 +158,13 @@
           @foreach ([
             'ano' => 'ano',
             'titulo' => 'Título',
-            'status' => 'status',
+            'situacao' => 'situacao',
             'data_inicio' => 'Data de Início',
             'data_fim' => 'Data de Finalização',
-            'coordenador' => 'Coordenador',
             'tipo_acao' => 'Tipo de Ação',
-            'modalidade' => 'Modalidade',
+            'modalidade_edital' => 'Modalidade/Edital',
             'area_tematica' => 'Área Temática',
-            'centro_departamento' => 'Centro/Departamento',
-            // 'id_atividade' => 'id_atividade',
-            // 'id_projeto' => 'id_projeto',
+            'centro_departamento_sigla' => 'Centro/Departamento/Sigla',
           ] as $field => $label)
           <th>
             <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}"
@@ -154,11 +188,10 @@
           <td>{{ $item->situacao }}</td>
           <td>{{date('d-m-Y', strtotime($item->data_inicio))}}</td>
           <td>{{date('d-m-Y', strtotime($item->data_fim))}}</td>
-          <td>{{$item->coordenador->name}}</td>
           <td>{{$item->tipo_acao}}</td>
-          <td>{{$item->modalidade}}</td>
+          <td>{{$item->modalidade_edital}}</td>
           <td>{{$item->area_tematica}}</td>
-          <td>{{$item->centro_departamento}}</td>
+          <td>{{$item->centro_departamento_sigla}}</td>
           @can('editar_ação')
           <td>
             @can('editar_ação')
