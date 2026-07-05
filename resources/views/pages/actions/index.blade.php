@@ -12,8 +12,6 @@
       @can('importar_ações')
       <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar" aria-expanded="false"
         aria-controls="modalExample">Importar ações</bottom>
-      <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar-membros" aria-expanded="false"
-        aria-controls="modalExample">Importar membros</bottom>
       <x-modal.modal id="importar" class="modal-center" title="Importar dados"
         route="{{route('actions.previewImport')}}" textBtnClose="Cancelar" textBtnSave="Importar"
         classBtnSave="btn-primary">
@@ -62,6 +60,10 @@
           </div>
         </x-slot:content>
       </x-modal.modal>
+      @endcan
+      @can('importar_membros')
+      <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar-membros" aria-expanded="false"
+        aria-controls="modalExample">Importar membros</bottom>
       <x-modal.modal id="importar-membros" class="modal-center" title="Importar dados"
         route="{{route('membros.previewImport')}}" textBtnClose="Cancelar" textBtnSave="Importar"
         classBtnSave="btn-primary">
@@ -101,6 +103,7 @@
         </x-slot:content>
       </x-modal.modal>
       @endcan
+
       <bottom class="btn" data-bs-toggle="collapse" data-bs-target="#filtros" aria-expanded="false"
         aria-controls="collapseExample">Filtros</bottom>
     </div>

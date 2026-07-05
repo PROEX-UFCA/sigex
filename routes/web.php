@@ -71,6 +71,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);
 
         Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);
+
+        Route::post('membros/importar', [MembersController::class, 'previewImport'])->name('membros.previewImport')->middleware(['auth' => 'permission:importar_membros']);
+
+        Route::post('membros/importar/salvar', [MembersController::class, 'storeImport'])->name('membros.storeImport')->middleware(['auth' => 'permission:importar_membros']);
     });
         
     Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {
@@ -96,16 +100,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('secao/adicionar/pergunta/{uuid}', [FormController::class, 'storeQuestion'])->name('sessions.storeQuestion');
         Route::delete('secao/deletar/pergunta/{uuid}', [FormController::class, 'deleteQuestion'])->name('sessions.deleteQuestion');
     });
-    
-    Route::post('membros/importar', [MembersController::class, 'previewImport'])->name('membros.previewImport');
-    Route::post('membros/importar/salvar', [MembersController::class, 'storeImport'])->name('membros.storeImport');
 
     Route::get('relatorios', [ReportController::class, 'index'])->name('report.index')->middleware(['auth' => 'permission:ver_relatórios']);
-
     Route::get('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create')->middleware(['auth' => 'permission:adicionar_relatórios']);
-
     Route::post('relatorios/inserir', [ReportController::class, 'store'])->name('report.store')->middleware(['auth' => 'permission:adicionar_relatórios']);
-
     Route::post('relatorios/atualizar/{uuid}', [ReportController::class, 'update'])->name('report.update')->middleware(['auth' => 'permission:editar_relatórios']);
 
 });

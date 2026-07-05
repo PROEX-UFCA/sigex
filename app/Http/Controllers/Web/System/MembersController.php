@@ -253,35 +253,44 @@ class MembersController extends Controller
             
             if (!empty($emailsFaltantes)) {
                 $novosUsuarios = [];
-                // Opcional: Se usar Spatie Roles e precisar assinar "Coordenador" no bulk insert
-                // $roleCoordenador = \Spatie\Permission\Models\Role::findByName('Coordenador'); 
-                // $roleInserts = []; 
-
-                // Mapeia email para nome para criar os usuários faltantes
                 $emailParaNome = array_column($allMembers, 'nome', 'email');
 
+                // 3.1 Prepara os dados e gera os UUIDs
                 foreach ($emailsFaltantes as $email) {
-                    $uuid = (string) Str::uuid();
                     $novosUsuarios[] = [
-                        'uuid' => $uuid,
+                        'uuid' => (string) Str::uuid(),
                         'name' => mb_strtoupper(trim($emailParaNome[$email] ?? 'USUÁRIO IMPORTADO'), 'UTF-8'),
                         'email' => $email,
                         'status' => 0,
                         'created_at' => $agora,
                         'updated_at' => $agora,
                     ];
-
-                    $usuariosExistentes[$email] = $uuid; // Adiciona ao array local para ser usado no loop final
-                    
-                    // Se usar Spatie:
-                    // $roleInserts[] = ['role_id' => $roleCoordenador->id, 'model_type' => User::class, 'model_id' => $uuid];
                 }
 
-                // Insere todos os usuários de uma vez (MUITO RÁPIDO)
+                // 3.2 Insere todos os usuários de uma vez (Não temos os IDs auto-incremento ainda)
                 User::insert($novosUsuarios);
-                // DB::table('model_has_roles')->insert($roleInserts); // Se usar Spatie
-            }
 
+                // 3.3 Busca os usuários recém-criados para pegar os IDs verdadeiros
+                $usuariosInseridos = User::whereIn('email', $emailsFaltantes)->get(['id', 'uuid', 'email']);
+                
+                $roleCoordenador = \Spatie\Permission\Models\Role::findByName('Perfil Acadêmico'); 
+                $roleInserts = []; 
+
+                foreach ($usuariosInseridos as $user) {
+                    // Preenche o array do Spatie usando o ID auto-incremento correto
+                    $roleInserts[] = [
+                        'role_id' => $roleCoordenador->id,
+                        'model_type' => User::class,
+                        'model_id' => $user->id // <--- AQUI VAI O ID INTEIRO!
+                    ];
+
+                    // Adiciona ao array local mapeando o email para o UUID (para o insert final na Equipe_Acao)
+                    $usuariosExistentes[$user->email] = $user->uuid; 
+                }
+
+                // 3.4 Insere as roles em lote com os IDs corretos
+                DB::table('model_has_roles')->insert($roleInserts);
+            }
             // -------------------------------------------------------------------
             // PASSO 4: MONTAR ARRAY FINAL DE INSERÇÃO NA MEMÓRIA
             // -------------------------------------------------------------------

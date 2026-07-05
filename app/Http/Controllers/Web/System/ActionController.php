@@ -33,7 +33,7 @@ class ActionController extends Controller
         $this->actionsRepository = $actionsRepository;
         $this->parametrosRepository = $parametrosRepository;
         $this->usersRepository = $usersRepository;
-        $this->userId = Auth::user()->uuid;
+        $this->userId = Auth::user()->id;
     }
 
     public function index(Request $request)
@@ -349,7 +349,7 @@ class ActionController extends Controller
             return redirect()->route('actions.index')->with('info', 'Nenhuma linha restou para ser importada.');
         }
 
-        // DB::beginTransaction();
+        DB::beginTransaction();
         try {
             $acoesParaInserir = [];
             $agora = now();
@@ -386,7 +386,7 @@ class ActionController extends Controller
                         'value' => mb_strtoupper(trim($linha['situacao']), 'UTF-8')
                     ]) : null;
 
-                $situacao = !empty($linha['contexto']) 
+                $contexto = !empty($linha['contexto']) 
                     ? Parametro::firstOrCreate([
                         'function' => 'CONTEXTO', 
                         'value' => mb_strtoupper(trim($linha['contexto']), 'UTF-8')
@@ -415,7 +415,7 @@ class ActionController extends Controller
                     'resumo' => $linha['resumo'] ?? null,
                     'palavras_chave' => $linha['palavras_chave'] ?? null,
                     'ods' => $linha['ods'] ?? null,
-                    'contexto' => $linha['contexto'] ?? null,
+                    'contexto' => $contexto ? $contexto->value : null,
                     'status' => 1,
                     'created_at' => $agora,
                     'updated_at' => $agora,
@@ -442,14 +442,14 @@ class ActionController extends Controller
                 }
             }
 
-            // DB::commit();
+            DB::commit();
             Cache::forget($cacheKey);
 
             return redirect()->route('actions.index')->with("success", "Ações importadas e salvas com sucesso!");
 
         } catch (\Exception $e) {
-            // DB::rollBack();
-            return redirect()->route('actions.index')->with("error", "Erro ao salvar os dados: " . $e->getMessage());
+            DB::rollBack();
+            return redirect()->route('actions.index')->with("error", "Erro ao salvar os dados: " . $e->getTraceAsString());
         }
     }
 

@@ -62,7 +62,6 @@ class ReportController extends Controller
                     'id' => Str::uuid(),
                     'id_relatorio' => $report->id,
                     'id_acao' => $action->id,
-                    'id_user' => $action->id_proponente,
                     'finalizada_em' => null,
                     'created_at' => now(),
                     'updated_at' => now(),

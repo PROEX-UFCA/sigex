@@ -62,6 +62,8 @@ class DatabaseSeeder extends Seeder
             "responder_relatórios",
             "monitorar_relatórios",
 
+            "importar_membros",
+
             "ver_dashboard",
         ];
 
@@ -101,6 +103,8 @@ class DatabaseSeeder extends Seeder
                     "responder_relatórios",
                     "monitorar_relatórios",
 
+                    'importar_membros',
+
                     "ver_dashboard",
                 ]
             ],
@@ -124,11 +128,24 @@ class DatabaseSeeder extends Seeder
                     "editar_agenda",
                     "remover_agenda",
 
+                    "ver_formulários",
+                    "adicionar_formulários",
+                    "editar_formulários",
+                    "deletar_formulários",
+
+                    "ver_relatórios",
+                    "adicionar_relatórios",
+                    "editar_relatórios",
+                    "responder_relatórios",
+                    "monitorar_relatórios",
+
+                    'importar_membros',
+
                     "ver_dashboard",
                 ]
             ],
             [
-                "role" => "Coordenador",
+                "role" => "Perfil Acadêmico",
                 "permissions" => [
                     "ver_suas_ações",
                     "detalhar_ação",

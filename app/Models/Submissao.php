@@ -11,7 +11,7 @@ class Submissao extends Model
     use HasUuids;
 
     protected $table = 'submissao';
-    protected $fillable = ['id_relatorio', 'id_acao', 'id_user', 'finalizada_em'];
+    protected $fillable = ['id_relatorio', 'id_acao', 'finalizada_em'];
 
     public function relatorio() :BelongsTo{
         return $this->belongsTo(Relatorio::class, 'id_relatorio', 'id');

@@ -38,8 +38,8 @@
           <select class="form-select" id="teachers" name="id_coordenador">
             <option value="">Selecione</option>
             @foreach ($coordinators as $coordinator)
-            <option value="{{ $coordinator->uuid }}" {{ $actual_coordinator->id_usuario == $coordinator->uuid ?
-              'selected' : '' }}>
+            <option value="{{ $coordinator->uuid }}" {{ $actual_coordinator ? ($actual_coordinator->id_usuario == $coordinator->uuid ?
+              'selected' : '') : '' }}>
               {{ $coordinator->name }}</option>
             @endforeach
           </select>
@@ -94,7 +94,7 @@
         'name' => 'bolsas_solicitadas',
         'required' => 'true',
         'placeholder' => 'Bolsas solicitadas',
-        'min' => '1',
+        'min' => '0',
         'value' => $action->bolsas_solicitadas ?? ''
         ])
 
@@ -105,7 +105,7 @@
         'name' => 'bolsas_concedidas',
         'required' => 'true',
         'placeholder' => 'Bolsas concedidas',
-        'min' => '1',
+        'min' => '0',
         'value' => $action->bolsas_concedidas ?? ''
         ])
 

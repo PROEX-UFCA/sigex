@@ -130,8 +130,20 @@ class EloquentActionsRepository implements ActionsRepository
             'categoria_membro' => 'COORDENADOR'
         ])->first();
 
-        $membro->id_usuario = $request->id_coordenador;
-        $membro->save();
+        if($membro){
+            $membro->id_usuario = $request->id_coordenador;
+            $membro->save();
+        }
+        else{
+            Equipe_Acao::create([
+                'id_acao' => $acao->id, 
+                'id_usuario' => $request->id_coordenador, 
+                'categoria_membro' => 'COORDENADOR',
+                'id_projeto' => $request->id_projeto, 
+                'status' => 'ATIVO', 
+                'data_inicio' => now()
+            ]);
+        }
 
         $acao->titulo = $request->titulo;
         $acao->palavras_chave = $request->palavras_chave;
@@ -165,34 +177,23 @@ class EloquentActionsRepository implements ActionsRepository
 
     public function getActionsForReports(array $filtros)
     {
-        $query = Acao::query();
+        $parametros = $filtros['parametros'] ?? [];
+        
+        
+        $tipos = array_filter($parametros['tipo'] ?? []);
+        $modalidades = array_filter($parametros['modalidade'] ?? []);
+        $situacoes = array_filter($parametros['situacao'] ?? []);
 
-        if (isset($filtros['parametros']) && is_array($filtros['parametros'])) {
-            
-            if (!empty($filtros['parametros']['tipo'])) {
-                $query->whereIn('tipo_acao', $filtros['parametros']['tipo']);
-            }
-            
-            if (!empty($filtros['parametros']['modalidade'])) {
-                $query->whereIn('modalidade', $filtros['parametros']['modalidade']);
-            }
-
-            if (!empty($filtros['parametros']['situacao'])) {
-                $query->whereIn('situacao', $filtros['parametros']['situacao']);
-            }
-        }
-
-        // if (!empty($filtros['ano_acao'])) {
-        //     $query->where('ano', $filtros['ano_acao']);
-        // }
-
-        // if (!empty($filtros['ano_inicio'])) {
-        //     $query->whereYear('data_inicio', $filtros['ano_inicio']);
-        // }
-
-        // if (!empty($filtros['ano_fim'])) {
-        //     $query->whereYear('data_fim', $filtros['ano_fim']);
-        // }
+        $query = Acao::query()
+            ->when(!empty($tipos), function ($q) use ($tipos) {
+            $q->whereIn('tipo_acao', $tipos);
+            })
+            ->when(!empty($modalidades), function ($q) use ($modalidades) {
+                $q->whereIn('modalidade_edital', $modalidades);
+            })
+            ->when(!empty($situacoes), function ($q) use ($situacoes) {
+                $q->whereIn('situacao', $situacoes);
+            });
 
         return $query->get();
     }
