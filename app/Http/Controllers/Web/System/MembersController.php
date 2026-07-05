@@ -3,13 +3,29 @@
 namespace App\Http\Controllers\Web\System;
 
 use App\Http\Controllers\Controller;
+use App\Models\Acao;
+use App\Models\Equipe_Acao;
+use App\Models\Parametro;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class MembersController extends Controller
 {
+    private $userId;
+
+    public function __construct()
+    {
+        $this->userId = Auth::user()->id;
+    }
+
     public function previewImport(Request $request)
     {
-        $cacheKey = 'import_preview_' . auth()->id();
+        $cacheKey = 'import_preview_members_' . $this->userId;
 
         if ($request->hasFile('csv')) {
             $request->validate([
@@ -24,12 +40,12 @@ class MembersController extends Controller
             $headerLine = fgets($handle);
             if ($headerLine === false) {
                 fclose($handle);
-                return redirect()->back()->with("toast_error", "Arquivo CSV vazio ou inválido.");
+                return redirect()->back()->with("error", "Arquivo CSV vazio ou inválido.");
             }
 
             $delimiter = substr_count($headerLine, ';') > substr_count($headerLine, ',') ? ';' : ',';
 
-            $projectsData = [];
+            $membersData = [];
             $rowIndex = 1;
             $duplicadosIgnorados = 0;
 
@@ -37,6 +53,38 @@ class MembersController extends Controller
                 $row = array_map(fn($field) => trim(mb_convert_encoding($field, 'UTF-8', 'auto')), $row);
 
                 $checkData = [
+                    'id_projeto' => $row[0] ?? null,
+                    'id_pessoa' => $row[1] ?? null,
+                    'categoria_membro' => $row[4] ?? null,
+                    // 'tipo_membro' => $row[3] ?? null,
+                    // 'nome' => $row[2] ?? null,
+                    // 'email' => $row[5] ?? null,
+                    // 'status' => $row[6] ?? null,
+                    // 'data_inicio' => $row[7] ?? null,
+                    // 'data_fim' => $row[8] ?? null,
+                    // 'tipo_vinculo' => $row[9] ?? null,
+                ];
+
+                if (Equipe_Acao::where($checkData)->exists()) {
+                    $duplicadosIgnorados++;
+                    $rowIndex++;
+                    continue; 
+                }
+
+                $errors = [];
+
+                if (empty($row[0])) $errors['id_projeto'] = 'Campo obrigatório';
+                if (empty($row[1])) $errors['id_pessoa'] = 'Campo obrigatório';
+                if (empty($row[2])) $errors['nome'] = 'Campo obrigatório';
+                if (empty($row[3])) $errors['tipo_membro'] = 'Campo obrigatório';
+                if (empty($row[4])) $errors['categoria_membro'] = 'Campo obrigatório';
+                if (empty($row[5])) $errors['email'] = 'Campo obrigatório';
+                if (empty($row[6])) $errors['status'] = 'Campo obrigatório';
+                if (empty($row[7])) $errors['data_inicio'] = 'Campo obrigatório';
+                if (empty($row[8])) $errors['data_fim'] = 'Campo obrigatório';
+                if (empty($row[9])) $errors['tipo_vinculo'] = 'Campo obrigatório';
+
+                $membersData[$rowIndex] = [
                     'id_projeto' => $row[0] ?? null,
                     'id_pessoa' => $row[1] ?? null,
                     'nome' => $row[2] ?? null,
@@ -47,57 +95,6 @@ class MembersController extends Controller
                     'data_inicio' => $row[7] ?? null,
                     'data_fim' => $row[8] ?? null,
                     'tipo_vinculo' => $row[9] ?? null,
-                ];
-
-                if (Acao::where($checkData)->exists()) {
-                    $duplicadosIgnorados++;
-                    $rowIndex++;
-                    continue; 
-                }
-
-                $errors = [];
-                if (empty($row[0])) $errors['id_projeto'] = 'Campo obrigatório';
-                if (empty($row[1])) $errors['ano'] = 'Campo obrigatório';
-                if (empty($row[2])) $errors['titulo'] = 'Campo obrigatório';
-                if (empty($row[3])) $errors['modalidade_edital'] = 'Campo obrigatório';
-                if (!isset($row[4]) || trim((string) $row[4]) === '') $errors['bolsas_solicitadas'] = 'Campo obrigatório';
-                if (!isset($row[5]) || trim((string) $row[5]) === '') $errors['bolsas_concedidas'] = 'Campo obrigatório';
-                if (empty($row[6])) $errors['financiamento_interno'] = 'Campo obrigatório';
-                if (empty($row[7])) $errors['financiamento_externo'] = 'Campo obrigatório';
-                if (empty($row[8])) $errors['situacao'] = 'Campo obrigatório';
-                if (empty($row[9])) $errors['data_cadastro'] = 'Campo obrigatório';
-                if (empty($row[10])) $errors['data_inicio'] = 'Campo obrigatório';
-                if (empty($row[11])) $errors['data_fim'] = 'Campo obrigatório';
-                if (empty($row[12])) $errors['data_atualizacao'] = 'Campo obrigatório';
-                if (empty($row[13])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
-                if (empty($row[14])) $errors['tipo_acao'] = 'Campo obrigatório';
-                if (empty($row[15])) $errors['area_tematica'] = 'Campo obrigatório';
-                // if (empty($row[16])) $errors['resumo'] = 'Campo obrigatório';
-                // if (empty($row[17])) $errors['palavras_chave'] = 'Campo obrigatório';
-                // if (empty($row[18])) $errors['ods'] = 'Campo obrigatório';
-                if (empty($row[19])) $errors['contexto'] = 'Campo obrigatório';
-
-                $projectsData[$rowIndex] = [
-                    'id_projeto' => $row[0] ?? null,
-                    'ano' => $row[1] ?? null,
-                    'titulo' => $row[2] ?? null,
-                    'modalidade_edital' => $row[3] ?? null,
-                    'bolsas_solicitadas' => $row[4] ?? null,
-                    'bolsas_concedidas' => $row[5] ?? null,
-                    'financiamento_interno' => $row[6] ?? null,
-                    'financiamento_externo' => $row[7] ?? null,
-                    'situacao' => $row[8] ?? null,
-                    'data_cadastro' => $row[9] ?? null,
-                    'data_inicio' => $row[10] ?? null,
-                    'data_fim' => $row[11] ?? null,
-                    'data_atualizacao' => $row[12] ?? null,
-                    'centro_departamento_sigla' => $row[13] ?? null,
-                    'tipo_acao' => $row[14] ?? null,
-                    'area_tematica' => $row[15] ?? null,
-                    'resumo' => $row[16] ?? null,
-                    'palavras_chave' => $row[17] ?? null,
-                    'ods' => $row[18] ?? null,
-                    'contexto' => $row[19] ?? null,
                     'errors' => $errors,
                     'row_index' => $rowIndex
                 ];
@@ -106,58 +103,49 @@ class MembersController extends Controller
             fclose($handle);
 
             Cache::put($cacheKey, [
-                'projects' => $projectsData,
-                'duplicados' => $duplicadosIgnorados
+                'members' => $membersData,
+                'duplicados_members' => $duplicadosIgnorados
             ], now()->addHours(2));
 
         } else {
             $cacheData = Cache::get($cacheKey);
-            if (!$cacheData || empty($cacheData['projects'])) {
-                return redirect()->route('actions.index')->with('toast_error', 'A sessão de importação expirou ou não há dados.');
+            if (!$cacheData || empty($cacheData['members'])) {
+                return redirect()->route('actions.index')->with('error', 'A sessão de importação expirou ou não há dados.');
             }
             
-            $allProjects = $cacheData['projects'];
-            $duplicadosIgnorados = $cacheData['duplicados'];
+            $allMembers = $cacheData['members'];
+            $duplicadosIgnorados = $cacheData['duplicados_members'];
             $cacheFoiAtualizado = false;
 
             if ($request->filled('deleted_indexes')) {
                 $deletedIndexes = explode(',', $request->deleted_indexes);
                 foreach ($deletedIndexes as $idx) {
-                    if (isset($allProjects[$idx])) {
-                        unset($allProjects[$idx]);
+                    if (isset($allMembers[$idx])) {
+                        unset($allMembers[$idx]);
                         $cacheFoiAtualizado = true;
                     }
                 }
             }
 
-            if ($request->has('projects')) {
-                foreach ($request->projects as $index => $submittedData) {
-                    if (isset($allProjects[$index])) {
-                        $allProjects[$index] = array_merge($allProjects[$index], $submittedData);
+            if ($request->has('members')) {
+                foreach ($request->members as $index => $submittedData) {
+                    if (isset($allMembers[$index])) {
+                        $allMembers[$index] = array_merge($allMembers[$index], $submittedData);
                         
                         $errors = [];
-                        if (empty($allProjects[$index]['id_projeto'])) $errors['id_projeto'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['ano'])) $errors['ano'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['titulo'])) $errors['titulo'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['modalidade_edital'])) $errors['modalidade_edital'] = 'Campo obrigatório';
-                        if (!isset($allProjects[$index]['bolsas_solicitadas']) || trim((string) $allProjects[$index]['bolsas_solicitadas']) === '') $errors['bolsas_solicitadas'] = 'Campo obrigatório';
-                        if (!isset($allProjects[$index]['bolsas_concedidas']) || trim((string) $allProjects[$index]['bolsas_concedidas']) === '') $errors['bolsas_concedidas'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['financiamento_interno'])) $errors['financiamento_interno'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['financiamento_externo'])) $errors['financiamento_externo'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['situacao'])) $errors['situacao'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['data_cadastro'])) $errors['data_cadastro'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['data_inicio'])) $errors['data_inicio'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['data_fim'])) $errors['data_fim'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['data_atualizacao'])) $errors['data_atualizacao'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['centro_departamento_sigla'])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['tipo_acao'])) $errors['tipo_acao'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['area_tematica'])) $errors['area_tematica'] = 'Campo obrigatório';
-                        // if (empty($allProjects[$index]['resumo'])) $errors['resumo'] = 'Campo obrigatório';
-                        // if (empty($allProjects[$index]['palavras_chave'])) $errors['palavras_chave'] = 'Campo obrigatório';
-                        // if (empty($allProjects[$index]['ods'])) $errors['ods'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['contexto'])) $errors['contexto'] = 'Campo obrigatório';
 
-                        $allProjects[$index]['errors'] = $errors;
+                        if (empty($allMembers[$index]['id_projeto'])) $errors['id_projeto'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['id_pessoa'])) $errors['id_pessoa'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['nome'])) $errors['nome'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['tipo_membro'])) $errors['tipo_membro'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['categoria_membro'])) $errors['categoria_membro'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['email'])) $errors['email'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['status'])) $errors['status'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['data_inicio'])) $errors['data_inicio'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['data_fim'])) $errors['data_fim'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['tipo_vinculo'])) $errors['tipo_vinculo'] = 'Campo obrigatório';
+
+                        $allMembers[$index]['errors'] = $errors;
                         $cacheFoiAtualizado = true;
                     }
                 }
@@ -165,15 +153,15 @@ class MembersController extends Controller
 
             if ($cacheFoiAtualizado) {
                 Cache::put($cacheKey, [
-                    'projects' => $allProjects,
-                    'duplicados' => $duplicadosIgnorados
+                    'members' => $allMembers,
+                    'duplicados_members' => $duplicadosIgnorados
                 ], now()->addHours(2));
             }
 
-            $projectsData = $allProjects;
+            $membersData = $allMembers;
         }
 
-        $collection = collect($projectsData)->sortByDesc(fn($project) => !empty($project['errors']))->values();
+        $collection = collect($membersData)->sortByDesc(fn($member) => !empty($member['errors']))->values();
         
         $totalErrors = $collection->filter(fn($item) => count($item['errors']) > 0)->count();
 
@@ -181,7 +169,7 @@ class MembersController extends Controller
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $currentItems = $collection->slice(($currentPage - 1) * $perPage, $perPage)->all();
 
-        $paginatedProjects = new LengthAwarePaginator(
+        $paginatedMembers = new LengthAwarePaginator(
             $currentItems, 
             $collection->count(), 
             $perPage,
@@ -189,6 +177,200 @@ class MembersController extends Controller
             ['path' => LengthAwarePaginator::resolveCurrentPath()]
         );
 
-        return view('pages.actions.preview', compact('paginatedProjects', 'totalErrors', 'duplicadosIgnorados'));
+        return view('pages.members.preview', compact('paginatedMembers', 'totalErrors', 'duplicadosIgnorados'));
+    }
+
+    public function storeImport(Request $request)
+    {
+        $cacheKey = 'import_preview_members_' . $this->userId;
+        $cacheData = Cache::get($cacheKey);
+
+        if (!$cacheData || empty($cacheData['members'])) {
+            return redirect()->route('actions.index')->with('error', 'Sessão de importação expirada ou sem dados válidos.');
+        }
+
+        $allMembers = $cacheData['members'];
+        $duplicadosIgnorados = $cacheData['duplicados_members'];
+
+        if ($request->filled('deleted_indexes')) {
+            $deletedIndexes = explode(',', $request->deleted_indexes);
+            foreach ($deletedIndexes as $idx) {
+                unset($allMembers[$idx]);
+            }
+        }
+
+        if ($request->has('members')) {
+            foreach ($request->members as $index => $submittedData) {
+                if (isset($allMembers[$index])) {
+                    $allMembers[$index] = array_merge($allMembers[$index], $submittedData);
+                    
+                    $errors = [];
+                    $requiredFields = ['id_projeto', 'id_pessoa', 'nome', 'tipo_membro', 'categoria_membro', 'email', 'status', 'data_inicio', 'data_fim', 'tipo_vinculo'];
+                    
+                    foreach ($requiredFields as $field) {
+                        if (empty($allMembers[$index][$field])) {
+                            $errors[$field] = 'Campo obrigatório';
+                        }
+                    }
+                    $allMembers[$index]['errors'] = $errors;
+                }
+            }
+        }
+
+        Cache::put($cacheKey, ['members' => $allMembers, 'duplicados' => $duplicadosIgnorados], now()->addHours(2));
+
+        $totalErrors = collect($allMembers)->filter(fn($item) => count($item['errors']) > 0)->count();
+
+        if ($totalErrors > 0) {
+            return redirect()->back()->with('error', "Não foi possível salvar. Ainda existem {$totalErrors} linha(s) com erro no lote. Corrija ou exclua as linhas.");
+        }
+
+        if (empty($allMembers)) {
+            return redirect()->route('actions.index')->with('info', 'Nenhuma linha restou para ser importada.');
+        }
+
+        DB::beginTransaction();
+        try {
+            $agora = now();
+
+            $emails = array_filter(array_unique(array_map('strtolower', array_column($allMembers, 'email'))));
+            $projetosIds = array_filter(array_unique(array_column($allMembers, 'id_projeto')));
+            
+            $tiposMembrosReq = array_filter(array_unique(array_map(fn($v) => mb_strtoupper(trim($v), 'UTF-8'), array_column($allMembers, 'tipo_membro'))));
+            $categoriasReq = array_filter(array_unique(array_map(fn($v) => mb_strtoupper(trim($v), 'UTF-8'), array_column($allMembers, 'categoria_membro'))));
+            $vinculosReq = array_filter(array_unique(array_map(fn($v) => mb_strtoupper(trim($v), 'UTF-8'), array_column($allMembers, 'tipo_vinculo'))));
+            $statusReq = array_filter(array_unique(array_map(fn($v) => mb_strtoupper(trim($v), 'UTF-8'), array_column($allMembers, 'status'))));
+
+            $usuariosExistentes = User::whereIn('email', $emails)->pluck('uuid', 'email')->toArray();
+            $acoesExistentes = Acao::whereIn('id_projeto', $projetosIds)->pluck('id', 'id_projeto')->toArray();
+            
+            $this->garantirParametrosEmLote('TIPO_MEMBRO', $tiposMembrosReq);
+            $this->garantirParametrosEmLote('CATEGORIA_MEMBRO', $categoriasReq);
+            $this->garantirParametrosEmLote('TIPO_VINCULO', $vinculosReq);
+            $this->garantirParametrosEmLote('STATUS_MEMBROS', $statusReq);
+
+            $emailsFaltantes = array_diff($emails, array_keys($usuariosExistentes));
+            
+            if (!empty($emailsFaltantes)) {
+                $novosUsuarios = [];
+                // Opcional: Se usar Spatie Roles e precisar assinar "Coordenador" no bulk insert
+                // $roleCoordenador = \Spatie\Permission\Models\Role::findByName('Coordenador'); 
+                // $roleInserts = []; 
+
+                // Mapeia email para nome para criar os usuários faltantes
+                $emailParaNome = array_column($allMembers, 'nome', 'email');
+
+                foreach ($emailsFaltantes as $email) {
+                    $uuid = (string) Str::uuid();
+                    $novosUsuarios[] = [
+                        'uuid' => $uuid,
+                        'name' => mb_strtoupper(trim($emailParaNome[$email] ?? 'USUÁRIO IMPORTADO'), 'UTF-8'),
+                        'email' => $email,
+                        'status' => 0,
+                        'created_at' => $agora,
+                        'updated_at' => $agora,
+                    ];
+
+                    $usuariosExistentes[$email] = $uuid; // Adiciona ao array local para ser usado no loop final
+                    
+                    // Se usar Spatie:
+                    // $roleInserts[] = ['role_id' => $roleCoordenador->id, 'model_type' => User::class, 'model_id' => $uuid];
+                }
+
+                // Insere todos os usuários de uma vez (MUITO RÁPIDO)
+                User::insert($novosUsuarios);
+                // DB::table('model_has_roles')->insert($roleInserts); // Se usar Spatie
+            }
+
+            // -------------------------------------------------------------------
+            // PASSO 4: MONTAR ARRAY FINAL DE INSERÇÃO NA MEMÓRIA
+            // -------------------------------------------------------------------
+            $membrosParaInserir = [];
+
+            foreach ($allMembers as $linha) {
+                $email = strtolower(trim($linha['email'] ?? ''));
+                $id_user = $usuariosExistentes[$email] ?? null;
+                $id_acao = $acoesExistentes[$linha['id_projeto']] ?? null;
+
+                $membrosParaInserir[] = [
+                    'id' => (string) Str::uuid(),
+                    'id_usuario' => $id_user,
+                    'id_acao' => $id_acao,
+                    'id_projeto' => $linha['id_projeto'] ?? null,
+                    'id_pessoa' => $linha['id_pessoa'] ?? null, 
+                    'tipo_membro' => mb_strtoupper(trim($linha['tipo_membro'] ?? ''), 'UTF-8'),
+                    'categoria_membro' => mb_strtoupper(trim($linha['categoria_membro'] ?? ''), 'UTF-8'),
+                    'status' => $linha['status'] ?? null,
+                    'data_inicio' => $linha['data_inicio'] ?? null,
+                    'data_fim' => $linha['data_fim'] ?? null,
+                    'tipo_vinculo' => mb_strtoupper(trim($linha['tipo_vinculo'] ?? ''), 'UTF-8'),
+                    'created_at' => $agora,
+                    'updated_at' => $agora,
+                ];
+            }
+
+            // -------------------------------------------------------------------
+            // PASSO 5: INSERÇÃO EM CHUNKS (Previne estouro do banco)
+            // -------------------------------------------------------------------
+            if (!empty($membrosParaInserir)) {
+                // Insere de 1000 em 1000 registros
+                collect($membrosParaInserir)->chunk(1000)->each(function ($chunk) {
+                    Equipe_Acao::insert($chunk->toArray());
+                });
+
+                $usuarioLogado = $this->userId;
+                $membroReferencia = Equipe_Acao::latest('created_at')->first(); // Pega apenas 1 para o log
+                
+                if ($membroReferencia && $usuarioLogado) {
+                    activity()
+                        ->causedBy($usuarioLogado)
+                        ->performedOn($membroReferencia)
+                        ->event('importado')
+                        ->withProperties([
+                            'attributes' => [
+                                'message' => 'Uma importação em lote de ' . count($membrosParaInserir) . ' membros foi realizada.',
+                            ]
+                        ])
+                        ->log('importado');
+                }
+            }
+
+            DB::commit(); // CONFIRMA TUDO
+            Cache::forget($cacheKey);
+
+            return redirect()->route('actions.index')->with("success", "Membros importados e salvos com sucesso!");
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // DESFAZ EM CASO DE ERRO
+            return redirect()->route('actions.index')->with("error", "Erro ao salvar os dados: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Função Auxiliar para Inserir Parâmetros em Lote
+     */
+    private function garantirParametrosEmLote($functionName, $valoresUnicos)
+    {
+        if (empty($valoresUnicos)) return;
+
+        $existentes = Parametro::where('function', $functionName)
+            ->whereIn('value', $valoresUnicos)
+            ->pluck('value')
+            ->toArray();
+
+        $faltantes = array_diff($valoresUnicos, $existentes);
+
+        if (!empty($faltantes)) {
+            $agora = now();
+            $inserts = array_map(fn($val) => [
+                'id' => (string) Str::uuid(),
+                'function' => $functionName,
+                'value' => $val,
+                'created_at' => $agora,
+                'updated_at' => $agora
+            ], $faltantes);
+
+            Parametro::insert($inserts);
+        }
     }
 }

@@ -26,12 +26,14 @@ class ActionController extends Controller
     private $actionsRepository;
     private $parametrosRepository;
     private $usersRepository;
+    private $userId;
 
     public function __construct(ActionsRepository $actionsRepository, ParametrosRepository $parametrosRepository, UsersRepository $usersRepository)
     {
         $this->actionsRepository = $actionsRepository;
         $this->parametrosRepository = $parametrosRepository;
         $this->usersRepository = $usersRepository;
+        $this->userId = Auth::user()->uuid;
     }
 
     public function index(Request $request)
@@ -104,7 +106,7 @@ class ActionController extends Controller
 
     public function previewImport(Request $request)
     {
-        $cacheKey = 'import_preview_' . auth()->id();
+        $cacheKey = 'import_preview_' . $this->userId;
 
         if ($request->hasFile('csv')) {
             $request->validate([
@@ -119,7 +121,7 @@ class ActionController extends Controller
             $headerLine = fgets($handle);
             if ($headerLine === false) {
                 fclose($handle);
-                return redirect()->back()->with("toast_error", "Arquivo CSV vazio ou inválido.");
+                return redirect()->back()->with("error", "Arquivo CSV vazio ou inválido.");
             }
 
             $delimiter = substr_count($headerLine, ';') > substr_count($headerLine, ',') ? ';' : ',';
@@ -135,23 +137,8 @@ class ActionController extends Controller
                     'id_projeto' => $row[0] ?? null,
                     'ano' => $row[1] ?? null,
                     'titulo' => $row[2] ?? null,
-                    'modalidade_edital' => $row[3] ?? null,
-                    'bolsas_solicitadas' => $row[4] ?? null,
-                    'bolsas_concedidas' => $row[5] ?? null,
-                    'financiamento_interno' => $row[6] ?? null,
-                    'financiamento_externo' => $row[7] ?? null,
-                    'situacao' => $row[8] ?? null,
-                    'data_cadastro' => $row[9] ?? null,
                     'data_inicio' => $row[10] ?? null,
                     'data_fim' => $row[11] ?? null,
-                    'data_atualizacao' => $row[12] ?? null,
-                    'centro_departamento_sigla' => $row[13] ?? null,
-                    'tipo_acao' => $row[14] ?? null,
-                    'area_tematica' => $row[15] ?? null,
-                    'resumo' => $row[16] ?? null,
-                    'palavras_chave' => $row[17] ?? null,
-                    'ods' => $row[18] ?? null,
-                    'contexto' => $row[19] ?? null
                 ];
 
                 if (Acao::where($checkData)->exists()) {
@@ -218,7 +205,7 @@ class ActionController extends Controller
         } else {
             $cacheData = Cache::get($cacheKey);
             if (!$cacheData || empty($cacheData['projects'])) {
-                return redirect()->route('actions.index')->with('toast_error', 'A sessão de importação expirou ou não há dados.');
+                return redirect()->route('actions.index')->with('error', 'A sessão de importação expirou ou não há dados.');
             }
             
             $allProjects = $cacheData['projects'];
@@ -299,11 +286,11 @@ class ActionController extends Controller
 
     public function storeImport(Request $request)
     {
-        $cacheKey = 'import_preview_' . auth()->id();
+        $cacheKey = 'import_preview_' . $this->userId;
         $cacheData = Cache::get($cacheKey);
 
         if (!$cacheData || empty($cacheData['projects'])) {
-            return redirect()->route('actions.index')->with('toast_error', 'Sessão de importação expirada ou sem dados válidos.');
+            return redirect()->route('actions.index')->with('error', 'Sessão de importação expirada ou sem dados válidos.');
         }
 
         $allProjects = $cacheData['projects'];
@@ -355,17 +342,16 @@ class ActionController extends Controller
         $totalErrors = collect($allProjects)->filter(fn($item) => count($item['errors']) > 0)->count();
 
         if ($totalErrors > 0) {
-            return redirect()->back()->with('toast_error', "Não foi possível salvar. Ainda existem {$totalErrors} linha(s) com erro no lote. Corrija ou exclua as linhas.");
+            return redirect()->back()->with('error', "Não foi possível salvar. Ainda existem {$totalErrors} linha(s) com erro no lote. Corrija ou exclua as linhas.");
         }
 
         if (empty($allProjects)) {
-            return redirect()->route('actions.index')->with('toast_info', 'Nenhuma linha restou para ser importada.');
+            return redirect()->route('actions.index')->with('info', 'Nenhuma linha restou para ser importada.');
         }
 
-        DB::beginTransaction();
+        // DB::beginTransaction();
         try {
             $acoesParaInserir = [];
-            $membrosParaInserir = [];
             $agora = now();
 
             foreach ($allProjects as $linha) {
@@ -439,7 +425,7 @@ class ActionController extends Controller
             if (!empty($acoesParaInserir)) {
                 Acao::insert($acoesParaInserir);
 
-                $usuarioLogado = auth()->user();
+                $usuarioLogado = $this->userId;
                 $acaoReferencia = Acao::first();
                 
                 if ($acaoReferencia && $usuarioLogado) {
@@ -456,14 +442,14 @@ class ActionController extends Controller
                 }
             }
 
-            DB::commit();
+            // DB::commit();
             Cache::forget($cacheKey);
 
-            return redirect()->route('actions.index')->with("toast_success", "Ações importadas e salvas com sucesso!");
+            return redirect()->route('actions.index')->with("success", "Ações importadas e salvas com sucesso!");
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->route('actions.index')->with("toast_error", "Erro ao salvar os dados: " . $e->getMessage());
+            // DB::rollBack();
+            return redirect()->route('actions.index')->with("error", "Erro ao salvar os dados: " . $e->getMessage());
         }
     }
 
@@ -471,7 +457,7 @@ class ActionController extends Controller
         $this->data['action'] = $this->actionsRepository->getByUuid($uuid);
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO', 'CONTEXTO'])->groupBy('function');
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
-        $this->data['actual_coordinator'] = Equipe_Acao::where(['id_acao' => $uuid, 'categoria' => 'COORDENADOR'])->first();
+        $this->data['actual_coordinator'] = Equipe_Acao::where(['id_acao' => $uuid, 'categoria_membro' => 'COORDENADOR'])->first();
 
         return view('pages.actions.edit', $this->data);
     }

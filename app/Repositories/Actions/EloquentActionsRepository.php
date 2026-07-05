@@ -70,7 +70,7 @@ class EloquentActionsRepository implements ActionsRepository
         Equipe_Acao::create([
             'id_acao' => $acao->id, 
             'id_usuario' => $request->id_coordenador, 
-            'categoria' => 'COORDENADOR'
+            'categoria_membro' => 'COORDENADOR'
         ]);
 
         return $acao;
@@ -81,7 +81,7 @@ class EloquentActionsRepository implements ActionsRepository
         Equipe_Acao::create([
             'id_acao' =>  $id_acao, 
             'id_usuario' => $request->id_usuario, 
-            'categoria' => $request->categoria
+            'categoria_membro' => $request->categoria
         ]);
     }
 
@@ -127,7 +127,7 @@ class EloquentActionsRepository implements ActionsRepository
 
         $membro = Equipe_Acao::where([
             'id_acao' => $acao->id, 
-            'categoria' => 'COORDENADOR'
+            'categoria_membro' => 'COORDENADOR'
         ])->first();
 
         $membro->id_usuario = $request->id_coordenador;

@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\Settings\UsersController;
 use App\Http\Controllers\Web\System\ActionController;
 use App\Http\Controllers\Web\System\FormController;
 use App\Http\Controllers\Web\System\HomeController;
+use App\Http\Controllers\Web\System\MembersController;
 use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use Illuminate\Support\Facades\Route;
@@ -96,7 +97,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('secao/deletar/pergunta/{uuid}', [FormController::class, 'deleteQuestion'])->name('sessions.deleteQuestion');
     });
     
-    Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('membros.previewImport');
+    Route::post('membros/importar', [MembersController::class, 'previewImport'])->name('membros.previewImport');
+    Route::post('membros/importar/salvar', [MembersController::class, 'storeImport'])->name('membros.storeImport');
 
     Route::get('relatorios', [ReportController::class, 'index'])->name('report.index')->middleware(['auth' => 'permission:ver_relatórios']);
 

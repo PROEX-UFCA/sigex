@@ -14,8 +14,9 @@
         aria-controls="modalExample">Importar ações</bottom>
       <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar-membros" aria-expanded="false"
         aria-controls="modalExample">Importar membros</bottom>
-      <x-modal.modal id="importar" class="modal-center" title="Importar dados" route="{{route('actions.previewImport')}}"
-        textBtnClose="Cancelar" textBtnSave="Importar" classBtnSave="btn-primary">
+      <x-modal.modal id="importar" class="modal-center" title="Importar dados"
+        route="{{route('actions.previewImport')}}" textBtnClose="Cancelar" textBtnSave="Importar"
+        classBtnSave="btn-primary">
         <x-slot:content>
           <div class="card-body mb-3">
             <h3>Atenção para a Importação de Dados</h3>
@@ -48,7 +49,8 @@
             </div>
 
             <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter
-              <strong>exatamente</strong> os nomes acima.</p>
+              <strong>exatamente</strong> os nomes acima.
+            </p>
           </div>
           <div id="drop-area"
             class="rounded-4 d-flex flex-column justify-content-center align-items-center bg-light p-4 text-center"
@@ -60,14 +62,15 @@
           </div>
         </x-slot:content>
       </x-modal.modal>
-      <x-modal.modal id="importar-membros" class="modal-center" title="Importar dados" route="{{route('membros.previewImport')}}"
-        textBtnClose="Cancelar" textBtnSave="Importar" classBtnSave="btn-primary">
+      <x-modal.modal id="importar-membros" class="modal-center" title="Importar dados"
+        route="{{route('membros.previewImport')}}" textBtnClose="Cancelar" textBtnSave="Importar"
+        classBtnSave="btn-primary">
         <x-slot:content>
           <div class="card-body mb-3">
             <h3>Atenção para a Importação de Dados</h3>
             <p>
               Para garantir que a importação ocorra sem erros, seu arquivo <strong>.csv</strong> precisa conter as
-              seguintes <strong>9 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no cabeçalho:
+              seguintes <strong>10 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no cabeçalho:
             </p>
 
             <div class="mb-3">
@@ -79,19 +82,21 @@
               <span class="badge badge-dark mb-1">E-MAIL</span>
               <span class="badge badge-dark mb-1">STATUS</span>
               <span class="badge badge-dark mb-1">DATA_INICIO</span>
-              <span class="badge badge-dark mb-1">DATA_FI</span>
+              <span class="badge badge-dark mb-1">DATA_FIM</span>
+              <span class="badge badge-dark mb-1">TIPO_VINCULO</span>
             </div>
 
             <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter
-              <strong>exatamente</strong> os nomes acima.</p>
+              <strong>exatamente</strong> os nomes acima.
+            </p>
           </div>
-          <div id="drop-area"
+          <div id="drop-area-2"
             class="rounded-4 d-flex flex-column justify-content-center align-items-center bg-light p-4 text-center"
             style="height: 150px; cursor: pointer; border: dashed 2px gray">
             <p class="text-muted mb-2">Arraste o .csv aqui ou clique para selecionar</p>
             <p class="text-red mb-2">Máximo 10MB</p>
-            <input type="file" name="csv" id="csv" accept=".csv" required hidden>
-            <div id="file-info" class="text-muted small mt-2"></div>
+            <input type="file" name="csv" id="csv-2" accept=".csv" required hidden>
+            <div id="file-info-2" class="text-muted small mt-2"></div>
           </div>
         </x-slot:content>
       </x-modal.modal>
@@ -156,15 +161,15 @@
           @endphp
 
           @foreach ([
-            'ano' => 'ano',
-            'titulo' => 'Título',
-            'situacao' => 'situacao',
-            'data_inicio' => 'Data de Início',
-            'data_fim' => 'Data de Finalização',
-            'tipo_acao' => 'Tipo de Ação',
-            'modalidade_edital' => 'Modalidade/Edital',
-            'area_tematica' => 'Área Temática',
-            'centro_departamento_sigla' => 'Centro/Departamento/Sigla',
+          'ano' => 'ano',
+          'titulo' => 'Título',
+          'situacao' => 'situacao',
+          'data_inicio' => 'Data de Início',
+          'data_fim' => 'Data de Finalização',
+          'tipo_acao' => 'Tipo de Ação',
+          'modalidade_edital' => 'Modalidade/Edital',
+          'area_tematica' => 'Área Temática',
+          'centro_departamento_sigla' => 'Centro/Departamento/Sigla',
           ] as $field => $label)
           <th>
             <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}"
@@ -217,6 +222,64 @@
       const dropArea = document.getElementById("drop-area");
       const csvInput = document.getElementById("csv");
       const fileInfo = document.getElementById("file-info");
+
+      const MAX_SIZE_MB = 10;
+
+      function handleFile(file) {
+        if (!file) return;
+
+        // Verifica se é CSV
+        if (!file.name.endsWith(".csv")) {
+          fileInfo.textContent = "Por favor, selecione um arquivo CSV válido.";
+          csvInput.value = "";
+          return;
+        }
+
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_SIZE_MB) {
+          fileInfo.textContent = "O arquivo ultrapassa 10MB.";
+          csvInput.value = "";
+          return;
+        }
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        csvInput.files = dataTransfer.files;
+
+        fileInfo.textContent = `Selecionado: ${file.name} (${sizeMB.toFixed(2)}MB)`;
+      }
+
+      dropArea.addEventListener("click", () => {
+        csvInput.value = "";
+        csvInput.click();
+      });
+
+      csvInput.addEventListener("change", () => {
+        const file = csvInput.files[0];
+        handleFile(file);
+      });
+
+      dropArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropArea.classList.add("dragover");
+      });
+
+      dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("dragover");
+      });
+
+      dropArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropArea.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        handleFile(file);
+      });
+    });
+    
+  document.addEventListener("DOMContentLoaded", function() {
+      const dropArea = document.getElementById("drop-area-2");
+      const csvInput = document.getElementById("csv-2");
+      const fileInfo = document.getElementById("file-info-2");
 
       const MAX_SIZE_MB = 10;
 
