@@ -7,7 +7,7 @@ interface ActionsRepository{
   public function getAllByUuid($uuid, array $filtros = []);
   public function getByUserUuid($user_uuid, $uuid);
   public function create($request);
-  public function createTeam($request, $id_acao);
+  public function createTeam($request, $id_acao, $action);
   public function createSchedule($request, $id_acao);
   public function getByUuid($uuid);
   public function update($request, $uuid);

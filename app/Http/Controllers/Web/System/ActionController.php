@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class ActionController extends Controller
 {
@@ -72,7 +73,9 @@ class ActionController extends Controller
 
     public function storeTeam(TeamRequest $request, $id_acao){
         try {
-            $this->actionsRepository->createTeam($request, $id_acao);
+            $action = $this->actionsRepository->getByUuid($id_acao);
+            $this->actionsRepository->createTeam($request, $id_acao, $action);
+
             return redirect()->back()->with("success", "Usuário adicionado a ação com sucesso.");
         } catch (\Throwable $th) {
             return redirect()->back()->with("error", "Erro. Por favor, tente novamente mais tarde.")->withInput();
@@ -99,7 +102,7 @@ class ActionController extends Controller
 
         $this->data['action'] = $this->actionsRepository->getByUserUuid(Auth::user()->uuid, $uuid)->action;
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
-        $this->data['categorias'] = $this->parametrosRepository->getAllActiveByFunctions(['CETAGORIA_COORDENADOR']);
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CATEGORIA_MEMBRO', 'TIPO_MEMBRO', 'STATUS_MEMBROS', 'TIPO_VINCULO'])->groupBy('function');
 
         return view('pages.actions.details', $this->data);
     }
@@ -358,7 +361,7 @@ class ActionController extends Controller
                 
                 $centroDepartamento = !empty($linha['centro_departamento_sigla']) 
                     ? Parametro::firstOrCreate([
-                        'function' => 'CENTRO_DEPARTAMENTO', 
+                        'function' => 'CENTRO_DEPARTAMENTO_SIGLA', 
                         'value' => mb_strtoupper(trim($linha['centro_departamento_sigla']), 'UTF-8')
                     ]) : null;
 
@@ -376,7 +379,7 @@ class ActionController extends Controller
 
                 $modalidade = !empty($linha['modalidade_edital']) 
                     ? Parametro::firstOrCreate([
-                        'function' => 'MODALIDADE', 
+                        'function' => 'MODALIDADE_EDITAL', 
                         'value' => mb_strtoupper(trim($linha['modalidade_edital']), 'UTF-8')
                     ]) : null;
 
@@ -470,6 +473,46 @@ class ActionController extends Controller
             return redirect()->back()->with("success", "Ação atualizada com sucesso");
         } catch (\Throwable $e) {
             return redirect()->back()->with("error", "Erro ao atualizar ação");
+        }
+    }
+
+    public function addBanner(Request $request, $uuid)
+    {
+        $request->validate([
+            'banner' => [
+                'required',
+                'file',
+                'mimes:jpeg,png,jpg,webp',
+                // 'max:5120',
+            ],
+        ], [
+            'banner.required' => 'O banner é obrigatório.',
+            'banner.file' => 'O banner deve ser um arquivo válido.',
+            'banner.mimes' => 'O banner deve ser uma imagem (jpg, png, jpeg ou webp).',
+            // 'banner.max' => 'O banner não pode ser maior que 5MB.',
+        ]);
+
+        $action = $this->actionsRepository->getByUuid($uuid);
+
+        try {
+            if ($request->hasFile("banner") && $request->file("banner")->isValid()) {
+                
+                if ($action->img && Storage::disk('public')->exists($action->img)) {
+                    Storage::disk('public')->delete($action->img);
+                }
+
+                $path = $request->file("banner")->store('banner', 'public');
+                
+                $action->img = $path;
+                $action->save();
+
+                return redirect()->back()->with('success', 'Banner adicionado com sucesso!');
+            }
+
+            return redirect()->back()->with('error', 'O arquivo enviado não é válido.');
+
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Erro ao tentar adicionar banner, tente novamente mais tarde.');
         }
     }
 }

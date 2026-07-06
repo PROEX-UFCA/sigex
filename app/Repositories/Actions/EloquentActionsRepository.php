@@ -5,6 +5,7 @@ namespace App\Repositories\Actions;
 use App\Models\Acao;
 use App\Models\Agenda_Acao;
 use App\Models\Equipe_Acao;
+use Illuminate\Support\Facades\DB;
 
 class EloquentActionsRepository implements ActionsRepository
 {
@@ -76,12 +77,23 @@ class EloquentActionsRepository implements ActionsRepository
         return $acao;
     }
 
-    public function createTeam($request, $id_acao)
+    public function createTeam($request, $id_acao, $action)
     {
+        $registroExistente = Equipe_Acao::where('id_usuario', $request->id_usuario)->first();
+
+        $idPessoa = $registroExistente ? $registroExistente->id_pessoa : (Equipe_Acao::max('id_pessoa') ?? 0) + 1;
+
         Equipe_Acao::create([
             'id_acao' =>  $id_acao, 
             'id_usuario' => $request->id_usuario, 
-            'categoria_membro' => $request->categoria
+            'categoria_membro' => $request->categoria_membro,
+            'id_projeto' => $action->id_projeto, 
+            'id_pessoa' => $idPessoa, 
+            'tipo_membro' => $request->tipo_membro, 
+            'tipo_vinculo' => $request->tipo_vinculo,
+            'status' => $request->status_membros, 
+            'data_inicio' => $request->data_inicio, 
+            'data_fim' => $request->data_fim, 
         ]);
     }
 
@@ -99,19 +111,31 @@ class EloquentActionsRepository implements ActionsRepository
 
     public function getAllByUuid($uuid, array $filtros = [])
     {
-        return Equipe_Acao::with('action')
-            ->where('id_usuario', $uuid)
-            ->when($filtros['search'] ?? null, function ($query, $search) {
-                $query->whereHas('action', function ($subQuery) use ($search) {
-                    $subQuery->where(function ($q) use ($search) {
-                        $q->where('titulo', 'like', "%{$search}%")
-                            ->orWhere('data_inicio', 'like', "%{$search}%")
-                            ->orWhere('data_fim', 'like', "%{$search}%")
-                            ->orWhere('ano', 'like', "%{$search}%")
-                            ->orWhere('status', 'like', "%{$search}%");
-                    });
+        $acoes = Equipe_Acao::with('action')
+        ->select(
+            'id_acao', 
+            'id_usuario',
+            DB::raw('GROUP_CONCAT(DISTINCT categoria_membro SEPARATOR ", ") as categorias_membros'),
+            DB::raw('MIN(created_at) as created_at') 
+        )
+        ->where('id_usuario', $uuid)
+        ->when($filtros['search'] ?? null, function ($query, $search) {
+            $query->whereHas('action', function ($subQuery) use ($search) {
+                $subQuery->where(function ($q) use ($search) {
+                    $q->where('titulo', 'like', "%{$search}%")
+                        ->orWhere('data_inicio', 'like', "%{$search}%")
+                        ->orWhere('data_fim', 'like', "%{$search}%")
+                        ->orWhere('ano', 'like', "%{$search}%")
+                        ->orWhere('status', 'like', "%{$search}%");
                 });
-            })->orderBy('created_at', 'asc')->get();
+            });
+        })
+        ->groupBy('id_acao', 'id_usuario')
+        ->orderBy('created_at', 'asc')
+        ->paginate(30)
+        ->withQueryString();
+
+        return $acoes;
     }
 
     public function getByUserUuid($user_uuid, $uuid){

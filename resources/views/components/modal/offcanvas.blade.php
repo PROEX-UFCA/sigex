@@ -6,7 +6,7 @@
   </div>
   <div class="offcanvas-body">
     <form action="{{ isset($route) ? $route : '' }}" method="post" class="modal-content"
-      id="offcanvas-form{{ isset($id) ? $id : '' }}">
+      id="offcanvas-form{{ isset($id) ? $id : '' }}" enctype="multipart/form-data">
       @csrf
       <div class="modal-body {{ isset($classBody) ? $classBody : '' }}">
         {!! isset($content) ? $content : '' !!}

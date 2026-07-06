@@ -355,9 +355,6 @@ class MembersController extends Controller
         }
     }
 
-    /**
-     * Função Auxiliar para Inserir Parâmetros em Lote
-     */
     private function garantirParametrosEmLote($functionName, $valoresUnicos)
     {
         if (empty($valoresUnicos)) return;
@@ -380,6 +377,17 @@ class MembersController extends Controller
             ], $faltantes);
 
             Parametro::insert($inserts);
+        }
+    }
+
+    public function deleteMember($uuid){
+        try {
+            Equipe_Acao::findOrFail($uuid)->delete();
+
+            return redirect()->back()->with('success', 'Membro deletado com sucesso.');
+
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Erro ao tentar deletar membro, tente novamente mais tarde.');
         }
     }
 }

@@ -80,11 +80,15 @@ Route::middleware(['auth'])->group(function () {
     Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {
         Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
 
+        Route::post('acoes/adicionar/banner/{uuid}', [ActionController::class, 'addBanner'])->name('actions.addBanner');
+
         Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details')->middleware(['auth' => 'permission:detalhar_ação']);
-
+        
         Route::post('acoes/equipe/{uuid}', [ActionController::class, 'storeTeam'])->name('actions.storeTeam')->middleware(['auth' => 'permission:adicionar_equipe']);
-
+        
         Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);
+
+        Route::delete('membro/deletar/{uuid}', [MembersController::class, 'deleteMember'])->name('members.delete');
     });
 
     Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
