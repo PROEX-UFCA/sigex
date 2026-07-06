@@ -38,6 +38,10 @@ class EloquentReportsRepository implements ReportsRepository
         Submissao::insert($submissoes);
     }
 
+    public function getSubmissionById($uuid){
+        return Submissao::find($uuid);
+    }
+
     public function update($request, $uuid){
         $report = Relatorio::findOrFail($uuid);
 

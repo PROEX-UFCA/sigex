@@ -87,4 +87,11 @@ class ReportController extends Controller
             return redirect()->back()->with('error', "Erro ao tentar atualizar relatório, tente novamente mais tarde.");
         }
     }
+
+     public function report($uuid){
+        $this->data['submissao'] = $this->reportRepository->getSubmissionById($uuid);
+
+        // dd($this->data['submissao']->relatorio->formulario->secoes->first()->perguntas->first()->opcoes());
+        return view('pages.actions.report', $this->data);
+    }
 }

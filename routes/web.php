@@ -80,6 +80,8 @@ Route::middleware(['auth'])->group(function () {
     Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {
         Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
 
+        Route::get('acoes/relatorio/{uuid}', [ReportController::class, 'report'])->name('actions.report');
+
         Route::post('acoes/adicionar/banner/{uuid}', [ActionController::class, 'addBanner'])->name('actions.addBanner');
 
         Route::get('acoes/detalhes/{uuid}', [ActionController::class, 'details'])->name('actions.details')->middleware(['auth' => 'permission:detalhar_ação']);

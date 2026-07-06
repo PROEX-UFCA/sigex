@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ActionController extends Controller
 {
-    private $data;
+    private $data = [];
     private $actionsRepository;
     private $parametrosRepository;
     private $usersRepository;

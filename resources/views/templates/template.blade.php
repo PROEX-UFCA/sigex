@@ -86,7 +86,7 @@
 
               @can('ver_suas_ações')
               <x-navbar.navbar-item route="{{ route('actions.my') }}" title="Minhas ações"
-                isActive="{{ request()->routeIs(['actions.my', 'actions.details']) ? true : false }}"
+                isActive="{{ request()->routeIs(['actions.my', 'actions.details', 'actions.report']) ? true : false }}"
                 icon="ti-clipboard-list">
               </x-navbar.navbar-item>
               @endcan

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -16,5 +17,9 @@ class Relatorio extends Model
 
     public function submissoes() :HasMany{
         return $this->hasMany(Submissao::class, 'id_relatorio', 'id');
+    }
+
+    public function formulario() :BelongsTo{
+        return $this->belongsTo(Formulario::class, 'id_formulario', 'id');
     }
 }
