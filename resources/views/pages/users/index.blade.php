@@ -55,7 +55,7 @@
         <x-form-elements.select.select title="Status" id="status" name="status" class="col-12 col-md-4 col-lg-3">
           <x-slot:options>
             <option value="" disabled {{ request('status')===null ? 'selected' : '' }}>Selecione</option>
-            <option value="00" {{ request('status')==='00' ? 'selected' : '' }}>Inativo</option>
+            <option value="0" {{ request('status')==='0' ? 'selected' : '' }}>Inativo</option>
             <option value="1" {{ request('status')=='1' ? 'selected' : '' }}>Ativo</option>
           </x-slot:options>
         </x-form-elements.select.select>

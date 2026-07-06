@@ -13,8 +13,7 @@ class EloquentUsersRepository implements UsersRepository
     }
 
     public function getForCoordinator(){
-        //return User::whereNull('id_instituicao')->get();
-        //id_instituicao foi tirado de user, é necessário refazer essa função.
+        return User::all();
     }
 
     public function getByUuid($uuid){
@@ -41,9 +40,11 @@ class EloquentUsersRepository implements UsersRepository
         ];
 
         foreach ($camposFiltro as $campo) {
-            $query->when($filtros[$campo] ?? null, function ($q, $valor) use ($campo) {
-                $q->where($campo, $valor); 
-            });
+            $valor = $filtros[$campo] ?? null;
+
+            if ($valor !== null && $valor !== '') {
+            $query->where($campo, $valor);
+            }
         }
 
         return $query->orderBy($sort, $direction)->paginate(30)->withQueryString();
