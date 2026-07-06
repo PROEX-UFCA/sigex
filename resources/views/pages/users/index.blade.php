@@ -130,7 +130,7 @@
           </td>
           <td>
             @can('detalhar_usuário')
-            <a href="">Detalhar</a>
+            <a href="{{ route('users.show', $user->uuid) }}">Detalhar</a>
             @endcan
           </td>
         </tr>

@@ -129,4 +129,21 @@ class UsersController extends Controller
         Auth::logout();
         return to_route('login');
     }
+
+    public function show($id)
+{
+    try {
+        $user = $this->usersRepository->getByUuid($id);
+        
+        if (!$user) {
+            throw new \Exception('Usuário não encontrado.');
+        }
+
+        $this->data['user'] = $user;
+        return view('pages.users.show')->with($this->data);
+        
+    } catch (\Throwable $th) {
+        return redirect()->back()->with('error', 'Usuário não encontrado.');
+    }
+}
 }
