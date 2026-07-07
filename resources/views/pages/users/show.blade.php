@@ -52,10 +52,42 @@
               </tr>
             </tbody>
           </table>
+        @if(auth()->user()->uuid !== $user->uuid)
+        <button type="button" class="btn btn-outline-danger p-2 m-2" data-bs-toggle="modal" data-bs-target="#modalDelete{{ $user->uuid }}">
+          Deletar
+        </button>
+        
+        <div class="modal fade" id="modalDelete{{ $user->uuid }}" tabindex="-1" aria-labelledby="modalLabel{{ $user->uuid }}" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              
+              <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalLabel{{ $user->uuid }}">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              
+              <div class="modal-body text-start text-wrap">
+                Tem certeza que deseja deletar o usuário <strong>{{ $user->name }}</strong>? <br><br>
+                <span class="text-muted small">Esta ação removerá o usuário do sistema e ele não terá mais acesso ao SIGEX.</span>
+              </div>
+              
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                
+                <form action="{{ route('users.destroy', $user->uuid) }}" method="POST" class="m-0 p-0">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn btn-danger">Sim, Deletar Usuário</button>
+                </form>
+              </div>
+            </div>
+          </div>
+          @endif
         </div>
       </div>
     </div>
   </div>
+</div>
 </div>
 @endsection
 

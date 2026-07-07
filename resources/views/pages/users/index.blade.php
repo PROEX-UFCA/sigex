@@ -124,11 +124,6 @@
           <td>{{ $user->roles->first()->name ?? "-" }}</td>
           <td>{{ $user->status == 0 ? 'Inativo' : 'Ativo' }}</td>
           <td>
-            @can('editar_usuário')
-            <a href="">Editar</a>
-            @endcan
-          </td>
-          <td>
             @can('detalhar_usuário')
             <a href="{{ route('users.show', $user->uuid) }}">Detalhar</a>
             @endcan
