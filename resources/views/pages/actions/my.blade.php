@@ -14,12 +14,11 @@
   <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
     <thead>
       <tr>
-        <th class="text-wrap" style="min-width: 400px;">titulo</th>
-        <th>data_inicio</th>
-        <th>data_fim</th>
-        <th>ano</th>
+        <th class="text-wrap">titulo</th>
+        <th>vínculo</th>
+        <th>inicio</th>
+        <th>fim</th>
         <th>situação</th>
-        <th>Membro como</th>
         <th></th>
         <th></th>
       </tr>
@@ -28,11 +27,10 @@
       @foreach ($actions as $item)
       <tr>
         <td class="text-wrap" style="min-width: 400px;">{{$item->action->titulo}}</td>
-        <td>{{date('d-m-Y', strtotime($item->action->data_inicio))}}</td>
-        <td>{{date('d-m-Y', strtotime($item->action->data_fim))}}</td>
-        <td>{{$item->action->ano}}</td>
-        <td>{{ $item->action->situacao }}</td>
         <td>{{$item->categorias_membros}}</td>
+        <td>{{date('d/m/Y', strtotime($item->action->data_inicio))}}</td>
+        <td>{{date('d/m/Y', strtotime($item->action->data_fim))}}</td>
+        <td>{{ $item->action->situacao }}</td>
         <td class="text-center">
           @can('detalhar_ação')
           <a href="{{ route('actions.details', $item->action->id) }}" class="btn btn-sm">Detalhar</a>
