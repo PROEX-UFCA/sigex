@@ -95,6 +95,9 @@ class ActionController extends Controller
 
         $this->data['actions'] = $this->actionsRepository->getAllByUuid(Auth::user()->uuid, $request->query());
 
+        // foreach ($this->data['actions']->action->submissoes as $submissao) {
+        //     dd($$submissao->id);
+        // }
         return view('pages.actions.my', $this->data);
     }
 

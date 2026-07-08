@@ -38,7 +38,7 @@
         </td>
         <td class="text-center">
           <button class="btn btn-sm p-1 px-2 position-relative" data-bs-toggle="offcanvas"
-            data-bs-target="#modal-relatorios-{{$item->id}}" aria-controls="offcanvasExample">
+            data-bs-target="#modal-relatorios-{{$item->action->id}}" aria-controls="offcanvasExample">
             Relatórios
             @if ($item->action->submissoes->whereNotNull('finalizada_em')->isEmpty())
             <span class="badge bg-danger badge-notification badge-blink">
@@ -56,8 +56,8 @@
   {{ $actions->links() }}
 </div>
 @foreach ($actions as $item)
-<x-modal.offcanvas id="modal-relatorios-{{$item->id}}" class="offcanvas-end"
-  title="Relatórios para a ação: {{$item->titulo}}">
+<x-modal.offcanvas id="modal-relatorios-{{$item->action->id}}" class="offcanvas-end"
+  title="Relatórios para a ação: {{$item->action->titulo}}">
   <x-slot:content>
     <div class="list-group shadow-sm">
       @foreach ($item->action->submissoes as $submissao)

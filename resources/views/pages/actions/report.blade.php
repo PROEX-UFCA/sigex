@@ -3,7 +3,7 @@
 @section('styles')
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<link href="{{ asset('assets/libs/tom-select/dist/css/tom-select.bootstrap5.css') }}" rel="stylesheet" />
+{{-- <link href="{{ asset('assets/libs/tom-select/dist/css/tom-select.bootstrap5.css') }}" rel="stylesheet" /> --}}
 @endsection
 
 @section('content')
@@ -93,22 +93,33 @@
                   @case('text')
                   <input type="text" class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" {{
                     $pergunta->obrigatoria ? 'required' : '' }}
-                  @if($pergunta->min) minlength="{{ $pergunta->min }}" @endif
-                  @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif
-                  @if($pergunta->regex) pattern="{{ $pergunta->regex }}" @endif
+                  @if($pergunta->max && !$pergunta->regex) minlength="{{ $pergunta->max }}" @endif
+                  @if($pergunta->max && !$pergunta->regex) maxlength="{{ $pergunta->max }}" @endif
+                  @if($pergunta->regex) data-mascara="{{ $pergunta->regex }}" @endif
                   placeholder="Sua resposta aqui"
                   value="{{ $valorSalvo }}">
 
                   @if($pergunta->min || $pergunta->max || $pergunta->regex)
                   <div class="form-text text-muted">
-                    @if($pergunta->min) Mín: {{ $pergunta->min }} caracteres. @endif
-                    @if($pergunta->max) Máx: {{ $pergunta->max }} caracteres. @endif
-                    @if($pergunta->regex) <span title="{{ $pergunta->regex }}">Requer formato específico.</span> @endif
+                    @if($pergunta->max && !$pergunta->regex) Min: {{ $pergunta->min }} caracteres. @endif
+                    @if($pergunta->max && !$pergunta->regex) Máx: {{ $pergunta->max }} caracteres. @endif
+                    @if($pergunta->regex) Formato esperado: {{ $pergunta->regex }} @endif
                   </div>
                   @endif
                   @break
 
                   @case('location')
+                  @php
+                  // Tenta decodificar o valor como JSON. Se for um texto antigo ou vazio, assume apenas o 'nome'.
+                  $localData = is_string($valorSalvo) && json_decode($valorSalvo, true)
+                  ? json_decode($valorSalvo, true)
+                  : ['nome' => $valorSalvo, 'lat' => '', 'lng' => ''];
+
+                  $localNome = $localData['nome'] ?? '';
+                  $localLat = $localData['lat'] ?? '';
+                  $localLng = $localData['lng'] ?? '';
+                  @endphp
+
                   <div class="location-wrapper" id="location-wrapper-{{ $pergunta->id }}">
                     <div class="d-flex justify-content-between mb-2">
                       <span class="text-muted small">Pesquise pelo nome, CEP ou clique no mapa</span>
@@ -123,24 +134,26 @@
                         id="select-local-{{ $pergunta->id }}" name="respostas[{{ $pergunta->id }}]"
                         data-map-id="{{ $pergunta->id }}" {{ $pergunta->obrigatoria ? 'required' : '' }}>
                         <option value="">Pesquisar no mapa...</option>
-                        @if($valorSalvo)
-                        <option value="{{ $valorSalvo }}" selected>{{ $valorSalvo }}</option>
+                        @if($localNome)
+                        <option value="{{ $localNome }}" selected>{{ $localNome }}</option>
                         @endif
                       </select>
                     </div>
 
                     <div class="d-none mb-2" id="div-chose-{{ $pergunta->id }}">
                       <input type="text" class="form-control form-salvar-estado" id="input-local-{{ $pergunta->id }}"
-                        placeholder="Digite o nome do local manualmente" value="{{ $valorSalvo }}"> {{-- VALOR
-                      PREENCHIDO --}}
+                        placeholder="Digite o nome do local manualmente" value="{{ $localNome }}">
                       <div class="form-text text-danger">Modo de digitação manual ativo. O mapa será ignorado.</div>
                     </div>
 
                     <div id="map-{{ $pergunta->id }}" class="map-container border rounded"
-                      style="height: 300px; width: 100%; z-index: 1;"></div>
+                      style="height: 300px; width: 100%; z-index: 1;" data-saved-lat="{{ $localLat }}"
+                      data-saved-lng="{{ $localLng }}"></div>
 
-                    <input type="hidden" name="latitude[{{ $pergunta->id }}]" id="latitude-{{ $pergunta->id }}">
-                    <input type="hidden" name="longitude[{{ $pergunta->id }}]" id="longitude-{{ $pergunta->id }}">
+                    <input type="hidden" name="latitude[{{ $pergunta->id }}]" id="latitude-{{ $pergunta->id }}"
+                      value="{{ $localLat }}">
+                    <input type="hidden" name="longitude[{{ $pergunta->id }}]" id="longitude-{{ $pergunta->id }}"
+                      value="{{ $localLng }}">
                   </div>
                   @break
 
@@ -202,7 +215,8 @@
                     'required' : '' }}>
                     <option value="" disabled {{ !$valorSalvo ? 'selected' : '' }}>Selecione uma opção</option>
                     @foreach($pergunta->opcoes as $opcao)
-                    <option value="{{ $opcao->valor }}" {{ $valorSalvo==$opcao->id ? 'selected' : '' }}>{{ $opcao->rotulo
+                    <option value="{{ $opcao->valor }}" {{ $valorSalvo==$opcao->id ? 'selected' : '' }}>{{
+                      $opcao->rotulo
                       }}</option>
                     @endforeach
                   </select>
@@ -213,9 +227,9 @@
                     @foreach($pergunta->opcoes as $opcao)
                     <div class="form-check mb-1">
                       <input class="form-check-input" type="radio" name="respostas[{{ $pergunta->id }}]"
-                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}" {{ $pergunta->obrigatoria ? 'required' : ''
-                      }}
-                      {{ $valorSalvo == $opcao->id ? 'checked' : '' }}>
+                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}" {{ $pergunta->obrigatoria ? 'required' :
+                      '' }}
+                      {{ $valorSalvo == $opcao->valor ? 'checked' : '' }}>
                       <label class="form-check-label" for="opcao_{{ $opcao->id }}">
                         {{ $opcao->rotulo }}
                       </label>
@@ -229,8 +243,8 @@
                     @foreach($pergunta->opcoes as $opcao)
                     <div class="form-check mb-1">
                       <input class="form-check-input" type="checkbox" name="respostas[{{ $pergunta->id }}][]"
-                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}" {{ in_array($opcao->id, $arrayValores) ?
-                      'checked' : '' }}>
+                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}" {{ in_array($opcao->valor,
+                      $arrayValores) ? 'checked' : '' }}>
                       <label class="form-check-label" for="opcao_{{ $opcao->id }}">
                         {{ $opcao->rotulo }}
                       </label>
@@ -308,10 +322,19 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets/libs/tom-select/dist/js/tom-select.base.min.js') }}" defer></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script src="{{ asset('assets/libs/tom-select/dist/js/tom-select.base.min.js') }}"></script>
 <script src="{{ asset('assets/js/report.js') }}"></script>
 <script>
   $(document).ready(function() {
+    // --- LÓGICA DE MÁSCARAS DINÂMICAS ---
+    // Procura todos os inputs que possuem o atributo data-mask
+    $('input[data-mascara]').each(function() {
+        let formatoMascara = $(this).attr('data-mascara');
+        $(this).mask(formatoMascara);
+    });
+    
     // Configura o token CSRF para todas as requisições AJAX
     $.ajaxSetup({
         headers: {
@@ -361,6 +384,22 @@
                 return; 
             }
         }
+
+        else if (input.hasClass('select-location-tom') || (input.attr('id') && input.attr('id').startsWith('input-local-'))) {
+            let lat = $('#latitude-' + id_pergunta).val();
+            let lng = $('#longitude-' + id_pergunta).val();
+            let nomeLocal = input.val();
+
+            // Monta o objeto JSON e transforma em string para salvar no banco
+            let jsonLocation = JSON.stringify({
+                nome: nomeLocal,
+                lat: lat,
+                lng: lng
+            });
+            
+            formData.append('valor', jsonLocation);
+        }
+
         // Inputs normais (text, number, radio, textarea, select)
         else {
             formData.append('valor', input.val());
@@ -404,6 +443,5 @@
         let toast = new bootstrap.Toast(toastEl[0]);
         toast.show();
     }
-});
+  });
 </script>
-@endsection

@@ -175,11 +175,11 @@
   </div>
 
   <script src="{{ asset('assets/js/jquery-3.5.1.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script src="{{ asset('assets/js/echarts.min.js') }}"></script>
   <script src="{{ asset('assets/js/tabler.min.js?1684106062') }}" defer></script>
   <script src="{{ asset('assets/js/demo.min.js?1684106062') }}" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script src="{{ asset('assets/js/kanban/dataTables.min.js') }}"></script>
   {{-- <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script> --}}
   @yield('scripts')

@@ -156,14 +156,6 @@ class DatabaseSeeder extends Seeder
                     "remover_agenda",
                 ]
             ],
-            [
-                "role" => "Aluno",
-                "permissions" => []
-            ],
-            [
-                "role" => "Instituição",
-                "permissions" => []
-            ],
         ];
 
         foreach ($permissions as $permission) {
