@@ -43,38 +43,38 @@ function initWizardNavigation() {
     });
 }
 
-/**
- * 2. Lógica de auto-save (Local Storage)
- */
-function initAutoSave(submissaoId, formWizard) {
-    if (!submissaoId) return;
+// /**
+//  * 2. Lógica de auto-save (Local Storage)
+//  */
+// function initAutoSave(submissaoId, formWizard) {
+//     if (!submissaoId) return;
 
-    const chaveStorage = `rascunho_form_${submissaoId}`;
-    const inputsEstado = document.querySelectorAll('.form-salvar-estado');
-    const dadosSalvos = JSON.parse(localStorage.getItem(chaveStorage)) || {};
+//     const chaveStorage = `rascunho_form_${submissaoId}`;
+//     const inputsEstado = document.querySelectorAll('.form-salvar-estado');
+//     const dadosSalvos = JSON.parse(localStorage.getItem(chaveStorage)) || {};
 
-    inputsEstado.forEach(input => {
-        // Preenche dados recuperados
-        if (dadosSalvos[input.name]) {
-            if (input.type === 'checkbox' || input.type === 'radio') {
-                input.checked = (input.value === dadosSalvos[input.name]);
-            } else {
-                input.value = dadosSalvos[input.name];
-            }
-        }
+//     inputsEstado.forEach(input => {
+//         // Preenche dados recuperados
+//         if (dadosSalvos[input.name]) {
+//             if (input.type === 'checkbox' || input.type === 'radio') {
+//                 input.checked = (input.value === dadosSalvos[input.name]);
+//             } else {
+//                 input.value = dadosSalvos[input.name];
+//             }
+//         }
 
-        // Escuta mudanças
-        input.addEventListener('change', (e) => {
-            dadosSalvos[e.target.name] = e.target.value;
-            localStorage.setItem(chaveStorage, JSON.stringify(dadosSalvos));
-        });
-    });
+//         // Escuta mudanças
+//         input.addEventListener('change', (e) => {
+//             dadosSalvos[e.target.name] = e.target.value;
+//             localStorage.setItem(chaveStorage, JSON.stringify(dadosSalvos));
+//         });
+//     });
 
-    // Limpa storage ao enviar o form
-    formWizard.addEventListener('submit', () => {
-        localStorage.removeItem(chaveStorage);
-    });
-}
+//     // Limpa storage ao enviar o form
+//     formWizard.addEventListener('submit', () => {
+//         localStorage.removeItem(chaveStorage);
+//     });
+// }
 
 /**
  * 3. Inicialização dos mapas (Leaflet + Nominatim) e TomSelect

@@ -29,14 +29,34 @@
     <div class="">
       <div class="row justify-content-center">
         <div class="">
-          <form action="" method="POST" id="formWizard">
+          <form action="" method="POST" id="formWizard" data-submissao-id="{{ $submissao->id }}">
             @csrf
+            @php
+            $secaoAtivaIndex = 0;
+            foreach ($submissao->relatorio->formulario->secoes as $i => $secao) {
+            $secaoCompleta = true;
+            foreach ($secao->perguntas as $p) {
+            if ($p->obrigatoria) {
+            $resp = $p->getRespostaPorSubmissao($submissao->id);
+            if (!$resp || empty($resp->valor ?? $resp->resposta ?? null)) {
+            $secaoCompleta = false;
+            break;
+            }
+            }
+            }
+            if (!$secaoCompleta) {
+            $secaoAtivaIndex = $i;
+            break;
+            }
+            }
+            @endphp
+
             <ul class="nav nav-pills nav-justified mb-4" id="wizardTabs" role="tablist">
               @foreach ($submissao->relatorio->formulario->secoes as $index => $secao)
               <li class="nav-item" role="presentation">
-                <button class="nav-link {{ $index === 0 ? 'active' : '' }}" id="tab-btn-{{ $secao->id }}"
-                  data-bs-toggle="pill" data-bs-target="#secao-{{ $secao->id }}" type="button" role="tab" {{ $index> 0 ?
-                  'disabled' : '' }}>
+                <button class="nav-link {{ $index === $secaoAtivaIndex ? 'active' : '' }}" id="tab-btn-{{ $secao->id }}"
+                  data-bs-toggle="pill" data-bs-target="#secao-{{ $secao->id }}" type="button" role="tab" {{ $index>
+                  $secaoAtivaIndex ? 'disabled' : '' }}>
                   Seção {{ $index + 1 }}.
                 </button>
               </li>
@@ -45,13 +65,21 @@
 
             <div class="tab-content card shadow-sm p-4" id="wizardContent">
               @foreach ($submissao->relatorio->formulario->secoes as $index => $secao)
-              <div class="tab-pane fade {{ $index === 0 ? 'show active' : '' }}" id="secao-{{ $secao->id }}"
-                role="tabpanel">
+              <div class="tab-pane fade {{ $index === $secaoAtivaIndex ? 'show active' : '' }}"
+                id="secao-{{ $secao->id }}" role="tabpanel">
 
                 <h4 class="mb-1 text-primary">{{ $secao->titulo }}</h4>
                 <p>{{ $secao->descricao }}</p>
 
                 @foreach ($secao->perguntas as $pergunta)
+
+                @php
+                $respostaModel = $pergunta->getRespostaPorSubmissao($submissao->id);
+                $valorSalvo = $respostaModel->valor ?? $respostaModel->resposta ?? '';
+                $arrayValores = is_string($valorSalvo) ? json_decode($valorSalvo, true) ?? [$valorSalvo] :
+                (is_array($valorSalvo) ? $valorSalvo : [$valorSalvo]);
+                @endphp
+
                 <div class="mb-4">
                   <label class="form-label fw-bold">
                     {{ $pergunta->enunciado }}
@@ -62,14 +90,14 @@
 
                   @switch($pergunta->tipo)
 
-                  {{-- Texto e Localização compartilham as mesmas regras de validação de string --}}
                   @case('text')
                   <input type="text" class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" {{
                     $pergunta->obrigatoria ? 'required' : '' }}
                   @if($pergunta->min) minlength="{{ $pergunta->min }}" @endif
                   @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif
                   @if($pergunta->regex) pattern="{{ $pergunta->regex }}" @endif
-                  placeholder="Sua resposta aqui">
+                  placeholder="Sua resposta aqui"
+                  value="{{ $valorSalvo }}">
 
                   @if($pergunta->min || $pergunta->max || $pergunta->regex)
                   <div class="form-text text-muted">
@@ -90,27 +118,27 @@
                       </a>
                     </div>
 
-                    {{-- Select integrado com TomSelect / Nominatim --}}
                     <div class="gap-2 mb-2" id="div-select-local-{{ $pergunta->id }}">
                       <select class="form-select select-location-tom form-salvar-estado"
                         id="select-local-{{ $pergunta->id }}" name="respostas[{{ $pergunta->id }}]"
                         data-map-id="{{ $pergunta->id }}" {{ $pergunta->obrigatoria ? 'required' : '' }}>
-                        <option value="" selected>Pesquisar no mapa...</option>
+                        <option value="">Pesquisar no mapa...</option>
+                        @if($valorSalvo)
+                        <option value="{{ $valorSalvo }}" selected>{{ $valorSalvo }}</option>
+                        @endif
                       </select>
                     </div>
 
-                    {{-- Input manual (escondido por padrão) --}}
                     <div class="d-none mb-2" id="div-chose-{{ $pergunta->id }}">
                       <input type="text" class="form-control form-salvar-estado" id="input-local-{{ $pergunta->id }}"
-                        placeholder="Digite o nome do local manualmente">
+                        placeholder="Digite o nome do local manualmente" value="{{ $valorSalvo }}"> {{-- VALOR
+                      PREENCHIDO --}}
                       <div class="form-text text-danger">Modo de digitação manual ativo. O mapa será ignorado.</div>
                     </div>
 
-                    {{-- Container do Mapa --}}
                     <div id="map-{{ $pergunta->id }}" class="map-container border rounded"
                       style="height: 300px; width: 100%; z-index: 1;"></div>
 
-                    {{-- Inputs ocultos caso queira salvar lat/lng no banco futuramente --}}
                     <input type="hidden" name="latitude[{{ $pergunta->id }}]" id="latitude-{{ $pergunta->id }}">
                     <input type="hidden" name="longitude[{{ $pergunta->id }}]" id="longitude-{{ $pergunta->id }}">
                   </div>
@@ -119,9 +147,9 @@
                   @case('textarea')
                   <textarea class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" rows="3" {{
                     $pergunta->obrigatoria ? 'required' : '' }} 
-                      @if($pergunta->min) minlength="{{ $pergunta->min }}" @endif 
-                      @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif 
-                      placeholder="Digite sua resposta..."></textarea>
+                    @if($pergunta->min) minlength="{{ $pergunta->min }}" @endif 
+                    @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif 
+                    placeholder="Digite sua resposta...">{{ $valorSalvo }}</textarea>
 
                   @if($pergunta->min || $pergunta->max)
                   <div class="form-text text-muted">
@@ -137,7 +165,8 @@
                   @if($pergunta->min) min="{{ $pergunta->min }}" @endif
                   @if($pergunta->max) max="{{ $pergunta->max }}" @endif
                   @if($pergunta->step) step="{{ $pergunta->step }}" @endif
-                  placeholder="Apenas números">
+                  placeholder="Apenas números"
+                  value="{{ $valorSalvo }}"> {{-- VALOR PREENCHIDO --}}
 
                   @if($pergunta->min || $pergunta->max || $pergunta->step)
                   <div class="form-text text-muted">
@@ -149,9 +178,17 @@
                   @break
 
                   @case('file')
+
                   <input type="file" class="form-control" name="respostas[{{ $pergunta->id }}]" {{
-                    $pergunta->obrigatoria ? 'required' : '' }}
+                    $pergunta->obrigatoria && !$valorSalvo ? 'required' : '' }}
                   @if($pergunta->accept) accept="{{ $pergunta->accept }}" @endif>
+
+                  @if($valorSalvo)
+                  <div class="form-text text-success">
+                    <i class="bi bi-check-circle"></i> Arquivo já enviado anteriormente. Envie outro apenas se desejar
+                    substituir.
+                  </div>
+                  @endif
 
                   @if($pergunta->accept)
                   <div class="form-text text-muted">
@@ -163,9 +200,10 @@
                   @case('select')
                   <select class="form-select" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
                     'required' : '' }}>
-                    <option value="" disabled selected>Selecione uma opção</option>
+                    <option value="" disabled {{ !$valorSalvo ? 'selected' : '' }}>Selecione uma opção</option>
                     @foreach($pergunta->opcoes as $opcao)
-                    <option value="{{ $opcao->id }}">{{ $opcao->rotulo }}</option>
+                    <option value="{{ $opcao->valor }}" {{ $valorSalvo==$opcao->id ? 'selected' : '' }}>{{ $opcao->rotulo
+                      }}</option>
                     @endforeach
                   </select>
                   @break
@@ -175,8 +213,9 @@
                     @foreach($pergunta->opcoes as $opcao)
                     <div class="form-check mb-1">
                       <input class="form-check-input" type="radio" name="respostas[{{ $pergunta->id }}]"
-                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->id }}" {{ $pergunta->obrigatoria ? 'required' : ''
-                      }}>
+                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}" {{ $pergunta->obrigatoria ? 'required' : ''
+                      }}
+                      {{ $valorSalvo == $opcao->id ? 'checked' : '' }}>
                       <label class="form-check-label" for="opcao_{{ $opcao->id }}">
                         {{ $opcao->rotulo }}
                       </label>
@@ -186,12 +225,12 @@
                   @break
 
                   @case('checkbox')
-                  {{-- Adicionado atributo de dados para facilitar validações via JS caso necessário --}}
                   <div class="checkbox-group" @if($pergunta->obrigatoria) data-required="true" @endif>
                     @foreach($pergunta->opcoes as $opcao)
                     <div class="form-check mb-1">
                       <input class="form-check-input" type="checkbox" name="respostas[{{ $pergunta->id }}][]"
-                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->id }}">
+                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}" {{ in_array($opcao->id, $arrayValores) ?
+                      'checked' : '' }}>
                       <label class="form-check-label" for="opcao_{{ $opcao->id }}">
                         {{ $opcao->rotulo }}
                       </label>
@@ -200,13 +239,13 @@
                   </div>
                   @break
 
-                  {{-- Datas também aceitam limites mínimos e máximos no HTML5 --}}
                   @case('date')
                   @case('datetime-local')
                   <input type="{{ $pergunta->tipo }}" class="form-control" name="respostas[{{ $pergunta->id }}]" {{
                     $pergunta->obrigatoria ? 'required' : '' }}
                   @if($pergunta->min) min="{{ $pergunta->min }}" @endif
-                  @if($pergunta->max) max="{{ $pergunta->max }}" @endif>
+                  @if($pergunta->max) max="{{ $pergunta->max }}" @endif
+                  value="{{ $valorSalvo }}"> {{-- VALOR PREENCHIDO --}}
 
                   @if($pergunta->min || $pergunta->max)
                   <div class="form-text text-muted">
@@ -220,14 +259,13 @@
                 </div>
                 @endforeach
 
-                {{-- BOTÕES DE NAVEGAÇÃO DA SEÇÃO --}}
                 <div class="d-flex justify-content-between mt-5 border-top pt-3">
                   @if ($index > 0)
                   <button type="button" class="btn btn-outline-secondary btn-anterior">
                     <i class="bi bi-arrow-left"></i> Anterior
                   </button>
                   @else
-                  <div></div> {{-- Espaçador para manter o botão 'Próximo' na direita --}}
+                  <div></div>
                   @endif
 
                   @if (!$loop->last)
@@ -244,6 +282,24 @@
               @endforeach
             </div>
           </form>
+
+          <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+            <div class="toast" id="toast-autosave" role="alert" aria-live="assertive" aria-atomic="true"
+              data-bs-delay="3000">
+              <div class="toast-header">
+                <span
+                  class="avatar avatar-xs me-2 bg-success text-white rounded-circle d-flex align-items-center justify-content-center">
+                  <i class="bi bi-check"></i>
+                </span>
+                <strong class="me-auto" id="toast-title">Salvamento Automático</strong>
+                <small>agora mesmo</small>
+                <button type="button" class="ms-2 btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+              <div class="toast-body" id="toast-message">
+                Progresso salvo com sucesso!
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -254,4 +310,100 @@
 @section('scripts')
 <script src="{{ asset('assets/libs/tom-select/dist/js/tom-select.base.min.js') }}" defer></script>
 <script src="{{ asset('assets/js/report.js') }}"></script>
+<script>
+  $(document).ready(function() {
+    // Configura o token CSRF para todas as requisições AJAX
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('input[name="_token"]').val()
+        }
+    });
+
+    // Escuta mudanças em inputs, selects e textareas do formulário
+    $('#formWizard').on('change', 'input, select, textarea', function() {
+        let input = $(this);
+        let nameAttribute = input.attr('name');
+        
+        // Verifica se o campo pertence às perguntas dinâmicas
+        if(!nameAttribute || nameAttribute.indexOf('respostas[') === -1) return;
+
+        // Extrai o ID da pergunta do atributo name (ex: respostas[1234-abcd] -> 1234-abcd)
+        let match = nameAttribute.match(/respostas\[(.*?)\]/);
+        if (!match) return;
+        
+        let id_pergunta = match[1];
+        let id_submissao = $('#formWizard').data('submissao-id');
+        
+        // Usamos FormData para suportar envio de arquivos caso o input seja tipo 'file'
+        let formData = new FormData();
+        formData.append('id_submissao', id_submissao);
+        formData.append('id_pergunta', id_pergunta);
+
+        // Lógica para capturar múltiplos valores de Checkbox
+        // Lógica para capturar múltiplos valores de Checkbox
+        if (input.is(':checkbox')) {
+            // Envolvendo nameAttribute com aspas duplas ("") evita erros de sintaxe no jQuery
+            $(`input[name="${nameAttribute}"]:checked`).each(function() {
+                formData.append('valor[]', $(this).val());
+            });
+            
+            // Se desmarcar o último checkbox, envia um array vazio para limpar no banco
+            if ($(`input[name="${nameAttribute}"]:checked`).length === 0) {
+                formData.append('valor', '');
+            }
+        }
+        // Lógica para upload de Arquivos
+        else if (input.is(':file')) {
+            if (input[0].files.length > 0) {
+                formData.append('file', input[0].files[0]);
+            } else {
+                // Se o usuário abriu a janela de arquivo e cancelou, apenas abortamos a função
+                return; 
+            }
+        }
+        // Inputs normais (text, number, radio, textarea, select)
+        else {
+            formData.append('valor', input.val());
+        }
+
+        // Requisição AJAX
+        $.ajax({
+            url: "{{ route('respostas.autosave') }}",
+            type: 'POST',
+            data: formData,
+            processData: false, // Necessário para FormData
+            contentType: false, // Necessário para FormData
+            success: function(response) {
+                exibirToast('Progresso salvo!', response.message, 'success');
+            },
+            error: function(xhr) {
+                console.error(xhr.responseText);
+                exibirToast('Erro ao salvar', 'Ocorreu um erro ao salvar esta resposta. '+ xhr.responseText+ '.', 'danger');
+            }
+        });
+    });
+
+    // Função auxiliar para disparar o seu Toast dinamicamente
+    function exibirToast(titulo, mensagem, tipo) {
+        let toastEl = $('#toast-autosave');
+        
+        // Altera cores baseado no sucesso/erro
+        let icone = toastEl.find('.avatar');
+        icone.removeClass('bg-success bg-danger').addClass('bg-' + tipo);
+        
+        if (tipo === 'success') {
+            icone.html('<i class="bi bi-check"></i>');
+        } else {
+            icone.html('<i class="bi bi-x"></i>');
+        }
+
+        toastEl.find('#toast-title').text(titulo);
+        toastEl.find('#toast-message').text(mensagem);
+        
+        // Inicializa e exibe o toast do Bootstrap
+        let toast = new bootstrap.Toast(toastEl[0]);
+        toast.show();
+    }
+});
+</script>
 @endsection

@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('resposta')) {
-            return;
-        }
-
         Schema::create('resposta', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('id_submissao');
+            $table->foreign('id_submissao')->references('id')->on('submissao')->onDelete('cascade');
+            $table->uuid('id_pergunta');
+            $table->foreign('id_pergunta')->references('id')->on('pergunta')->onDelete('cascade');
+            $table->text('valor');
             $table->timestamps();
         });
     }

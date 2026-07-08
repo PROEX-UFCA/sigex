@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Web\System;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Report\StoreRequest;
 use App\Http\Requests\Web\Report\UpdateRequest;
+use App\Models\Resposta;
 use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Forms\FormsRepository;
 use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Reports\ReportsRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ReportController extends Controller
@@ -90,8 +92,62 @@ class ReportController extends Controller
 
      public function report($uuid){
         $this->data['submissao'] = $this->reportRepository->getSubmissionById($uuid);
-
-        // dd($this->data['submissao']->relatorio->formulario->secoes->first()->perguntas->first()->opcoes());
         return view('pages.actions.report', $this->data);
+    }
+
+    public function autoSave(Request $request)
+    {
+        $request->validate([
+            'id_submissao' => 'required',
+            'id_pergunta' => 'required',
+        ]);
+
+        $valor = $request->input('valor');
+
+        if (is_array($valor)) {
+            $valor = json_encode($valor);
+        }
+
+        // Buscamos se já existe uma resposta salva para essa pergunta/submissão
+        $respostaExistente = Resposta::where('id_submissao', $request->id_submissao)
+                                    ->where('id_pergunta', $request->id_pergunta)
+                                    ->first();
+
+        if ($request->hasFile('file')) {
+            // Se já havia uma resposta com um caminho de arquivo salvo, apagamos do disco
+            if ($respostaExistente && !empty($respostaExistente->valor)) {
+                // Verifica se o arquivo realmente existe no storage antes de apagar
+                if (Storage::exists($respostaExistente->valor)) {
+                    Storage::delete($respostaExistente->valor);
+                }
+            }
+
+            // Salva o novo arquivo enviado
+            $path = $request->file('file')->store('respostas/arquivos');
+            $valor = $path;
+        }
+
+        // Caso seja um input normal que foi apagado (valor vazio), e não um arquivo
+        // Precisamos evitar que uma resposta que era arquivo seja sobreposta por um valor vazio acidental
+        if (!$request->hasFile('file') && $request->file === null && $respostaExistente && str_starts_with($respostaExistente->valor, 'respostas/arquivos')) {
+            // Não alteramos o valor se a requisição não tem arquivo, mas o banco já tem um arquivo salvo.
+            $valor = $respostaExistente->valor;
+        }
+
+        // Atualiza ou cria a resposta no banco
+        Resposta::updateOrCreate(
+            [
+                'id_submissao' => $request->id_submissao,
+                'id_pergunta'  => $request->id_pergunta,
+            ],
+            [
+                'valor' => $valor ?? ''
+            ]
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Progresso salvo com sucesso!'
+        ]);
     }
 }
