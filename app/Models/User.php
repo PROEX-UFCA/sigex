@@ -32,8 +32,6 @@ class User extends Authenticatable
         'password',
         'uuid',
         'status',
-        'id_instituicao',
-        'cpf',
         'centro_departamento',
         'matricula_siape',
         'perfil_ativo',
@@ -48,11 +46,6 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
-    public function instituicao() : HasOne
-    {
-        return $this->hasOne(Instituicao_Externa::class, 'id', 'id_instituicao');
-    }
 
     /**
      * Get the attributes that should be cast.
@@ -81,7 +74,7 @@ class User extends Authenticatable
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'email', 'uuid', 'status', 'id_instituicao', 'cpf', 'centro_departamento', 'matricula_siape', 'perfil_ativo', 'phone'])
+            ->logOnly(['name', 'email', 'uuid', 'status', 'centro_departamento', 'matricula_siape', 'perfil_ativo', 'phone'])
             ->useLogName('users')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

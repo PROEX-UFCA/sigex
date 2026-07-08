@@ -40,7 +40,7 @@ class UsersController extends Controller
         $sort = $request->get('sort', 'name');
         $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $allowedFields = ['name', 'email', 'id_instituicao', 'cpf', 'phone', 'centro_departamento', 'matricula_siape', 'group', 'status'];
+        $allowedFields = ['name', 'email', 'phone', 'centro_departamento', 'matricula_siape', 'group', 'status'];
 
         if (!in_array($sort, $allowedFields)) $sort = 'name';
 
@@ -118,9 +118,9 @@ class UsersController extends Controller
     {
         try {
             $this->usersRepository->delete($id);
-            return redirect()->back()->with('success', 'Registro removido com sucesso.');
+            return redirect()->route('users.index')->with('success', 'Usuário removido com sucesso.');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Registro não encontrado.');
+            return redirect()->route('users.index')->with('error', 'Usuário não encontrado.');
         }
     }
 
@@ -128,5 +128,22 @@ class UsersController extends Controller
     {
         Auth::logout();
         return to_route('login');
+    }
+
+    public function show($id)
+    {
+        try {
+            $user = $this->usersRepository->getByUuid($id);
+            
+            if (!$user) {
+                throw new \Exception('Usuário não encontrado.');
+            }
+
+            $this->data['user'] = $user;
+            return view('pages.users.show')->with($this->data);
+            
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Usuário não encontrado.');
+        }
     }
 }

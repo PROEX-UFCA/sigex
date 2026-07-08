@@ -67,16 +67,6 @@
 
           </x-form-elements.select.select>
           @endforeach
-
-          @include('components.form-elements.input.input', [
-          'title' => 'Cpf',
-          'type' => 'text',
-          'class' => 'mb-3 col-12 col-md-6',
-          'name' => 'cpf',
-          'id' => 'cpf',
-          'placeholder' => 'Digite seu cpf',
-          'value' => $user->cpf ?? '',
-          ])
           <div class="d-flex w-100 justify-content-between mt-3">
             <button type="submit" class="btn btn-success ms-auto">Salvar alterações</button>
           </div>
@@ -164,35 +154,10 @@
             }}</strong>
         </div>
         <div class="mb-2">
-          <i class="icon me-2 text-secondary icon-2 ti ti-id"></i>
-          Cpf: <strong>{{ $user->cpf != null ? $user->cpf : 'Não informado' }}</strong>
-        </div>
-        <div class="mb-2">
           <i class="icon me-2 text-secondary icon-2 ti ti-building-community"></i>
           Centro/Departamento: <strong>{{ $user->centro_departamento != null ? $user->centro_departamento : 'Não
             informado' }}</strong>
         </div>
-
-        @if ($user->id_instituicao != null)
-        <hr class="ms-2 me-2 mb-3 mt-1">
-        <div class="card-title">Informações da instituição</div>
-        <div class="mb-2">
-          <i class="icon me-2 text-secondary icon-2 ti ti-id-badge-2"></i>
-          Nome: <strong>{{ $user->instituicao->nome }}</strong>
-        </div>
-        <div class="mb-2">
-          <i class="icon me-2 text-secondary icon-2 ti ti-id"></i>
-          Cnpj: <strong>{{ $user->instituicao->cnpj != null ? $user->instituicao->cnpj : 'Não informado' }}</strong>
-        </div>
-        <div class="mb-2">
-          <i class="icon me-2 text-secondary icon-2 ti ti-phone"></i>
-          Telefone: <strong>{{ $user->instituicao->telefone_contato != null ? $user->instituicao->telefone_contato : 'Não informado' }}</strong>
-        </div>
-        <div class="mb-2">
-          <i class="icon me-2 text-secondary icon-2 ti ti-map-pins"></i>
-          Endereço: <strong>{{ $user->instituicao->logradouro .', '. $user->instituicao->numero .', '. $user->instituicao->cep .', '. $user->instituicao->complemento}}</strong>
-        </div>
-        @endif
       </div>
     </div>
   </div>
@@ -212,9 +177,6 @@
     }
 
     $('#phone').mask('(00)00000-0000', {
-      reverse: false
-    });
-    $('#cpf').mask('000.000.000-00', {
       reverse: false
     });
 </script>
