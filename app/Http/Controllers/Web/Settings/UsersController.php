@@ -40,7 +40,7 @@ class UsersController extends Controller
         $sort = $request->get('sort', 'name');
         $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $allowedFields = ['name', 'email', 'id_instituicao', 'cpf', 'phone', 'centro_departamento', 'matricula_siape', 'group', 'status'];
+        $allowedFields = ['name', 'email', 'phone', 'centro_departamento', 'matricula_siape', 'group', 'status'];
 
         if (!in_array($sort, $allowedFields)) $sort = 'name';
 
@@ -118,9 +118,9 @@ class UsersController extends Controller
     {
         try {
             $this->usersRepository->delete($id);
-            return redirect()->back()->with('success', 'Registro removido com sucesso.');
+            return redirect()->route('users.index')->with('success', 'Usuário removido com sucesso.');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Registro não encontrado.');
+            return redirect()->route('users.index')->with('error', 'Usuário não encontrado.');
         }
     }
 
@@ -128,5 +128,48 @@ class UsersController extends Controller
     {
         Auth::logout();
         return to_route('login');
+    }
+
+    public function show($id)
+    {
+        try {
+            $user = $this->usersRepository->getByUuid($id);
+            
+            if (!$user) {
+                throw new \Exception('Usuário não encontrado.');
+            }
+
+            $this->data['user'] = $user;
+            $this->data['roles'] = $this->rolesRepository->getAll();
+
+            return view('pages.users.show')->with($this->data);
+            
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Usuário não encontrado.');
+        }
+    }
+
+    public function updateRole(Request $request, $uuid){
+        try {
+            $user = $this->usersRepository->getByUuid($uuid);
+        
+        if (!$user) {
+            throw new \Exception('User not found');
+        }
+
+        if ($user->hasRole($request->role)) {
+            return redirect()->back()->with('warning', 'O usuário já pertence a este grupo de permissões. Nenhuma alteração foi feita.');
+        }
+
+        $request->validate([
+            'role' => 'required|string|exists:roles,name'
+        ]);
+
+        $this->rolesRepository->update($user, $request->role);
+
+        return redirect()->back()->with('success', 'Grupo de permissões atualizado com sucesso!');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Erro ao alterar permissões do usuário');
+        }
     }
 }

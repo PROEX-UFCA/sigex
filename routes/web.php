@@ -43,6 +43,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('usuarios', [UsersController::class, 'index'])->name('users.index');
         Route::get('usuarios/adicionar', [UsersController::class, 'create'])->name('users.create')->middleware(['auth' => 'permission:adicionar_usuário']);
         Route::post('usuarios/adicionar', [UsersController::class, 'store'])->name('users.store')->middleware(['auth' => 'permission:adicionar_usuário']);
+        Route::get('usuarios/detalhar/{id}', [UsersController::class, 'show'])->name('users.show')->middleware(['auth' => 'permission:detalhar_usuário']);
+        Route::put('usuarios/{id}/grupo', [UsersController::class, 'updateRole'])->name('users.updateRole')->middleware(['auth', 'permission:editar_usuário']);
         Route::post('usuarios/atualizar/{id}', [UsersController::class, 'update'])->name('users.update')->middleware(['auth' => 'permission:editar_usuário']);
         Route::delete('usuarios/deletar/{id}', [UsersController::class, 'destroy'])->name('users.destroy')->middleware(['auth' => 'permission:detalhar_usuário']);
     });

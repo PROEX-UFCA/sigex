@@ -55,20 +55,11 @@
         <x-form-elements.select.select title="Status" id="status" name="status" class="col-12 col-md-4 col-lg-3">
           <x-slot:options>
             <option value="" disabled {{ request('status')===null ? 'selected' : '' }}>Selecione</option>
-            <option value="00" {{ request('status')==='00' ? 'selected' : '' }}>Inativo</option>
+            <option value="0" {{ request('status')==='0' ? 'selected' : '' }}>Inativo</option>
             <option value="1" {{ request('status')=='1' ? 'selected' : '' }}>Ativo</option>
-            <option value="2" {{ request('status')=='2' ? 'selected' : '' }}>Finalizado</option>
           </x-slot:options>
         </x-form-elements.select.select>
 
-        <x-form-elements.select.select title="Instituições" id="instituicao" name="instituicao"
-          class="col-12 col-md-4 col-lg-3">
-          <x-slot:options>
-            <option value="" disabled {{ request('instituicao')===null ? 'selected' : '' }}>Selecione</option>
-            <option value="false" {{ request('instituicao')=='false' ? 'selected' : '' }}>Não</option>
-            <option value="true" {{ request('instituicao')=='true' ? 'selected' : '' }}>Sim</option>
-          </x-slot:options>
-        </x-form-elements.select.select>
 
         <div class="col-12 col-md-4 col-lg-3">
           <label class="form-label d-block">&nbsp;</label>
@@ -88,7 +79,7 @@
       <thead>
         <tr style="position:sticky; top: 0; z-index: 1;">
           @php
-            $sortField = request('sort', 'nome');
+            $sortField = request('sort', 'nome'); 
             $sortDirection = request('dir', 'desc');
             $nextDirection = $sortDirection === 'asc' ? 'desc' : 'asc';
           @endphp
@@ -96,8 +87,6 @@
           @foreach ([
             'name' => 'Nome',
             'email' => 'Email',
-            'instituicao' => 'Instituição?',
-            'cpf' => 'CPF',
             'telefone' => 'Telefone',
             'centro_departamento' => 'Centro/Departamento',
             'matricula_siape' => 'Matrícula SIAPE',
@@ -115,8 +104,6 @@
           @endforeach
           {{-- <th>Nome</th>
           <th>Email</th>
-          <th>Instituição?</th>
-          <th>Cpf</th>
           <th>Telefone</th>
           <th>centro_departamento</th>
           <th>matricula_siape</th>
@@ -131,21 +118,14 @@
         <tr>
           <td>{{$user->name}}</td>
           <td>{{$user->email}}</td>
-          <td>{{ $user->id_instituicao == null ? 'Não' : 'Sim' }}</td>
-          <td>{{ $user->cpf ?? "-" }}</td>
           <td>{{ $user->phone ?? "-" }}</td>
           <td>{{ $user->centro_departamento ?? "-" }}</td>
           <td>{{ $user->matricula_siape ?? "-" }}</td>
           <td>{{ $user->roles->first()->name ?? "-" }}</td>
           <td>{{ $user->status == 0 ? 'Inativo' : 'Ativo' }}</td>
           <td>
-            @can('editar_usuário')
-            <a href="">Editar</a>
-            @endcan
-          </td>
-          <td>
             @can('detalhar_usuário')
-            <a href="">Detalhar</a>
+            <a href="{{ route('users.show', $user->uuid) }}">Detalhar</a>
             @endcan
           </td>
         </tr>
