@@ -67,8 +67,9 @@
             {{ $submissao->relatorio->titulo }}
           </h6>
           <span
-            class="badge rounded-pill flex-shrink-0 {{ $submissao->status == 0 ? 'text-bg-danger' : ($submissao->status == 1 ? 'text-bg-primary' : 'text-bg-success') }}">
-            {{ $submissao->status == 0 ? 'Inativo' : ($submissao->status == 1 ? 'Ativo' : 'Finalizado') }}
+            class="badge rounded-pill flex-shrink-0 {{ $submissao->relatorio->status == 0 ? 'text-bg-danger' : ($submissao->relatorio->status == 1 ? 'text-bg-primary' : 'text-bg-success') }}">
+            {{ $submissao->relatorio->status == 0 ? 'Inativo' : ($submissao->relatorio->status == 1 ? 'Ativo' :
+            'Finalizado') }}
           </span>
         </div>
         <div class="d-flex flex-column text-muted" style="font-size: 0.85rem;">
@@ -82,9 +83,23 @@
           </div>
           <div>
             <span class="fw-semibold text-secondary">Finalizado:</span>
-            <span class="{{ $submissao->finalizado_em == null ? 'text-danger' : 'text-success fw-bold' }}">
-              {{ $submissao->finalizado_em == null ? 'Não' : 'Sim' }}
+            <span class="{{ $submissao->finalizada_em == null ? 'text-danger' : 'text-success fw-bold' }}">
+              {{ $submissao->finalizada_em == null ? 'Não' : date('d/m/Y H:i:s', strtotime($submissao->finalizada_em))
+              }}
             </span>
+          </div>
+          <div class="mt-3">
+            <div class="row g-2 align-items-center">
+              <div class="col-auto">{{$submissao->progress}}%</div>
+              <div class="col">
+                <div class="progress progress-sm">
+                  <div class="progress-bar" style="width: {{$submissao->progress}}%" role="progressbar" aria-valuenow="{{$submissao->progress}}" aria-valuemin="0"
+                    aria-valuemax="100" aria-label="{{$submissao->progress}} Completo">
+                    <span class="visually-hidden">{{$submissao->progress}}% Completo</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </a>

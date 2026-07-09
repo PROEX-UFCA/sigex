@@ -3,7 +3,8 @@
 @section('styles')
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-{{-- <link href="{{ asset('assets/libs/tom-select/dist/css/tom-select.bootstrap5.css') }}" rel="stylesheet" /> --}}
+{{--
+<link href="{{ asset('assets/libs/tom-select/dist/css/tom-select.bootstrap5.css') }}" rel="stylesheet" /> --}}
 @endsection
 
 @section('content')
@@ -29,8 +30,7 @@
     <div class="">
       <div class="row justify-content-center">
         <div class="">
-          <form action="" method="POST" id="formWizard" data-submissao-id="{{ $submissao->id }}">
-            @csrf
+          <div id="formWizard" data-submissao-id="{{ $submissao->id }}">
             @php
             $secaoAtivaIndex = 0;
             foreach ($submissao->relatorio->formulario->secoes as $i => $secao) {
@@ -287,15 +287,21 @@
                     Próximo Passo <i class="bi bi-arrow-right"></i>
                   </button>
                   @else
-                  <button type="submit" class="btn btn-success">
-                    <i class="bi bi-check-circle"></i> Finalizar e Enviar
-                  </button>
+                  <form id="finalizar" action="{{ route('report.finish', $submissao->id) }}" method="POST"
+                    onsubmit="return confirm('Deseja realmente finalizar esse relatório?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" id="btn-finalizar" for="finalizar"
+                      class="btn btn-success {{ $progresso == 100 ? '' : 'd-none'}}">
+                      Finalizar e Enviar
+                    </button>
+                  </form>
                   @endif
                 </div>
               </div>
               @endforeach
             </div>
-          </form>
+          </div>
 
           <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
             <div class="toast" id="toast-autosave" role="alert" aria-live="assertive" aria-atomic="true"
@@ -414,6 +420,16 @@
             contentType: false, // Necessário para FormData
             success: function(response) {
                 exibirToast('Progresso salvo!', response.message, 'success');
+
+                $('#barra-progresso').css('width', response.progresso + '%');
+
+                if (response.progresso >= 100) {
+                    $('#btn-finalizar').show();
+                    $('#btn-finalizar').removeClass('d-none');
+                  } else {
+                    $('#btn-finalizar').hide();
+                    $('#btn-finalizar').removeClass('d-none');
+                }
             },
             error: function(xhr) {
                 console.error(xhr.responseText);

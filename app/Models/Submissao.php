@@ -16,4 +16,25 @@ class Submissao extends Model
     public function relatorio() :BelongsTo{
         return $this->belongsTo(Relatorio::class, 'id_relatorio', 'id');
     }
+
+    public function getProgressAttribute() : float{
+        $submissao = $this->relatorio->formulario->secoes;
+
+        $qtdPerguntas = 0;
+        $qtdPerguntasRespondidas = 0;
+
+        foreach($submissao as $index => $secao){
+            foreach ($secao->perguntas as $pergunta){
+                $qtdPerguntas++;
+
+                $resposta = $pergunta->getRespostaPorSubmissao($this->id);
+
+                if ($resposta && $resposta->valor !== null && $resposta->valor !== '') {
+                    $qtdPerguntasRespondidas++; 
+                }
+            }
+        }
+
+        return $qtdPerguntas > 0 ? round(($qtdPerguntasRespondidas / $qtdPerguntas) * 100, 2) : 0;
+    }
 }
