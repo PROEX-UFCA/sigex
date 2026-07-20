@@ -102,6 +102,7 @@
             </a>
           </th>
           @endforeach
+          <th width="5%"></th>
           {{-- <th>Nome</th>
           <th>Email</th>
           <th>Telefone</th>
@@ -109,7 +110,6 @@
           <th>matricula_siape</th>
           <th>Grupo</th>
           <th>Status</th>
-          <th width="5%"></th>
           <th width="5%"></th> --}}
         </tr>
       </thead>

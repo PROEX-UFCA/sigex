@@ -45,7 +45,7 @@ class ReportController extends Controller
     }
 
     public function create(){
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'SITUACAO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE_EDITAL', 'SITUACAO'])->groupBy('function');
         $this->data['formularios'] = $this->formsRepository->getAllActive();
 
         return view('pages.report.create', $this->data);
@@ -53,9 +53,9 @@ class ReportController extends Controller
 
     public function store(StoreRequest $request){
         try {
+            $actions = $this->actionsRepository->getActionsForReports($request->only(['parametros']));
+
             $report = $this->reportRepository->create($request);
-    
-            $actions = $this->actionsRepository->getActionsForReports($request->only(['parametros', 'ano_acao', 'ano_inicio', 'ano_fim']));
     
             $submissoes = [];
     

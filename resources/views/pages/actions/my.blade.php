@@ -15,7 +15,7 @@
     <thead>
       <tr>
         <th class="text-wrap">titulo</th>
-        <th>vínculo</th>
+        {{-- <th>vínculo</th> --}}
         <th>inicio</th>
         <th>fim</th>
         <th>situação</th>
@@ -27,7 +27,7 @@
       @foreach ($actions as $item)
       <tr>
         <td class="text-wrap" style="min-width: 400px;">{{$item->action->titulo}}</td>
-        <td>{{$item->categorias_membros}}</td>
+        {{-- <td>{{$item->categorias_membros}}</td> --}}
         <td>{{date('d/m/Y', strtotime($item->action->data_inicio))}}</td>
         <td>{{date('d/m/Y', strtotime($item->action->data_fim))}}</td>
         <td>{{ $item->action->situacao }}</td>
@@ -40,7 +40,7 @@
           <button class="btn btn-sm p-1 px-2 position-relative" data-bs-toggle="offcanvas"
             data-bs-target="#modal-relatorios-{{$item->action->id}}" aria-controls="offcanvasExample">
             Relatórios
-            @if ($item->action->submissoes->whereNotNull('finalizada_em')->isEmpty())
+            @if ($item->action->submissoes->whereNull('finalizada_em')->count() > 0)
             <span class="badge bg-danger badge-notification badge-blink">
               {{ $item->action->submissoes->whereNull('finalizada_em')->count() }}
             </span>

@@ -71,7 +71,7 @@ class EloquentActionsRepository implements ActionsRepository
         Equipe_Acao::create([
             'id_acao' => $acao->id, 
             'id_usuario' => $request->id_coordenador, 
-            'categoria_membro' => 'COORDENADOR'
+            'categoria_membro' => 'COORDENADOR(A)'
         ]);
 
         return $acao;
@@ -151,7 +151,7 @@ class EloquentActionsRepository implements ActionsRepository
 
         $membro = Equipe_Acao::where([
             'id_acao' => $acao->id, 
-            'categoria_membro' => 'COORDENADOR'
+            'categoria_membro' => 'COORDENADOR(A)'
         ])->first();
 
         if($membro){
@@ -162,7 +162,7 @@ class EloquentActionsRepository implements ActionsRepository
             Equipe_Acao::create([
                 'id_acao' => $acao->id, 
                 'id_usuario' => $request->id_coordenador, 
-                'categoria_membro' => 'COORDENADOR',
+                'categoria_membro' => 'COORDENADOR(A)',
                 'id_projeto' => $request->id_projeto, 
                 'status' => 'ATIVO', 
                 'data_inicio' => now()
@@ -203,9 +203,8 @@ class EloquentActionsRepository implements ActionsRepository
     {
         $parametros = $filtros['parametros'] ?? [];
         
-        
         $tipos = array_filter($parametros['tipo'] ?? []);
-        $modalidades = array_filter($parametros['modalidade'] ?? []);
+        $modalidades = array_filter($parametros['modalidade_edital'] ?? []);
         $situacoes = array_filter($parametros['situacao'] ?? []);
 
         $query = Acao::query()

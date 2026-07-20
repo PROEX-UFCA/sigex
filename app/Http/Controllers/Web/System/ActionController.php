@@ -48,14 +48,14 @@ class ActionController extends Controller
 
 
         $this->data['actions'] = $this->actionsRepository->getByFilter($request->query(), $sort, $direction);
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE_EDITAL', 'CENTRO_DEPARTAMENTO_SIGLA', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
         
         return view('pages.actions.index', $this->data);
     }
 
     public function create(){
 
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO', 'CONTEXTO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE_EDITAL', 'CENTRO_DEPARTAMENTO_SIGLA', 'ÁREA_TEMÁTICA', 'SITUACAO', 'CONTEXTO'])->groupBy('function');
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
 
 
@@ -461,9 +461,9 @@ class ActionController extends Controller
 
     public function edit($uuid){
         $this->data['action'] = $this->actionsRepository->getByUuid($uuid);
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE', 'CENTRO_DEPARTAMENTO', 'ÁREA_TEMÁTICA', 'SITUACAO', 'CONTEXTO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE_EDITAL', 'CENTRO_DEPARTAMENTO_SIGLA', 'ÁREA_TEMÁTICA', 'SITUACAO', 'CONTEXTO'])->groupBy('function');
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
-        $this->data['actual_coordinator'] = Equipe_Acao::where(['id_acao' => $uuid, 'categoria_membro' => 'COORDENADOR'])->first();
+        $this->data['actual_coordinator'] = Equipe_Acao::where(['id_acao' => $uuid, 'categoria_membro' => 'COORDENADOR(A)'])->first();
 
         return view('pages.actions.edit', $this->data);
     }
