@@ -34,9 +34,14 @@ class StoreRequest extends FormRequest
             'data_inicio' => 'required|date|before_or_equal:data_fim',
             'data_fim' => 'required|date|after_or_equal:data_inicio',
             'situacao' => 'required|string|exists:parametro,value',
+            'contexto' => 'required|string|exists:parametro,value',
             'resumo' => 'required|string',
             'palavras_chave' => 'required|string',
             'ods' => 'required|array',
+            'financiamento_interno' => 'required|string|in:SIM,NÃO',
+            'financiamento_externo' => 'required|string|in:SIM,NÃO',
+            'bolsas_solicitadas' => 'required|integer',
+            'bolsas_concedidas' => 'required|integer',
         ];
     }
 
@@ -84,8 +89,26 @@ class StoreRequest extends FormRequest
             'situacao.string' => 'A situação deve ser válida.',
             'situacao.exists' => 'A situação selecionada não existe.',
 
+            'contexto.required' => 'O contexto é obrigatório.',
+            'contexto.string' => 'O contexto deve ser válida.',
+            'contexto.exists' => 'O contexto selecionada não existe.',
+
             'ods.required' => 'Selecione no mínimo uma ods.',
             'ods.array' => 'As ods devem ser válidas',
+
+            'financiamento_interno.required' => 'O financiamento interno é obrigatório.',
+            'financiamento_interno.string' => 'O financiamento interno deve ser válido.',
+            'financiamento_interno.in' => 'O financiamento interno deve ser válido.',
+
+            'financiamento_externo.required' => 'O financiamento externo é obrigatório.',
+            'financiamento_externo.string' => 'O financiamento externo deve ser válido.',
+            'financiamento_externo.in' => 'O financiamento externo deve ser válido.',
+
+            'bolsas_solicitadas.required' => 'As bolsas solicitadas são obrigatórias.',
+            'bolsas_solicitadas.integer' => 'As bolsas solicitadas devem ser um número inteiro.',
+
+            'bolsas_concedidas.required' => 'As bolsas concedidas são obrigatórias.',
+            'bolsas_concedidas.integer' => 'As bolsas concedidas devem ser um número inteiro.',
         ];
     }
 }

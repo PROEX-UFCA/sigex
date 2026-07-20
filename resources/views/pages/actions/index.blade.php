@@ -7,44 +7,48 @@
   <div class="m-0 p-0 row mb-4">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
       @can('adicionar_ação')
-      <a href="{{route('actions.create')}}" class="btn">Inserir</a>
+      <a href="{{route('actions.create')}}" class="btn">Inserir ação</a>
       @endcan
       @can('importar_ações')
       <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar" aria-expanded="false"
-        aria-controls="modalExample">Importar</bottom>
-      <x-modal.modal id="importar" class="modal-center" title="Importar dados" route="{{route('actions.previewImport')}}"
-        textBtnClose="Cancelar" textBtnSave="Importar" classBtnSave="btn-primary">
+        aria-controls="modalExample">Importar ações</bottom>
+      <x-modal.modal id="importar" class="modal-center" title="Importar dados"
+        route="{{route('actions.previewImport')}}" textBtnClose="Cancelar" textBtnSave="Importar"
+        classBtnSave="btn-primary">
         <x-slot:content>
           <div class="card-body mb-3">
             <h3>Atenção para a Importação de Dados</h3>
             <p>
               Para garantir que a importação ocorra sem erros, seu arquivo <strong>.csv</strong> precisa conter as
-              seguintes <strong>18 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no cabeçalho:
+              seguintes <strong>20 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no cabeçalho:
             </p>
 
             <div class="mb-3">
-              <span class="badge badge-dark mb-1">vazio com valores auto incrementado</span>
-              <span class="badge badge-dark mb-1">ano</span>
-              <span class="badge badge-dark mb-1">id_projeto</span>
-              <span class="badge badge-dark mb-1">titulo</span>
-              <span class="badge badge-dark mb-1">sigla</span>
-              <span class="badge badge-dark mb-1">situacao</span>
-              <span class="badge badge-dark mb-1">data_inicio</span>
-              <span class="badge badge-dark mb-1">data_fim</span>
-              <span class="badge badge-dark mb-1">data_atualizacao</span>
-              <span class="badge badge-dark mb-1">resumo</span>
-              <span class="badge badge-dark mb-1">palavras_chave</span>
-              <span class="badge badge-dark mb-1">tipo_atividade</span>
-              <span class="badge badge-dark mb-1">area_tematica</span>
-              <span class="badge badge-dark mb-1">modalidade</span>
-              <span class="badge badge-dark mb-1">com_bolsa</span>
-              <span class="badge badge-dark mb-1">ods</span>
-              <span class="badge badge-dark mb-1">proponente</span>
-              <span class="badge badge-dark mb-1">email_proponente</span>
+              <span class="badge badge-dark mb-1">ID_PROJETO</span>
+              <span class="badge badge-dark mb-1">ANO</span>
+              <span class="badge badge-dark mb-1">TITULO</span>
+              <span class="badge badge-dark mb-1">EDITAL</span>
+              <span class="badge badge-dark mb-1">BOLSAS_SOLICITADAS</span>
+              <span class="badge badge-dark mb-1">BOLSAS_CONCEDIDAS</span>
+              <span class="badge badge-dark mb-1">FINANCIAMENTO_INTERNO</span>
+              <span class="badge badge-dark mb-1">FINANCIAMENTO_EXTERNO</span>
+              <span class="badge badge-dark mb-1">SITUACAO</span>
+              <span class="badge badge-dark mb-1">DATA_CADASTRO</span>
+              <span class="badge badge-dark mb-1">DATA_INICIO</span>
+              <span class="badge badge-dark mb-1">DATA_FIM</span>
+              <span class="badge badge-dark mb-1">DATA_ATUALIZACAO</span>
+              <span class="badge badge-dark mb-1">SIGLA</span>
+              <span class="badge badge-dark mb-1">TIPO_ACAO</span>
+              <span class="badge badge-dark mb-1">AREA_TEMATICA</span>
+              <span class="badge badge-dark mb-1">RESUMO</span>
+              <span class="badge badge-dark mb-1">PALAVRAS_CHAVE</span>
+              <span class="badge badge-dark mb-1">ODS</span>
+              <span class="badge badge-dark mb-1">CONTEXTO</span>
             </div>
 
             <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter
-              <strong>exatamente</strong> os nomes acima.</p>
+              <strong>exatamente</strong> os nomes acima.
+            </p>
           </div>
           <div id="drop-area"
             class="rounded-4 d-flex flex-column justify-content-center align-items-center bg-light p-4 text-center"
@@ -57,6 +61,49 @@
         </x-slot:content>
       </x-modal.modal>
       @endcan
+      @can('importar_membros')
+      <bottom class="btn" data-bs-toggle="modal" data-bs-target="#importar-membros" aria-expanded="false"
+        aria-controls="modalExample">Importar membros</bottom>
+      <x-modal.modal id="importar-membros" class="modal-center" title="Importar dados"
+        route="{{route('membros.previewImport')}}" textBtnClose="Cancelar" textBtnSave="Importar"
+        classBtnSave="btn-primary">
+        <x-slot:content>
+          <div class="card-body mb-3">
+            <h3>Atenção para a Importação de Dados</h3>
+            <p>
+              Para garantir que a importação ocorra sem erros, seu arquivo <strong>.csv</strong> precisa conter as
+              seguintes <strong>10 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no cabeçalho:
+            </p>
+
+            <div class="mb-3">
+              <span class="badge badge-dark mb-1">ID_PROJETO</span>
+              <span class="badge badge-dark mb-1">ID_PESSOA</span>
+              <span class="badge badge-dark mb-1">NOME</span>
+              <span class="badge badge-dark mb-1">TIPO_MEMBRO</span>
+              <span class="badge badge-dark mb-1">CATEGORIA_MEMBRO</span>
+              <span class="badge badge-dark mb-1">E-MAIL</span>
+              <span class="badge badge-dark mb-1">STATUS</span>
+              <span class="badge badge-dark mb-1">DATA_INICIO</span>
+              <span class="badge badge-dark mb-1">DATA_FIM</span>
+              <span class="badge badge-dark mb-1">TIPO_VINCULO</span>
+            </div>
+
+            <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter
+              <strong>exatamente</strong> os nomes acima.
+            </p>
+          </div>
+          <div id="drop-area-2"
+            class="rounded-4 d-flex flex-column justify-content-center align-items-center bg-light p-4 text-center"
+            style="height: 150px; cursor: pointer; border: dashed 2px gray">
+            <p class="text-muted mb-2">Arraste o .csv aqui ou clique para selecionar</p>
+            <p class="text-red mb-2">Máximo 10MB</p>
+            <input type="file" name="csv" id="csv-2" accept=".csv" required hidden>
+            <div id="file-info-2" class="text-muted small mt-2"></div>
+          </div>
+        </x-slot:content>
+      </x-modal.modal>
+      @endcan
+
       <bottom class="btn" data-bs-toggle="collapse" data-bs-target="#filtros" aria-expanded="false"
         aria-controls="collapseExample">Filtros</bottom>
     </div>
@@ -117,18 +164,15 @@
           @endphp
 
           @foreach ([
-            'ano' => 'ano',
-            'titulo' => 'Título',
-            'status' => 'status',
-            'data_inicio' => 'Data de Início',
-            'data_fim' => 'Data de Finalização',
-            'coordenador' => 'Coordenador',
-            'tipo_acao' => 'Tipo de Ação',
-            'modalidade' => 'Modalidade',
-            'area_tematica' => 'Área Temática',
-            'centro_departamento' => 'Centro/Departamento',
-            // 'id_atividade' => 'id_atividade',
-            // 'id_projeto' => 'id_projeto',
+          'ano' => 'ano',
+          'titulo' => 'Título',
+          'situacao' => 'situacao',
+          'data_inicio' => 'Data de Início',
+          'data_fim' => 'Data de Finalização',
+          'tipo_acao' => 'Tipo de Ação',
+          'modalidade_edital' => 'Modalidade/Edital',
+          'area_tematica' => 'Área Temática',
+          'centro_departamento_sigla' => 'Centro/Departamento/Sigla',
           ] as $field => $label)
           <th>
             <a href="{{ request()->fullUrlWithQuery(['sort' => $field, 'dir' => $sortField === $field ? $nextDirection : 'asc']) }}"
@@ -152,11 +196,10 @@
           <td>{{ $item->situacao }}</td>
           <td>{{date('d-m-Y', strtotime($item->data_inicio))}}</td>
           <td>{{date('d-m-Y', strtotime($item->data_fim))}}</td>
-          <td>{{$item->coordenador->name}}</td>
           <td>{{$item->tipo_acao}}</td>
-          <td>{{$item->modalidade}}</td>
+          <td>{{$item->modalidade_edital}}</td>
           <td>{{$item->area_tematica}}</td>
-          <td>{{$item->centro_departamento}}</td>
+          <td>{{$item->centro_departamento_sigla}}</td>
           @can('editar_ação')
           <td>
             @can('editar_ação')
@@ -182,6 +225,64 @@
       const dropArea = document.getElementById("drop-area");
       const csvInput = document.getElementById("csv");
       const fileInfo = document.getElementById("file-info");
+
+      const MAX_SIZE_MB = 10;
+
+      function handleFile(file) {
+        if (!file) return;
+
+        // Verifica se é CSV
+        if (!file.name.endsWith(".csv")) {
+          fileInfo.textContent = "Por favor, selecione um arquivo CSV válido.";
+          csvInput.value = "";
+          return;
+        }
+
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_SIZE_MB) {
+          fileInfo.textContent = "O arquivo ultrapassa 10MB.";
+          csvInput.value = "";
+          return;
+        }
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        csvInput.files = dataTransfer.files;
+
+        fileInfo.textContent = `Selecionado: ${file.name} (${sizeMB.toFixed(2)}MB)`;
+      }
+
+      dropArea.addEventListener("click", () => {
+        csvInput.value = "";
+        csvInput.click();
+      });
+
+      csvInput.addEventListener("change", () => {
+        const file = csvInput.files[0];
+        handleFile(file);
+      });
+
+      dropArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropArea.classList.add("dragover");
+      });
+
+      dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("dragover");
+      });
+
+      dropArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropArea.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        handleFile(file);
+      });
+    });
+    
+  document.addEventListener("DOMContentLoaded", function() {
+      const dropArea = document.getElementById("drop-area-2");
+      const csvInput = document.getElementById("csv-2");
+      const fileInfo = document.getElementById("file-info-2");
 
       const MAX_SIZE_MB = 10;
 

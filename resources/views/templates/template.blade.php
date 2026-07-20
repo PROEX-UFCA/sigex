@@ -86,7 +86,7 @@
 
               @can('ver_suas_ações')
               <x-navbar.navbar-item route="{{ route('actions.my') }}" title="Minhas ações"
-                isActive="{{ request()->routeIs(['actions.my', 'actions.details']) ? true : false }}"
+                isActive="{{ request()->routeIs(['actions.my', 'actions.details', 'actions.report']) ? true : false }}"
                 icon="ti-clipboard-list">
               </x-navbar.navbar-item>
               @endcan
@@ -103,7 +103,7 @@
                 icon="ti-clipboard-text">
                 <x-slot:links>
                   @can('ver_formulários')
-                  <a class="dropdown-item" href="{{ route('forms.index') }}">Formulários</a>
+                  <a class="dropdown-item" href="{{ route('forms.index') }}">Templates</a>
                   @endcan
                   @can('ver_relatórios')
                   <a class="dropdown-item" href="{{ route('report.index') }}">Relatórios</a>
@@ -175,11 +175,11 @@
   </div>
 
   <script src="{{ asset('assets/js/jquery-3.5.1.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script src="{{ asset('assets/js/echarts.min.js') }}"></script>
   <script src="{{ asset('assets/js/tabler.min.js?1684106062') }}" defer></script>
   <script src="{{ asset('assets/js/demo.min.js?1684106062') }}" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script src="{{ asset('assets/js/kanban/dataTables.min.js') }}"></script>
   {{-- <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script> --}}
   @yield('scripts')

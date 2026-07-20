@@ -62,12 +62,12 @@
           <div class="col-12 col-md-4 mb-3">
             <div class="card p-3 h-100">
               <label class="form-label required">{{ ucfirst(strtolower($key)) }}</label>
-              @foreach ($parametro as $item)
-              <label class="form-check">
-                <input class="form-check-input" type="checkbox" value="{{ $item->value }}" name="parametros[{{strtolower($key)}}][]">
-                <span class="form-check-label">{{ $item->value }}</span>
-              </label>
-              @endforeach
+                @foreach ($parametro as $item)
+                <label class="form-check">
+                  <input class="form-check-input" type="checkbox" value="{{ $item->value }}" name="parametros[{{strtolower($key)}}][]">
+                  <span class="form-check-label">{{ $item->value }}</span>
+                </label>
+                @endforeach
             </div>
           </div>
           @endforeach
@@ -75,38 +75,6 @@
 
         <div class="col-12">
           <hr class="my-3">
-        </div>
-
-        <div class="row col-12 m-0 p-0 mb-3">
-          <x-form-elements.select.select title="Ano da ação" id="ano_acao" name="ano_acao"
-            class="col-12 col-md-4 mb-3 mb-md-0" required="true">
-            <x-slot:options>
-              <option value="" disabled {{ request('ano_acao')===null ? 'selected' : '' }}>Selecione</option>
-              @foreach ($years as $year)
-              <option value="{{ $year }}" {{ old('ano_acao')==$year ? 'selected' : '' }}>{{ $year }}</option>
-              @endforeach
-            </x-slot:options>
-          </x-form-elements.select.select>
-
-          <x-form-elements.select.select title="Ano do início da ação" id="ano_inicio" name="ano_inicio"
-            class="col-12 col-md-4 mb-3 mb-md-0" required="true">
-            <x-slot:options>
-              <option value="" disabled {{ request('ano_inicio')===null ? 'selected' : '' }}>Selecione</option>
-              @foreach ($years as $year)
-              <option value="{{ $year }}" {{ old('ano_inicio')==$year ? 'selected' : '' }}>{{ $year }}</option>
-              @endforeach
-            </x-slot:options>
-          </x-form-elements.select.select>
-
-          <x-form-elements.select.select title="Ano do fim da ação" id="ano_fim" name="ano_fim" class="col-12 col-md-4"
-            required="true">
-            <x-slot:options>
-              <option value="" disabled {{ request('ano_fim')===null ? 'selected' : '' }}>Selecione</option>
-              @foreach ($years as $year)
-              <option value="{{ $year }}" {{ old('ano_fim')==$year ? 'selected' : '' }}>{{ $year }}</option>
-              @endforeach
-            </x-slot:options>
-          </x-form-elements.select.select>
         </div>
 
         <div class="col-12 d-flex justify-content-end mt-2">

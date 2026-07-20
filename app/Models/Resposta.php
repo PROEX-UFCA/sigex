@@ -7,5 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Resposta extends Model
 {
+    use HasUuids;
     
+    protected $table = 'resposta'; 
+    protected $fillable = ['id_submissao', 'id_pergunta', 'valor'];
 }

@@ -34,7 +34,7 @@
         ])
 
         <div class="mb-3 col-12 col-md-6">
-          <label class="form-label required">Proponente</label>
+          <label class="form-label required">Coordenador</label>
           <select class="form-select" id="teachers" name="id_coordenador">
             <option value="">Selecione</option>
             @foreach ($coordinators as $coordinator)
@@ -73,29 +73,61 @@
         </x-form-elements.select.select>
         @endforeach
 
-        <x-form-elements.select.select title="Com bolsa?" id="com_bolsa" name="com_bolsa"
-          class="col-12 col-md-4 col-lg-3" required="true">
+        <x-form-elements.select.select title="Financiamento interno?" id="financiamento_interno" name="financiamento_interno"
+          class="col-12 col-md-4 col-lg-4" required="true">
           <x-slot:options>
-            <option value="" disabled {{ request('status')===null ? 'selected' : '' }}>Selecione</option>
-            <option value="Sim" {{ old('com_bolsa')=='Sim' ? 'selected' : '' }}>Sim</option>
-            <option value="Não" {{ old('com_bolsa')=='Não' ? 'selected' : '' }}>Não</option>
+            <option value="" disabled {{ request('financiamento_interno')===null ? 'selected' : '' }}>Selecione</option>
+            <option value="SIM" {{ old('financiamento_interno')=='SIM' ? 'selected' : '' }}>Sim</option>
+            <option value="NÃO" {{ old('financiamento_interno')=='NÃO' ? 'selected' : '' }}>Não</option>
+          </x-slot:options>
+        </x-form-elements.select.select>
+
+        <x-form-elements.select.select title="Financiamento externo?" id="financiamento_externo" name="financiamento_externo"
+          class="col-12 col-md-4 col-lg-4" required="true">
+          <x-slot:options>
+            <option value="" disabled {{ request('financiamento_externo')===null ? 'selected' : '' }}>Selecione</option>
+            <option value="SIM" {{ old('financiamento_externo')=='SIM' ? 'selected' : '' }}>Sim</option>
+            <option value="NÃO" {{ old('financiamento_externo')=='NÃO' ? 'selected' : '' }}>Não</option>
           </x-slot:options>
         </x-form-elements.select.select>
 
         @include('components.form-elements.input.input', [
+        'title' => 'Bolsas solicitadas',
+        'type' => 'number',
+        'class' => 'mb-3 col-12 col-md-4 col-lg-4',
+        'name' => 'bolsas_solicitadas',
+        'required' => 'true',
+        'placeholder' => 'Bolsas solicitadas',
+        'min' => '1',
+        'value' => old('bolsas_solicitadas')
+        ])
+
+        @include('components.form-elements.input.input', [
+        'title' => 'Bolsas concedidas',
+        'type' => 'number',
+        'class' => 'mb-3 col-12 col-md-4 col-lg-4',
+        'name' => 'bolsas_concedidas',
+        'required' => 'true',
+        'placeholder' => 'Bolsas concedidas',
+        'min' => '1',
+        'value' => old('bolsas_concedidas')
+        ])
+
+        @include('components.form-elements.input.input', [
         'title' => 'Ano',
         'type' => 'number',
-        'class' => 'mb-3 col-12 col-md-4 col-lg-3',
+        'class' => 'mb-3 col-12 col-md-4 col-lg-4',
         'name' => 'ano',
         'required' => 'true',
         'placeholder' => 'Ano',
+        'min' => '1000',
         'value' => old('ano')
         ])
 
         @include('components.form-elements.input.input', [
         'title' => 'Data de início',
         'type' => 'date',
-        'class' => 'mb-3 col-12 col-md-4 col-lg-3',
+        'class' => 'mb-3 col-12 col-md-4 col-lg-4',
         'name' => 'data_inicio',
         'required' => 'true',
         'value' => old('data_inicio') ?? '',
@@ -104,7 +136,7 @@
         @include('components.form-elements.input.input', [
         'title' => 'Data de término',
         'type' => 'date',
-        'class' => 'mb-3 col-12 col-md-4 col-lg-3',
+        'class' => 'mb-3 col-12 col-md-4 col-lg-4',
         'name' => 'data_fim',
         'required' => 'true',
         'value' => old('data_fim') ?? '',

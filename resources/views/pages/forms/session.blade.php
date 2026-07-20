@@ -151,14 +151,6 @@
             @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif
             @if($pergunta->regex) pattern="{{ $pergunta->regex }}" @endif
             placeholder="Sua resposta aqui">
-            @break
-
-            @case('location')
-            <input type="text" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
-            'required' : '' }}
-            placeholder="Sua resposta aqui">
-
-            {{-- Infozinho para Text --}}
             @if($pergunta->min || $pergunta->max || $pergunta->regex)
             <div class="form-text text-muted">
               @if($pergunta->min) Mín: {{ $pergunta->min }} caracteres. @endif
@@ -166,6 +158,12 @@
               @if($pergunta->regex) <span title="{{ $pergunta->regex }}">Requer formato específico.</span> @endif
             </div>
             @endif
+            @break
+
+            @case('location')
+            <input type="text" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            'required' : '' }}
+            placeholder="Sua resposta aqui">
             @break
 
             @case('textarea')
