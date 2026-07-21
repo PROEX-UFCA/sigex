@@ -6,6 +6,7 @@ use App\Models\Formulario;
 use App\Models\Opcao_Pergunta;
 use App\Models\Pergunta;
 use App\Models\Secao;
+use Illuminate\Support\Facades\DB;
 
 class EloquentFormsRepository implements FormsRepository
 {
@@ -47,29 +48,60 @@ class EloquentFormsRepository implements FormsRepository
 
     public function createQuestion($request, $uuid)
     {
-        $pergunta = Pergunta::create([
-            'id_secao' => $uuid, 
-            'tipo' => $request->tipo, 
-            'enunciado' => $request->enunciado, 
-            'obrigatoria' => $request->obrigatoria, 
-            'min' => $request->min ?? null, 
-            'max' => $request->max ?? null, 
-            'step' => $request->step ?? null, 
-            'accept' => $request->has('accept') ? implode(',', $request->accept) : null, 
-            'regex' => $request->regex ?? null  
-        ]);
+        return DB::transaction(function () use ($request, $uuid) { 
+            $pergunta = Pergunta::create([
+                'id_secao' => $uuid, 
+                'id_pergunta_pai' => null,
+                'tipo' => $request->tipo, 
+                'enunciado' => $request->enunciado, 
+                'obrigatoria' => $request->obrigatoria, 
+                'min' => $request->min ?? null, 
+                'max' => $request->max ?? null, 
+                'step' => $request->step ?? null, 
+                'accept' => $request->has('accept') ? implode(',', $request->accept) : null, 
+                'regex' => $request->regex ?? null  
+            ]);
 
-        if(isset($request->opcoes)){
-            foreach ($request->opcoes as $value) {
-                Opcao_Pergunta::create([
-                    'id_pergunta' => $pergunta->id, 
-                    'rotulo' => $value, 
-                    'valor' => $value
-                ]);
+            if ($request->tipo !== 'tabela' && isset($request->opcoes)) {
+                foreach ($request->opcoes as $value) {
+                    Opcao_Pergunta::create([
+                        'id_pergunta' => $pergunta->id, 
+                        'rotulo' => $value, 
+                        'valor' => $value
+                    ]);
+                }
             }
-        }
 
-        return $pergunta;
+            if ($request->tipo === 'tabela' && $request->has('colunas')) {
+                foreach ($request->colunas as $coluna) {
+                    
+                    $subPergunta = Pergunta::create([
+                        'id_secao' => $uuid, 
+                        'id_pergunta_pai' => $pergunta->id,
+                        'tipo' => $coluna['tipo'], 
+                        'enunciado' => $coluna['enunciado'], 
+                        'obrigatoria' => $coluna['obrigatoria'], 
+                        'min' => $coluna['min'] ?? null, 
+                        'max' => $coluna['max'] ?? null, 
+                        'step' => $coluna['step'] ?? null, 
+                        'accept' => isset($coluna['accept']) ? implode(',', $coluna['accept']) : null, 
+                        'regex' => $coluna['regex'] ?? null  
+                    ]);
+
+                    if (isset($coluna['opcoes'])) {
+                        foreach ($coluna['opcoes'] as $opcaoValue) {
+                            Opcao_Pergunta::create([
+                                'id_pergunta' => $subPergunta->id, 
+                                'rotulo' => $opcaoValue, 
+                                'valor' => $opcaoValue
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            return $pergunta;
+        });
     }
 
     public function update($request, $uuid)
@@ -117,7 +149,21 @@ class EloquentFormsRepository implements FormsRepository
     }
 
     public function deleteQuestion($uuid){
-        Pergunta::findOrFail($uuid)->delete();   
+        DB::transaction(function () use ($uuid) {
+            $pergunta = Pergunta::findOrFail($uuid);
+
+            $subPerguntasIds = Pergunta::where('id_pergunta_pai', $pergunta->id)->pluck('id');
+
+            if ($subPerguntasIds->isNotEmpty()) {
+                Opcao_Pergunta::whereIn('id_pergunta', $subPerguntasIds)->delete();
+                
+                Pergunta::whereIn('id', $subPerguntasIds)->delete();
+            }
+
+            Opcao_Pergunta::where('id_pergunta', $pergunta->id)->delete();
+
+            $pergunta->delete();
+        });
     }
   
     public function storeSessions($request, $uuid){

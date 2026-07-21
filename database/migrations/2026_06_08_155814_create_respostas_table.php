@@ -18,6 +18,7 @@ return new class extends Migration
             $table->uuid('id_pergunta');
             $table->foreign('id_pergunta')->references('id')->on('pergunta')->onDelete('cascade');
             $table->text('valor');
+            $table->integer('indice_grupo')->nullable();
             $table->timestamps();
         });
     }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('id_secao');
             $table->foreign('id_secao')->references('id')->on('secao')->onDelete('cascade');
+            $table->uuid('id_pergunta_pai')->nullable();
             $table->string('tipo');
             $table->text('enunciado');
             $table->boolean('obrigatoria');

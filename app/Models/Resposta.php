@@ -10,5 +10,5 @@ class Resposta extends Model
     use HasUuids;
     
     protected $table = 'resposta'; 
-    protected $fillable = ['id_submissao', 'id_pergunta', 'valor'];
+    protected $fillable = ['id_submissao', 'id_pergunta', 'valor', 'indice_grupo'];
 }

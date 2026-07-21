@@ -12,7 +12,7 @@ class Pergunta extends Model
     use HasUuids, SoftDeletes;
 
     protected $table = 'pergunta';
-    protected $fillable = ['id_secao', 'tipo', 'enunciado', 'obrigatoria', 'min', 'max', 'step', 'accept', 'regex'];
+    protected $fillable = ['id_secao', 'id_pergunta_pai', 'tipo', 'enunciado', 'obrigatoria', 'min', 'max', 'step', 'accept', 'regex'];
 
     public function opcoes() : HasMany{
         return $this->hasMany(Opcao_Pergunta::class, 'id_pergunta', 'id');
@@ -24,5 +24,10 @@ class Pergunta extends Model
 
     public function getRespostaPorSubmissao($id_submissao) {
         return $this->respostas()->where('id_submissao', $id_submissao)->first();
+    }
+
+    public function filhas()
+    {
+        return $this->hasMany(Pergunta::class, 'id_pergunta_pai', 'id');
     }
 }

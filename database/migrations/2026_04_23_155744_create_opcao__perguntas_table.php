@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('rotulo');
             $table->text('valor');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

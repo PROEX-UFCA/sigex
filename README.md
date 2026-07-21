@@ -119,6 +119,7 @@ erDiagram
     PERGUNTA {
         uuid id PK
         uuid id_secao FK
+        id_pergunta_pai FK null
         string tipo "Ex: text, textarea, select, checkbox, radio, file, number"
         text enunciado
         boolean obrigatoria
@@ -160,6 +161,7 @@ erDiagram
         uuid submissao_id FK
         uuid pergunta_id FK
         text valor
+        int indice_grupo null
     }
 ```
 ---

@@ -22,7 +22,7 @@ class StoreQuestionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tipo'        => ['required', 'string', 'in:text,textarea,number,file,select,radio,checkbox,location,date,datetime-local'],
+            'tipo'        => ['required', 'string', 'in:text,textarea,number,file,select,radio,checkbox,location,date,datetime-local,tabela'],
             'enunciado'   => ['required', 'string', 'max:1000'],
             'obrigatoria' => ['required', 'boolean'],
             'min'         => ['nullable', 'integer'],

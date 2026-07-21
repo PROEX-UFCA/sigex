@@ -125,7 +125,7 @@
           {{-- Você pode colocar um título da sessão aqui se quiser --}}
           {{-- <h4 class="mb-4">{{ $session->titulo }}</h4> --}}
 
-          @foreach ($session->perguntas as $pergunta)
+          @foreach ($session->perguntas->whereNull('id_pergunta_pai') as $pergunta)
           <div class="pergunta-item mb-4">
             {{-- Enunciado da Pergunta --}}
             <div class="d-flex mb-2 justify-content-between">
@@ -257,9 +257,66 @@
             @break
 
             @case('datetime-local')
-            <input type="datetime-local" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            <input type="datetime-local" class="form-control" name="respostas[{{ $pergunta->id }}]" {{
+              $pergunta->obrigatoria ?
             'required' : '' }}
             placeholder="Sua resposta aqui">
+            @break
+
+            @case('tabela')
+            <div class="p-3 border rounded bg-light bg-opacity-50">
+              <div class="d-flex align-items-center mb-3 text-muted" style="font-size: 0.85rem;">
+                <span>Pré-visualização do Grupo Repetidor (O usuário poderá preencher este bloco múltiplas vezes)</span>
+              </div>
+
+              <div class="card shadow-sm mb-0">
+                <div class="card-body p-3">
+                  <div class="row g-3">
+                    @php
+                    $qtdColunas = $pergunta->filhas->count();
+                    $gridClass = $qtdColunas > 3 ? 'col-12 col-md-6 col-lg-4' : 'col-12 col-md';
+                    @endphp
+                    <!-- Loop para gerar as colunas dentro da row -->
+                    @foreach($pergunta->filhas as $coluna)
+                    <div class="{{ $gridClass }}">
+                      <label class="form-label fw-semibold mb-1" style="font-size: 0.85rem;">
+                        {{ $coluna->enunciado }}
+                        @if($coluna->obrigatoria)
+                        <span class="text-danger" title="Obrigatório">*</span>
+                        @endif
+                      </label>
+
+                      @if(in_array($coluna->tipo, ['select', 'radio', 'checkbox']))
+                      <select class="form-select form-select-sm text-muted">
+                        <option>Opções de resposta...</option>
+                        @foreach($coluna->opcoes as $opcao)
+                        <option value="{{ $opcao->id }}">{{ $opcao->rotulo }}</option>
+                        @endforeach
+                      </select>
+                      @elseif($coluna->tipo == 'textarea')
+                      <textarea class="form-control form-control-sm text-muted" rows="2"
+                        placeholder="Texto..."></textarea>
+                      @elseif($coluna->tipo == 'file')
+                      <input type="file" class="form-control form-control-sm text-muted">
+                      @else
+                      <input type="{{ $coluna->tipo }}" class="form-control form-control-sm text-muted"
+                        placeholder="Resposta...">
+                      @endif
+
+                      {{-- Mostra se tem validação configurada --}}
+                      @if($coluna->min || $coluna->max || $coluna->accept)
+                      <div class="form-text mt-1" style="font-size: 0.7rem;">
+                        @if($coluna->min) Mín: {{ $coluna->min }}. @endif
+                        @if($coluna->max) Máx: {{ $coluna->max }}. @endif
+                        @if($coluna->accept) Formatos aceitos: {{ str_replace(',', ', ', $coluna->accept) }} @endif
+                      </div>
+                      @endif
+                    </div>
+                    @endforeach
+                  </div>
+                </div>
+              </div>
+            </div>
             @break
 
             @default
@@ -311,6 +368,7 @@
               <option value="location">Localização</option>
               <option value="date">Data</option>
               <option value="datetime-local">Data e hora</option>
+              <option value="tabela">Tabela / Lista Dinâmica</option>
             </x-slot:options>
           </x-form-elements.select.select>
 
@@ -415,6 +473,21 @@
             </button>
           </div>
 
+          <div id="area-colunas-tabela" class="mb-3 d-none">
+            <p class="fw-bold mb-2">Configuração das Colunas (Sub-perguntas)</p>
+            <div class="alert alert-info py-2">
+              <small>Adicione as colunas que formarão esta tabela. Se for apenas uma lista de itens, adicione apenas uma
+                coluna.</small>
+            </div>
+
+            <div id="lista-colunas">
+            </div>
+
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="adicionarColunaTabela()">
+              <i class="ti ti-plus"></i> Adicionar Coluna
+            </button>
+          </div>
+
           <div class="d-flex justify-content-end">
             <button class="btn btn-success" type="submit">Salvar</button>
           </div>
@@ -449,6 +522,8 @@
 
         selectTipo.addEventListener('change', function () {
             const tipo = this.value;
+            const areaColunas = document.getElementById('area-colunas-tabela');
+            const listaColunas = document.getElementById('lista-colunas');
 
             document.querySelector('input[name="min"]').value = '';
             document.querySelector('input[name="max"]').value = '';
@@ -460,6 +535,9 @@
 
             const listaOpcoes = document.getElementById('lista-opcoes');
             listaOpcoes.innerHTML = ''; 
+
+            areaColunas.classList.add('d-none');
+            listaColunas.innerHTML = '';
 
             areaValidacoes.classList.add('d-none');
             areaOpcoes.classList.add('d-none');
@@ -492,6 +570,9 @@
                 areaOpcoes.classList.remove('d-none');
                 
                 adicionarOpcao();
+            } else if (tipo === 'tabela') {
+                areaColunas.classList.remove('d-none');
+                adicionarColunaTabela();
             }
         });
     });
@@ -514,6 +595,197 @@
         btnRemove.type = 'button';
         btnRemove.className = 'btn btn-outline-danger';
         btnRemove.innerHTML = 'Remover';
+        btnRemove.onclick = function () {
+            divRow.remove();
+        };
+
+        divRow.appendChild(input);
+        divRow.appendChild(btnRemove);
+        lista.appendChild(divRow);
+    }
+
+    let colunaIndex = 0;
+
+    function adicionarColunaTabela() {
+        const lista = document.getElementById('lista-colunas');
+
+        const divCard = document.createElement('div');
+        // Adicionamos a classe 'coluna-item' para o JS se localizar dentro deste card específico
+        divCard.className = 'card card-body bg-light mb-3 border coluna-item';
+        
+        divCard.innerHTML = `
+            <div class="row g-2 mb-2">
+                <div class="col-md-5">
+                    <label class="form-label mb-1" style="font-size: 0.8rem;">Enunciado da Coluna</label>
+                    <input type="text" name="colunas[${colunaIndex}][enunciado]" class="form-control form-control-sm" placeholder="Ex: Nome do Curso" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label mb-1" style="font-size: 0.8rem;">Tipo de Campo</label>
+                    <!-- O onchange chama a função passando o próprio select (this) -->
+                    <select name="colunas[${colunaIndex}][tipo]" class="form-select form-select-sm" onchange="tratarValidacoesColuna(this, ${colunaIndex})" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="text">Texto normal</option>
+                        <option value="textarea">Texto grande</option>
+                        <option value="select">Seletor</option>
+                        <option value="checkbox">Múltiplas opções (várias certas)</option>
+                        <option value="radio">Múltiplas opções (uma certa)</option>
+                        <option value="file">Arquivo</option>
+                        <option value="number">Número</option>
+                        <option value="location">Localização</option>
+                        <option value="date">Data</option>
+                        <option value="datetime-local">Data e hora</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-1" style="font-size: 0.8rem;">Obrigatório?</label>
+                    <select name="colunas[${colunaIndex}][obrigatoria]" class="form-select form-select-sm" required>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ÁREA DE VALIDAÇÕES EXCLUSIVA DESTA COLUNA (usando classes em vez de IDs) -->
+            <div class="area-validacoes-coluna d-none bg-white p-2 border rounded mt-2">
+                <p class="fw-bold mb-2" style="font-size: 0.85rem;">Validações da Coluna</p>
+
+                <div class="container-min-max col-12 d-none mb-2">
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label label-min" style="font-size: 0.8rem;">Mínimo</label>
+                            <input type="number" name="colunas[${colunaIndex}][min]" class="form-control form-control-sm input-min">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label label-max" style="font-size: 0.8rem;">Máximo</label>
+                            <input type="number" name="colunas[${colunaIndex}][max]" class="form-control form-control-sm input-max">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-step col-12 d-none mb-2">
+                    <label class="form-label" style="font-size: 0.8rem;">Intervalo (Step)</label>
+                    <input type="number" name="colunas[${colunaIndex}][step]" step="any" class="form-control form-control-sm input-step">
+                </div>
+
+                <div class="container-regex col-12 d-none mb-2">
+                    <label class="form-label" style="font-size: 0.8rem;">Regex</label>
+                    <input type="text" name="colunas[${colunaIndex}][regex]" class="form-control form-control-sm input-regex">
+                </div>
+
+                <div class="container-accept col-12 d-none mb-2">
+                    <label class="form-label fw-bold" style="font-size: 0.8rem;">Tipos Aceitos</label>
+                    <div class="row" style="font-size: 0.8rem;">
+                        <div class="col-6">
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value="image/*"> <label class="form-check-label">Imagens</label></div>
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value=".pdf"> <label class="form-check-label">PDF</label></div>
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value=".doc,.docx"> <label class="form-check-label">Word</label></div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value=".xls,.xlsx"> <label class="form-check-label">Excel</label></div>
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value=".zip,.rar"> <label class="form-check-label">ZIP/RAR</label></div>
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value="video/*,audio/*"> <label class="form-check-label">Áudio/Vídeo</label></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ÁREA DE OPÇÕES (SELECT/RADIO/CHECKBOX) EXCLUSIVA DESTA COLUNA -->
+            <div class="area-opcoes-coluna d-none bg-white p-2 border rounded mt-2">
+                <p class="fw-bold mb-2" style="font-size: 0.85rem;">Opções de Resposta</p>
+                <div class="lista-opcoes-coluna"></div>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="adicionarOpcaoColuna(this, ${colunaIndex})">+ Adicionar Opção</button>
+            </div>
+
+            <div class="col-12 text-end mt-2">
+                <button type="button" class="btn btn-sm text-danger p-0 fw-bold" onclick="this.closest('.card').remove()">Remover Coluna</button>
+            </div>
+        `;
+
+        lista.appendChild(divCard);
+        colunaIndex++; // Prepara o index para a próxima coluna
+    }
+
+    // Função que lida com as validações de uma coluna específica quando o tipo dela muda
+    function tratarValidacoesColuna(selectElement, currIndex) {
+        // Pega o "card" principal onde este select está dentro
+        const card = selectElement.closest('.coluna-item');
+        const tipo = selectElement.value;
+
+        // Busca as áreas dentro apenas Deste card
+        const areaValidacoes = card.querySelector('.area-validacoes-coluna');
+        const areaOpcoes = card.querySelector('.area-opcoes-coluna');
+        
+        const containerMinMax = card.querySelector('.container-min-max');
+        const containerStep = card.querySelector('.container-step');
+        const containerAccept = card.querySelector('.container-accept');
+        const containerRegex = card.querySelector('.container-regex');
+        
+        const labelMin = card.querySelector('.label-min');
+        const labelMax = card.querySelector('.label-max');
+        const listaOpcoes = card.querySelector('.lista-opcoes-coluna');
+
+        // Limpa os valores antigos
+        card.querySelector('.input-min').value = '';
+        card.querySelector('.input-max').value = '';
+        card.querySelector('.input-step').value = '';
+        card.querySelector('.input-regex').value = '';
+        card.querySelectorAll('.input-accept').forEach(checkbox => checkbox.checked = false);
+        listaOpcoes.innerHTML = ''; 
+
+        // Esconde tudo por padrão
+        areaValidacoes.classList.add('d-none');
+        areaOpcoes.classList.add('d-none');
+        containerMinMax.classList.add('d-none');
+        containerStep.classList.add('d-none');
+        containerAccept.classList.add('d-none');
+        containerRegex.classList.add('d-none');
+
+        // Mostra as opções com base no tipo selecionado da coluna
+        if (['text', 'textarea'].includes(tipo)) {
+            areaValidacoes.classList.remove('d-none');
+            containerMinMax.classList.remove('d-none');
+            containerRegex.classList.remove('d-none');
+            labelMin.innerText = "Mín. Caracteres";
+            labelMax.innerText = "Máx. Caracteres";
+
+        } else if (tipo === 'number') {
+            areaValidacoes.classList.remove('d-none');
+            containerMinMax.classList.remove('d-none');
+            containerStep.classList.remove('d-none');
+            labelMin.innerText = "Valor Mínimo";
+            labelMax.innerText = "Valor Máximo";
+
+        } else if (tipo === 'file') {
+            areaValidacoes.classList.remove('d-none');
+            containerAccept.classList.remove('d-none');
+
+        } else if (['select', 'checkbox', 'radio'].includes(tipo)) {
+            areaOpcoes.classList.remove('d-none');
+            adicionarOpcaoColuna(selectElement, currIndex); // Já joga 1 input de opção padrão
+        }
+    }
+
+    // Função para adicionar os inputs de "Opção 1, Opção 2" dentro daquela coluna
+    function adicionarOpcaoColuna(elementoHtml, currIndex) {
+        const card = elementoHtml.closest('.coluna-item');
+        const lista = card.querySelector('.lista-opcoes-coluna');
+        const count = lista.children.length; 
+
+        const divRow = document.createElement('div');
+        divRow.className = 'input-group input-group-sm mb-1';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        // O name fica assim: colunas[0][opcoes][]
+        input.name = `colunas[${currIndex}][opcoes][]`; 
+        input.className = 'form-control';
+        input.placeholder = `Opção ${count + 1}`;
+        input.required = true;
+
+        const btnRemove = document.createElement('button');
+        btnRemove.type = 'button';
+        btnRemove.className = 'btn btn-outline-danger';
+        btnRemove.innerHTML = 'X';
         btnRemove.onclick = function () {
             divRow.remove();
         };
