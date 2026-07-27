@@ -7,5 +7,7 @@ interface ReportsRepository{
   public function create($request);
   public function bulkInsertSubmission($submissoes);
   public function update($request, $uuid);
+  public function getById($uuid);
   public function getSubmissionById($uuid);
+  public function getSubmissionsByIdReport($uuid, array $filtros = [], string $sort = 'titulo', string $direction = 'desc');
 } 

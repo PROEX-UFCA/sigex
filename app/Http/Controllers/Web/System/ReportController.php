@@ -227,6 +227,22 @@ class ReportController extends Controller
         ]);
     }
 
+    public function monitorar(Request $request, $uuid){
+
+        $sort = $request->get('sort', 'created_at');
+        $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
+
+        $allowedFields = ['titulo', 'finalizada_em', 'created_at'];
+
+        if (!in_array($sort, $allowedFields)) $sort = 'created_at';
+
+        $this->data['submissoes'] = $this->reportRepository->getSubmissionsByIdReport($uuid, $request->query(), $sort, $direction);
+        
+        $this->data['submissao'] = $this->reportRepository->getById($uuid);
+        
+        return view('pages.report.monitor', $this->data);
+    }
+
     private function getProgress($uuid)
     {
         $submissao = $this->reportRepository->getSubmissionById($uuid);

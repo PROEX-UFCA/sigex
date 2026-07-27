@@ -42,6 +42,33 @@ class EloquentReportsRepository implements ReportsRepository
         return Submissao::find($uuid);
     }
 
+    public function getById($uuid){
+        return Relatorio::find($uuid);
+    }
+
+    public function getSubmissionsByIdReport($uuid, array $filtros = [], string $sort = 'id', string $direction = 'desc')
+    {
+        $query = Submissao::select('submissao.*')->where('submissao.id_relatorio', $uuid);
+
+        $query->when($filtros['search'] ?? null, function ($q, $search) {
+            $q->where(function ($subQuery) use ($search) {
+                $subQuery->whereHas('acao', function ($acaoQuery) use ($search) {
+                    $acaoQuery->where('titulo', 'like', "%{$search}%");
+                })
+                ->orWhere('submissao.finalizada_em', 'like', "%{$search}%");
+            });
+        });
+
+        if ($sort === 'titulo') {
+            $query->join('acao', 'acao.id', '=', 'submissao.id_acao')
+                ->orderBy('acao.titulo', $direction);
+        } else {
+            $query->orderBy("submissao.{$sort}", $direction);
+        }
+
+        return $query->paginate(30);
+    }
+
     public function update($request, $uuid){
         $report = Relatorio::findOrFail($uuid);
 

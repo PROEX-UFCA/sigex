@@ -116,5 +116,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('respostas/auto-save', [ReportController::class, 'autoSave'])->name('respostas.autosave');
     Route::post('/api/respostas/remover-grupo', [ReportController::class, 'removerGrupo'])->name('respostas.remover-grupo');
     Route::delete('relatorio/finalizar/{uuid}', [ReportController::class, 'finish'])->name('report.finish');
+    
+    Route::get('relatorios/monitorar/{uuid}', [ReportController::class, 'monitorar'])->name('report.monitor')->middleware(['auth' => 'permission:monitorar_relatórios']);
 
 });

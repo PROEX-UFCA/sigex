@@ -69,7 +69,7 @@
           @endcan
           @can('monitorar_relatórios')
           <td class="text-center">
-            <a href="" class="btn btn-sm btn-success disabled">Monitorar</a>
+            <a href="{{route('report.monitor', $item->id)}}" class="btn btn-sm btn-success">Monitorar</a>
           </td>
           @endcan
         </tr>

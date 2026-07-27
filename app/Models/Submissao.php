@@ -17,6 +17,10 @@ class Submissao extends Model
         return $this->belongsTo(Relatorio::class, 'id_relatorio', 'id');
     }
 
+    public function acao() :BelongsTo{
+        return $this->belongsTo(Acao::class, 'id_acao', 'id');
+    }
+
     public function getProgressAttribute() : float
     {
         $secoes = $this->relatorio->formulario->secoes;
