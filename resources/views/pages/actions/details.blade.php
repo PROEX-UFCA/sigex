@@ -142,62 +142,6 @@
           <div class="card-body p-5">
             <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
               <h3 class="m-0">Membros da ação</h3>
-              @can('adicionar_equipe')
-              <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-equipe"
-                aria-controls="offcanvasExample">
-                Inserir
-              </button>
-              <x-modal.offcanvas route="{{ route('actions.storeTeam', $action->id) }}" id="modal-add-equipe"
-                class="offcanvas-end" title="Adicionar um usuário à equipe">
-                <x-slot:content>
-                  <div class="mb-3">
-                    <label class="form-label required">Usuário</label>
-                    <select class="form-select" id="teachers" name="id_usuario">
-                      <option value="">Selecione</option>
-                      @foreach ($coordinators as $coordinator)
-                      <option value="{{ $coordinator->uuid }}" {{ old('id_usuario') ? (old('id_usuario')==$coordinator->
-                        id ?
-                        'selected' : '') : ' '
-                        }}>
-                        {{ $coordinator->name .' - '. $coordinator->matricula_siape}}</option>
-                      @endforeach
-                    </select>
-                  </div>
-
-                  @foreach ($parametros as $key => $parametro)
-                  <x-form-elements.select.select title="{{ str_replace('_', ' ',ucfirst(strtolower($key))) }}"
-                    id="{{ strtolower($key) }}" name="{{ strtolower($key) }}" class="col-12" required="true">
-                    <x-slot:options>
-                      <option value="" disabled {{ old(strtolower($key))=='' ? 'selected' : '' }}>Selecione</option>
-                      @foreach ($parametro as $lista)
-                      <option value="{{ $lista->value }}" {{ old(strtolower($key))==$lista->value ? 'selected' : '' }}>
-                        {{ $lista->value }}
-                      </option>
-                      @endforeach
-                    </x-slot:options>
-                  </x-form-elements.select.select>
-                  @endforeach
-
-                  @include('components.form-elements.input.input', [
-                  'title' => 'Data de início',
-                  'type' => 'date',
-                  'class' => 'mb-3 col-12',
-                  'name' => 'data_inicio',
-                  'required' => 'true',
-                  'value' => old('data_inicio') ?? '',
-                  ])
-
-                  @include('components.form-elements.input.input', [
-                  'title' => 'Data de término',
-                  'type' => 'date',
-                  'class' => 'mb-3 col-12',
-                  'name' => 'data_fim',
-                  'required' => 'true',
-                  'value' => old('data_fim') ?? '',
-                  ])
-                </x-slot:content>
-              </x-modal.offcanvas>
-              @endcan
             </div>
             <div class="table-responsive p-0 mb-5">
               <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
@@ -213,7 +157,6 @@
                   <th>status</th>
                   <th>data inicio</th>
                   <th>data fim</th>
-                  <th></th>
                 </thead>
                 <tbody>
                   @foreach ($action->equipe as $item)
@@ -229,16 +172,6 @@
                     <td>{{ $item->status }}</td>
                     <td>{{ $item->data_inicio }}</td>
                     <td>{{ $item->data_fim }}</td>
-                    <td>
-                      <form action="{{ route('members.delete', $item->id) }}" method="POST"
-                        onsubmit="return confirm('Deseja realmente deletar este membro?')">
-                        @csrf
-                        @method('DELETE')
-                        <button class="btn btn-sm btn-danger p-1 px-" type="submit">
-                          Deletar
-                        </button>
-                      </form>
-                    </td>
                   </tr>
                   @endforeach
                 </tbody>
