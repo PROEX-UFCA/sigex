@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\System;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Report\StoreRequest;
 use App\Http\Requests\Web\Report\UpdateRequest;
+use App\Models\Pergunta;
 use App\Models\Resposta;
 use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Forms\FormsRepository;
@@ -97,6 +98,14 @@ class ReportController extends Controller
         if($this->data['submissao']->finalizada_em != null){
             return redirect()->back()->with('warning', "Esse relatório já foi enviado, não é possível mais acessá-lo!");
         }
+        
+        if($this->data['submissao']->relatorio->prazo < now()){        
+            return redirect()->back()->with('warning', "O prazo para enviar esse relatório já passou!");
+        }
+
+        if($this->data['submissao']->relatorio->data_inicio > now()){
+            return redirect()->back()->with('warning', "Esse relatório ainda não está liberado!");
+        }
 
         return view('pages.actions.report', $this->data);
     }
@@ -122,18 +131,28 @@ class ReportController extends Controller
     {
         $request->validate([
             'id_submissao' => 'required',
-            'id_pergunta' => 'required',
+            'id_pergunta'  => 'required',
+            'indice_grupo' => 'nullable|integer' // Validando o novo campo
         ]);
 
+        // Se vier nulo (perguntas comuns fora de tabelas), assume 0
+        $indiceGrupo = $request->input('indice_grupo', 0); 
         $valor = $request->input('valor');
 
+        // Trata arrays (como checkboxes)
         if (is_array($valor)) {
             $valor = json_encode($valor);
         }
 
-        $respostaExistente = Resposta::where('id_submissao', $request->id_submissao)->where('id_pergunta', $request->id_pergunta)->first();
+        // Busca a resposta existente considerando também o índice da linha
+        $respostaExistente = Resposta::where('id_submissao', $request->id_submissao)
+            ->where('id_pergunta', $request->id_pergunta)
+            ->where('indice_grupo', $indiceGrupo)
+            ->first();
 
+        // Tratamento de Upload de Arquivos
         if ($request->hasFile('file')) {
+            // Remove o arquivo antigo se estiver substituindo
             if ($respostaExistente && !empty($respostaExistente->valor)) {
                 if (Storage::exists($respostaExistente->valor)) {
                     Storage::delete($respostaExistente->valor);
@@ -144,14 +163,17 @@ class ReportController extends Controller
             $valor = $path;
         }
 
+        // Mantém o arquivo antigo se um novo não foi enviado nesta requisição
         if (!$request->hasFile('file') && $request->file === null && $respostaExistente && str_starts_with($respostaExistente->valor, 'respostas/arquivos')) {
             $valor = $respostaExistente->valor;
         }
 
+        // Atualiza ou Cria o registro no banco
         Resposta::updateOrCreate(
             [
                 'id_submissao' => $request->id_submissao,
                 'id_pergunta'  => $request->id_pergunta,
+                'indice_grupo' => $indiceGrupo // Garante que cada linha da tabela seja salva separadamente
             ],
             [
                 'valor' => $valor ?? ''
@@ -165,20 +187,75 @@ class ReportController extends Controller
         ]);
     }
 
-    private function getProgress($uuid){
+    public function removerGrupo(Request $request)
+    {
+        $request->validate([
+            'id_submissao'    => 'required',
+            'id_pergunta_pai' => 'required',
+            'indice_grupo'    => 'required|integer'
+        ]);
+
+        // 1. Encontra todos os IDs das colunas (sub-perguntas) que pertencem a essa tabela
+        $subPerguntasIds = Pergunta::where('id_pergunta_pai', $request->id_pergunta_pai)->pluck('id');
+
+        if ($subPerguntasIds->isNotEmpty()) {
+            
+            // 2. Busca se há arquivos salvos nessa linha específica para apagá-los do servidor (Storage)
+            $respostasComArquivos = Resposta::where('id_submissao', $request->id_submissao)
+                ->whereIn('id_pergunta', $subPerguntasIds)
+                ->where('indice_grupo', $request->indice_grupo)
+                ->where('valor', 'like', 'respostas/arquivos/%')
+                ->get();
+
+            foreach ($respostasComArquivos as $resposta) {
+                if (Storage::exists($resposta->valor)) {
+                    Storage::delete($resposta->valor);
+                }
+            }
+
+            // 3. Deleta todas as respostas daquela linha do banco de dados
+            Resposta::where('id_submissao', $request->id_submissao)
+                ->whereIn('id_pergunta', $subPerguntasIds)
+                ->where('indice_grupo', $request->indice_grupo)
+                ->delete();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Item removido do relatório com sucesso!',
+            'progresso' => $this->getProgress($request->id_submissao) // Atualiza a barra de progresso
+        ]);
+    }
+
+    private function getProgress($uuid)
+    {
         $submissao = $this->reportRepository->getSubmissionById($uuid);
 
         $qtdPerguntas = 0;
         $qtdPerguntasRespondidas = 0;
 
         foreach($submissao->relatorio->formulario->secoes as $index => $secao){
-            foreach ($secao->perguntas as $pergunta){
+            
+            foreach ($secao->perguntas->whereNull('id_pergunta_pai') as $pergunta) {
+
                 $qtdPerguntas++;
 
-                $resposta = $pergunta->getRespostaPorSubmissao($submissao->id);
+                if ($pergunta->tipo === 'tabela') {
+                    
+                    $temRespostaNaTabela = \App\Models\Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
+                        ->where('id_submissao', $submissao->id)
+                        ->whereNotNull('valor')
+                        ->where('valor', '!=', '')
+                        ->exists();
 
-                if($resposta){
-                    if($resposta->valor != null && $resposta->valor != ''){
+                    if ($temRespostaNaTabela) {
+                        $qtdPerguntasRespondidas++;
+                    }
+
+                } else {
+                    $resposta = $pergunta->getRespostaPorSubmissao($submissao->id);
+
+                    if ($resposta && $resposta->valor != null && $resposta->valor != '') {
                         $qtdPerguntasRespondidas++; 
                     }
                 }

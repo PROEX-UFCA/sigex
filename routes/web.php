@@ -114,6 +114,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('relatorios/inserir', [ReportController::class, 'store'])->name('report.store')->middleware(['auth' => 'permission:adicionar_relatórios']);
     Route::post('relatorios/atualizar/{uuid}', [ReportController::class, 'update'])->name('report.update')->middleware(['auth' => 'permission:editar_relatórios']);
     Route::post('respostas/auto-save', [ReportController::class, 'autoSave'])->name('respostas.autosave');
+    Route::post('/api/respostas/remover-grupo', [ReportController::class, 'removerGrupo'])->name('respostas.remover-grupo');
     Route::delete('relatorio/finalizar/{uuid}', [ReportController::class, 'finish'])->name('report.finish');
 
 });

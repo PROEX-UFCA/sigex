@@ -41,7 +41,7 @@
             data-bs-target="#modal-relatorios-{{$item->action->id}}" aria-controls="offcanvasExample">
             Relatórios
             @if ($item->action->submissoes->whereNull('finalizada_em')->count() > 0)
-            <span class="badge bg-danger badge-notification badge-blink">
+            <span class="badge bg-danger badge-notification">
               {{ $item->action->submissoes->whereNull('finalizada_em')->count() }}
             </span>
             @endif

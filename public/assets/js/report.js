@@ -243,3 +243,90 @@ window.toggleLocationInput = function (id) {
         }
     }
 };
+
+function adicionarLinhaTabela(perguntaPaiId) {
+    const container = document.getElementById('linhas-' + perguntaPaiId);
+    const linhasAtuais = container.querySelectorAll('.linha-item');
+    
+    // Pega o maior índice atual para gerar o próximo (+1)
+    let maiorIndice = -1;
+    linhasAtuais.forEach(linha => {
+        let idx = parseInt(linha.getAttribute('data-indice'));
+        if (idx > maiorIndice) maiorIndice = idx;
+    });
+    const novoIndice = maiorIndice + 1;
+
+    // Clona o HTML da primeira linha (índice base)
+    const linhaBase = linhasAtuais[0];
+    const novaLinha = linhaBase.cloneNode(true);
+
+    // Atualiza os atributos da nova linha
+    novaLinha.setAttribute('data-indice', novoIndice);
+    novaLinha.id = 'linha-' + perguntaPaiId + '-' + novoIndice;
+    
+    // Atualiza a numeração visual (Item #2, Item #3)
+    novaLinha.querySelector('.numero-item').innerText = linhasAtuais.length + 1;
+
+    // Ajusta o botão de remover
+    const btnRemover = novaLinha.querySelector('.btn-outline-danger');
+    btnRemover.setAttribute('onclick', `removerLinhaTabela('${perguntaPaiId}', '${novoIndice}')`);
+
+    // Limpa os valores e atualiza o data-indice dos inputs para o AutoSave
+    const inputs = novaLinha.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.setAttribute('data-indice', novoIndice);
+        
+        // Limpa o valor (exceto checkboxes/radios que devem ser desmarcados)
+        if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false;
+        } else {
+            input.value = '';
+        }
+
+        // Se você tiver LOCATION (Mapas), precisará atualizar o ID da div do mapa e re-iniciar o Leaflet/TomSelect aqui, 
+        // substituindo a parte velha do ID pelo 'novoIndice'.
+    });
+
+    // Anexa a nova linha na tela
+    container.appendChild(novaLinha);
+
+    // Re-inicia as máscaras jQuery para os novos inputs gerados
+    $(novaLinha).find('input[data-mascara]').each(function() {
+        $(this).mask($(this).attr('data-mascara'));
+    });
+}
+
+function removerLinhaTabela(perguntaPaiId, indice) {
+    const container = document.getElementById('linhas-' + perguntaPaiId);
+    const linhas = container.querySelectorAll('.linha-item');
+
+    // Não deixa remover se for a última linha que sobrou
+    if (linhas.length <= 1) {
+        alert("Você precisa manter pelo menos um item preenchido.");
+        return;
+    }
+
+    if(confirm('Tem certeza que deseja remover este item? Ele será apagado do relatório.')) {
+        // Remove do HTML
+        const linhaParaRemover = document.getElementById('linha-' + perguntaPaiId + '-' + indice);
+        linhaParaRemover.remove();
+
+        // 🚀 AQUI VAI UMA CHAMADA AJAX PARA DELETAR NO BANCO (Opcional, mas recomendado)
+        // Como o Auto-Save salva on-change, se o usuário apagar a linha no front, precisamos apagar as respostas no banco vinculadas àquele 'indice_grupo'.
+        $.ajax({
+            url: '/api/respostas/remover-grupo', // Crie essa rota no Laravel
+            type: 'POST',
+            data: {
+                id_submissao: $('#formWizard').data('submissao-id'),
+                id_pergunta_pai: perguntaPaiId,
+                indice_grupo: indice
+            }
+        });
+
+        // Reorganiza a numeração visual (Item #1, Item #2...)
+        const linhasRestantes = container.querySelectorAll('.linha-item');
+        linhasRestantes.forEach((linha, i) => {
+            linha.querySelector('.numero-item').innerText = i + 1;
+        });
+    }
+}
