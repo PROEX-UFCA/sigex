@@ -20,8 +20,6 @@ return new class extends Migration
             $table->uuid('id_instituicao');
             $table->foreign('id_instituicao')->references('id')->on('instituicao_externa')->onDelete('cascade');
             $table->date('data_disponivel');
-            $table->time('hora_inicio');
-            $table->time('hora_fim');
             $table->string('observacao');
             $table->timestamps();
             $table->softDeletes();

@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('numero');
             $table->string('complemento');
             $table->string('telefone_contato');
+            $table->boolean('status');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -4,7 +4,6 @@ Abaixo está o modelo Entidade-Relacionamento das tabelas da primeira parte do s
 
 ```mermaid
 erDiagram
-    USUARIO ||--o{ ACAO : "coordena"
     ACAO ||--o{ EQUIPE_ACAO : "possui_membros"
     USUARIO ||--o{ EQUIPE_ACAO : "atua_como_membro"
 
@@ -24,39 +23,60 @@ erDiagram
         string telefone_contato
         string email
         string senha
+        boolean status
     }
 
     ACAO {
         uuid id PK
-        uuid id_coordenador FK "Refere-se a USUARIO(id)"
-        string id_atividade "Opcional se a ação for subdividida"
-        string id_projeto "Opcional se pertencer a um projeto maior"
-        string titulo
-        string centro_departamento "Ex: Faculdade de Medicina"
+        string id_projeto
+        int ano
+        text titulo
+        string modalidade_edital
+        string bolsas_solicitadas
+        string bolsas_concedidas
+        string financiamento_interno
+        string financiamento_externo
+        string situacao
+        date data_cadastro
         date data_inicio
         date data_fim
-        int ano
-        string tipo_acao "Ex: Curso, Evento"
-        string area_tematica "Ex: Educação, Saúde"
-        string modalidade "Ex: Prope, Ampla Concorrência"
-        string img
+        date data_atualizacao
+        string centro_departamento_sigla
+        string tipo_acao
+        string area_tematica
+        text resumo
+        text palavras_chave
+        string ods
+        string contexto
         boolean status
+        text img
     }
 
     EQUIPE_ACAO {
         uuid id_acao PK, FK
         uuid id_usuario PK, FK
-        string categoria "Ex: Bolsista, Voluntário, Colaborador (VERIFICAR)"
+        string id_pessoa
+        string tipo_membro
+        string categoria_membro
+        string status
+        date data_inicio
+        date data_fim
+        string tipo_vinculo
     }
 
     USUARIO {
-        uuid id PK
-        string nome
+        int id PK
+        uuid uuid PK
+        string name
         string email
-        string senha "Hash"
+        datetime email_verified_at
+        string password "Hash"
+        boolean status "Sinaliza se a conta está ativa"
         string centro_departamento
         string matricula_siape
-        boolean status "Sinaliza se a conta está ativa"
+        string perfil_ativo
+        string phone
+        datetime last_login_at
     }
 
     AGENDA_ACAO {
@@ -79,9 +99,6 @@ erDiagram
     INTERESSE_ACAO {
         uuid id_instituicao PK, FK
         uuid id_acao PK, FK
-        datetime data_manifestacao
-        string status "Ex: PENDENTE, APROVADO, RECUSADO"
-        string mensagem_observacao "Texto enviado pela instituição ao demonstrar interesse"
     }
 ```
 
@@ -105,6 +122,7 @@ erDiagram
         string titulo
         text descricao
         boolean status
+        boolean published
     }
 
     SECAO {
@@ -113,36 +131,34 @@ erDiagram
         string titulo
         text descricao
         int ordem "Controla a sequência das páginas"
-        boolean status
     }
 
     PERGUNTA {
         uuid id PK
         uuid id_secao FK
-        id_pergunta_pai FK null
+        uuid id_pergunta_pai FK
         string tipo "Ex: text, textarea, select, checkbox, radio, file, number"
         text enunciado
         boolean obrigatoria
-        int min_length "Tamanho mínimo do texto"
-        int max_length "Tamanho máximo do texto"
-        string min_value "Valor mínimo (números ou datas)"
-        string max_value "Valor máximo (números ou datas)"
-        string step "Intervalo numérico (ex: 0.01)"
-        string accept "Extensões permitidas (ex: .pdf, image/*)"
-        string regex_pattern "Padrão de validação customizado"
+        double min "Tamanho mínimo do texto ou número"
+        double max "Tamanho máximo do texto ou número"
+        double step "Tamanho máximo do texto ou número"
+        double step "Intervalo numérico"
+        string accept "Extensões permitidas"
+        string regex "Padrão de validação customizado"
     }
 
     OPCAO_PERGUNTA {
         uuid id PK
         uuid id_pergunta FK
-        string rotulo "Texto que aparece pro usuário"
-        string valor "Valor interno"
+        string rotulo
+        string valor
     }
 
     RELATORIO {
         uuid id PK
         uuid id_formulario FK
-        string nome
+        string titulo
         datetime data_inicio
         datetime prazo
         boolean status
@@ -151,17 +167,16 @@ erDiagram
     SUBMISSAO {
         uuid id PK
         uuid id_relatorio FK 
-        uuid id_action FK
-        uuid id_user FK
+        uuid id_acao FK
         datetime finalizada_em
     }
 
     RESPOSTA {
         uuid id PK
-        uuid submissao_id FK
-        uuid pergunta_id FK
+        uuid id_submissao FK
+        uuid id_pergunta FK
         text valor
-        int indice_grupo null
+        int indice_grupo
     }
 ```
 ---
