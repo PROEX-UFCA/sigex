@@ -280,4 +280,109 @@ class ReportController extends Controller
 
         return $qtdPerguntas > 0 ? intval(round(($qtdPerguntasRespondidas / $qtdPerguntas) * 100, 2)) : 0;
     }
+
+    public function validator($uuid)
+    {
+        $submissao = $this->reportRepository->getSubmissionById($uuid);
+        $secoesData = [];
+
+        // Trazemos as seções ordenadas pela coluna 'ordem'
+        $secoes = $submissao->relatorio->formulario->secoes()->orderBy('ordem')->get();
+
+        foreach ($secoes as $secao) {
+            $perguntasData = [];
+            
+            // Traz apenas as perguntas pai (ignora as sub-perguntas soltas)
+            foreach ($secao->perguntas()->whereNull('id_pergunta_pai')->get() as $pergunta) {
+                
+                // --- TRATAMENTO PARA TABELA/REPEATER ---
+                if ($pergunta->tipo === 'tabela') {
+                    $respostasTabela = Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
+                        ->where('id_submissao', $submissao->id)
+                        ->get()
+                        ->groupBy('indice_grupo');
+                    
+                    $valoresTabela = [];
+                    foreach($respostasTabela as $indice => $respostasLinha) {
+                        $linhaFormatada = [];
+                        foreach($pergunta->filhas as $filha) {
+                            $resp = $respostasLinha->where('id_pergunta', $filha->id)->first();
+                            $linhaFormatada[] = [
+                                'enunciado' => $filha->enunciado,
+                                'tipo'      => $filha->tipo,
+                                'valor'     => $this->formatarResposta($resp, $filha->tipo)
+                            ];
+                        }
+                        $valoresTabela[] = $linhaFormatada;
+                    }
+                    
+                    $perguntasData[] = [
+                        'id'             => $pergunta->id,
+                        'enunciado'      => $pergunta->enunciado,
+                        'tipo'           => 'tabela',
+                        'valores_tabela' => $valoresTabela
+                    ];
+
+                } 
+                // --- TRATAMENTO PARA PERGUNTAS COMUNS ---
+                else {
+                    $resposta = $pergunta->getRespostaPorSubmissao($submissao->id);
+                    $perguntasData[] = [
+                        'id'        => $pergunta->id,
+                        'enunciado' => $pergunta->enunciado,
+                        'tipo'      => $pergunta->tipo,
+                        'valor'     => $this->formatarResposta($resposta, $pergunta->tipo)
+                    ];
+                }
+            }
+
+            $secoesData[] = [
+                'id'        => $secao->id,
+                'titulo'    => $secao->titulo,
+                'descricao' => $secao->descricao,
+                'perguntas' => $perguntasData
+            ];
+        }
+
+        $this->data['submissao'] = $submissao;
+        $this->data['secoes']    = $secoesData;
+        
+        return view('pages.report.validator', $this->data);
+    }
+
+    /**
+     * Método auxiliar para transformar os dados brutos do banco em algo visual.
+     */
+    private function formatarResposta($resposta, $tipo)
+    {
+        if (!$resposta || empty($resposta->valor)) {
+            return '<span class="text-muted fst-italic">Não respondido</span>';
+        }
+
+        $valor = $resposta->valor;
+        
+        switch ($tipo) {
+            case 'file':
+                // Cria a URL do storage para o avaliador baixar/abrir o arquivo
+                $url = Storage::url($valor); 
+                return '<a href="'.$url.'" target="_blank" class="btn btn-sm btn-outline-primary"><i class="ti ti-external-link"></i> Abrir Arquivo</a>';
+                
+            case 'location':
+                $json = json_decode($valor, true);
+                return $json['nome'] ?? $valor;
+                
+            case 'checkbox':
+                $json = json_decode($valor, true);
+                return is_array($json) ? implode(', ', $json) : $valor;
+                
+            case 'date':
+                return date('d/m/Y', strtotime($valor));
+                
+            case 'datetime-local':
+                return date('d/m/Y H:i', strtotime($valor));
+                
+            default:
+                return $valor;
+        }
+    }
 }

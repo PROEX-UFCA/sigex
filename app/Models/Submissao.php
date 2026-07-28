@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Submissao extends Model
 {
@@ -19,6 +20,10 @@ class Submissao extends Model
 
     public function acao() :BelongsTo{
         return $this->belongsTo(Acao::class, 'id_acao', 'id');
+    }
+
+    public function respostas() :HasMany{
+        return $this->hasMany(Resposta::class, 'id_submissao', 'id');
     }
 
     public function getProgressAttribute() : float

@@ -68,7 +68,7 @@
                         </div>
                     </td>
                     <td class="text-center">
-                        <a href="" class="btn btn-sm btn-success">Validar</a>
+                        <a href="{{route('report.validator', $item)}}" class="btn btn-sm btn-success {{$item->finalizada_em == null ? 'disabled' : ''}}">Validar</a>
                     </td>
                 </tr>
                 @endforeach

@@ -119,4 +119,6 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('relatorios/monitorar/{uuid}', [ReportController::class, 'monitorar'])->name('report.monitor')->middleware(['auth' => 'permission:monitorar_relatórios']);
 
+    Route::get('relatorios/monitorar/validar/{uuid}', [ReportController::class, 'validator'])->name('report.validator')->middleware(['auth' => 'permission:monitorar_relatórios']);
+
 });
