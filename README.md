@@ -116,6 +116,9 @@ erDiagram
     SUBMISSAO ||--o{ RESPOSTA : contem
     PERGUNTA ||--o{ RESPOSTA : "referencia a"
     OPCAO_PERGUNTA ||--o{ RESPOSTA : "vinculada a (se aplicavel)"
+    
+    PERGUNTA ||--o{ VALIDACAO_RESPOSTA :tem
+    RESPOSTA ||--o{ VALIDACAO_RESPOSTA :tem
 
     FORMULARIO {
         uuid id PK
@@ -177,6 +180,15 @@ erDiagram
         uuid id_pergunta FK
         text valor
         int indice_grupo
+    }
+
+    VALIDACAO_RESPOSTA{
+        uuid id PK
+        uuid id_resposta FK
+        uuid id_pergunta FK
+        uuid id_avaliador FK
+        boolean status 
+        text correcao
     }
 ```
 ---

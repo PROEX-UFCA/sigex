@@ -120,5 +120,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('relatorios/monitorar/{uuid}', [ReportController::class, 'monitorar'])->name('report.monitor')->middleware(['auth' => 'permission:monitorar_relatórios']);
 
     Route::get('relatorios/monitorar/validar/{uuid}', [ReportController::class, 'validator'])->name('report.validator')->middleware(['auth' => 'permission:monitorar_relatórios']);
+    
+    Route::post('relatorios/monitorar/validar/{uuid}', [ReportController::class, 'validar'])->name('report.validate.store')->middleware(['auth' => 'permission:monitorar_relatórios']);
 
+    Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar');
 });

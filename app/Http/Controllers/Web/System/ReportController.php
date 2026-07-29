@@ -7,11 +7,14 @@ use App\Http\Requests\Web\Report\StoreRequest;
 use App\Http\Requests\Web\Report\UpdateRequest;
 use App\Models\Pergunta;
 use App\Models\Resposta;
+use App\Models\ValidacaoResposta;
 use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Forms\FormsRepository;
 use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Reports\ReportsRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -288,20 +291,17 @@ class ReportController extends Controller
 
         // Trazemos as seções ordenadas pela coluna 'ordem'
         $secoes = $submissao->relatorio->formulario->secoes()->orderBy('ordem')->get();
-
         foreach ($secoes as $secao) {
             $perguntasData = [];
             
             // Traz apenas as perguntas pai (ignora as sub-perguntas soltas)
             foreach ($secao->perguntas()->whereNull('id_pergunta_pai')->get() as $pergunta) {
-                
                 // --- TRATAMENTO PARA TABELA/REPEATER ---
                 if ($pergunta->tipo === 'tabela') {
                     $respostasTabela = Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
                         ->where('id_submissao', $submissao->id)
                         ->get()
                         ->groupBy('indice_grupo');
-                    
                     $valoresTabela = [];
                     foreach($respostasTabela as $indice => $respostasLinha) {
                         $linhaFormatada = [];
@@ -346,6 +346,7 @@ class ReportController extends Controller
 
         $this->data['submissao'] = $submissao;
         $this->data['secoes']    = $secoesData;
+
         
         return view('pages.report.validator', $this->data);
     }
@@ -364,7 +365,7 @@ class ReportController extends Controller
         switch ($tipo) {
             case 'file':
                 // Cria a URL do storage para o avaliador baixar/abrir o arquivo
-                $url = Storage::url($valor); 
+                $url = route('arquivo.visualizar', ['path' => $valor]);
                 return '<a href="'.$url.'" target="_blank" class="btn btn-sm btn-outline-primary"><i class="ti ti-external-link"></i> Abrir Arquivo</a>';
                 
             case 'location':
@@ -383,6 +384,74 @@ class ReportController extends Controller
                 
             default:
                 return $valor;
+        }
+    }
+
+    public function visualizarArquivo(Request $request)
+    {
+        $path = $request->query('path');
+
+        if (!Storage::exists($path)) {
+            abort(404, 'Arquivo não encontrado.');
+        }
+
+        return Storage::response($path);
+    }
+
+    public function validar(Request $request, $idSubmissao)
+    {
+        // 1. Validação de segurança dos dados que vêm do formulário
+        $request->validate([
+            'validacao' => 'required|array',
+            'validacao.*.status' => 'required|in:aprovado,correcao',
+            'validacao.*.feedback' => 'nullable|string',
+        ]);
+
+        // 2. Inicia a transação no banco de dados
+        DB::beginTransaction();
+
+        try {
+            $avaliadorId = Auth::user()->uuid;
+
+            // 3. Itera sobre o array recebido do form
+            // Assumindo que a chave do array (o $pergunta['id'] do form) é o ID da Resposta
+            foreach ($request->input('validacao') as $idResposta => $dados) {
+                
+                // Converte o valor do rádio ('aprovado' ou 'correcao') para o booleano do banco (1 ou 0)
+                $isAprovado = $dados['status'] === 'aprovado';
+
+                // O updateOrCreate procura pelo id_resposta. Se achar, atualiza. Se não, cria.
+                ValidacaoResposta::updateOrCreate(
+                    [
+                        'id_resposta' => $idResposta
+                    ],
+                    [
+                        'id_avaliador' => $avaliadorId,
+                        'status'       => $isAprovado,
+                        // Se foi aprovado, força null. Se foi correção, pega o texto preenchido.
+                        'correcao'     => $isAprovado ? null : $dados['feedback'], 
+                    ]
+                );
+            }
+
+            // 4. (Opcional) Aqui você pode colocar a lógica para mudar o status geral da Submissão 
+            // Exemplo: verificar se houve ALGUMA reprovação e mudar o status da submissão para 'correcao_solicitada'
+            // $submissao = Submissao::findOrFail($idSubmissao);
+            // $submissao->status = 'avaliada'; 
+            // $submissao->save();
+
+            // Confirma a gravação no banco
+            DB::commit();
+
+            // Redireciona com mensagem de sucesso
+            return redirect()->route('report.monitor', $idSubmissao)->with('success', 'Avaliação concluída com sucesso!');
+
+        } catch (\Exception $e) {
+            // Se der qualquer erro, cancela tudo que foi feito no loop
+            DB::rollBack();
+            
+            // Retorna para a tela de validação com o erro
+            return back()->with('error', 'Ocorreu um erro ao salvar a avaliação: ' . $e->getMessage());
         }
     }
 }
