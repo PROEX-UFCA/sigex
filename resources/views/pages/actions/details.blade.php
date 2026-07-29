@@ -201,13 +201,56 @@
             </div>
 
             <div class="tab-pane fade" id="ods-pane" role="tabpanel" tabindex="0">
-                <div class="card card-lg mb-3">
+              <div class="card card-lg mb-3">
                 <div class="card-body p-5">
-                    <h3 class="m-0 mb-3">Objetivos de Desenvolvimento Sustentável</h3>
-                    <p class="text-muted">A listagem estilo SIGAA será implementada aqui.</p>
+                  <h3 class="m-0 mb-4">Objetivos de Desenvolvimento Sustentável</h3>
+                  <p class="text-muted mb-4 border-start border-3 border-info ps-3">
+                    Abaixo estão os Objetivos de Desenvolvimento Sustentável (ODS) da ONU vinculados a este projeto. Os ícones coloridos representam os objetivos que esta ação atende diretamente.
+                  </p>
+
+                  @if(!empty($action->ods))
+                    @php
+                      $odsArray = array_map('trim', explode(';', $action->ods));
+                  @endphp
+
+                    <div class="w-100 w-lg-75 mx-auto">
+                      <div class="row row-cols-3 row-cols-md-6 g-1 justify-content-center align-items-center p-2 shadow-sm">
+                        
+                        @for ($i = 1; $i <= 17; $i++)
+                          @php
+                            $isActive = in_array((string)$i, $odsArray);
+                            $imgName = $isActive ? "{$i}.png" : "{$i}_light.png";
+                          @endphp
+                          
+                          <div class="col">
+                            <img 
+                              src="https://sig.ufca.edu.br/sigaa/img/ODS/{{ $imgName }}" 
+                              class="img-fluid w-100" 
+                              alt="ODS {{ $i }}"
+                              title="ODS {{ $i }}"
+                            >
+                          </div>
+                        @endfor
+
+                        <div class="col">
+                          <img 
+                            src="https://sig.ufca.edu.br/sigaa/img/ODS/ods_.png" 
+                            class="img-fluid w-100" 
+                            alt="Logo ODS Geral"
+                          >
+                        </div>
+
+                      </div>
+                    </div>
+                  @else
+                    <div class="alert alert-info mb-0">
+                      Nenhum ODS vinculado a esta ação no momento.
+                    </div>
+                  @endif
+
                 </div>
-                </div>
-            </div>
+              </div>
+              </div>
 
             <div class="tab-pane fade" id="agenda-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
