@@ -19,14 +19,14 @@
               <button class="nav-link text-start active" id="acao-tab" data-bs-toggle="tab" data-bs-target="#acao-pane" type="button" role="tab" aria-selected="true">
                 <i class="ti ti-info-circle me-2"></i>Ação
               </button>
+              <button class="nav-link text-start" id="ods-tab" data-bs-toggle="tab" data-bs-target="#ods-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-leaf me-2"></i>ODS
+              </button>
               <button class="nav-link text-start" id="banner-tab" data-bs-toggle="tab" data-bs-target="#banner-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-photo me-2"></i>Banner
               </button>
               <button class="nav-link text-start" id="membros-tab" data-bs-toggle="tab" data-bs-target="#membros-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-users me-2"></i>Membros
-              </button>
-              <button class="nav-link text-start" id="ods-tab" data-bs-toggle="tab" data-bs-target="#ods-pane" type="button" role="tab" aria-selected="false">
-                <i class="ti ti-leaf me-2"></i>ODS
               </button>
               <button class="nav-link text-start" id="agenda-tab" data-bs-toggle="tab" data-bs-target="#agenda-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-calendar me-2"></i>Agenda
@@ -43,12 +43,14 @@
                 <div class="card-body p-5">
                   <div class="markdown mb-6">
                     <h1>{{$action->titulo}}</h1>
+                    
                     <p class="p-0 fw-bold text-cyan">Resumo da ação:</p>
-                    <div class="card mb-3 p-0 px-5 overflow-hidden line-clamp-3 [&>*]:!m-0 [&>*]:!p-0 [&>p]:!mb-1">
+                    <div class="card mb-5 p-0 px-5 overflow-hidden line-clamp-3 [&>*]:!m-0 [&>*]:!p-0 [&>p]:!mb-1">
                       {!! $action->resumo !!}
                     </div>
-                    <p class="p-0 fw-bold text-cyan">Detalhes da ação:</p>
-                    <div class="datagrid mb-3">
+
+                    <h4 class="text-cyan mb-3 border-bottom pb-2">Informações Gerais</h4>
+                    <div class="datagrid mb-5">
                       <div class="datagrid-item">
                         <div class="datagrid-title">Id do projeto</div>
                         <div class="datagrid-content">{{$action->id_projeto}}</div>
@@ -58,16 +60,54 @@
                         <div class="datagrid-content">{{$action->ano}}</div>
                       </div>
                       <div class="datagrid-item">
+                        <div class="datagrid-title">Situação</div>
+                        <div class="datagrid-content">
+                          <span class="status status-azure" style="font-size: 12px;">{{$action->situacao}}</span>
+                        </div>
+                      </div>
+                      <div class="datagrid-item">
+                        <div class="datagrid-title">Tipo da ação</div>
+                        <div class="datagrid-content">{{$action->tipo_acao}}</div>
+                      </div>
+                      <div class="datagrid-item">
+                        <div class="datagrid-title">Área temática</div>
+                        <div class="datagrid-content">{{$action->area_tematica}}</div>
+                      </div>
+                      <div class="datagrid-item">
+                        <div class="datagrid-title">Centro/Departamento</div>
+                        <div class="datagrid-content">{{$action->centro_departamento_sigla}}</div>
+                      </div>
+                      <div class="datagrid-item">
+                        <div class="datagrid-title">Palavras chave</div>
+                        <div class="datagrid-content">{{$action->palavras_chave}}</div>
+                      </div>
+                    </div>
+
+                    <h4 class="text-cyan mb-3 border-bottom pb-2">Datas e Prazos</h4>
+                    <div class="datagrid mb-5">
+                      <div class="datagrid-item">
+                        <div class="datagrid-title">Data de cadastro</div>
+                        <div class="datagrid-content">{{$action->data_cadastro}}</div>
+                      </div>
+                      <div class="datagrid-item">
+                        <div class="datagrid-title">Data de início</div>
+                        <div class="datagrid-content">{{$action->data_inicio}}</div>
+                      </div>
+                      <div class="datagrid-item">
+                        <div class="datagrid-title">Data do fim</div>
+                        <div class="datagrid-content">{{$action->data_fim}}</div>
+                      </div>
+                      <div class="datagrid-item">
+                        <div class="datagrid-title">Última atualização</div>
+                        <div class="datagrid-content">{{$action->data_atualizacao}}</div>
+                      </div>
+                    </div>
+
+                    <h4 class="text-cyan mb-3 border-bottom pb-2">Recursos e Financiamento</h4>
+                    <div class="datagrid mb-3">
+                      <div class="datagrid-item">
                         <div class="datagrid-title">Modalidade/Edital</div>
                         <div class="datagrid-content">{{$action->modalidade_edital}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Bolsas solicitadas</div>
-                        <div class="datagrid-content">{{$action->bolsas_solicitadas}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Bolsas concedidas</div>
-                        <div class="datagrid-content">{{$action->bolsas_concedidas}}</div>
                       </div>
                       <div class="datagrid-item">
                         <div class="datagrid-title">Financiamento interno?</div>
@@ -78,47 +118,67 @@
                         <div class="datagrid-content">{{$action->financiamento_externo}}</div>
                       </div>
                       <div class="datagrid-item">
-                        <div class="datagrid-title">Situacão</div>
-                        <div class="datagrid-content">{{$action->situacao}}</div>
+                        <div class="datagrid-title">Bolsas solicitadas</div>
+                        <div class="datagrid-content">{{$action->bolsas_solicitadas}}</div>
                       </div>
                       <div class="datagrid-item">
-                        <div class="datagrid-title">Data de cadastro</div>
-                        <div class="datagrid-content">{{$action->data_cadastro}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Data de inicio</div>
-                        <div class="datagrid-content">{{$action->data_inicio}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Data do fim</div>
-                        <div class="datagrid-content">{{$action->data_fim}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Data de atualizacao</div>
-                        <div class="datagrid-content">{{$action->data_atualizacao}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Centro/Departamento/Sigla</div>
-                        <div class="datagrid-content">{{$action->centro_departamento_sigla}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Tipo da acão</div>
-                        <div class="datagrid-content">{{$action->tipo_acao}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Area temática</div>
-                        <div class="datagrid-content">{{$action->area_tematica}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Ods</div>
-                        <div class="datagrid-content">{{$action->ods}}</div>
-                      </div>
-                      <div class="datagrid-item">
-                        <div class="datagrid-title">Palavras chave</div>
-                        <div class="datagrid-content">{{$action->palavras_chave}}</div>
+                        <div class="datagrid-title">Bolsas concedidas</div>
+                        <div class="datagrid-content">{{$action->bolsas_concedidas}}</div>
                       </div>
                     </div>
+
                   </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="ods-pane" role="tabpanel" tabindex="0">
+              <div class="card card-lg mb-3">
+                <div class="card-body p-5">
+                  <h3 class="m-0 mb-4">Objetivos de Desenvolvimento Sustentável</h3>
+                  <p class="text-muted mb-4 border-start border-3 border-info ps-3">
+                    Abaixo estão os Objetivos de Desenvolvimento Sustentável (ODS) da ONU vinculados a este projeto. Os ícones coloridos representam os objetivos que esta ação atende diretamente.
+                  </p>
+
+                  @if(!empty($action->ods))
+                    @php
+                      $odsArray = array_map('trim', explode(';', $action->ods));
+                  @endphp
+
+                    <div class="w-100 w-lg-75 mx-auto">
+                      <div class="row row-cols-3 row-cols-md-6 g-1 justify-content-center align-items-center p-2 shadow-sm">
+                        
+                        @for ($i = 1; $i <= 17; $i++)
+                          @php
+                            $isActive = in_array((string)$i, $odsArray);
+                            $imgName = $isActive ? "{$i}.png" : "{$i}_light.png";
+                          @endphp
+                          
+                          <div class="col">
+                            <img 
+                              src="https://sig.ufca.edu.br/sigaa/img/ODS/{{ $imgName }}" 
+                              class="img-fluid w-100" 
+                              alt="ODS {{ $i }}"
+                              title="ODS {{ $i }}"
+                            >
+                          </div>
+                        @endfor
+
+                        <div class="col">
+                          <img 
+                            src="https://sig.ufca.edu.br/sigaa/img/ODS/ods_.png" 
+                            class="img-fluid w-100" 
+                            alt="Logo ODS Geral"
+                          >
+                        </div>
+
+                      </div>
+                    </div>
+                  @else
+                    <div class="alert alert-info mb-0">
+                      Nenhum ODS vinculado a esta ação no momento.
+                    </div>
+                  @endif
+
                 </div>
               </div>
             </div>
@@ -199,58 +259,6 @@
                 </div>
               </div>
             </div>
-
-            <div class="tab-pane fade" id="ods-pane" role="tabpanel" tabindex="0">
-              <div class="card card-lg mb-3">
-                <div class="card-body p-5">
-                  <h3 class="m-0 mb-4">Objetivos de Desenvolvimento Sustentável</h3>
-                  <p class="text-muted mb-4 border-start border-3 border-info ps-3">
-                    Abaixo estão os Objetivos de Desenvolvimento Sustentável (ODS) da ONU vinculados a este projeto. Os ícones coloridos representam os objetivos que esta ação atende diretamente.
-                  </p>
-
-                  @if(!empty($action->ods))
-                    @php
-                      $odsArray = array_map('trim', explode(';', $action->ods));
-                  @endphp
-
-                    <div class="w-100 w-lg-75 mx-auto">
-                      <div class="row row-cols-3 row-cols-md-6 g-1 justify-content-center align-items-center p-2 shadow-sm">
-                        
-                        @for ($i = 1; $i <= 17; $i++)
-                          @php
-                            $isActive = in_array((string)$i, $odsArray);
-                            $imgName = $isActive ? "{$i}.png" : "{$i}_light.png";
-                          @endphp
-                          
-                          <div class="col">
-                            <img 
-                              src="https://sig.ufca.edu.br/sigaa/img/ODS/{{ $imgName }}" 
-                              class="img-fluid w-100" 
-                              alt="ODS {{ $i }}"
-                              title="ODS {{ $i }}"
-                            >
-                          </div>
-                        @endfor
-
-                        <div class="col">
-                          <img 
-                            src="https://sig.ufca.edu.br/sigaa/img/ODS/ods_.png" 
-                            class="img-fluid w-100" 
-                            alt="Logo ODS Geral"
-                          >
-                        </div>
-
-                      </div>
-                    </div>
-                  @else
-                    <div class="alert alert-info mb-0">
-                      Nenhum ODS vinculado a esta ação no momento.
-                    </div>
-                  @endif
-
-                </div>
-              </div>
-              </div>
 
             <div class="tab-pane fade" id="agenda-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
@@ -360,4 +368,23 @@
 </div>
 @endsection
 @section('scripts')
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    let hash = window.location.hash;
+    if (hash) {
+        let tabTarget = document.querySelector('button[data-bs-target="' + hash + '"]');
+        if (tabTarget) {
+            new bootstrap.Tab(tabTarget).show();
+            window.scrollTo(0, 0);
+        }
+    }
+
+    const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabs.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', event => {
+            window.history.replaceState(null, null, event.target.dataset.bsTarget);
+        });
+    });
+});
+</script>
 @endsection
