@@ -91,6 +91,27 @@ class ActionController extends Controller
         }
     }
 
+    public function updateSchedule(ScheduleRequest $request, $id_agenda){
+        try {
+            $this->actionsRepository->updateSchedule($request, $id_agenda);
+            
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("success", "Evento atualizado com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("error", "Erro ao atualizar evento. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
+
+    public function deleteSchedule($id_agenda)
+    {
+        try {
+            $this->actionsRepository->deleteSchedule($id_agenda);
+            
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("success", "Evento removido da ação com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("error", "Erro ao remover o evento. Por favor, tente novamente mais tarde.");
+        }
+    }
+
     public function my(Request $request){
 
         $this->data['actions'] = $this->actionsRepository->getAllByUuid(Auth::user()->uuid, $request->query());

@@ -340,21 +340,108 @@
                           <td>{{ $item->data_hora_fim }}</td>
                           <td>{{ $item->local_formato }}</td>
                           <td>{{ $item->descricao }}</td>
+                        
+                        @can('editar_agenda')
                           <td>
-                            <a href="" class="btn btn-sm btn-primary btn-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
-                              <i class="ti ti-pencil"></i>
-                            </a>
-                          </td>
-                          <td>
-                            <form action="{{ route('members.delete', $item->id) }}" method="POST"
-                              onsubmit="return confirm('Deseja realmente deletar esta agenda?')">
-                              @csrf
-                              @method('DELETE')
-                              <button type="submit" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Deletar">
-                                <i class="ti ti-trash"></i>
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Editar">
+                              <button type="button" class="btn btn-sm btn-primary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-agenda-{{ $item->id }}" aria-controls="offcanvasExample">
+                                <i class="ti ti-pencil"></i>
                               </button>
-                            </form>
+                            </span>
+
+                            <x-modal.offcanvas route="{{ route('actions.updateSchedule', $item->id) }}" id="modal-edit-agenda-{{ $item->id }}" class="offcanvas-end" title="Editar agenda">
+                              <x-slot:content>
+                                @method('PUT')
+                                
+                                @include('components.form-elements.input.input', [
+                                  'title' => 'Título do evento',
+                                  'type' => 'text',
+                                  'class' => 'mb-3',
+                                  'name' => 'titulo',
+                                  'required' => 'true',
+                                  'placeholder' => 'Digite o título do evento',
+                                  'value' => old('titulo') ?? $item->titulo_evento,
+                                ])
+                                
+                                @include('components.form-elements.input.input', [
+                                  'title' => 'Local ou formato do evento',
+                                  'type' => 'text',
+                                  'class' => 'mb-3',
+                                  'name' => 'local_formato',
+                                  'required' => 'true',
+                                  'placeholder' => 'Digite o local ou formato do evento',
+                                  'value' => old('local_formato') ?? $item->local_formato,
+                                ])
+                                
+                                @include('components.form-elements.input.input', [
+                                  'title' => 'Data e hora de início do evento',
+                                  'type' => 'datetime-local',
+                                  'class' => 'mb-3',
+                                  'name' => 'data_hora_inicio',
+                                  'required' => 'true',
+                                  'value' => old('data_hora_inicio') ?? $item->data_hora_inicio,
+                                ])
+                                
+                                @include('components.form-elements.input.input', [
+                                  'title' => 'Data e hora do fim do evento',
+                                  'type' => 'datetime-local',
+                                  'class' => 'mb-3',
+                                  'name' => 'data_hora_fim',
+                                  'required' => 'true',
+                                  'value' => old('data_hora_fim') ?? $item->data_hora_fim,
+                                ])
+                                
+                                @include('components.form-elements.textarea.textarea', [
+                                  'title' => 'Descrição do evento',
+                                  'class' => 'mb-3',
+                                  'name' => 'descricao',
+                                  'required' => 'true',
+                                  'placeholder' => 'Descricao do evento',
+                                  'value' => old('descricao') ?? $item->descricao,
+                                ])
+                              </x-slot:content>
+                            </x-modal.offcanvas>
                           </td>
+                        @endcan
+
+                        @can('remover_agenda')
+                        <td>
+                          <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Deletar">
+                            <button type="button" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modal-delete-agenda-{{ $item->id }}">
+                              <i class="ti ti-trash"></i>
+                            </button>
+                          </span>
+
+                          <div class="modal fade" id="modal-delete-agenda-{{ $item->id }}" tabindex="-1" aria-labelledby="modalLabelAgenda{{ $item->id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                              <div class="modal-content">
+                                
+                                <div class="modal-header bg-danger text-white">
+                                  <h5 class="modal-title" id="modalLabelAgenda{{ $item->id }}">Confirmar Exclusão</h5>
+                                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                
+                                <div class="modal-body text-start text-wrap">
+                                  Tem certeza que deseja deletar o evento <strong>{{ $item->titulo_evento }}</strong> da agenda? <br><br>
+                                  <span class="text-muted small">Esta ação removerá permanentemente o evento do sistema.</span>
+                                </div>
+                                
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                  
+                                  <form action="{{ route('actions.deleteSchedule', $item->id) }}" method="POST" class="m-0 p-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger">Sim, Deletar Evento</button>
+                                  </form>
+                                </div>
+                                
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        @endcan
+
                         </tr>
                         @endforeach
                       </tbody>
