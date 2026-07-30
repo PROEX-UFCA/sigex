@@ -39,15 +39,21 @@
           @endcan
         </td>
         <td class="text-center">
-          <button class="btn btn-sm p-1 px-2 position-relative" data-bs-toggle="offcanvas"
-            data-bs-target="#modal-relatorios-{{$item->action->id}}" aria-controls="offcanvasExample">
-            Relatórios
-            @if ($item->action->submissoes->whereNull('finalizada_em')->count() > 0)
-            <span class="badge bg-danger badge-notification badge-blink">
+          <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="Relatórios">
+            <button class="btn btn-sm btn-secondary btn-icon position-relative"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#modal-relatorios-{{$item->action->id}}"
+            aria-controls="offcanvasExample">
+
+              <i class="ti ti-file-description"></i>
+              @if ($item->action->submissoes->whereNull('finalizada_em')->count() > 0)
+              <span class="badge bg-danger badge-notification badge-blink">
               {{ $item->action->submissoes->whereNull('finalizada_em')->count() }}
-            </span>
-            @endif
-          </button>
+              </span>
+              @endif
+
+            </button>
+          </span>
         </td>
       </tr>
       @endforeach
