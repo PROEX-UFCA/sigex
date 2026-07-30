@@ -87,19 +87,19 @@
                     <div class="datagrid mb-5">
                       <div class="datagrid-item">
                         <div class="datagrid-title">Data de cadastro</div>
-                        <div class="datagrid-content">{{$action->data_cadastro}}</div>
+                        <div class="datagrid-content">{{$action->data_cadastro ? \Carbon\Carbon::parse($action->data_cadastro)->format('d/m/Y') : '/'}}</div>
                       </div>
                       <div class="datagrid-item">
                         <div class="datagrid-title">Data de início</div>
-                        <div class="datagrid-content">{{$action->data_inicio}}</div>
+                        <div class="datagrid-content">{{$action->data_inicio ? \Carbon\Carbon::parse($action->data_inicio)->format('d/m/Y') : '-' }}</div>
                       </div>
                       <div class="datagrid-item">
                         <div class="datagrid-title">Data do fim</div>
-                        <div class="datagrid-content">{{$action->data_fim}}</div>
+                        <div class="datagrid-content">{{$action->data_fim ? \Carbon\Carbon::parse($action->data_fim)->format('d/m/Y') : '-' }}</div>
                       </div>
                       <div class="datagrid-item">
                         <div class="datagrid-title">Última atualização</div>
-                        <div class="datagrid-content">{{$action->data_atualizacao}}</div>
+                        <div class="datagrid-content">{{$action->data_atualizacao ? \Carbon\Carbon::parse($action->data_atualizacao)->format('d/m/Y') : '-' }}</div>
                       </div>
                     </div>
 
@@ -336,8 +336,8 @@
                         @foreach ($action->agenda as $item)
                         <tr>
                           <td>{{ $item->titulo_evento }}</td>
-                          <td>{{ $item->data_hora_inicio }}</td>
-                          <td>{{ $item->data_hora_fim }}</td>
+                          <td>{{ $item->data_hora_inicio ? \Carbon\Carbon::parse($item->data_hora_inicio)->format('d/m/Y \à\s H:i') : '/' }}</td>
+                          <td>{{ $item->data_hora_fim ? \Carbon\Carbon::parse($item->data_hora_fim)->format('d/m/Y \à\s H:i') : '/' }}</td>
                           <td>{{ $item->local_formato }}</td>
                           <td>{{ $item->descricao }}</td>
                         
