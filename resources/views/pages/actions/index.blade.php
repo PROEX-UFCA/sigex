@@ -203,8 +203,8 @@
           @can('editar_ação')
           <td>
             @can('editar_ação')
-            <a href="{{route('actions.edit', $item->id)}}">
-              Editar
+            <a href="{{route('actions.edit', $item->id)}}" class="btn btn-sm btn-primary btn-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+              <i class="ti ti-pencil"></i>
             </a>
             @endcan
           </td>

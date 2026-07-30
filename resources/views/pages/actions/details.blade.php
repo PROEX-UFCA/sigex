@@ -340,14 +340,18 @@
                           <td>{{ $item->data_hora_fim }}</td>
                           <td>{{ $item->local_formato }}</td>
                           <td>{{ $item->descricao }}</td>
-                          <td><a href="">Editar</a></td>
+                          <td>
+                            <a href="" class="btn btn-sm btn-primary btn-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+                              <i class="ti ti-pencil"></i>
+                            </a>
+                          </td>
                           <td>
                             <form action="{{ route('members.delete', $item->id) }}" method="POST"
-                              onsubmit="return confirm('Deseja realmente deletar este membro?')">
+                              onsubmit="return confirm('Deseja realmente deletar esta agenda?')">
                               @csrf
                               @method('DELETE')
-                              <button class="btn btn-sm btn-danger p-1 px-" type="submit">
-                                Deletar
+                              <button type="submit" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Deletar">
+                                <i class="ti ti-trash"></i>
                               </button>
                             </form>
                           </td>

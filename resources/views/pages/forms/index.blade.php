@@ -119,10 +119,12 @@
           @endcan
           @can('editar_formulários')
           <td class="text-center">
-            <button class="btn btn-sm p-1 px-2" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-{{$item->id}}"
-              aria-controls="offcanvasExample">
-              Editar
-            </button>
+            <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+              <button class="btn btn-sm btn-primary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-{{$item->id}}" aria-controls="offcanvasExample">
+                <i class="ti ti-pencil"></i>
+              </button>
+            </span>
+
           </td>
           @endcan
           @can('deletar_formulários')
@@ -131,9 +133,9 @@
               onsubmit="return confirm('Deseja realmente deletar este formulário?')">
               @csrf
               @method('DELETE')
-              <button class="btn btn-sm btn-danger p-1 px-2 {{ $item->published == 0 ? '' : 'disabled' }}"
-                type="submit">
-                Deletar
+              <button class=" btn btn-sm btn-danger btn-icon {{ $item->published == 0 ? '' : 'disabled' }}"
+                type="submit" data-bs-toggle="tooltip" data-bs-placement="top" title="Deletar">
+                <i class="ti ti-trash"></i>
               </button>
             </form>
           </td>

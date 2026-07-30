@@ -75,11 +75,13 @@
             @foreach ($roles as $role)
               <tr>
                 <td>{{ ucwords($role->name) }}</td>
-                <td>
-                  <button class="btn btn-secondary" data-bs-toggle="offcanvas" aria-controls="offcanvasExample"
-                    data-bs-target="#modal-edit-role{{ $role->id }}">
-                    Editar
-                </button>
+                <td class="text-center">
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+                    <button class="btn btn-sm btn-primary btn-icon" data-bs-toggle="offcanvas" aria-controls="offcanvasExample"
+                      data-bs-target="#modal-edit-role{{ $role->id }}">
+                      <i class="ti ti-pencil"></i>
+                    </button>
+                  </span>
                 </td>
               </tr>
             @endforeach

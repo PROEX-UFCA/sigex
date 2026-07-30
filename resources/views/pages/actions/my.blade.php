@@ -33,7 +33,9 @@
         <td>{{ $item->action->situacao }}</td>
         <td class="text-center">
           @can('detalhar_ação')
-          <a href="{{ route('actions.details', $item->action->id) }}" class="btn btn-sm">Detalhar</a>
+          <a href="{{ route('actions.details', $item->action->id) }}" class="btn btn-sm btn-info btn-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhar">
+            <i class="ti ti-eye"></i>
+          </a>
           @endcan
         </td>
         <td class="text-center">
