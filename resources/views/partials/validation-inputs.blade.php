@@ -1,5 +1,5 @@
 @php
-    $oldStatus = old("validacao.{$id}.status", $data['validacao_salva']['status'] ?? null);
+    $oldStatus = old("validacao.{$id}.status", $data['validacao_salva']['status'] ?? 2);
     $oldFeedback = old("validacao.{$id}.feedback", $data['validacao_salva']['correcao'] ?? '');
 @endphp
 
@@ -21,7 +21,7 @@
             id="reprovar_{{ $id }}" value="0"
             {{ $oldStatus == 0 ? 'checked' : '' }}>
         <label class="form-check-label text-danger fw-semibold small" for="reprovar_{{ $id }}">
-            Pedir Correção
+            Pedir Correção {{ $oldStatus == 0 ? 'checked' : '' }}
         </label>
     </div>
 </div>

@@ -3,7 +3,8 @@
 @section('styles')
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-{{-- <link href="{{ asset('assets/libs/tom-select/dist/css/tom-select.bootstrap5.css') }}" rel="stylesheet" /> --}}
+{{--
+<link href="{{ asset('assets/libs/tom-select/dist/css/tom-select.bootstrap5.css') }}" rel="stylesheet" /> --}}
 @endsection
 
 @section('content')
@@ -30,48 +31,52 @@
       <div class="row justify-content-center">
         <div class="">
           <div id="formWizard" data-submissao-id="{{ $submissao->id }}">
-            @php
-            $secaoAtivaIndex = 0;
-            foreach ($submissao->relatorio->formulario->secoes as $i => $secao) {
-                $secaoCompleta = true;
-                foreach ($secao->perguntas as $p) {
-                    // Ignora validação na aba pai se for tabela, validaremos depois se necessário
-                    if ($p->obrigatoria && $p->tipo !== 'tabela') { 
-                        $resp = $p->getRespostaPorSubmissao($submissao->id);
-                        if (!$resp || empty($resp->valor ?? $resp->resposta ?? null)) {
-                            $secaoCompleta = false;
-                            break;
-                        }
-                    }
-                }
-                if (!$secaoCompleta) {
-                    $secaoAtivaIndex = $i;
-                    break;
-                }
-            }
-            @endphp
 
+            {{-- 1. RENDERIZAÇÃO DAS ABAS (TABS) COM INDICADOR DE ERRO --}}
             <ul class="nav nav-pills nav-justified mb-4" id="wizardTabs" role="tablist">
               @foreach ($submissao->relatorio->formulario->secoes as $index => $secao)
+              @php
+              // Lógica para verificar se existe erro nesta seção para colocar o ícone
+              $temErroNaSecao = false;
+              foreach ($secao->perguntas as $p) {
+              if ($p->tipo === 'tabela') {
+              $respostasTabelaSecao = \App\Models\Resposta::whereIn('id_pergunta',
+              $p->filhas->pluck('id'))->where('id_submissao', $submissao->id)->get();
+              foreach($respostasTabelaSecao as $rt) {
+              if ($rt->validacao && $rt->validacao->status == 0) { $temErroNaSecao = true; break; }
+              }
+              } else {
+              $resp = $p->getRespostaPorSubmissao($submissao->id);
+              if ($resp && $resp->validacao && $resp->validacao->status == 0) { $temErroNaSecao = true; break; }
+              }
+              if($temErroNaSecao) break;
+              }
+              @endphp
+
               <li class="nav-item" role="presentation">
-                <button class="nav-link {{ $index === $secaoAtivaIndex ? 'active' : '' }}" id="tab-btn-{{ $secao->id }}"
-                  data-bs-toggle="pill" data-bs-target="#secao-{{ $secao->id }}" type="button" role="tab" {{ $index>
-                  $secaoAtivaIndex ? 'disabled' : '' }}>
-                  Seção {{ $index + 1 }}.
+                <button
+                  class="nav-link {{ $index === 0 ? 'active' : '' }} d-flex align-items-center justify-content-center gap-2"
+                  id="tab-btn-{{ $secao->id }}" data-bs-toggle="pill" data-bs-target="#secao-{{ $secao->id }}"
+                  type="button" role="tab">
+                  Seção {{ $index + 1 }}
+                  @if($temErroNaSecao)
+                  <i class="bi bi-exclamation-circle-fill text-danger"
+                    title="Esta seção contém correções pendentes"></i>
+                  @endif
                 </button>
               </li>
               @endforeach
             </ul>
 
+            {{-- 2. CONTEÚDO DAS SEÇÕES --}}
             <div class="tab-content card shadow-sm p-4" id="wizardContent">
               @foreach ($submissao->relatorio->formulario->secoes as $index => $secao)
-              <div class="tab-pane fade {{ $index === $secaoAtivaIndex ? 'show active' : '' }}"
-                id="secao-{{ $secao->id }}" role="tabpanel">
+              <div class="tab-pane fade {{ $index === 0 ? 'show active' : '' }}" id="secao-{{ $secao->id }}"
+                role="tabpanel">
 
                 <h4 class="mb-1 text-primary">{{ $secao->titulo }}</h4>
                 <p>{{ $secao->descricao }}</p>
 
-                {{-- AQUI FILTRAMOS PARA MOSTRAR APENAS PERGUNTAS RAIZ (PAI) --}}
                 @foreach ($secao->perguntas->whereNull('id_pergunta_pai') as $pergunta)
 
                 @php
@@ -79,143 +84,64 @@
                 $valorSalvo = $respostaModel->valor ?? $respostaModel->resposta ?? '';
                 $arrayValores = is_string($valorSalvo) ? json_decode($valorSalvo, true) ?? [$valorSalvo] :
                 (is_array($valorSalvo) ? $valorSalvo : [$valorSalvo]);
+
+                // VARIÁVEIS DE AVALIAÇÃO (PERGUNTA NORMAL)
+                $validacao = $respostaModel ? $respostaModel->validacao : null;
+                $bloqueado = $validacao && $validacao->status == 1; // Só bloqueia se for 1 (Aprovado)
+                $precisaCorrigir = $validacao && $validacao->status == 0;
                 @endphp
 
-                <div class="mb-4">
-                  
-                  {{-- Oculta a label comum se for do tipo tabela, pois a tabela já tem seu cabeçalho --}}
+                <div class="mb-4 p-3 rounded {{ $precisaCorrigir ? 'border border-danger border-2 bg-danger-lt bg-danger-subtle' : '' }}">
+
                   @if($pergunta->tipo !== 'tabela')
-                  <label class="form-label fw-bold">
-                    {{ $pergunta->enunciado }}
-                    @if($pergunta->obrigatoria)
-                    <span class="text-danger" title="Campo obrigatório">*</span>
-                    @endif
-                  </label>
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="form-label fw-bold mb-0 {{ $precisaCorrigir ? 'text-danger' : '' }}">
+                      @if($precisaCorrigir) <i class="bi bi-exclamation-triangle-fill me-1"></i> @endif
+                      @if($bloqueado) <i class="bi bi-check-circle-fill text-success me-1"></i> @endif
+                      {{ $pergunta->enunciado }}
+                      @if($pergunta->obrigatoria) <span class="text-danger" title="Campo obrigatório">*</span> @endif
+                    </label>
+                    @if($bloqueado) <span class="badge bg-success">Aprovado</span> @endif
+                  </div>
+
+                  @if($precisaCorrigir)
+                  <div class="alert alert-danger py-2 px-3 mb-3 small fw-bold">
+                    <i class="bi bi-chat-left-text me-1"></i> Motivo da Correção: {{ $validacao->correcao }}
+                  </div>
+                  @endif
                   @endif
 
                   @switch($pergunta->tipo)
 
+                  {{-- TIPOS NORMAIS --}}
                   @case('text')
                   <input type="text" class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" {{
-                    $pergunta->obrigatoria ? 'required' : '' }}
-                  @if($pergunta->max && !$pergunta->regex) minlength="{{ $pergunta->max }}" @endif
-                  @if($pergunta->max && !$pergunta->regex) maxlength="{{ $pergunta->max }}" @endif
-                  @if($pergunta->regex) data-mascara="{{ $pergunta->regex }}" @endif
-                  placeholder="Sua resposta aqui"
-                  value="{{ $valorSalvo }}">
-
-                  @if($pergunta->min || $pergunta->max || $pergunta->regex)
-                  <div class="form-text text-muted">
-                    @if($pergunta->max && !$pergunta->regex) Min: {{ $pergunta->min }} caracteres. @endif
-                    @if($pergunta->max && !$pergunta->regex) Máx: {{ $pergunta->max }} caracteres. @endif
-                    @if($pergunta->regex) Formato esperado: {{ $pergunta->regex }} @endif
-                  </div>
-                  @endif
-                  @break
-
-                  @case('location')
-                  @php
-                  $localData = is_string($valorSalvo) && json_decode($valorSalvo, true)
-                  ? json_decode($valorSalvo, true)
-                  : ['nome' => $valorSalvo, 'lat' => '', 'lng' => ''];
-
-                  $localNome = $localData['nome'] ?? '';
-                  $localLat = $localData['lat'] ?? '';
-                  $localLng = $localData['lng'] ?? '';
-                  @endphp
-
-                  <div class="location-wrapper" id="location-wrapper-{{ $pergunta->id }}">
-                    <div class="d-flex justify-content-between mb-2">
-                      <span class="text-muted small">Pesquise pelo nome, CEP ou clique no mapa</span>
-                      <a class="text-decoration-none small" onclick="toggleLocationInput('{{ $pergunta->id }}')"
-                        href="javascript:void(0)">
-                        Não encontrou seu local?
-                      </a>
-                    </div>
-
-                    <div class="gap-2 mb-2" id="div-select-local-{{ $pergunta->id }}">
-                      <select class="form-select select-location-tom form-salvar-estado"
-                        id="select-local-{{ $pergunta->id }}" name="respostas[{{ $pergunta->id }}]"
-                        data-map-id="{{ $pergunta->id }}" {{ $pergunta->obrigatoria ? 'required' : '' }}>
-                        <option value="">Pesquisar no mapa...</option>
-                        @if($localNome)
-                        <option value="{{ $localNome }}" selected>{{ $localNome }}</option>
-                        @endif
-                      </select>
-                    </div>
-
-                    <div class="d-none mb-2" id="div-chose-{{ $pergunta->id }}">
-                      <input type="text" class="form-control form-salvar-estado" id="input-local-{{ $pergunta->id }}"
-                        placeholder="Digite o nome do local manualmente" value="{{ $localNome }}">
-                      <div class="form-text text-danger">Modo de digitação manual ativo. O mapa será ignorado.</div>
-                    </div>
-
-                    <div id="map-{{ $pergunta->id }}" class="map-container border rounded"
-                      style="height: 300px; width: 100%; z-index: 1;" data-saved-lat="{{ $localLat }}"
-                      data-saved-lng="{{ $localLng }}"></div>
-
-                    <input type="hidden" name="latitude[{{ $pergunta->id }}]" id="latitude-{{ $pergunta->id }}"
-                      value="{{ $localLat }}">
-                    <input type="hidden" name="longitude[{{ $pergunta->id }}]" id="longitude-{{ $pergunta->id }}"
-                      value="{{ $localLng }}">
-                  </div>
+                    $pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }} @if($pergunta->regex)
+                  data-mascara="{{ $pergunta->regex }}" @endif placeholder="Sua resposta aqui" value="{{ $valorSalvo
+                  }}">
                   @break
 
                   @case('textarea')
                   <textarea class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" rows="3" {{
-                    $pergunta->obrigatoria ? 'required' : '' }} 
-                    @if($pergunta->min) minlength="{{ $pergunta->min }}" @endif 
-                    @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif 
-                    placeholder="Digite sua resposta...">{{ $valorSalvo }}</textarea>
-
-                  @if($pergunta->min || $pergunta->max)
-                  <div class="form-text text-muted">
-                    @if($pergunta->min) Mín: {{ $pergunta->min }} caracteres. @endif
-                    @if($pergunta->max) Máx: {{ $pergunta->max }} caracteres. @endif
-                  </div>
-                  @endif
+                    $pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }}>{{ $valorSalvo }}</textarea>
                   @break
 
                   @case('number')
-                  <input type="number" class="form-control" name="respostas[{{ $pergunta->id }}]" {{
-                    $pergunta->obrigatoria ? 'required' : '' }}
-                  @if($pergunta->min) min="{{ $pergunta->min }}" @endif
-                  @if($pergunta->max) max="{{ $pergunta->max }}" @endif
-                  @if($pergunta->step) step="{{ $pergunta->step }}" @endif
-                  placeholder="Apenas números"
-                  value="{{ $valorSalvo }}">
-
-                  @if($pergunta->min || $pergunta->max || $pergunta->step)
-                  <div class="form-text text-muted">
-                    @if($pergunta->min) Valor mín: {{ $pergunta->min }}. @endif
-                    @if($pergunta->max) Valor máx: {{ $pergunta->max }}. @endif
-                    @if($pergunta->step) Intervalo numérico: {{ $pergunta->step }}. @endif
-                  </div>
-                  @endif
+                  <input type="number" class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" {{
+                    $pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }} value="{{ $valorSalvo
+                  }}">
                   @break
 
-                  @case('file')
-                  <input type="file" class="form-control" name="respostas[{{ $pergunta->id }}]" {{
-                    $pergunta->obrigatoria && !$valorSalvo ? 'required' : '' }}
-                  @if($pergunta->accept) accept="{{ $pergunta->accept }}" @endif>
-
-                  @if($valorSalvo)
-                  <div class="form-text text-success">
-                    <i class="bi bi-check-circle"></i> Arquivo já enviado anteriormente. Envie outro apenas se desejar
-                    substituir.
-                  </div>
-                  @endif
-
-                  @if($pergunta->accept)
-                  <div class="form-text text-muted">
-                    Formatos aceitos: {{ str_replace(',', ', ', $pergunta->accept) }}
-                  </div>
-                  @endif
+                  @case('date')
+                  @case('datetime-local')
+                  <input type="{{ $pergunta->tipo }}" class="form-control form-salvar-estado"
+                    name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ?
+                  'disabled' : '' }} value="{{ $valorSalvo }}">
                   @break
 
                   @case('select')
-                  <select class="form-select" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
-                    'required' : '' }}>
+                  <select class="form-select form-salvar-estado" name="respostas[{{ $pergunta->id }}]" {{
+                    $pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }}>
                     <option value="" disabled {{ !$valorSalvo ? 'selected' : '' }}>Selecione uma opção</option>
                     @foreach($pergunta->opcoes as $opcao)
                     <option value="{{ $opcao->valor }}" {{ $valorSalvo==$opcao->valor ? 'selected' : '' }}>{{
@@ -228,220 +154,305 @@
                   <div>
                     @foreach($pergunta->opcoes as $opcao)
                     <div class="form-check mb-1">
-                      <input class="form-check-input" type="radio" name="respostas[{{ $pergunta->id }}]"
-                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}" {{ $pergunta->obrigatoria ? 'required' :
-                      '' }}
-                      {{ $valorSalvo == $opcao->valor ? 'checked' : '' }}>
-                      <label class="form-check-label" for="opcao_{{ $opcao->id }}">
-                        {{ $opcao->rotulo }}
-                      </label>
+                      <input class="form-check-input form-salvar-estado" type="radio"
+                        name="respostas[{{ $pergunta->id }}]" id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}" {{
+                        $pergunta->obrigatoria ? 'required' : '' }} {{ $valorSalvo == $opcao->valor ? 'checked' : '' }}
+                      {{ $bloqueado ? 'disabled' : '' }}>
+                      <label class="form-check-label" for="opcao_{{ $opcao->id }}">{{ $opcao->rotulo }}</label>
                     </div>
                     @endforeach
                   </div>
                   @break
 
                   @case('checkbox')
-                  <div class="checkbox-group" @if($pergunta->obrigatoria) data-required="true" @endif>
+                  <div class="checkbox-group">
                     @foreach($pergunta->opcoes as $opcao)
                     <div class="form-check mb-1">
-                      <input class="form-check-input" type="checkbox" name="respostas[{{ $pergunta->id }}][]"
-                        id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}" {{ in_array($opcao->valor,
-                      $arrayValores) ? 'checked' : '' }}>
-                      <label class="form-check-label" for="opcao_{{ $opcao->id }}">
-                        {{ $opcao->rotulo }}
-                      </label>
+                      <input class="form-check-input form-salvar-estado" type="checkbox"
+                        name="respostas[{{ $pergunta->id }}][]" id="opcao_{{ $opcao->id }}" value="{{ $opcao->valor }}"
+                        {{ in_array($opcao->valor, $arrayValores) ? 'checked' : '' }} {{ $bloqueado ? 'disabled' : ''
+                      }}>
+                      <label class="form-check-label" for="opcao_{{ $opcao->id }}">{{ $opcao->rotulo }}</label>
                     </div>
                     @endforeach
                   </div>
                   @break
 
-                  @case('date')
-                  @case('datetime-local')
-                  <input type="{{ $pergunta->tipo }}" class="form-control" name="respostas[{{ $pergunta->id }}]" {{
-                    $pergunta->obrigatoria ? 'required' : '' }}
-                  @if($pergunta->min) min="{{ $pergunta->min }}" @endif
-                  @if($pergunta->max) max="{{ $pergunta->max }}" @endif
-                  value="{{ $valorSalvo }}">
-
-                  @if($pergunta->min || $pergunta->max)
-                  <div class="form-text text-muted">
-                    @if($pergunta->min) Permitido a partir de: {{ $pergunta->min }}. @endif
-                    @if($pergunta->max) Permitido até: {{ $pergunta->max }}. @endif
-                  </div>
+                  @case('file')
+                  <input type="file" class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" {{
+                    $pergunta->obrigatoria && !$valorSalvo ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }}>
+                  @if($valorSalvo)
+                  <div class="form-text text-success mt-1"><i class="bi bi-check-circle"></i> Arquivo já enviado. Envie
+                    outro para substituir.</div>
                   @endif
                   @break
 
-                  {{-- --- INÍCIO DA LÓGICA DE TABELA / REPEATER --- --}}
+                  @case('location')
+                  @php
+                  $localData = is_string($valorSalvo) && json_decode($valorSalvo, true) ? json_decode($valorSalvo, true)
+                  : ['nome' => $valorSalvo, 'lat' => '', 'lng' => ''];
+                  $localNome = $localData['nome'] ?? '';
+                  $localLat = $localData['lat'] ?? '';
+                  $localLng = $localData['lng'] ?? '';
+                  @endphp
+                  <div class="location-wrapper position-relative" id="location-wrapper-{{ $pergunta->id }}">
+                    @if($bloqueado)
+                    <div class="position-absolute w-100 h-100 bg-white bg-opacity-50"
+                      style="z-index: 10; top:0; left:0;"></div>
+                    @endif
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted small">Pesquise pelo nome ou clique no mapa</span>
+                      <a class="text-decoration-none small" onclick="toggleLocationInput('{{ $pergunta->id }}')"
+                        href="javascript:void(0)">Não encontrou?</a>
+                    </div>
+                    <div class="gap-2 mb-2" id="div-select-local-{{ $pergunta->id }}">
+                      <select class="form-select select-location-tom form-salvar-estado"
+                        id="select-local-{{ $pergunta->id }}" name="respostas[{{ $pergunta->id }}]"
+                        data-map-id="{{ $pergunta->id }}" {{ $pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ?
+                        'disabled' : '' }}>
+                        <option value="">Pesquisar no mapa...</option>
+                        @if($localNome) <option value="{{ $localNome }}" selected>{{ $localNome }}</option> @endif
+                      </select>
+                    </div>
+                    <div class="d-none mb-2" id="div-chose-{{ $pergunta->id }}">
+                      <input type="text" class="form-control form-salvar-estado" id="input-local-{{ $pergunta->id }}"
+                        placeholder="Digite o local manualmente" value="{{ $localNome }}" {{ $bloqueado ? 'disabled'
+                        : '' }}>
+                    </div>
+                    <div id="map-{{ $pergunta->id }}" class="map-container border rounded"
+                      style="height: 250px; width: 100%; z-index: 1;" data-saved-lat="{{ $localLat }}"
+                      data-saved-lng="{{ $localLng }}"></div>
+                    <input type="hidden" name="latitude[{{ $pergunta->id }}]" id="latitude-{{ $pergunta->id }}"
+                      value="{{ $localLat }}" {{ $bloqueado ? 'disabled' : '' }}>
+                    <input type="hidden" name="longitude[{{ $pergunta->id }}]" id="longitude-{{ $pergunta->id }}"
+                      value="{{ $localLng }}" {{ $bloqueado ? 'disabled' : '' }}>
+                  </div>
+                  @break
+
+
+                  {{-- ========================================== --}}
+                  {{-- INÍCIO DA LÓGICA DE TABELA / REPEATER --}}
+                  {{-- ========================================== --}}
                   @case('tabela')
                   @php
-                      $respostasTabela = \App\Models\Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
-                                          ->where('id_submissao', $submissao->id)
-                                          ->get()
-                                          ->groupBy('indice_grupo');
-                      
-                      if($respostasTabela->isEmpty()) {
-                          $respostasTabela->put(0, collect()); 
-                      }
+                  $respostasTabela = \App\Models\Resposta::whereIn('id_pergunta',
+                  $pergunta->filhas->pluck('id'))->where('id_submissao',
+                  $submissao->id)->get()->groupBy('indice_grupo');
+                  if($respostasTabela->isEmpty()) { $respostasTabela->put(0, collect()); }
                   @endphp
 
-                  <div class="repeater-container p-3 border border-primary border-opacity-25 rounded bg-light mb-3" id="tabela-{{ $pergunta->id }}">
-                    <div class="d-flex align-items-center mb-2">
-                        <label class="form-label fw-bold mb-0 text-primary fs-4">{{ $pergunta->enunciado }}</label>
-                    </div>
-                    <div class="d-flex align-items-center mb-3 text-muted" style="font-size: 0.85rem;">
-                      <i class="ti ti-layers-linked me-2"></i> 
-                      <span>Preencha os itens abaixo (Você pode adicionar quantos precisar)</span>
+                  <div class="repeater-container p-3 border border-primary border-opacity-25 rounded bg-white mb-3"
+                    id="tabela-{{ $pergunta->id }}">
+                    <div class="d-flex align-items-center mb-3">
+                      <label class="form-label fw-bold mb-0 text-primary fs-5 {{ $pergunta->obrigatoria == 1 ? 'required' : '' }}">{{ $pergunta->enunciado }}</label>
                     </div>
 
                     <div class="repeater-linhas" id="linhas-{{ $pergunta->id }}">
                       @foreach($respostasTabela as $indice => $respostasLinha)
-                        <div class="card shadow-sm mb-3 linha-item border-0" data-indice="{{ $indice }}" id="linha-{{ $pergunta->id }}-{{ $indice }}">
-                          <div class="card-header bg-white d-flex justify-content-between align-items-center py-2 border-bottom">
-                            <span class="fw-bold text-muted small">Item #<span class="numero-item">{{ $loop->iteration }}</span></span>
-                            
-                            <button type="button" class="btn btn-sm btn-outline-danger py-1" onclick="removerLinhaTabela('{{ $pergunta->id }}', '{{ $indice }}')">
-                              <i class="ti ti-trash"></i> Remover
-                            </button>
-                          </div>
-                          
-                          <div class="card-body p-3">
-                            <div class="row g-3">
-                              @php
-                                $qtdColunas = $pergunta->filhas->count();
-                                $gridClass = $qtdColunas > 3 ? 'col-12 col-md-6 col-lg-4' : 'col-12 col-md';
-                              @endphp
 
-                              @foreach($pergunta->filhas as $coluna)
-                                @php
-                                  $respColuna = $respostasLinha->where('id_pergunta', $coluna->id)->first();
-                                  $valorSalvoCol = $respColuna->valor ?? $respColuna->resposta ?? '';
-                                  $arrayValoresCol = is_string($valorSalvoCol) ? json_decode($valorSalvoCol, true) ?? [$valorSalvoCol] : (is_array($valorSalvoCol) ? $valorSalvoCol : [$valorSalvoCol]);
-                                  
-                                  $inputUnicoId = $coluna->id . '-' . $indice;
-                                @endphp
-                                
-                                <div class="{{ $gridClass }}">
-                                  <label class="form-label fw-semibold mb-1" style="font-size: 0.85rem;">
-                                    {{ $coluna->enunciado }} @if($coluna->obrigatoria) <span class="text-danger">*</span> @endif
-                                  </label>
+                      {{-- Verifica se a linha tem algum campo aprovado para impedir exclusão --}}
+                      @php
+                      $linhaTemAprovado = false;
+                      foreach($pergunta->filhas as $c) {
+                      $r = $respostasLinha->where('id_pergunta', $c->id)->first();
+                      if($r && $r->validacao && $r->validacao->status == 1) $linhaTemAprovado = true;
+                      }
+                      @endphp
 
-                                  @switch($coluna->tipo)
-                                    @case('text')
-                                      <input type="text" class="form-control form-control-sm form-salvar-estado" name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" value="{{ $valorSalvoCol }}" {{ $coluna->obrigatoria ? 'required' : '' }} @if($coluna->max && !$coluna->regex) maxlength="{{ $coluna->max }}" @endif @if($coluna->regex) data-mascara="{{ $coluna->regex }}" @endif placeholder="Sua resposta aqui">
-                                      @break
-                                    
-                                    @case('textarea')
-                                      <textarea class="form-control form-control-sm form-salvar-estado" name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" rows="2" {{ $coluna->obrigatoria ? 'required' : '' }}>{{ $valorSalvoCol }}</textarea>
-                                      @break
-                                      
-                                    @case('number')
-                                      <input type="number" class="form-control form-control-sm form-salvar-estado" name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" value="{{ $valorSalvoCol }}" {{ $coluna->obrigatoria ? 'required' : '' }} @if($coluna->min) min="{{ $coluna->min }}" @endif @if($coluna->max) max="{{ $coluna->max }}" @endif @if($coluna->step) step="{{ $coluna->step }}" @endif>
-                                      @break
-                                      
-                                    @case('file')
-                                      <input type="file" class="form-control form-control-sm form-salvar-estado" name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" {{ $coluna->obrigatoria && !$valorSalvoCol ? 'required' : '' }} @if($coluna->accept) accept="{{ $coluna->accept }}" @endif>
-                                      @if($valorSalvoCol)
-                                        <div class="form-text text-success" style="font-size: 0.7rem;"><i class="bi bi-check-circle"></i> Arquivo já enviado.</div>
-                                      @endif
-                                      @break
-                                      
-                                    @case('select')
-                                      <select class="form-select form-select-sm form-salvar-estado" name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" {{ $coluna->obrigatoria ? 'required' : '' }}>
-                                        <option value="" disabled {{ !$valorSalvoCol ? 'selected' : '' }}>Selecione</option>
-                                        @foreach($coluna->opcoes as $op)
-                                          <option value="{{ $op->valor }}" {{ $valorSalvoCol == $op->valor ? 'selected' : '' }}>{{ $op->rotulo }}</option>
-                                        @endforeach
-                                      </select>
-                                      @break
-                                      
-                                    @case('radio')
-                                      <div>
-                                        @foreach($coluna->opcoes as $op)
-                                          <div class="form-check mb-1">
-                                            <input class="form-check-input form-salvar-estado" type="radio" name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" id="opcao_{{ $op->id }}_{{ $indice }}" value="{{ $op->valor }}" {{ $coluna->obrigatoria ? 'required' : '' }} {{ $valorSalvoCol == $op->valor ? 'checked' : '' }}>
-                                            <label class="form-check-label" style="font-size: 0.85rem;" for="opcao_{{ $op->id }}_{{ $indice }}">{{ $op->rotulo }}</label>
-                                          </div>
-                                        @endforeach
-                                      </div>
-                                      @break
+                      <div class="card shadow-sm mb-3 linha-item border" data-indice="{{ $indice }}"
+                        id="linha-{{ $pergunta->id }}-{{ $indice }}">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                          <span class="fw-bold text-muted small">Item #<span class="numero-item">{{ $loop->iteration
+                              }}</span></span>
+                          @if(!$linhaTemAprovado)
+                          <button type="button" class="btn btn-sm btn-outline-danger py-1"
+                            onclick="removerLinhaTabela('{{ $pergunta->id }}', '{{ $indice }}')">
+                            <i class="ti ti-trash"></i> Remover
+                          </button>
+                          @endif
+                        </div>
 
-                                    @case('checkbox')
-                                      <div>
-                                        @foreach($coluna->opcoes as $op)
-                                          <div class="form-check mb-1">
-                                            <input class="form-check-input form-salvar-estado" type="checkbox" name="respostas[{{ $coluna->id }}][]" data-indice="{{ $indice }}" id="opcao_{{ $op->id }}_{{ $indice }}" value="{{ $op->valor }}" {{ in_array($op->valor, $arrayValoresCol) ? 'checked' : '' }}>
-                                            <label class="form-check-label" style="font-size: 0.85rem;" for="opcao_{{ $op->id }}_{{ $indice }}">{{ $op->rotulo }}</label>
-                                          </div>
-                                        @endforeach
-                                      </div>
-                                      @break
-                                      
-                                    @case('date')
-                                    @case('datetime-local')
-                                      <input type="{{ $coluna->tipo }}" class="form-control form-control-sm form-salvar-estado" name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" value="{{ $valorSalvoCol }}" {{ $coluna->obrigatoria ? 'required' : '' }}>
-                                      @break
-                                      
-                                    @case('location')
-                                      @php
-                                        $localDataCol = is_string($valorSalvoCol) && json_decode($valorSalvoCol, true) ? json_decode($valorSalvoCol, true) : ['nome' => $valorSalvoCol, 'lat' => '', 'lng' => ''];
-                                        $localNomeCol = $localDataCol['nome'] ?? '';
-                                        $localLatCol = $localDataCol['lat'] ?? '';
-                                        $localLngCol = $localDataCol['lng'] ?? '';
-                                      @endphp
-                                      <div class="location-wrapper" id="location-wrapper-{{ $inputUnicoId }}">
-                                        <div class="d-flex justify-content-between mb-1">
-                                          <span class="text-muted small" style="font-size: 0.7rem;">Pesquise no mapa</span>
-                                          <a class="text-decoration-none small" style="font-size: 0.7rem;" onclick="toggleLocationInput('{{ $inputUnicoId }}')" href="javascript:void(0)">Manual?</a>
-                                        </div>
+                        <div class="card-body p-3">
+                          <div class="row g-3">
+                            @foreach($pergunta->filhas as $coluna)
+                            @php
+                            $respColuna = $respostasLinha->where('id_pergunta', $coluna->id)->first();
+                            $valorSalvoCol = $respColuna->valor ?? $respColuna->resposta ?? '';
+                            $arrayValoresCol = is_string($valorSalvoCol) ? json_decode($valorSalvoCol, true) ??
+                            [$valorSalvoCol] : (is_array($valorSalvoCol) ? $valorSalvoCol : [$valorSalvoCol]);
+                            $inputUnicoId = $coluna->id . '-' . $indice;
 
-                                        <div class="gap-2 mb-2" id="div-select-local-{{ $inputUnicoId }}">
-                                          <select class="form-select select-location-tom form-salvar-estado" id="select-local-{{ $inputUnicoId }}" name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" data-map-id="{{ $inputUnicoId }}" {{ $coluna->obrigatoria ? 'required' : '' }}>
-                                            <option value="">Pesquisar...</option>
-                                            @if($localNomeCol)
-                                              <option value="{{ $localNomeCol }}" selected>{{ $localNomeCol }}</option>
-                                            @endif
-                                          </select>
-                                        </div>
+                            // AVALIAÇÃO EXCLUSIVA DA CÉLULA (COLUNA DA TABELA)
+                            $validacaoCol = $respColuna ? $respColuna->validacao : null;
+                            $bloqueadoCol = $validacaoCol && $validacaoCol->status == 1; // 1 = Aprovado (bloqueia)
+                            $precisaCorrigirCol = $validacaoCol && $validacaoCol->status == 0; // 0 = Correção (livr para editar)
+                            @endphp
 
-                                        <div class="d-none mb-2" id="div-chose-{{ $inputUnicoId }}">
-                                          <input type="text" class="form-control form-control-sm form-salvar-estado" id="input-local-{{ $inputUnicoId }}" data-indice="{{ $indice }}" placeholder="Nome do local" value="{{ $localNomeCol }}">
-                                        </div>
+                            <div
+                              class="col-12 col-md {{ $precisaCorrigirCol ? 'border border-danger rounded bg-danger-lt bg-danger-subtle p-2' : '' }}">
+                              <label class="form-label fw-semibold mb-1 {{ $precisaCorrigirCol ? 'text-danger' : '' }}"
+                                style="font-size: 0.85rem;">
+                                @if($precisaCorrigirCol) <i class="bi bi-exclamation-triangle-fill"></i> @endif
+                                @if($bloqueadoCol) <i class="bi bi-check-circle-fill text-success"></i> @endif
+                                {{ $coluna->enunciado }} @if($coluna->obrigatoria) <span class="text-danger">*</span>
+                                @endif
+                              </label>
 
-                                        <div id="map-{{ $inputUnicoId }}" class="map-container border rounded" style="height: 150px; width: 100%; z-index: 1;" data-saved-lat="{{ $localLatCol }}" data-saved-lng="{{ $localLngCol }}"></div>
+                              @if($precisaCorrigirCol)
+                              <div class="text-danger small mb-2 fw-bold" style="font-size: 0.75rem;">
+                                Motivo da correção: {{ $validacaoCol->correcao }}
+                              </div>
+                              @endif
 
-                                        <input type="hidden" class="form-salvar-estado" name="latitude[{{ $coluna->id }}]" data-indice="{{ $indice }}" id="latitude-{{ $inputUnicoId }}" value="{{ $localLatCol }}">
-                                        <input type="hidden" class="form-salvar-estado" name="longitude[{{ $coluna->id }}]" data-indice="{{ $indice }}" id="longitude-{{ $inputUnicoId }}" value="{{ $localLngCol }}">
-                                      </div>
-                                      @break
-                                  @endswitch
-                                  
-                                  @if($coluna->min || $coluna->max || $coluna->step || $coluna->accept || $coluna->regex)
-                                    <div class="form-text text-muted" style="font-size: 0.65rem;">
-                                      @if($coluna->tipo == 'number')
-                                        @if($coluna->min) Mín: {{ $coluna->min }}. @endif
-                                        @if($coluna->max) Máx: {{ $coluna->max }}. @endif
-                                      @elseif($coluna->tipo == 'file')
-                                        {{ str_replace(',', ', ', $coluna->accept) }}
-                                      @else
-                                        @if($coluna->min) Mín: {{ $coluna->min }}. @endif
-                                        @if($coluna->max) Máx: {{ $coluna->max }}. @endif
-                                      @endif
-                                    </div>
-                                  @endif
+                              @switch($coluna->tipo)
+
+                              @case('text')
+                              <input type="text" class="form-control form-control-sm form-salvar-estado"
+                                name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}"
+                                value="{{ $valorSalvoCol }}" {{ $coluna->obrigatoria ? 'required' : '' }} {{
+                              $bloqueadoCol ? 'disabled' : '' }}>
+                              @break
+
+                              @case('textarea')
+                              <textarea class="form-control form-control-sm form-salvar-estado"
+                                name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" rows="2" {{
+                                $coluna->obrigatoria ? 'required' : '' }} {{ $bloqueadoCol ? 'disabled' : '' }}>{{ $valorSalvoCol }}</textarea>
+                              @break
+
+                              @case('number')
+                              <input type="number" class="form-control form-control-sm form-salvar-estado"
+                                name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}"
+                                value="{{ $valorSalvoCol }}" {{ $coluna->obrigatoria ? 'required' : '' }} {{
+                              $bloqueadoCol ? 'disabled' : '' }}>
+                              @break
+
+                              @case('date')
+                              @case('datetime-local')
+                              <input type="{{ $coluna->tipo }}" class="form-control form-control-sm form-salvar-estado"
+                                name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}"
+                                value="{{ $valorSalvoCol }}" {{ $coluna->obrigatoria ? 'required' : '' }} {{
+                              $bloqueadoCol ? 'disabled' : '' }}>
+                              @break
+
+                              @case('file')
+                              <input type="file" class="form-control form-control-sm form-salvar-estado"
+                                name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" {{ $coluna->obrigatoria
+                              && !$valorSalvoCol ? 'required' : '' }} {{ $bloqueadoCol ? 'disabled' : '' }}>
+                              @if($valorSalvoCol)
+                              <div class="form-text text-success mt-1" style="font-size: 0.7rem;"><i
+                                  class="bi bi-check-circle"></i> Arquivo já enviado.</div>
+                              @endif
+                              @break
+
+                              @case('select')
+                              <select class="form-select form-select-sm form-salvar-estado"
+                                name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" {{ $coluna->obrigatoria
+                                ? 'required' : '' }} {{ $bloqueadoCol ? 'disabled' : '' }}>
+                                <option value="" disabled {{ !$valorSalvoCol ? 'selected' : '' }}>Selecione</option>
+                                @foreach($coluna->opcoes as $op)
+                                <option value="{{ $op->valor }}" {{ $valorSalvoCol==$op->valor ? 'selected' : '' }}>{{
+                                  $op->rotulo }}</option>
+                                @endforeach
+                              </select>
+                              @break
+
+                              @case('radio')
+                              <div>
+                                @foreach($coluna->opcoes as $op)
+                                <div class="form-check mb-1">
+                                  <input class="form-check-input form-salvar-estado" type="radio"
+                                    name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}"
+                                    id="op_{{ $op->id }}_{{ $indice }}" value="{{ $op->valor }}" {{ $coluna->obrigatoria
+                                  ? 'required' : '' }} {{ $valorSalvoCol == $op->valor ? 'checked' : '' }} {{
+                                  $bloqueadoCol ? 'disabled' : '' }}>
+                                  <label class="form-check-label" style="font-size: 0.85rem;"
+                                    for="op_{{ $op->id }}_{{ $indice }}">{{ $op->rotulo }}</label>
                                 </div>
-                              @endforeach
+                                @endforeach
+                              </div>
+                              @break
+
+                              @case('checkbox')
+                              <div>
+                                @foreach($coluna->opcoes as $op)
+                                <div class="form-check mb-1">
+                                  <input class="form-check-input form-salvar-estado" type="checkbox"
+                                    name="respostas[{{ $coluna->id }}][]" data-indice="{{ $indice }}"
+                                    id="op_{{ $op->id }}_{{ $indice }}" value="{{ $op->valor }}" {{ in_array($op->valor,
+                                  $arrayValoresCol) ? 'checked' : '' }} {{ $bloqueadoCol ? 'disabled' : '' }}>
+                                  <label class="form-check-label" style="font-size: 0.85rem;"
+                                    for="op_{{ $op->id }}_{{ $indice }}">{{ $op->rotulo }}</label>
+                                </div>
+                                @endforeach
+                              </div>
+                              @break
+
+                              @case('location')
+                              @php
+                              $localDataCol = is_string($valorSalvoCol) && json_decode($valorSalvoCol, true) ?
+                              json_decode($valorSalvoCol, true) : ['nome' => $valorSalvoCol, 'lat' => '', 'lng' => ''];
+                              $localNomeCol = $localDataCol['nome'] ?? '';
+                              $localLatCol = $localDataCol['lat'] ?? '';
+                              $localLngCol = $localDataCol['lng'] ?? '';
+                              @endphp
+                              <div class="location-wrapper position-relative" id="location-wrapper-{{ $inputUnicoId }}">
+                                @if($bloqueadoCol)
+                                <div class="position-absolute w-100 h-100 bg-white bg-opacity-50"
+                                  style="z-index: 10; top:0; left:0;"></div>
+                                @endif
+                                <div class="d-flex justify-content-between mb-1">
+                                  <span class="text-muted small" style="font-size: 0.7rem;">Pesquise no mapa</span>
+                                  <a class="text-decoration-none small" style="font-size: 0.7rem;"
+                                    onclick="toggleLocationInput('{{ $inputUnicoId }}')"
+                                    href="javascript:void(0)">Manual?</a>
+                                </div>
+                                <div class="gap-2 mb-2" id="div-select-local-{{ $inputUnicoId }}">
+                                  <select class="form-select select-location-tom form-salvar-estado"
+                                    id="select-local-{{ $inputUnicoId }}" name="respostas[{{ $coluna->id }}]"
+                                    data-indice="{{ $indice }}" data-map-id="{{ $inputUnicoId }}" {{
+                                    $coluna->obrigatoria ? 'required' : '' }} {{ $bloqueadoCol ? 'disabled' : '' }}>
+                                    <option value="">Pesquisar...</option>
+                                    @if($localNomeCol)
+                                    <option value="{{ $localNomeCol }}" selected>{{ $localNomeCol }}</option>
+                                    @endif
+                                  </select>
+                                </div>
+                                <div class="d-none mb-2" id="div-chose-{{ $inputUnicoId }}">
+                                  <input type="text" class="form-control form-control-sm form-salvar-estado"
+                                    id="input-local-{{ $inputUnicoId }}" data-indice="{{ $indice }}"
+                                    placeholder="Nome do local" value="{{ $localNomeCol }}" {{ $bloqueadoCol
+                                    ? 'disabled' : '' }}>
+                                </div>
+                                <div id="map-{{ $inputUnicoId }}" class="map-container border rounded"
+                                  style="height: 150px; width: 100%; z-index: 1;" data-saved-lat="{{ $localLatCol }}"
+                                  data-saved-lng="{{ $localLngCol }}"></div>
+                                <input type="hidden" class="form-salvar-estado" name="latitude[{{ $coluna->id }}]"
+                                  data-indice="{{ $indice }}" id="latitude-{{ $inputUnicoId }}"
+                                  value="{{ $localLatCol }}" {{ $bloqueadoCol ? 'disabled' : '' }}>
+                                <input type="hidden" class="form-salvar-estado" name="longitude[{{ $coluna->id }}]"
+                                  data-indice="{{ $indice }}" id="longitude-{{ $inputUnicoId }}"
+                                  value="{{ $localLngCol }}" {{ $bloqueadoCol ? 'disabled' : '' }}>
+                              </div>
+                              @break
+
+                              @endswitch
                             </div>
+                            @endforeach
                           </div>
                         </div>
+                      </div>
                       @endforeach
                     </div>
 
-                    <button type="button" class="btn btn-primary btn-sm mt-2" onclick="adicionarLinhaTabela('{{ $pergunta->id }}')">
+                    <button type="button" class="btn btn-primary btn-sm mt-2"
+                      onclick="adicionarLinhaTabela('{{ $pergunta->id }}')">
                       <i class="ti ti-plus"></i> Adicionar Novo Item
                     </button>
                   </div>
                   @break
-                  {{-- --- FIM DA LÓGICA DE TABELA / REPEATER --- --}}
+                  {{-- ========================================== --}}
+                  {{-- FIM DA LÓGICA DE TABELA / REPEATER --}}
+                  {{-- ========================================== --}}
 
                   @endswitch
                 </div>
@@ -461,12 +472,10 @@
                     Próximo Passo <i class="bi bi-arrow-right"></i>
                   </button>
                   @else
-                  <form id="finalizar" action="{{ route('report.finish', $submissao->id) }}" method="POST"
-                    onsubmit="return confirm('Deseja realmente finalizar esse relatório?')">
+                  <form id="form-finalizar" action="{{ route('report.finish', $submissao->id) }}" method="POST">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" id="btn-finalizar" for="finalizar"
-                      class="btn btn-success {{ $progresso == 100 ? '' : 'd-none'}}">
+                    <button type="button" id="btn-finalizar-fake" class="btn btn-success">
                       Finalizar e Enviar
                     </button>
                   </form>
@@ -590,29 +599,26 @@
         }
 
         $.ajax({
-            url: "{{ route('respostas.autosave') }}",
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                exibirToast('Progresso salvo!', response.message, 'success');
-
-                $('#barra-progresso').css('width', response.progresso + '%');
-
-                if (response.progresso >= 100) {
-                    $('#btn-finalizar').show();
-                    $('#btn-finalizar').removeClass('d-none');
-                  } else {
-                    $('#btn-finalizar').hide();
-                    $('#btn-finalizar').removeClass('d-none');
-                }
-            },
-            error: function(xhr) {
-                console.error(xhr.responseText);
-                exibirToast('Erro ao salvar', 'Ocorreu um erro ao salvar esta resposta.', 'danger');
-            }
-        });
+          url: "{{ route('respostas.autosave') }}",
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(response) {
+              exibirToast('Progresso salvo!', response.message, 'success');
+              $('#barra-progresso').css('width', response.progresso + '%');
+          },
+          error: function(xhr) {
+              // Se retornar 403 (Erro de Segurança do Backend para campos bloqueados)
+              let mensagemErro = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Ocorreu um erro ao salvar esta resposta.';
+              exibirToast('Atenção!', mensagemErro, 'danger');
+              
+              // Se tentou burlar desabilitando o campo, força ele a voltar ao disabled original recarregando ou repintando
+              if(xhr.status === 403) {
+                  input.prop('disabled', true);
+              }
+          }
+      });
     });
 
     function exibirToast(titulo, mensagem, tipo) {

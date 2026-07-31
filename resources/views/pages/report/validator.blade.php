@@ -23,11 +23,13 @@
             <h3 class="mb-1 text-primary fw-bold">Validação: {{ $submissao->relatorio->titulo }}</h3>
             <p class="mb-0 text-muted">Avaliando submissão: {{ $submissao->acao->titulo }}</p>
         </div>
-        <a href="{{route('report.monitor', $submissao->id_relatorio)}}" class="btn">Voltar página</a>
+        {{-- <a href="{{route('report.monitor', $submissao->id_relatorio)}}" class="btn">Voltar página</a> --}}
+        <a href="{{ old('previous', url()->previous()) }}" class="btn">Voltar página</a>
     </div>
 
     <form action="{{route('report.validate.store', $submissao->id)}}" method="POST" id="form-validacao" class="p-0">
         @csrf
+        <input type="hidden" name="previous" value="{{ old('previous', url()->previous()) }}">
 
         <ul class="nav nav-tabs mb-4" id="secoesTabs" role="tablist">
             @foreach($secoes as $secao)
@@ -70,9 +72,16 @@
                                 @endif
 
                                 @if(!empty($pergunta['regras']))
-                                <span class="badge bg-info-subtle text-info border border-info-subtle"
+                                <span class="badge fs-6 bg-info-subtle text-info border border-info-subtle"
                                     data-bs-toggle="tooltip" title="{{ $pergunta['regras'] }}">
                                     <i class="ti ti-info-circle me-1"></i> {{ $pergunta['regras'] }}
+                                </span>
+                                @endif
+
+                                @if(!empty($pergunta['opcoes']))
+                                <span class="badge fs-6 bg-purple-lt text-purple border border-purple-subtle"
+                                    data-bs-toggle="tooltip" title="{{ $pergunta['opcoes'] }}">
+                                    <i class="ti ti-list me-1"></i>{{ $pergunta['opcoes'] }}
                                 </span>
                                 @endif
                             </div>
@@ -102,6 +111,14 @@
                                                         class="badge bg-info-subtle text-info border border-info-subtle"
                                                         data-bs-toggle="tooltip" title="{{ $coluna['regras'] }}">
                                                         <i class="ti ti-info-circle me-1"></i> {{ $coluna['regras'] }}
+                                                    </span>
+                                                    @endif
+
+                                                    @if(!empty($coluna['opcoes']))
+                                                    <span
+                                                        class="badge fs-6 bg-purple-lt text-purple border border-purple-subtle"
+                                                        data-bs-toggle="tooltip" title="{{ $coluna['opcoes'] }}">
+                                                        <i class="ti ti-list me-1"></i>{{ $coluna['opcoes'] }}
                                                     </span>
                                                     @endif
                                                 </div>

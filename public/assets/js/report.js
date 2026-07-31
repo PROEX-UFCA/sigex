@@ -85,14 +85,25 @@ function initMapsAndLocations(mapInstances) {
     document.querySelectorAll('.select-location-tom').forEach(function (selectEl) {
         const id = selectEl.getAttribute('data-map-id');
         const mapContainer = document.getElementById('map-' + id);
-
         if (!mapContainer) return;
 
-        // Inicializa o Mapa
-        var map = L.map('map-' + id).setView([-7.2287, -39.3126], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        // Pega as coordenadas salvas (se existirem)
+        let savedLat = document.getElementById("latitude-" + id).value;
+        let savedLng = document.getElementById("longitude-" + id).value;
+        
+        var map = L.map('map-' + id);
         var marker;
-        mapInstances.push(map); // Salva no array global para uso no observer
+
+        // Se já tiver latitude e longitude, centraliza lá e bota o pino. Se não, vai pro padrão.
+        if (savedLat && savedLng) {
+            map.setView([savedLat, savedLng], 13);
+            marker = L.marker([savedLat, savedLng]).addTo(map);
+        } else {
+            map.setView([-7.2287, -39.3126], 13);
+        }
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        mapInstances.push(map);
 
         function updateMap(lat, lon) {
             const latlng = [lat, lon];
@@ -101,7 +112,6 @@ function initMapsAndLocations(mapInstances) {
             marker = L.marker(latlng).addTo(map);
         }
 
-        // Inicializa o TomSelect
         const tom = new TomSelect(selectEl, {
             valueField: "display_name",
             labelField: "display_name",
@@ -126,39 +136,40 @@ function initMapsAndLocations(mapInstances) {
                     document.getElementById("longitude-" + id).value = selected.lon;
                     updateMap(selected.lat, selected.lon);
                 }
-            },
-            render: {
-                option: function (data, escape) { return `<div>${escape(data.display_name)}</div>`; },
-                item: function (data, escape) { return `<div>${escape(data.display_name)}</div>`; }
             }
         });
 
-        // Clique no mapa
+        // Clique no mapa: Atualiza coordenadas, bota o pino e avisa o AutoSave
         map.on('click', function (e) {
             const lat = e.latlng.lat;
             const lon = e.latlng.lng;
 
             document.getElementById("latitude-" + id).value = lat;
             document.getElementById("longitude-" + id).value = lon;
+            updateMap(lat, lon);
 
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.display_name) {
-                        const displayName = resumirNome(data.display_name);
-                        tom.addOption({
-                            value: displayName,
-                            display_name: displayName,
-                            lat: lat,
-                            lon: lon
-                        });
-                        tom.addItem(displayName);
-                    }
-                });
+            const divSelect = document.getElementById('div-select-local-' + id);
+            const inputManual = document.getElementById('input-local-' + id);
+
+            if (!divSelect.classList.contains('d-none')) {
+                // Modo Automático
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.display_name) {
+                            const displayName = resumirNome(data.display_name);
+                            tom.addOption({ value: displayName, display_name: displayName, lat: lat, lon: lon });
+                            tom.addItem(displayName);
+                            // O TomSelect já dispara o evento 'change' por conta própria ao adicionar o item
+                        }
+                    });
+            } else {
+                // Modo Manual: Força o trigger 'change' no input de texto para o AutoSave perceber que o mapa foi clicado
+                $(inputManual).trigger('change');
+            }
         });
     });
 }
-
 function resumirNome(nomeCompleto) {
     let partes = nomeCompleto.split(',');
     if (partes.length > 3) return partes.slice(0, 3).join(',').trim();
@@ -205,19 +216,18 @@ function initMapResizeObserver(mapInstances) {
 
 /**
  * 5. Alternância entre Mapa / Input Manual
- * Atrelada ao 'window' para que o evento 'onclick' diretamente no HTML continue funcionando
  */
 window.toggleLocationInput = function (id) {
     const divSelect = document.getElementById('div-select-local-' + id);
     const select = document.getElementById('select-local-' + id);
     const divInput = document.getElementById('div-chose-' + id);
     const input = document.getElementById('input-local-' + id);
-    const mapContainer = document.getElementById('map-' + id);
+
+    // Removemos a manipulação do mapContainer daqui para ele NUNCA sumir
 
     if (divSelect.classList.contains('d-none')) {
-        // Voltar a usar o mapa
+        // Voltar a usar o dropdown API
         divSelect.classList.remove('d-none');
-        mapContainer.classList.remove('d-none');
         divInput.classList.add('d-none');
 
         input.removeAttribute('name');
@@ -228,9 +238,8 @@ window.toggleLocationInput = function (id) {
             input.removeAttribute('required');
         }
     } else {
-        // Mudar para digitação manual
+        // Mudar para digitação manual (Mapa continua aberto embaixo)
         divSelect.classList.add('d-none');
-        mapContainer.classList.add('d-none');
         divInput.classList.remove('d-none');
 
         select.removeAttribute('name');
@@ -330,3 +339,54 @@ function removerLinhaTabela(perguntaPaiId, indice) {
         });
     }
 }
+
+// Usamos $(document).on para garantir que o botão seja escutado mesmo se for renderizado dinamicamente
+$(document).on('click', '#btn-finalizar-fake', function(e) {
+    e.preventDefault();
+    let formValido = true;
+    let primeiraAbaComErro = null;
+
+    // Varre todos os campos required que NÃO estão desabilitados
+    $('#formWizard').find('[required]:not(:disabled)').each(function() {
+        let elemento = $(this);
+        let valido = true;
+
+        if (elemento.is(':checkbox, :radio')) {
+            let name = elemento.attr('name');
+            if ($(`input[name="${name}"]:checked`).length === 0) {
+                valido = false;
+            }
+        } else if (!elemento.val() || elemento.val().trim() === '') {
+            valido = false;
+        }
+
+        if (!valido) {
+            formValido = false;
+            elemento.addClass('is-invalid');
+            
+            let tabPane = elemento.closest('.tab-pane');
+            if(tabPane.length && !primeiraAbaComErro) {
+                primeiraAbaComErro = tabPane.attr('id');
+            }
+        } else {
+            elemento.removeClass('is-invalid');
+        }
+    });
+
+    if (formValido) {
+        if(confirm('Deseja realmente finalizar e enviar esse relatório para análise? As informações não poderão ser alteradas.')) {
+            // Força o submit nativo do formulário
+            document.getElementById('form-finalizar').submit(); 
+        }
+    } else {
+        alert('Atenção: Existem campos obrigatórios vazios. Verifique o formulário (campos destacados em vermelho).');
+        
+        if (primeiraAbaComErro) {
+            let tabTrigger = document.querySelector(`button[data-bs-target="#${primeiraAbaComErro}"]`);
+            if(tabTrigger) {
+                let tab = new bootstrap.Tab(tabTrigger);
+                tab.show();
+            }
+        }
+    }
+});

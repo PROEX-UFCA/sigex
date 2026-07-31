@@ -38,7 +38,8 @@
                         </a>
                     </th>
                     @endforeach
-                    <th>Progresso</th>
+                    <th>Progresso do relatório</th>
+                    <th>Progresso da avaliação</th>
                     <th width="5%"></th>
                 </tr>
             </thead>
@@ -62,6 +63,20 @@
                                         aria-valuenow="{{$item->progress}}" aria-valuemin="0" aria-valuemax="100"
                                         aria-label="{{$item->progress}} Completo">
                                         <span class="visually-hidden">{{$item->progress}}% Completo</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto">{{$item->evaluationProgress}}%</div>
+                            <div class="col">
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar" style="width: {{$item->evaluationProgress}}%" role="progressbar"
+                                        aria-valuenow="{{$item->evaluationProgress}}" aria-valuemin="0" aria-valuemax="100"
+                                        aria-label="{{$item->evaluationProgress}} Completo">
+                                        <span class="visually-hidden">{{$item->evaluationProgress}}% Completo</span>
                                     </div>
                                 </div>
                             </div>

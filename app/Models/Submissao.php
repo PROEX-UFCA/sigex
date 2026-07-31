@@ -63,4 +63,24 @@ class Submissao extends Model
 
         return $qtdPerguntas > 0 ? (float) round(($qtdPerguntasRespondidas / $qtdPerguntas) * 100, 2) : 0;
     }
+
+    public function getEvaluationProgressAttribute() : float
+    {
+        $respostas = \App\Models\Resposta::where('id_submissao', $this->id)->get();
+
+        $qtdTotalParaAvaliar = $respostas->count();
+        $qtdAvaliadasAprovadas = 0;
+
+        if ($qtdTotalParaAvaliar === 0) {
+            return 0;
+        }
+
+        foreach ($respostas as $resposta) {
+            if ($resposta->validacao && $resposta->validacao->status == 1) {
+                $qtdAvaliadasAprovadas++;
+            }
+        }
+
+        return (float) round(($qtdAvaliadasAprovadas / $qtdTotalParaAvaliar) * 100, 2);
+    }
 }

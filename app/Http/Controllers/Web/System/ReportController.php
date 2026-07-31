@@ -97,17 +97,24 @@ class ReportController extends Controller
     public function report($uuid){
         $this->data['submissao'] = $this->reportRepository->getSubmissionById($uuid);
         $this->data['progresso'] = $this->getProgress($this->data['submissao']->id);
-    
-        if($this->data['submissao']->finalizada_em != null){
-            return redirect()->back()->with('warning', "Esse relatório já foi enviado, não é possível mais acessá-lo!");
-        }
-        
-        if($this->data['submissao']->relatorio->prazo < now()){        
-            return redirect()->back()->with('warning', "O prazo para enviar esse relatório já passou!");
-        }
 
         if($this->data['submissao']->relatorio->data_inicio > now()){
             return redirect()->back()->with('warning', "Esse relatório ainda não está liberado!");
+        }
+
+        $precisaCorrecao = Resposta::where('id_submissao', $this->data['submissao']->id)
+            ->whereHas('validacao', function($query) {
+                $query->where('status', 0);
+            })->exists();
+        
+        $this->data['emCorrecao'] = $precisaCorrecao;
+        
+        if($this->data['submissao']->finalizada_em != null && !$precisaCorrecao){
+            return redirect()->back()->with('warning', "Esse relatório já foi enviado e está em análise, não é possível mais acessá-lo!");
+        }
+        
+        if($this->data['submissao']->relatorio->prazo < now() && !$precisaCorrecao){        
+            return redirect()->back()->with('warning', "O prazo para enviar esse relatório já passou!");
         }
 
         return view('pages.actions.report', $this->data);
@@ -116,17 +123,26 @@ class ReportController extends Controller
     public function finish($uuid){
         try {
             $submissao = $this->reportRepository->getSubmissionById($uuid);
+
+            // 1. Validação robusta de campos obrigatórios no Backend
+            if(!$this->validarObrigatorias($submissao)) {
+                return redirect()->back()->with('warning', "Existem campos obrigatórios não preenchidos. Verifique todas as seções e tabelas.");
+            }
+
+            // 2. Garante que perguntas opcionais ou não tocadas sejam salvas como null para gerar o id_resposta
+            $this->salvarRespostasNulasEIgnoradas($submissao);
+
+            // 3. Ao re-enviar, apagamos os status 0 para que a tela volte a bloquear (o avaliador vai gerar novos status 0 ou 1)
+            $respostasIds = Resposta::where('id_submissao', $submissao->id)->pluck('id');
+            ValidacaoResposta::whereIn('id_resposta', $respostasIds)->where('status', 0)->delete();
+
             $submissao->finalizada_em = now();
             $submissao->save();
-
-            if($this->getProgress($submissao->id) < 100){
-                return redirect()->back()->with('warning', "Preecha todo o reatório para poder finalizar!");
-            }
 
             return to_route('actions.my')->with('success', "Relatório finalizado com sucesso.");
         }
         catch (\Throwable $th) {
-            return redirect()->back()->with('error', "Erro ao finalizar formulário, tente novamente mais tarde!");
+            return redirect()->back()->with('error', "Erro ao finalizar formulário, tente novamente mais tarde! " . $th->getMessage());
         }
     }
 
@@ -135,51 +151,52 @@ class ReportController extends Controller
         $request->validate([
             'id_submissao' => 'required',
             'id_pergunta'  => 'required',
-            'indice_grupo' => 'nullable|integer' // Validando o novo campo
+            'indice_grupo' => 'nullable|integer'
         ]);
 
-        // Se vier nulo (perguntas comuns fora de tabelas), assume 0
         $indiceGrupo = $request->input('indice_grupo', 0); 
         $valor = $request->input('valor');
 
-        // Trata arrays (como checkboxes)
         if (is_array($valor)) {
             $valor = json_encode($valor);
         }
 
-        // Busca a resposta existente considerando também o índice da linha
-        $respostaExistente = Resposta::where('id_submissao', $request->id_submissao)
+        // Busca a resposta existente e carrega a validação
+        $respostaExistente = Resposta::with('validacao')
+            ->where('id_submissao', $request->id_submissao)
             ->where('id_pergunta', $request->id_pergunta)
             ->where('indice_grupo', $indiceGrupo)
             ->first();
 
+        // VALIDAÇÃO DE SEGURANÇA: Se já foi avaliado e aprovado (1), não permite alterar
+        if ($respostaExistente && $respostaExistente->validacao && $respostaExistente->validacao->status == 1) {
+            return response()->json([
+                'status' => 'error', 
+                'message' => 'Este campo já foi aprovado pelo avaliador e não pode ser alterado.'
+            ], 403);
+        }
+
         // Tratamento de Upload de Arquivos
         if ($request->hasFile('file')) {
-            // Remove o arquivo antigo se estiver substituindo
-            if ($respostaExistente && !empty($respostaExistente->valor)) {
-                if (Storage::exists($respostaExistente->valor)) {
-                    Storage::delete($respostaExistente->valor);
-                }
+            if ($respostaExistente && !empty($respostaExistente->valor) && Storage::exists($respostaExistente->valor)) {
+                Storage::delete($respostaExistente->valor);
             }
-
             $path = $request->file('file')->store('respostas/arquivos');
             $valor = $path;
         }
 
-        // Mantém o arquivo antigo se um novo não foi enviado nesta requisição
         if (!$request->hasFile('file') && $request->file === null && $respostaExistente && str_starts_with($respostaExistente->valor, 'respostas/arquivos')) {
             $valor = $respostaExistente->valor;
         }
 
-        // Atualiza ou Cria o registro no banco
         Resposta::updateOrCreate(
             [
                 'id_submissao' => $request->id_submissao,
                 'id_pergunta'  => $request->id_pergunta,
-                'indice_grupo' => $indiceGrupo // Garante que cada linha da tabela seja salva separadamente
+                'indice_grupo' => $indiceGrupo
             ],
             [
-                'valor' => $valor ?? ''
+                'valor' => $valor ?? null // Salva nulo se vazio
             ]
         );
 
@@ -198,12 +215,21 @@ class ReportController extends Controller
             'indice_grupo'    => 'required|integer'
         ]);
 
-        // 1. Encontra todos os IDs das colunas (sub-perguntas) que pertencem a essa tabela
         $subPerguntasIds = Pergunta::where('id_pergunta_pai', $request->id_pergunta_pai)->pluck('id');
 
         if ($subPerguntasIds->isNotEmpty()) {
             
-            // 2. Busca se há arquivos salvos nessa linha específica para apagá-los do servidor (Storage)
+            // SEGURANÇA: Verificar se alguma célula dessa linha já está aprovada
+            $respostasAprovadas = Resposta::where('id_submissao', $request->id_submissao)
+                ->whereIn('id_pergunta', $subPerguntasIds)
+                ->where('indice_grupo', $request->indice_grupo)
+                ->whereHas('validacao', function($query) { $query->where('status', 1); })
+                ->exists();
+
+            if($respostasAprovadas) {
+                return response()->json(['status' => 'error', 'message' => 'Esta linha contém campos aprovados e não pode ser removida.'], 403);
+            }
+
             $respostasComArquivos = Resposta::where('id_submissao', $request->id_submissao)
                 ->whereIn('id_pergunta', $subPerguntasIds)
                 ->where('indice_grupo', $request->indice_grupo)
@@ -216,7 +242,6 @@ class ReportController extends Controller
                 }
             }
 
-            // 3. Deleta todas as respostas daquela linha do banco de dados
             Resposta::where('id_submissao', $request->id_submissao)
                 ->whereIn('id_pergunta', $subPerguntasIds)
                 ->where('indice_grupo', $request->indice_grupo)
@@ -226,7 +251,7 @@ class ReportController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Item removido do relatório com sucesso!',
-            'progresso' => $this->getProgress($request->id_submissao) // Atualiza a barra de progresso
+            'progresso' => $this->getProgress($request->id_submissao)
         ]);
     }
 
@@ -336,6 +361,7 @@ class ReportController extends Controller
                                 'obrigatorio' => $filha->obrigatoria, 
                                 'validacao_salva' => $resp->validacao,
                                 'regras' => $regras ? str_replace([',', '"', ':', '{', '}'], [', ', '', ': ', '', ''], json_encode($regras)) : '',
+                                'opcoes' => $filha->opcoes ? str_replace([',', '"', ':', '{', '}', '[', ']'], [', ', '', ': ', '', '', '', ''], json_encode($filha->opcoes->pluck('rotulo'))) : '', 
                             ];
                         }
                         
@@ -369,6 +395,7 @@ class ReportController extends Controller
                         'obrigatorio' => $pergunta->obrigatoria, 
                         'validacao_salva' => $pergunta->validacao,
                         'regras' => $regras ? str_replace([',', '"', ':', '{', '}'], [', ', '', ': ', '', ''], json_encode($regras)) : '',
+                        'opcoes' => $pergunta->opcoes ? str_replace([',', '"', ':', '{', '}', '[', ']'], [', ', '', ': ', '', '', '', ''], json_encode($pergunta->opcoes->pluck('rotulo'))) : '', 
                     ];
 
                 } 
@@ -403,6 +430,7 @@ class ReportController extends Controller
                         'valor'     => $this->formatarResposta($resposta, $pergunta->tipo),
                         'obrigatorio' => $pergunta->obrigatoria, 
                         'validacao_salva' => $resposta->validacao,
+                        'opcoes' => $pergunta->opcoes ? str_replace([',', '"', ':', '{', '}', '[', ']'], [', ', '', ': ', '', '', '', ''], json_encode($pergunta->opcoes->pluck('rotulo'))) : '', 
                         'regras' => $regras ? str_replace([',', '"', ':', '{', '}'], [', ', '', ': ', '', ''], json_encode($regras)) : '', 
                     ];
                 }
@@ -517,7 +545,6 @@ class ReportController extends Controller
                     ]
                 );
             }
-// dd($dados['status']);
             // 5. Atualizar o status geral da Submissão
             // $submissao = Submissao::findOrFail($idSubmissao);
             $submissao = $this->reportRepository->getSubmissionById($idSubmissao);
@@ -532,10 +559,15 @@ class ReportController extends Controller
 
             // Confirma a gravação no banco
             DB::commit();
-return redirect()->back();
-            // Redireciona com mensagem de sucesso (Atenção: enviei para id_relatorio, conforme o botão voltar da sua view)
-            return redirect()->route('report.monitor', $submissao->id_relatorio)
-                            ->with('success', 'Avaliação da submissão salva e processada com sucesso!');
+            // dd($request->previous);
+            $urlDestino = $request->previous;
+
+            // Segurança: Se por algum motivo a URL for vazia ou for a rota atual do POST, define uma rota padrão
+            if (empty($urlDestino) || $urlDestino == url()->current()) {
+                return redirect()->route('report.monitor', $submissao->id_relatorio)->with('success', 'Avaliação da submissão salva e processada com sucesso!');
+            }
+
+            return redirect()->to($urlDestino)->with('success', 'Avaliação da submissão salva e processada com sucesso!');
 
         } catch (\Exception $e) {
             // Se der qualquer erro, cancela tudo que foi feito no banco
@@ -543,6 +575,71 @@ return redirect()->back();
             
             // Retorna para a tela de validação com o erro e os dados preenchidos (withInput ajuda o old() da view)
             return back()->withInput()->with('error', 'Ocorreu um erro ao salvar a avaliação: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Função auxiliar para validar campos obrigatórios no Backend antes de finalizar
+     */
+    private function validarObrigatorias($submissao)
+    {
+        foreach ($submissao->relatorio->formulario->secoes as $secao) {
+            foreach ($secao->perguntas->whereNull('id_pergunta_pai') as $pergunta) {
+                if ($pergunta->tipo === 'tabela') {
+                    $gruposDeRespostas = Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
+                        ->where('id_submissao', $submissao->id)
+                        ->get()
+                        ->groupBy('indice_grupo');
+                    
+                    // Se a tabela for obrigatória e não tiver nenhuma linha, retorna falso
+                    if ($pergunta->obrigatoria && $gruposDeRespostas->isEmpty()) return false;
+
+                    foreach ($gruposDeRespostas as $respostasLinha) {
+                        foreach ($pergunta->filhas as $filha) {
+                            if ($filha->obrigatoria) {
+                                $resp = $respostasLinha->where('id_pergunta', $filha->id)->first();
+                                if (!$resp || empty($resp->valor)) return false;
+                            }
+                        }
+                    }
+                } else {
+                    if ($pergunta->obrigatoria) {
+                        $resposta = $pergunta->getRespostaPorSubmissao($submissao->id);
+                        if (!$resposta || empty($resposta->valor)) return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Função auxiliar para criar as respostas com valor NULL para o que não foi respondido
+     */
+    private function salvarRespostasNulasEIgnoradas($submissao)
+    {
+        foreach ($submissao->relatorio->formulario->secoes as $secao) {
+            foreach ($secao->perguntas->whereNull('id_pergunta_pai') as $pergunta) {
+                if ($pergunta->tipo !== 'tabela') {
+                    Resposta::firstOrCreate(
+                        ['id_submissao' => $submissao->id, 'id_pergunta' => $pergunta->id, 'indice_grupo' => 0],
+                        ['valor' => null]
+                    );
+                } else {
+                    // Se for tabela, garante pelo menos o índice 0 null para todas as colunas se não houver nada
+                    $existeResposta = Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
+                        ->where('id_submissao', $submissao->id)->exists();
+                    
+                    if(!$existeResposta) {
+                        foreach ($pergunta->filhas as $filha) {
+                            Resposta::firstOrCreate(
+                                ['id_submissao' => $submissao->id, 'id_pergunta' => $filha->id, 'indice_grupo' => 0],
+                                ['valor' => null]
+                            );
+                        }
+                    }
+                }
+            }
         }
     }
 }
