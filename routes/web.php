@@ -92,7 +92,12 @@ Route::middleware(['auth'])->group(function () {
         
         Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);
 
+        Route::put('/actions/schedule/{id_agenda}', [ActionController::class, 'updateSchedule'])->name('actions.updateSchedule')->middleware(['auth' => 'permission:editar_agenda']);
+
+        Route::delete('/actions/schedule/{id_agenda}', [ActionController::class, 'deleteSchedule'])->name('actions.deleteSchedule')->middleware(['auth' => 'permission:remover_agenda']);
+
         Route::delete('membro/deletar/{uuid}', [MembersController::class, 'deleteMember'])->name('members.delete');
+    
     });
 
     Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
