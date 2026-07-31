@@ -136,9 +136,12 @@
                 @endif
               </label>
               @if($form->published == 0)
-              <button class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                data-bs-target="#deletar-pergunta-{{$pergunta->id}}" aria-expanded="false"
-                aria-controls="modalExample"><i class="ti ti-trash"></i></button>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Deletar seção">
+                <button class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal"
+                  data-bs-target="#deletar-pergunta-{{$pergunta->id}}" aria-expanded="false"
+                  aria-controls="modalExample"><i class="ti ti-trash"></i>
+                </button>
+              </span>
               @endif
             </div>
             {{-- Renderiza o input de acordo com o tipo --}}
