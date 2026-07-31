@@ -185,7 +185,6 @@ erDiagram
     VALIDACAO_RESPOSTA{
         uuid id PK
         uuid id_resposta FK
-        uuid id_pergunta FK
         uuid id_avaliador FK
         boolean status 
         text correcao

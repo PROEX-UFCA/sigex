@@ -307,42 +307,116 @@ class ReportController extends Controller
                         $linhaFormatada = [];
                         foreach($pergunta->filhas as $filha) {
                             $resp = $respostasLinha->where('id_pergunta', $filha->id)->first();
+                            
+                            $regras = [];
+    
+                            if($filha->min){
+                                $regras['min'] = $filha->min;
+                            }
+                            if($filha->max ){
+                                $regras['max'] = $filha->max;
+                            }
+                            if($filha->step ){
+                                $regras['intervalo'] = $filha->step;
+                            }
+                            if($filha->accept){
+                                $regras['formatos'] = $filha->accept;
+                                // $regras['formatos'] = str_replace(',', ', ', $filha->accept) 
+                            }
+                            if($filha->regex){
+                                $regras['formato'] = $filha->regex;
+                            }
+
                             $linhaFormatada[] = [
+                                'id' => $filha->id_pergunta_pai,
+                                'id_resposta' => $resp->id ?? null,
                                 'enunciado' => $filha->enunciado,
                                 'tipo'      => $filha->tipo,
-                                'valor'     => $this->formatarResposta($resp, $filha->tipo)
+                                'valor'     => $this->formatarResposta($resp, $filha->tipo),
+                                'obrigatorio' => $filha->obrigatoria, 
+                                'validacao_salva' => $resp->validacao,
+                                'regras' => $regras ? str_replace([',', '"', ':', '{', '}'], [', ', '', ': ', '', ''], json_encode($regras)) : '',
                             ];
                         }
+                        
                         $valoresTabela[] = $linhaFormatada;
+                    }
+
+                     $regras = [];
+    
+                    if($pergunta->min){
+                        $regras['min'] = $pergunta->min;
+                    }
+                    if($pergunta->max ){
+                        $regras['max'] = $pergunta->max;
+                    }
+                    if($pergunta->step ){
+                        $regras['intervalo'] = $pergunta->step;
+                    }
+                    if($pergunta->accept){
+                        $regras['formatos'] = $pergunta->accept;
+                        // $regras['formatos'] = str_replace(',', ', ', $pergunta->accept) 
+                    }
+                    if($pergunta->regex){
+                        $regras['formato'] = $pergunta->regex;
                     }
                     
                     $perguntasData[] = [
-                        'id'             => $pergunta->id,
+                        'id_pergunta'             => $pergunta->id,
                         'enunciado'      => $pergunta->enunciado,
                         'tipo'           => 'tabela',
-                        'valores_tabela' => $valoresTabela
+                        'valores_tabela' => $valoresTabela, 
+                        'obrigatorio' => $pergunta->obrigatoria, 
+                        'validacao_salva' => $pergunta->validacao,
+                        'regras' => $regras ? str_replace([',', '"', ':', '{', '}'], [', ', '', ': ', '', ''], json_encode($regras)) : '',
                     ];
 
                 } 
                 // --- TRATAMENTO PARA PERGUNTAS COMUNS ---
                 else {
                     $resposta = $pergunta->getRespostaPorSubmissao($submissao->id);
+
+                    $regras = [];
+
+                    if($pergunta->min){
+                        $regras['min'] = $pergunta->min;
+                    }
+                    if($pergunta->max ){
+                        $regras['max'] = $pergunta->max;
+                    }
+                    if($pergunta->step ){
+                        $regras['intervalo'] = $pergunta->step;
+                    }
+                    if($pergunta->accept){
+                        $regras['formatos'] = $pergunta->accept;
+                        // $regras['formatos'] = str_replace(',', ', ', $pergunta->accept) 
+                    }
+                    if($pergunta->regex){
+                        $regras['formato'] = $pergunta->regex;
+                    }
+
                     $perguntasData[] = [
-                        'id'        => $pergunta->id,
+                        'id_pergunta'        => $pergunta->id,
+                        'id_resposta' => $resposta->id,
                         'enunciado' => $pergunta->enunciado,
                         'tipo'      => $pergunta->tipo,
-                        'valor'     => $this->formatarResposta($resposta, $pergunta->tipo)
+                        'valor'     => $this->formatarResposta($resposta, $pergunta->tipo),
+                        'obrigatorio' => $pergunta->obrigatoria, 
+                        'validacao_salva' => $resposta->validacao,
+                        'regras' => $regras ? str_replace([',', '"', ':', '{', '}'], [', ', '', ': ', '', ''], json_encode($regras)) : '', 
                     ];
                 }
             }
 
             $secoesData[] = [
-                'id'        => $secao->id,
+                'id_secao'        => $secao->id,
                 'titulo'    => $secao->titulo,
                 'descricao' => $secao->descricao,
                 'perguntas' => $perguntasData
             ];
         }
+
+        // dd($secoesData);
 
         $this->data['submissao'] = $submissao;
         $this->data['secoes']    = $secoesData;
@@ -400,11 +474,16 @@ class ReportController extends Controller
 
     public function validar(Request $request, $idSubmissao)
     {
+        // dd($request->all());
         // 1. Validação de segurança dos dados que vêm do formulário
         $request->validate([
             'validacao' => 'required|array',
-            'validacao.*.status' => 'required|in:aprovado,correcao',
-            'validacao.*.feedback' => 'nullable|string',
+            'validacao.*.id_resposta' => 'required',
+            'validacao.*.status' => 'required|in:0,1',
+            // O feedback só é obrigatório SE o status for 'correcao'
+            'validacao.*.feedback' => 'required_if:validacao.*.status,correcao',
+        ], [
+            'validacao.*.feedback.required_if' => 'O preenchimento do feedback é obrigatório para os itens reprovados.'
         ]);
 
         // 2. Inicia a transação no banco de dados
@@ -413,45 +492,57 @@ class ReportController extends Controller
         try {
             $avaliadorId = Auth::user()->uuid;
 
-            // 3. Itera sobre o array recebido do form
-            // Assumindo que a chave do array (o $pergunta['id'] do form) é o ID da Resposta
+            // 3. Itera sobre o array recebido (agora a chave é o id_resposta)
             foreach ($request->input('validacao') as $idResposta => $dados) {
-                
-                // Converte o valor do rádio ('aprovado' ou 'correcao') para o booleano do banco (1 ou 0)
-                $isAprovado = $dados['status'] === 'aprovado';
 
-                // O updateOrCreate procura pelo id_resposta. Se achar, atualiza. Se não, cria.
+                // Busca a resposta para pegar o id_pergunta verdadeiro vinculado a ela
+                $resposta = Resposta::find($idResposta);
+
+                // Se a resposta não existir, pula essa iteração (evita falhas de integridade)
+                if (!$resposta) {
+                    continue; 
+                }
+
+                // 4. Salva ou atualiza a validação daquela resposta específica
                 ValidacaoResposta::updateOrCreate(
                     [
                         'id_resposta' => $idResposta
                     ],
                     [
                         'id_avaliador' => $avaliadorId,
-                        'status'       => $isAprovado,
-                        // Se foi aprovado, força null. Se foi correção, pega o texto preenchido.
-                        'correcao'     => $isAprovado ? null : $dados['feedback'], 
+                        'id_pergunta'  => $resposta->id_pergunta, // Pega direto do banco
+                        'status'       => $dados['status'],
+                        // Se foi aprovado, força null no banco. Se foi correção, salva o texto.
+                        'correcao'     => $dados['status'] == 1 ? null : $dados['feedback'], 
                     ]
                 );
             }
-
-            // 4. (Opcional) Aqui você pode colocar a lógica para mudar o status geral da Submissão 
-            // Exemplo: verificar se houve ALGUMA reprovação e mudar o status da submissão para 'correcao_solicitada'
+// dd($dados['status']);
+            // 5. Atualizar o status geral da Submissão
             // $submissao = Submissao::findOrFail($idSubmissao);
-            // $submissao->status = 'avaliada'; 
+            $submissao = $this->reportRepository->getSubmissionById($idSubmissao);
+            
+            // if ($precisaDeCorrecao) {
+            //     $submissao->status = 'correcao'; // Ajuste para o status real que seu sistema usa (ex: 'retornado', 'correcao_solicitada')
+            // } else {
+            //     $submissao->status = 'aprovado'; // Ajuste para o status real (ex: 'validado', 'finalizado')
+            // }
+            
             // $submissao->save();
 
             // Confirma a gravação no banco
             DB::commit();
-
-            // Redireciona com mensagem de sucesso
-            return redirect()->route('report.monitor', $idSubmissao)->with('success', 'Avaliação concluída com sucesso!');
+return redirect()->back();
+            // Redireciona com mensagem de sucesso (Atenção: enviei para id_relatorio, conforme o botão voltar da sua view)
+            return redirect()->route('report.monitor', $submissao->id_relatorio)
+                            ->with('success', 'Avaliação da submissão salva e processada com sucesso!');
 
         } catch (\Exception $e) {
-            // Se der qualquer erro, cancela tudo que foi feito no loop
+            // Se der qualquer erro, cancela tudo que foi feito no banco
             DB::rollBack();
             
-            // Retorna para a tela de validação com o erro
-            return back()->with('error', 'Ocorreu um erro ao salvar a avaliação: ' . $e->getMessage());
+            // Retorna para a tela de validação com o erro e os dados preenchidos (withInput ajuda o old() da view)
+            return back()->withInput()->with('error', 'Ocorreu um erro ao salvar a avaliação: ' . $e->getMessage());
         }
     }
 }

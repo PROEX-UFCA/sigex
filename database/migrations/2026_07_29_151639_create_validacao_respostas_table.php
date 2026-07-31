@@ -15,8 +15,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('id_resposta');
             $table->foreign('id_resposta')->references('id')->on('resposta')->onDelete('cascade');
-            $table->uuid('id_pergunta');
-            $table->foreign('id_pergunta')->references('id')->on('pergunta')->onDelete('cascade');
             $table->uuid('id_avaliador');
             $table->foreign('id_avaliador')->references('uuid')->on('users')->onDelete('cascade');
             $table->boolean('status'); 

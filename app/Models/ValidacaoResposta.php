@@ -29,6 +29,6 @@ class ValidacaoResposta extends Model
 
     public function avaliador()
     {
-        return $this->belongsTo(User::class, 'id_avaliador');
+        return $this->belongsTo(User::class, 'id_avaliador', 'uuid');
     }
 }
