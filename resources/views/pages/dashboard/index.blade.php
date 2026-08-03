@@ -189,16 +189,7 @@ document.addEventListener("DOMContentLoaded", function() {
         html += '</div>';
 
         html += '<div class="mb-3">';
-        html += '  <h4 class="mb-1"><i class="ti ti-file-description text-muted me-2"></i>Resumo</h4>';
         html += '  <p class="text-muted">' + (dados.acao_resumo ? dados.acao_resumo : 'Nenhum resumo disponível para esta ação.') + '</p>';
-        html += '</div>';
-
-        // link pra página da ação, 
-        // pensando bem: talvez seja bom retirar já que precisa de permissão pra detalhar ação mas essa seção de dashboard não exige permissão nenhuma. ver com otávio dps
-        html += '<div class="mt-4">';
-        html += '  <a href="/system/actions/' + dados.acao_id + '/details" class="btn btn-primary w-100">';
-        html += '    Ver Detalhes Completos';
-        html += '  </a>';
         html += '</div>';
 
         conteudoEl.innerHTML = html;
