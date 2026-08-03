@@ -84,6 +84,10 @@
                 isActive="{{ request()->routeIs(['home.*']) ? true : false }}" icon="ti-home">
               </x-navbar.navbar-item>
 
+              <x-navbar.navbar-item route="{{ route('dashboard.index') }}" title="Dashboard"
+                isActive="{{ request()->routeIs(['dashboard.index']) ? true : false }}" icon="ti ti-layout-dashboard  ">
+              </x-navbar.navbar-item>
+
               @can('ver_suas_ações')
               <x-navbar.navbar-item route="{{ route('actions.my') }}" title="Minhas ações"
                 isActive="{{ request()->routeIs(['actions.my', 'actions.details', 'actions.report']) ? true : false }}"

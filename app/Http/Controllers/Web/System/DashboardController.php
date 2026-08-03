@@ -32,18 +32,20 @@ class DashboardController extends Controller
             ->orderBy('data_hora_inicio', 'asc')
             ->get();
 
-        $idPerguntaLocalizacao = ''; //PREENCHER COM O ID DA PERGUBNTA DO FORMULARIO QUE EU VOU criar **NAO ESQUECER** 
         
-        $respostasGeograficas = Resposta::where('id_pergunta', $idPerguntaLocalizacao)
+        $respostasGeograficas = DB::table('resposta')
+            ->join('pergunta', 'resposta.id_pergunta', '=', 'pergunta.id')
             ->join('submissao', 'resposta.id_submissao', '=', 'submissao.id')
-            ->join('acao', 'submissao.id_action', '=', 'acao.id')
+            ->join('acao', 'submissao.id_acao', '=', 'acao.id') 
+            ->where('pergunta.tipo', 'location') 
             ->where('acao.situacao', 'EM EXECUÇÃO') 
             ->select(
                 'resposta.valor', 
                 'acao.id as acao_id', 
-                'acao.titulo', 
-                'acao.img',
-                'acao.resumo'
+                'acao.titulo as acao_titulo', 
+                'acao.img as acao_img',
+                'acao.resumo as acao_resumo',
+                'pergunta.enunciado as pergunta_texto'
             )
             ->get();
 
@@ -57,14 +59,15 @@ class DashboardController extends Controller
                     'lng' => $dadosLocal['lng'],
                     'nome_local' => $dadosLocal['nome'] ?? 'Local não informado',
                     'acao_id' => $resposta->acao_id,
-                    'acao_titulo' => $resposta->titulo,
-                    'acao_img' => $resposta->img,
-                    'acao_resumo' => $resposta->resumo,
+                    'acao_titulo'    => $resposta->acao_titulo,
+                    'acao_img'       => $resposta->acao_img,
+                    'acao_resumo'    => $resposta->acao_resumo,
+                    'pergunta_texto' => $resposta->pergunta_texto
                 ];
             }
         }
 
-        return view('pages.home.dashboard', [
+        return view('pages.dashboard.index', [
             'totalAcoes' => $acoesEmAndamento,
             'totalBolsas' => $bolsasAtivas,
             'acoesPorArea' => $acoesPorArea,
