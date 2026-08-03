@@ -3,7 +3,7 @@
 @section('content')
 <div class="container-xl">
   <div class="page-header d-print-none mb-4">
-    <h2 class="page-title">Dashboard das Ações de Extensão</h2>
+    <h2 class="page-title">Painel das Ações de Extensão</h2>
   </div>
 
   <div class="row row-cards">

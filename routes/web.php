@@ -122,5 +122,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('respostas/auto-save', [ReportController::class, 'autoSave'])->name('respostas.autosave');
     Route::delete('relatorio/finalizar/{uuid}', [ReportController::class, 'finish'])->name('report.finish');
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index');
 });
