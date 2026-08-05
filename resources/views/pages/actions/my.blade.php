@@ -39,7 +39,7 @@
         <td class="text-center">
           @php
           $submissoesPendentes = $item->action->submissoes->filter(function($submissao) {
-          return is_null($submissao->finalizada_em) || $submissao->evaluation_progress < 100; })->count();
+          return (is_null($submissao->finalizada_em) || $submissao->evaluation_progress < 100 && $submissao->qtd_progress > 0) && $submissao->relatorio->status == 1; })->count();
             @endphp
 
             <button class="btn btn-sm p-1 px-2 position-relative" data-bs-toggle="offcanvas"
@@ -123,7 +123,7 @@
               </div>
             </div>
 
-            @if($submissao->evaluation_progress < 100) <div
+            @if($submissao->evaluation_progress < 100 && $submissao->qtd_progress > 0) <div
               class="mt-2 text-danger fw-bold d-flex align-items-center gap-1" style="font-size: 0.8rem;">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
                 class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">

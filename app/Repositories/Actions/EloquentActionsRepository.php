@@ -172,8 +172,8 @@ class EloquentActionsRepository implements ActionsRepository
         $acao->titulo = $request->titulo;
         $acao->palavras_chave = $request->palavras_chave;
         $acao->tipo_acao = $request->tipo;
-        $acao->modalidade_edital = $request->modalidade;
-        $acao->centro_departamento_sigla = $request->centro_departamento;
+        $acao->modalidade_edital = $request->modalidade_edital;
+        $acao->centro_departamento_sigla = $request->centro_departamento_sigla;
         $acao->data_inicio = $request->data_inicio;
         $acao->data_fim = $request->data_fim;
         $acao->data_atualizacao = now();

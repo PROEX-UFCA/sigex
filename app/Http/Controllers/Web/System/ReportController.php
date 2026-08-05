@@ -117,6 +117,10 @@ class ReportController extends Controller
             return redirect()->back()->with('warning', "O prazo para enviar esse relatório já passou!");
         }
 
+        if($this->data['submissao']->relatorio->status == 2 || $this->data['submissao']->relatorio->status == 0){
+            return redirect()->back()->with('warning', "Esse relatório não está liberado!");
+        }
+
         return view('pages.actions.report', $this->data);
     }
 
@@ -626,16 +630,31 @@ class ReportController extends Controller
                         ['valor' => null]
                     );
                 } else {
-                    // Se for tabela, garante pelo menos o índice 0 null para todas as colunas se não houver nada
-                    $existeResposta = Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
-                        ->where('id_submissao', $submissao->id)->exists();
+                    // 1. Pega todos os índices (linhas da tabela) que o usuário chegou a responder
+                    $indicesRespondidos = Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
+                        ->where('id_submissao', $submissao->id)
+                        ->distinct()
+                        ->pluck('indice_grupo');
                     
-                    if(!$existeResposta) {
+                    // 2. Se não respondeu absolutamente nada, cria a linha 0 toda nula
+                    if ($indicesRespondidos->isEmpty()) {
                         foreach ($pergunta->filhas as $filha) {
                             Resposta::firstOrCreate(
                                 ['id_submissao' => $submissao->id, 'id_pergunta' => $filha->id, 'indice_grupo' => 0],
                                 ['valor' => null]
                             );
+                        }
+                    } else {
+                        // 3. Se respondeu alguma linha, percorre esses índices
+                        foreach ($indicesRespondidos as $indice) {
+                            foreach ($pergunta->filhas as $filha) {
+                                // O firstOrCreate é perfeito aqui: se a resposta obrigatória já existir, 
+                                // ele não faz nada. Se a opcional não existir, ele cria com null.
+                                Resposta::firstOrCreate(
+                                    ['id_submissao' => $submissao->id, 'id_pergunta' => $filha->id, 'indice_grupo' => $indice],
+                                    ['valor' => null] 
+                                );
+                            }
                         }
                     }
                 }

@@ -37,27 +37,30 @@ class Submissao extends Model
             
             foreach ($secao->perguntas->whereNull('id_pergunta_pai') as $pergunta){
 
-                $qtdPerguntas++;
-
-                if ($pergunta->tipo === 'tabela') {
-                    $temRespostaNaTabela = \App\Models\Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
-                        ->where('id_submissao', $this->id)
-                        ->whereNotNull('valor')
-                        ->where('valor', '!=', '')
-                        ->exists();
-
-                    if ($temRespostaNaTabela) {
-                        $qtdPerguntasRespondidas++;
+                if($pergunta->obrigatoria == 1){
+                    $qtdPerguntas++;
+    
+                    if ($pergunta->tipo === 'tabela') {
+                        $temRespostaNaTabela = \App\Models\Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
+                            ->where('id_submissao', $this->id)
+                            ->whereNotNull('valor')
+                            ->where('valor', '!=', '')
+                            ->exists();
+    
+                        if ($temRespostaNaTabela) {
+                            $qtdPerguntasRespondidas++;
+                        }
+    
+                    } else {
+                        $resposta = $pergunta->getRespostaPorSubmissao($this->id);
+    
+                        if ($resposta && $resposta->valor !== null && $resposta->valor !== '') {
+                            $qtdPerguntasRespondidas++; 
+                        }
+                        
                     }
-
-                } else {
-                    $resposta = $pergunta->getRespostaPorSubmissao($this->id);
-
-                    if ($resposta && $resposta->valor !== null && $resposta->valor !== '') {
-                        $qtdPerguntasRespondidas++; 
-                    }
-                    
                 }
+
             }
         }
 
@@ -82,5 +85,25 @@ class Submissao extends Model
         }
 
         return (float) round(($qtdAvaliadasAprovadas / $qtdTotalParaAvaliar) * 100, 2);
+    }
+
+    public function getQtdProgressAttribute() : float
+    {
+        $respostas = \App\Models\Resposta::where('id_submissao', $this->id)->get();
+
+        $qtdTotalParaAvaliar = $respostas->count();
+        $qtdAvaliadasAprovadas = 0;
+
+        if ($qtdTotalParaAvaliar === 0) {
+            return 0;
+        }
+
+        foreach ($respostas as $resposta) {
+            if ($resposta->validacao && $resposta->validacao->status == 1) {
+                $qtdAvaliadasAprovadas++;
+            }
+        }
+
+        return $qtdAvaliadasAprovadas;
     }
 }

@@ -460,7 +460,7 @@
 
             <div id="container-regex" class="col-12 d-none mt-2">
               <label class="form-label">Regex (Máscara/Padrão)</label>
-              <input type="text" name="regex" class="form-control" placeholder="Ex: ^[0-9]{3}$">
+              <input type="text" name="regex" class="form-control" placeholder="Ex: (00) 00000-0000">
             </div>
           </div>
 
