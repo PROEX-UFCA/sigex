@@ -21,7 +21,23 @@
 
     <div class="col-lg-5">
       <div class="row row-cards">
+        
+        <form method="GET" action="{{ route('dashboard.index') }}">
+          <label for="anoFilter" class="font-bold mb-1">Filtrar por Ano de Execução:</label>
+          
+          <select name="anos[]" id="anoFilter" class="form-select" onchange="this.form.submit()">
+              @php
+                  $anoAtual = date('Y');
+                  $anosSelecionados = request('anos', [$anoAtual]);
+              @endphp
+              @for ($i = $anoAtual; $i >= $anoAtual - 5; $i--)
+                  <option value="{{ $i }}" {{ in_array($i, $anosSelecionados) ? 'selected' : '' }}>
+                      {{ $i }}
+                  </option>
+              @endfor
+          </select>
 
+        </form>
         
         <div class="col-sm-6">
           <div class="card card-sm">
@@ -31,8 +47,8 @@
                   <span class="bg-primary text-white avatar avatar-xs"><i class="ti ti-briefcase fs-3"></i></span>
                 </div>
                 <div class="col">
-                  <div class="font-weight-medium">Em Andamento</div>
-                  <div class="text-muted fs-6">{{ $totalAcoes }} ações ativas</div>
+                  <div class="font-weight-medium">{{ $totalAcoes }}</div>
+                  <div class="text-muted fs-6">Ações Ativas</div>
                 </div>
               </div>
             </div>
@@ -47,8 +63,8 @@
                   <span class="bg-success text-white avatar avatar-xs"><i class="ti ti-currency-dollar fs-3"></i></span>
                 </div>
                 <div class="col">
-                  <div class="font-weight-medium">Bolsas Ativas</div>
-                  <div class="text-muted fs-6">{{ $totalBolsas }} concedidas</div>
+                  <div class="font-weight-medium">{{ $totalBolsas }}</div>
+                  <div class="text-muted fs-6">Bolsas Ativas</div>
                 </div>
               </div>
             </div>
@@ -56,47 +72,48 @@
         </div>
 
         <div class="col-12">
+          <div class="card bg-white p-4 ">
+            <h3 class="text-lg font-bold mb-4">Ações por Área Temática</h3>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="areaTematicaChart"></canvas>
+            </div>
+        </div>
+        </div>
+
+        <div class="col-12 mt-3">
           <div class="card">
             <div class="card-header">
-              <h3 class="card-title">Ações por Área Temática</h3>
+              <h3 class="card-title">Ações por Departamento</h3>
             </div>
-            <div class="list-group list-group-flush">
-              @forelse($acoesPorArea as $area)
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                  {{ $area->area_tematica ?? 'Não definida' }}
-                  <span class="badge bg-blue-lt">{{ $area->total }}</span>
-                </div>
-              @empty
-                <div class="list-group-item text-muted" style="max-height: 350px; overflow-y: auto;">Nenhum dado disponível.</div>
-              @endforelse
+            <div class="card-body">
+              <div style="position: relative; height: 350px; width: 100%;">
+                <canvas id="departamentoChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="col-12">
+        <div class="col-12 mt-3">
           <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Eventos nos Próximos 7 Dias</h3>
-            </div>
-            <div class="list-group list-group-flush">
-              @forelse($eventosDaSemana as $evento)
-                <div class="list-group-item">
-                  <div class="text-truncate">
-                    <strong>{{ $evento->titulo_evento }}</strong>
-                  </div>
-                  <div class="text-muted small mt-1">
-                    <i class="ti ti-calendar me-1"></i> 
-                    {{ \Carbon\Carbon::parse($evento->data_hora_inicio)->format('d/m/Y \à\s H:i') }}
-                    <br>
-                    <i class="ti ti-map-pin me-1"></i> {{ $evento->local_formato }}
-                  </div>
-                  <div class="badge bg-secondary-lt mt-2 text-wrap text-start">
-                    {{ $evento->acao->titulo ?? 'Ação não vinculada' }}
+            <div class="card-body">
+              <h3 class="card-title mb-4">Frequência de Eventos</h3>
+              
+              <div class="row align-items-center">
+
+                <div class="col-sm-4 text-center mb-3 mb-sm-0">
+                  <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.8rem;">Total anual</div>
+                  <div class="display-4 font-weight-bold text-primary">{{ $totalEventos }}</div>
+                  <div class="text-muted mt-1">Eventos Realizados</div>
+                </div>
+
+                <div class="col-sm-8">
+                  <div style="position: relative; height: 180px; width: 100%;">
+                    <canvas id="eventosChart"></canvas>
                   </div>
                 </div>
-              @empty
-                <div class="list-group-item text-muted">Nenhum evento programado para os próximos dias.</div>
-              @endforelse
+
+              </div>
+
             </div>
           </div>
         </div>
@@ -202,5 +219,238 @@ document.addEventListener("DOMContentLoaded", function() {
         bsOffcanvas.show();
     }
 });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dadosArea = @json($acoesPorArea);
+
+        const labels = dadosArea.map(item => item.area_tematica);
+        const dataValues = dadosArea.map(item => item.total);
+
+        const totalAcoes = dataValues.reduce((a, b) => a + b, 0);
+
+        const colorMap = {
+            'saúde': '#8b5cf6',
+            'educação': '#f97316',
+            'meio ambiente': '#10b981',
+            'tecnologia e produção': '#06b6d4',
+            'trabalho': '#92400e',
+            'comunicação': '#ec4899',
+            'cultura': '#eab308',
+            'direitos humanos e justiça': '#64748b'
+        };
+
+        const backgroundColors = labels.map(label => {
+            const normalizedLabel = label.toLowerCase().trim();
+            return colorMap[normalizedLabel] || '#cbd5e1'; 
+        });
+
+        const centerTextPlugin = {
+            id: 'centerText',
+            beforeDraw: function(chart) {
+                if (chart.config.type !== 'doughnut') return;
+
+                const ctx = chart.ctx;
+                
+                const meta = chart.getDatasetMeta(0);
+                if (!meta || !meta.data || meta.data.length === 0) return;
+                
+                const centerX = meta.data[0].x;
+                const centerY = meta.data[0].y;
+
+                let visibleTotal = 0;
+                chart.data.datasets[0].data.forEach((value, index) => {
+                    if (chart.getDataVisibility(index)) {
+                        visibleTotal += value;
+                    }
+                });
+
+                ctx.save();
+                
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const fontSize = (chart.height / 120).toFixed(2);
+                ctx.font = "bold " + fontSize + "em sans-serif";
+                ctx.fillStyle = "#1e293b"; 
+
+                ctx.fillText(visibleTotal.toString(), centerX, centerY - (chart.height * 0.03));
+
+                const labelFontSize = (chart.height / 300).toFixed(2);
+                ctx.font = labelFontSize + "em sans-serif";
+                ctx.fillStyle = "#64748b"; 
+
+                ctx.fillText("Ações", centerX, centerY + (chart.height * 0.09));
+                
+                ctx.restore();
+            }
+        };
+
+        const ctx = document.getElementById('areaTematicaChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: dataValues,
+                    backgroundColor: backgroundColors,
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            plugins: [centerTextPlugin],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                return ' ' + context.raw + ' ações';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // GRÁFICOS DE CENTROS
+        const dadosDept = @json($acoesPorDepartamento);
+
+        const labelsCentros = dadosDept.map(item => item.departamento_grupo);
+        const dataCentros = dadosDept.map(item => item.total);
+
+        const colorMapDept = {
+            'ccab': '#8b5cf6',
+            'ccsa': '#f97316',
+            'cct': '#10b981',
+            'famed': '#06b6d4',
+            'ife': '#ec4899',
+            'iisca': '#eab308',
+            'administrativo': '#94a3b8'
+        };
+
+        const centrosColors = labelsCentros.map(label => {
+            const normalizedLabel = label.toLowerCase().trim();
+            return colorMapDept[normalizedLabel] || '#cbd5e1';
+        });
+
+        const ctxDept = document.getElementById('departamentoChart').getContext('2d'); 
+        
+        new Chart(ctxDept, {
+            type: 'bar',
+            data: {
+                labels: labelsCentros,
+                datasets: [{
+                    label: 'Ações',
+                    data: dataCentros,
+                    backgroundColor: centrosColors,
+                    borderRadius: 4,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.8
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.raw + ' ações';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        //GRÁFICOS DE EVENTOS
+
+        const dadosEventos = @json($distribuicaoMensal);
+        const labelsEventos = dadosEventos.map(item => item.mes);
+        const dataEventos = dadosEventos.map(item => item.total);
+
+        const ctxEventos = document.getElementById('eventosChart').getContext('2d');
+
+        new Chart(ctxEventos, {
+            type: 'line',
+            data: {
+                labels: labelsEventos,
+                datasets: [{
+                    label: 'Eventos',
+                    data: dataEventos,
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                    borderWidth: 2,
+                    tension: 0.4, //
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#2563eb',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false 
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + ' eventos';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        grid: {
+                            borderDash: [4, 4]
+                        }
+                    },
+                    x: {
+                        grid: {
+                        }
+                    }
+                }
+            }
+        });
+    });
 </script>
 @endsection
