@@ -91,7 +91,8 @@
                 $precisaCorrigir = $validacao && $validacao->status == 0;
                 @endphp
 
-                <div class="mb-4 p-3 rounded {{ $precisaCorrigir ? 'border border-danger border-2 bg-danger-lt bg-danger-subtle' : '' }}">
+                <div
+                  class="mb-4 p-3 rounded {{ $precisaCorrigir ? 'border border-danger border-2 bg-danger-lt bg-danger-subtle' : '' }}">
 
                   @if($pergunta->tipo !== 'tabela')
                   <div class="d-flex justify-content-between align-items-center mb-1">
@@ -117,19 +118,39 @@
                   @case('text')
                   <input type="text" class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" {{
                     $pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }} @if($pergunta->regex)
-                  data-mascara="{{ $pergunta->regex }}" @endif placeholder="Sua resposta aqui" value="{{ $valorSalvo
-                  }}">
+                  data-mascara="{{ $pergunta->regex }}" @endif
+                  placeholder="Sua resposta aqui" value="{{ $valorSalvo}}" @if($pergunta->min) minlength="{{
+                  $pergunta->min }}" @endif @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif>
+                  <div class="form-text text-muted">
+                    @if($pergunta->min) Mín: {{ $pergunta->min }} caracteres. @endif
+                    @if($pergunta->max) Máx: {{ $pergunta->max }} caracteres. @endif
+                    @if($pergunta->regex) <span title="{{ $pergunta->regex }}">Formato: {{ $pergunta->regex }}.</span>
+                    @endif
+                  </div>
                   @break
 
                   @case('textarea')
-                  <textarea class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" rows="3" {{
-                    $pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }}>{{ $valorSalvo }}</textarea>
+                  <textarea class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" rows="3"
+                    {{$pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }} @if($pergunta->min) minlength="{{ $pergunta->min }}" @endif @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif @if($pergunta->regex) data-mascara="{{ $pergunta->regex }}" @endif>{{ $valorSalvo }}</textarea>
+                  <div class="form-text text-muted">
+                    @if($pergunta->min) Mín: {{ $pergunta->min }} caracteres. @endif
+                    @if($pergunta->max) Máx: {{ $pergunta->max }} caracteres. @endif
+                    @if($pergunta->regex) <span title="{{ $pergunta->regex }}">Formato: {{ $pergunta->regex }}.</span>
+                    @endif
+                  </div>
                   @break
 
                   @case('number')
                   <input type="number" class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" {{
                     $pergunta->obrigatoria ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }} value="{{ $valorSalvo
-                  }}">
+                  }}" @if($pergunta->min) min="{{ $pergunta->min }}" @endif @if($pergunta->max) max="{{ $pergunta->max
+                  }}" @endif @if($pergunta->step) step="{{ $pergunta->step }}" @endif>
+                  <div class="form-text text-muted">
+                    @if($pergunta->min) Mín: {{ $pergunta->min }}. @endif
+                    @if($pergunta->max) Máx: {{ $pergunta->max }}. @endif
+                    @if($pergunta->step) <span title="{{ $pergunta->step }}">Intervalo: {{ $pergunta->step }}.</span>
+                    @endif
+                  </div>
                   @break
 
                   @case('date')
@@ -180,7 +201,13 @@
 
                   @case('file')
                   <input type="file" class="form-control form-salvar-estado" name="respostas[{{ $pergunta->id }}]" {{
-                    $pergunta->obrigatoria && !$valorSalvo ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }}>
+                    $pergunta->obrigatoria && !$valorSalvo ? 'required' : '' }} {{ $bloqueado ? 'disabled' : '' }}
+                  @if($pergunta->accept) accept="{{ $pergunta->accept }}" @endif>
+                  @if($pergunta->accept)
+                  <div class="form-text text-muted">
+                    Formatos aceitos: {{ str_replace(',', ', ', $pergunta->accept) }}
+                  </div>
+                  @endif
                   @if($valorSalvo)
                   <div class="form-text text-success mt-1"><i class="bi bi-check-circle"></i> Arquivo já enviado. Envie
                     outro para substituir.</div>
@@ -244,7 +271,9 @@
                   <div class="repeater-container p-3 border border-primary border-opacity-25 rounded bg-white mb-3"
                     id="tabela-{{ $pergunta->id }}">
                     <div class="d-flex align-items-center mb-3">
-                      <label class="form-label fw-bold mb-0 text-primary fs-5 {{ $pergunta->obrigatoria == 1 ? 'required' : '' }}">{{ $pergunta->enunciado }}</label>
+                      <label
+                        class="form-label fw-bold mb-0 text-primary fs-5 {{ $pergunta->obrigatoria == 1 ? 'required' : '' }}">{{
+                        $pergunta->enunciado }}</label>
                     </div>
 
                     <div class="repeater-linhas" id="linhas-{{ $pergunta->id }}">
@@ -282,10 +311,9 @@
                             [$valorSalvoCol] : (is_array($valorSalvoCol) ? $valorSalvoCol : [$valorSalvoCol]);
                             $inputUnicoId = $coluna->id . '-' . $indice;
 
-                            // AVALIAÇÃO EXCLUSIVA DA CÉLULA (COLUNA DA TABELA)
                             $validacaoCol = $respColuna ? $respColuna->validacao : null;
-                            $bloqueadoCol = $validacaoCol && $validacaoCol->status == 1; // 1 = Aprovado (bloqueia)
-                            $precisaCorrigirCol = $validacaoCol && $validacaoCol->status == 0; // 0 = Correção (livr para editar)
+                            $bloqueadoCol = $validacaoCol && $validacaoCol->status == 1;
+                            $precisaCorrigirCol = $validacaoCol && $validacaoCol->status == 0;
                             @endphp
 
                             <div
@@ -310,20 +338,48 @@
                               <input type="text" class="form-control form-control-sm form-salvar-estado"
                                 name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}"
                                 value="{{ $valorSalvoCol }}" {{ $coluna->obrigatoria ? 'required' : '' }} {{
-                              $bloqueadoCol ? 'disabled' : '' }}>
+                              $bloqueadoCol ? 'disabled' : '' }} @if($coluna->min) minlength="{{ $coluna->min }}"
+                              @endif @if($coluna->max) maxlength="{{ $coluna->max }}" @endif @if($coluna->regex)
+                              data-mascara="{{ $coluna->regex }}" @endif>
+                              @if($coluna->min || $coluna->max || $coluna->regex)
+                              <div class="form-text text-muted">
+                                @if($coluna->min) Mín: {{ $coluna->min }} caracteres. @endif
+                                @if($coluna->max) Máx: {{ $coluna->max }} caracteres. @endif
+                                @if($coluna->regex) <span title="{{ $coluna->regex }}">Formato: {{ $coluna->regex
+                                  }}.</span> @endif
+                              </div>
+                              @endif
                               @break
 
                               @case('textarea')
                               <textarea class="form-control form-control-sm form-salvar-estado"
-                                name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" rows="2" {{
-                                $coluna->obrigatoria ? 'required' : '' }} {{ $bloqueadoCol ? 'disabled' : '' }}>{{ $valorSalvoCol }}</textarea>
+                                name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" rows="2" {{ $coluna->obrigatoria ? 'required' : '' }} {{ $bloqueadoCol ? 'disabled' : '' }} @if($coluna->min) minlength="{{ $coluna->min }}"
+                              @endif @if($coluna->max) maxlength="{{ $coluna->max }}" @endif @if($coluna->regex)
+                              data-mascara="{{ $coluna->regex }}" @endif>{{ $valorSalvoCol }}</textarea>
+                              @if($coluna->min || $coluna->max || $coluna->regex)
+                              <div class="form-text text-muted">
+                                @if($coluna->min) Mín: {{ $coluna->min }} caracteres. @endif
+                                @if($coluna->max) Máx: {{ $coluna->max }} caracteres. @endif
+                                @if($coluna->regex) <span title="{{ $coluna->regex }}">Formato: {{ $coluna->regex
+                                  }}.</span> @endif
+                              </div>
+                              @endif
                               @break
 
                               @case('number')
                               <input type="number" class="form-control form-control-sm form-salvar-estado"
                                 name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}"
                                 value="{{ $valorSalvoCol }}" {{ $coluna->obrigatoria ? 'required' : '' }} {{
-                              $bloqueadoCol ? 'disabled' : '' }}>
+                              $bloqueadoCol ? 'disabled' : '' }} @if($coluna->min) min="{{ $coluna->min }}" @endif
+                              @if($coluna->max) max="{{ $coluna->max
+                              }}" @endif @if($coluna->step) step="{{ $coluna->step }}" @endif>
+                              <div class="form-text text-muted">
+                                @if($coluna->min) Mín: {{ $coluna->min }}. @endif
+                                @if($coluna->max) Máx: {{ $coluna->max }}. @endif
+                                @if($coluna->step) <span title="{{ $coluna->step }}">Intervalo: {{ $coluna->step
+                                  }}.</span>
+                                @endif
+                              </div>
                               @break
 
                               @case('date')
@@ -337,7 +393,13 @@
                               @case('file')
                               <input type="file" class="form-control form-control-sm form-salvar-estado"
                                 name="respostas[{{ $coluna->id }}]" data-indice="{{ $indice }}" {{ $coluna->obrigatoria
-                              && !$valorSalvoCol ? 'required' : '' }} {{ $bloqueadoCol ? 'disabled' : '' }}>
+                              && !$valorSalvoCol ? 'required' : '' }} {{ $bloqueadoCol ? 'disabled' : '' }}
+                              @if($coluna->accept) accept="{{ $coluna->accept }}" @endif>
+                              @if($coluna->accept)
+                              <div class="form-text text-muted">
+                                Formatos aceitos: {{ str_replace(',', ', ', $coluna->accept) }}
+                              </div>
+                              @endif
                               @if($valorSalvoCol)
                               <div class="form-text text-success mt-1" style="font-size: 0.7rem;"><i
                                   class="bi bi-check-circle"></i> Arquivo já enviado.</div>
