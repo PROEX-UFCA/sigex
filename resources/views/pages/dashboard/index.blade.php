@@ -11,7 +11,7 @@
       <div class="col-lg-7">
           <div class="card" style="height: calc(100vh - 100px); min-height: 500px; position: sticky; top: 20px;">
               <div class="card-header">
-              <h3 class="card-title">Mapa de Atuação</h3>
+              <h3 class="card-title">Mapa atual da Extensão</h3>
               </div>
               <div class="card-body p-0">
               <div id="map" style="height: 100%; width: 100%; z-index: 1;"></div>
@@ -23,103 +23,128 @@
       <div class="row row-cards">
         
         <form method="GET" action="{{ route('dashboard.index') }}">
-          <label for="anoFilter" class="font-bold mb-1">Filtrar por Ano de Execução:</label>
-          
-          <select name="anos[]" id="anoFilter" class="form-select" onchange="this.form.submit()">
+          <label for="anoFilter" class="font-bold mb-1">Filtrar por Ano</label>
+          <select name="ano" id="anoFilter" class="form-select" onchange="this.form.submit()">
               @php
                   $anoAtual = date('Y');
-                  $anosSelecionados = request('anos', [$anoAtual]);
+                  $anoSelecionado = request('ano', $anoAtual);
               @endphp
               @for ($i = $anoAtual; $i >= $anoAtual - 5; $i--)
-                  <option value="{{ $i }}" {{ in_array($i, $anosSelecionados) ? 'selected' : '' }}>
+                  <option value="{{ $i }}" {{ $i == $anoSelecionado ? 'selected' : '' }}>
                       {{ $i }}
                   </option>
               @endfor
           </select>
-
         </form>
-        
-        <div class="col-sm-6">
-          <div class="card card-sm">
-            <div class="card-body">
-              <div class="row align-items-center">
-                <div class="col-auto pe-lg-0">
-                  <span class="bg-primary text-white avatar avatar-xs"><i class="ti ti-briefcase fs-3"></i></span>
-                </div>
-                <div class="col">
-                  <div class="font-weight-medium">{{ $totalAcoes }}</div>
-                  <div class="text-muted fs-6">Ações Ativas</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-6">
-          <div class="card card-sm">
-            <div class="card-body">
-              <div class="row align-items-center">
-                <div class="col-auto pe-lg-0">
-                  <span class="bg-success text-white avatar avatar-xs"><i class="ti ti-currency-dollar fs-3"></i></span>
-                </div>
-                <div class="col">
-                  <div class="font-weight-medium">{{ $totalBolsas }}</div>
-                  <div class="text-muted fs-6">Bolsas Ativas</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12">
-          <div class="card bg-white p-4 ">
-            <h3 class="text-lg font-bold mb-4">Ações por Área Temática</h3>
-            <div style="position: relative; height: 300px; width: 100%;">
-                <canvas id="areaTematicaChart"></canvas>
-            </div>
-        </div>
-        </div>
 
         <div class="col-12 mt-3">
           <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Ações por Departamento</h3>
-            </div>
-            <div class="card-body">
-              <div style="position: relative; height: 350px; width: 100%;">
-                <canvas id="departamentoChart"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
+            
+            <ul class="nav nav-tabs" data-bs-toggle="tabs">
+              <li class="nav-item">
+                <a href="#tabs-resumo" class="nav-link active" data-bs-toggle="tab">Geral</a>
+              </li>
+              <li class="nav-item">
+                <a href="#tabs-equipe" class="nav-link" data-bs-toggle="tab">Equipe</a>
+              </li>
+              <li class="nav-item">
+                <a href="#tabs-areas" class="nav-link" data-bs-toggle="tab">Áreas</a>
+              </li>
+              <li class="nav-item">
+                <a href="#tabs-dept" class="nav-link" data-bs-toggle="tab">Departamentos</a>
+              </li>
+              <li class="nav-item">
+                <a href="#tabs-eventos" class="nav-link" data-bs-toggle="tab">Eventos</a>
+              </li>
+            </ul>
 
-        <div class="col-12 mt-3">
-          <div class="card">
             <div class="card-body">
-              <h3 class="card-title mb-4">Frequência de Eventos</h3>
-              
-              <div class="row align-items-center">
-
-                <div class="col-sm-4 text-center mb-3 mb-sm-0">
-                  <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.8rem;">Total anual</div>
-                  <div class="display-4 font-weight-bold text-primary">{{ $totalEventos }}</div>
-                  <div class="text-muted mt-1">Eventos Realizados</div>
+              <div class="tab-content">
+                
+                <!-- 1a tab: geral -->
+                <div class="tab-pane active show" id="tabs-resumo">
+                  <div class="row">
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                      <div class="card card-sm">
+                        <div class="card-body">
+                          <div class="row align-items-center">
+                            <div class="col-auto pe-lg-0">
+                              <span class="bg-primary text-white avatar avatar-xs"><i class="ti ti-briefcase fs-3"></i></span>
+                            </div>
+                            <div class="col">
+                              <div class="font-weight-medium">{{ $totalAcoes }}</div>
+                              <div class="text-muted fs-6">Ações Ativas</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="card card-sm">
+                        <div class="card-body">
+                          <div class="row align-items-center">
+                            <div class="col-auto pe-lg-0">
+                              <span class="bg-success text-white avatar avatar-xs"><i class="ti ti-currency-dollar fs-3"></i></span>
+                            </div>
+                            <div class="col">
+                              <div class="font-weight-medium">{{ $totalBolsas }}</div>
+                              <div class="text-muted fs-6">Bolsas Ativas</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="col-sm-8">
-                  <div style="position: relative; height: 180px; width: 100%;">
-                    <canvas id="eventosChart"></canvas>
+                <!-- 2a tab: equipe -->
+                <div class="tab-pane" id="tabs-equipe">
+                  <div class="row align-items-center">
+                    <div class="text-center mb-3 mb-sm-0">
+                      <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.8rem;">Total no ano</div>
+                      <div class="display-4 font-weight-bold text-success">{{ $totalPessoas }}</div>
+                      <div class="text-muted mt-1 mb-3">Pessoas Únicas</div>
+                      <div style="position: relative; height: 200px; width: 100%;">
+                        <canvas id="pessoasChart"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3a tab: areas -->
+                <div class="tab-pane" id="tabs-areas">
+                  <div style="position: relative; height: 300px; width: 100%;">
+                      <canvas id="areaTematicaChart"></canvas>
+                  </div>
+                </div>
+
+                <!-- 4a tab: centros -->
+                <div class="tab-pane" id="tabs-dept">
+                  <div style="position: relative; height: 350px; width: 100%;">
+                    <canvas id="departamentoChart"></canvas>
+                  </div>
+                </div>
+
+                <!-- 5a tab: eventos -->
+                <div class="tab-pane" id="tabs-eventos">
+                  <div class="row align-items-center">
+                    <div class="col-sm-4 text-center mb-3 mb-sm-0">
+                      <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.8rem;">Total anual</div>
+                      <div class="display-4 font-weight-bold text-primary">{{ $totalEventos }}</div>
+                      <div class="text-muted mt-1">Eventos Realizados</div>
+                    </div>
+                    <div class="col-sm-8">
+                      <div style="position: relative; height: 180px; width: 100%;">
+                        <canvas id="eventosChart"></canvas>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
               </div>
-
             </div>
           </div>
         </div>
-
-      </div>
-    </div>
 
   </div>
 </div>
@@ -145,7 +170,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+//MAPA
     var map = L.map('map').setView([-7.3, -39.3], 9);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -218,12 +243,75 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         bsOffcanvas.show();
     }
-});
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    //GRÁFICO DE EQUIPE
+        const dadosPessoas = @json($pessoasPorTipo);
+        const labelsPessoas = dadosPessoas.map(item => item.tipo_membro || 'NÃO INFORMADO');
+        const dataPessoas = dadosPessoas.map(item => item.total);
+
+        const colorMapPessoas = {
+            'discente': '#2563eb',
+            'docente': '#16a34a',
+            'servidor': '#d97706',
+            'externo': '#9333ea'
+        };
+
+        const bgColorsPessoas = labelsPessoas.map(label => {
+            const normal = label.toLowerCase().trim();
+            return colorMapPessoas[normal] || '#cbd5e1';
+        });
+
+        const ctxPessoas = document.getElementById('pessoasChart').getContext('2d');
+
+        new Chart(ctxPessoas, { 
+            type: 'bar',
+            data: {
+                labels: labelsPessoas,
+                datasets: [{
+                    label: 'Pessoas Envolvidas',
+                    data: dataPessoas,
+                    backgroundColor: bgColorsPessoas,
+                    borderRadius: 4,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + ' pessoas';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 5
+                        },
+                        grid: {
+                            borderDash: [4, 4]
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    //GRÁFICO ÁREAS TEMÁTICAS
         const dadosArea = @json($acoesPorArea);
 
         const labels = dadosArea.map(item => item.area_tematica);
@@ -331,7 +419,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
 
-        // GRÁFICOS DE CENTROS
+    //GRÁFICO DE CENTROS/DEPARTAMENTOS
         const dadosDept = @json($acoesPorDepartamento);
 
         const labelsCentros = dadosDept.map(item => item.departamento_grupo);
@@ -393,7 +481,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
         
-        //GRÁFICOS DE EVENTOS
+    //GRÁFICO DE EVENTOS
 
         const dadosEventos = @json($distribuicaoMensal);
         const labelsEventos = dadosEventos.map(item => item.mes);
@@ -451,6 +539,5 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
         });
-    });
 </script>
 @endsection

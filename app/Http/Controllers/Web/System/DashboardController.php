@@ -14,31 +14,28 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $anosSelecionados = $request->input('anos', [date('Y')]);
+        $ano = $request->input('ano', date('Y'));
 
-        $filtroAno = function ($query) use ($anosSelecionados) {
-            $query->where(function ($q) use ($anosSelecionados) {
-                foreach ($anosSelecionados as $ano) {
+        $filtroAno = function ($query) use ($ano) {
+            $query->where(function ($q) use ($ano) {
                     $anoLimpo = trim($ano);
                     
                     $q->orWhere(function ($subQ) use ($anoLimpo) {
                         $subQ->where('data_inicio', '<=', $anoLimpo . '-12-31')
                              ->where('data_fim', '>=', $anoLimpo . '-01-01');
                     });
-                }
             });
         };
 
-        // =====================
-        //         MAPA
-        // =====================
+    //MAPA
         
         $respostasGeograficas = DB::table('resposta')
             ->join('pergunta', 'resposta.id_pergunta', '=', 'pergunta.id')
             ->join('submissao', 'resposta.id_submissao', '=', 'submissao.id')
             ->join('acao', 'submissao.id_acao', '=', 'acao.id') 
             ->where('pergunta.tipo', 'location') 
-            ->where('acao.situacao', 'EM EXECUÇÃO') 
+            ->where('acao.situacao', 'EM EXECUÇÃO') //pensando em talvez mudar essa checagem pra checagem de ano.
+            ->whereNull('acao.deleted_at') 
             ->select(
                 'resposta.valor', 
                 'acao.id as acao_id', 
@@ -67,36 +64,68 @@ class DashboardController extends Controller
             }
         }
 
-        // =====================
-        //    TAB DE EQUIPE
-        // =====================
+    //EQUIPE
 
         $situacoesValidas = ['EM EXECUÇÃO', 'CONCLUÍDA'];
 
         $acoesEmAndamento = Acao::whereIn('situacao', $situacoesValidas)
             ->where($filtroAno)
+            ->whereNull('acao.deleted_at')
             ->count();
 
         $bolsasAtivas = Acao::whereIn('situacao', $situacoesValidas)
             ->where($filtroAno)
+            ->whereNull('acao.deleted_at')
             ->sum('bolsas_concedidas');
+
+        $filtroAnoEquipe = function ($query) use ($ano) {
+            $query->where(function ($q) use ($ano) {
+                    $anoLimpo = trim($ano);
+                    $q->orWhere(function ($subQ) use ($anoLimpo) {
+                        $subQ->where('equipe_acao.data_inicio', '<=', $anoLimpo . '-12-31')
+                             ->where('equipe_acao.data_fim', '>=', $anoLimpo . '-01-01');
+                    });
+            });
+        };
+
+        $equipeBase = DB::table('equipe_acao')
+            ->join('acao', 'equipe_acao.id_acao', '=', 'acao.id')
+            ->whereIn('acao.situacao', $situacoesValidas)
+            ->where('equipe_acao.tipo_vinculo', 'AÇÃO')
+            ->whereNull('acao.deleted_at')
+            ->whereNull('equipe_acao.deleted_at') 
+            ->where($filtroAnoEquipe);
+
+        $regraUnica = "COUNT(DISTINCT COALESCE(equipe_acao.id_pessoa, equipe_acao.id_usuario))";
+
+        $totalPessoas = (clone $equipeBase)
+            ->selectRaw("{$regraUnica} as total")
+            ->value('total');
+
+        $pessoasPorTipo = (clone $equipeBase)
+            ->select('equipe_acao.tipo_membro', DB::raw("{$regraUnica} as total"))
+            ->groupBy('equipe_acao.tipo_membro')
+            ->orderBy('total', 'desc')
+            ->get();
+
+    //AREAS
 
         $acoesPorArea = Acao::whereIn('situacao', $situacoesValidas)
             ->where($filtroAno)
+            ->whereNull('acao.deleted_at')
             ->select('area_tematica', DB::raw('count(*) as total'))
             ->groupBy('area_tematica')
             ->orderBy('total', 'desc')
             ->get();
 
         
-        // =====================
-        //    TAB DE CENTROS
-        // =====================
+    //CENTROS
 
         $departamentosPrincipais = ['CCAB', 'CCSA', 'CCT', 'FAMED', 'IFE', 'IISCA'];
 
         $acoesPorDepartamento = Acao::whereIn('situacao', $situacoesValidas)
             ->where($filtroAno)
+            ->whereNull('acao.deleted_at')
             ->selectRaw("
                 CASE
                     WHEN UPPER(TRIM(centro_departamento_sigla)) IN (?, ?, ?, ?, ?, ?)
@@ -109,34 +138,32 @@ class DashboardController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        // =====================
-        //    TAB DE EVENTOS
-        // =====================
+    //EVENTOS
 
         $agora = Carbon::now();
         $daquiA7Dias = Carbon::now()->addDays(7);
 
         $eventosDaSemana = Agenda_Acao::with('acao')
             ->whereBetween('data_hora_inicio', [$agora, $daquiA7Dias])
+            ->whereNull('agenda_acao.deleted_at')
             ->orderBy('data_hora_inicio', 'asc')
             ->get();
 
-        $filtroAnoEventos = function ($query) use ($anosSelecionados) {
-            $query->where(function ($q) use ($anosSelecionados) {
-                foreach ($anosSelecionados as $ano) {
+        $filtroAnoEventos = function ($query) use ($ano) {
+            $query->where(function ($q) use ($ano) {
                     $anoLimpo = trim($ano);
                     
                     $q->orWhere(function ($subQ) use ($anoLimpo) {
                         $subQ->where('data_hora_inicio', '<=', $anoLimpo . '-12-31 23:59:59')
                              ->where('data_hora_fim', '>=', $anoLimpo . '-01-01 00:00:00');
                     });
-                }
             });
         };
 
         $totalEventos = Agenda_Acao::where($filtroAnoEventos)->count();
 
         $eventosAgrupados = Agenda_Acao::where($filtroAnoEventos)
+            ->whereNull('agenda_acao.deleted_at')
             ->selectRaw('MONTH(data_hora_inicio) as mes_numero, COUNT(*) as total')
             ->groupBy('mes_numero')
             ->orderBy('mes_numero')
@@ -161,7 +188,9 @@ class DashboardController extends Controller
             'pontosMapa' => json_encode($pontosMapa),
             'totalEventos' => $totalEventos,
             'distribuicaoMensal' => $distribuicaoMensal,
-            'acoesPorDepartamento' => $acoesPorDepartamento
+            'acoesPorDepartamento' => $acoesPorDepartamento,
+            'totalPessoas' => $totalPessoas,
+            'pessoasPorTipo' => $pessoasPorTipo
         ]);
 
     }
