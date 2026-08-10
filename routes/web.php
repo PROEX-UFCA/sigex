@@ -25,6 +25,13 @@ Route::get('login/editar/{token}', [LoginController::class, 'edit'])->name('logi
 Route::get('login/registrar/{token}', [LoginController::class, 'register'])->name('login.register');
 Route::post('login/atualizar/{token}', [LoginController::class, 'update'])->name('login.update');
 
+Route::get('acessar', [LoginController::class, 'firstAccess'])->name('access.index');
+Route::post('acessar', [LoginController::class, 'storeFirstAccess'])->name('access.store');
+
+Route::get('termos_de_uso', function () {
+    return view('pages.terms_of_use.index');
+})->name('terms.index');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('home.index');
 
@@ -113,9 +120,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create')->middleware(['auth' => 'permission:adicionar_relatórios']);
     Route::post('relatorios/inserir', [ReportController::class, 'store'])->name('report.store')->middleware(['auth' => 'permission:adicionar_relatórios']);
     Route::post('relatorios/atualizar/{uuid}', [ReportController::class, 'update'])->name('report.update')->middleware(['auth' => 'permission:editar_relatórios']);
-    Route::post('respostas/auto-save', [ReportController::class, 'autoSave'])->name('respostas.autosave');
-    Route::post('/api/respostas/remover-grupo', [ReportController::class, 'removerGrupo'])->name('respostas.remover-grupo');
-    Route::delete('relatorio/finalizar/{uuid}', [ReportController::class, 'finish'])->name('report.finish');
+    Route::post('respostas/auto-save', [ReportController::class, 'autoSave'])->name('respostas.autosave')->middleware(['auth' => 'permission:responder_relatórios']);
+
+    Route::post('/api/respostas/remover-grupo', [ReportController::class, 'removerGrupo'])->name('respostas.remover-grupo')->middleware(['auth' => 'permission:responder_relatórios']);
+    Route::delete('relatorio/finalizar/{uuid}', [ReportController::class, 'finish'])->name('report.finish')->middleware(['auth' => 'permission:responder_relatórios']);
     
     Route::get('relatorios/monitorar/{uuid}', [ReportController::class, 'monitorar'])->name('report.monitor')->middleware(['auth' => 'permission:monitorar_relatórios']);
 
@@ -123,5 +131,5 @@ Route::middleware(['auth'])->group(function () {
     
     Route::post('relatorios/monitorar/validar/{uuid}', [ReportController::class, 'validar'])->name('report.validate.store')->middleware(['auth' => 'permission:monitorar_relatórios']);
 
-    Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar');
+    Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar')->middleware(['auth' => 'permission:monitorar_relatórios']);;
 });
