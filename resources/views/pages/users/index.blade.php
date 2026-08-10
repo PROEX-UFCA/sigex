@@ -125,7 +125,9 @@
           <td>{{ $user->status == 0 ? 'Inativo' : 'Ativo' }}</td>
           <td>
             @can('detalhar_usuário')
-            <a href="{{ route('users.show', $user->uuid) }}">Detalhar</a>
+            <a href="{{ route('users.show', $user->uuid)}}" class="btn btn-sm btn-info btn-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhar">
+              <i class="ti ti-eye"></i>
+            </a>
             @endcan
           </td>
         </tr>

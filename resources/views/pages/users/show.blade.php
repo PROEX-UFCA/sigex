@@ -16,7 +16,20 @@
 
       <div class="card">
         <div class="card-body">
-          <h3 class="card-title mb-3">Informações do Usuário:</h3>
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h3 class="card-title m-0">Informações do Usuário:</h3>
+  
+            @can("editar_usuário")
+            @if(auth()->user()->uuid !== $user->uuid)
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Deletar usuário">
+              <button type="button" class="btn btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modalDelete{{ $user->uuid }}">
+                <i class="ti ti-trash fs-3"></i>
+              </button>
+            </span>
+            @endif
+            @endcan
+
+          </div>
           <div class="table-responsive p-0">
 
             <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
@@ -68,14 +81,6 @@
         </div>
       </div>
 
-      @can("editar_usuário")
-      @if(auth()->user()->uuid !== $user->uuid)
-      <button type="button" class="btn btn-outline-danger p-2 mt-3" data-bs-toggle="modal" data-bs-target="#modalDelete{{ $user->uuid }}">
-        Deletar Usuário
-      </button>
-      @endif
-      @endcan
-
     </div>
 
     <div class="col-12 col-lg-4">
@@ -105,6 +110,7 @@
                   <button type="submit" class="btn btn-primary">Salvar Novo Grupo</button>
               </div>
           </form>
+                
         </div>
       </div>
       @endif
@@ -125,7 +131,7 @@
           
           <div class="modal-body text-start text-wrap">
             Tem certeza que deseja deletar o usuário <strong>{{ $user->name }}</strong>? <br><br>
-            <span class="text-muted small">Esta ação removerá o usuário do sistema e ele não terá mais acesso ao SIGEX.</span>
+            <span class="text-muted small">Esta ação removerá o usuário do sistema.</span>
           </div>
           
           <div class="modal-footer">

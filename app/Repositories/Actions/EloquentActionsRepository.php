@@ -109,6 +109,28 @@ class EloquentActionsRepository implements ActionsRepository
         ]);
     }
 
+    public function updateSchedule($request, $id_agenda)
+    {
+        $agenda = \App\Models\Agenda_Acao::findOrFail($id_agenda);
+        
+        $agenda->update([
+            'titulo_evento' => $request->titulo, 
+            'data_hora_inicio' => $request->data_hora_inicio, 
+            'data_hora_fim' => $request->data_hora_fim, 
+            'local_formato' => $request->local_formato, 
+            'descricao' => $request->descricao
+        ]);
+
+        return $agenda;
+    }
+
+    public function deleteSchedule($id_agenda)
+    {
+        $agenda = \App\Models\Agenda_Acao::findOrFail($id_agenda);
+        
+        return $agenda->delete();
+    }
+
     public function getAllByUuid($uuid, array $filtros = [])
     {
         $acoes = Equipe_Acao::with('action')

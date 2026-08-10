@@ -85,9 +85,30 @@ class ActionController extends Controller
     public function storeSchedule(ScheduleRequest $request, $id_acao){
         try {
             $this->actionsRepository->createSchedule($request, $id_acao);
-            return redirect()->back()->with("success", "Evento adicionado a ação com sucesso.");
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("success", "Evento adicionado a ação com sucesso.");
         } catch (\Throwable $th) {
-            return redirect()->back()->with("error", "Erro. Por favor, tente novamente mais tarde.")->withInput();
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("error", "Erro. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
+
+    public function updateSchedule(ScheduleRequest $request, $id_agenda){
+        try {
+            $this->actionsRepository->updateSchedule($request, $id_agenda);
+            
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("success", "Evento atualizado com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("error", "Erro ao atualizar evento. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
+
+    public function deleteSchedule($id_agenda)
+    {
+        try {
+            $this->actionsRepository->deleteSchedule($id_agenda);
+            
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("success", "Evento removido da ação com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->to(url()->previous() . '#agenda-pane')->with("error", "Erro ao remover o evento. Por favor, tente novamente mais tarde.");
         }
     }
 
@@ -509,13 +530,13 @@ class ActionController extends Controller
                 $action->img = $path;
                 $action->save();
 
-                return redirect()->back()->with('success', 'Banner adicionado com sucesso!');
+                return redirect()->to(url()->previous() . '#banner-pane')->with('success', 'Banner adicionado com sucesso!');
             }
 
-            return redirect()->back()->with('error', 'O arquivo enviado não é válido.');
+            return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'O arquivo enviado não é válido.');
 
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Erro ao tentar adicionar banner, tente novamente mais tarde.');
+            return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'Erro ao tentar adicionar banner, tente novamente mais tarde.');
         }
     }
 }

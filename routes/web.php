@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\System\HomeController;
 use App\Http\Controllers\Web\System\MembersController;
 use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
+use App\Http\Controllers\Web\System\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -33,7 +34,7 @@ Route::get('termos_de_uso', function () {
 })->name('terms.index');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [HomeController::class, 'index'])->name('home.index');
+    Route::get('/home', [HomeController::class, 'index'])->name('home.index');
 
     Route::get('users/sair', [UsersController::class, 'logout'])->name('logout');
     
@@ -99,7 +100,12 @@ Route::middleware(['auth'])->group(function () {
         
         Route::post('acoes/agenda/{uuid}', [ActionController::class, 'storeSchedule'])->name('actions.storeSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);
 
+        Route::put('/actions/schedule/{id_agenda}', [ActionController::class, 'updateSchedule'])->name('actions.updateSchedule')->middleware(['auth' => 'permission:editar_agenda']);
+
+        Route::delete('/actions/schedule/{id_agenda}', [ActionController::class, 'deleteSchedule'])->name('actions.deleteSchedule')->middleware(['auth' => 'permission:remover_agenda']);
+
         Route::delete('membro/deletar/{uuid}', [MembersController::class, 'deleteMember'])->name('members.delete');
+    
     });
 
     Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
@@ -132,4 +138,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('relatorios/monitorar/validar/{uuid}', [ReportController::class, 'validar'])->name('report.validate.store')->middleware(['auth' => 'permission:monitorar_relatórios']);
 
     Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar')->middleware(['auth' => 'permission:monitorar_relatórios']);;
+    Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index');
 });

@@ -84,6 +84,10 @@
                 isActive="{{ request()->routeIs(['home.*']) ? true : false }}" icon="ti-home">
               </x-navbar.navbar-item>
 
+              <x-navbar.navbar-item route="{{ route('dashboard.index') }}" title="Painel"
+                isActive="{{ request()->routeIs(['dashboard.index']) ? true : false }}" icon="ti ti-layout-dashboard  ">
+              </x-navbar.navbar-item>
+
               @can('ver_suas_ações')
               <x-navbar.navbar-item route="{{ route('actions.my') }}" title="Minhas ações"
                 isActive="{{ request()->routeIs(['actions.my', 'actions.details', 'actions.report']) ? true : false }}"
@@ -187,3 +191,11 @@
 </body>
 
 </html>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+      })
+  });
+</script>

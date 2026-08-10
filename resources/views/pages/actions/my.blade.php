@@ -33,25 +33,32 @@
         <td>{{ $item->action->situacao }}</td>
         <td class="text-center">
           @can('detalhar_ação')
-          <a href="{{ route('actions.details', $item->action->id) }}" class="btn btn-sm">Detalhar</a>
+          <a href="{{ route('actions.details', $item->action->id) }}" class="btn btn-sm btn-info btn-icon"
+            data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhar">
+            <i class="ti ti-eye"></i>
+          </a>
           @endcan
         </td>
         <td class="text-center">
           @php
           $submissoesPendentes = $item->action->submissoes->filter(function($submissao) {
-          return (is_null($submissao->finalizada_em) || $submissao->evaluation_progress < 100 && $submissao->qtd_progress > 0) && $submissao->relatorio->status == 1; })->count();
+          return (is_null($submissao->finalizada_em) || $submissao->evaluation_progress < 100 && $submissao->
+            qtd_progress > 0) && $submissao->relatorio->status == 1; })->count();
             @endphp
 
-            <button class="btn btn-sm p-1 px-2 position-relative" data-bs-toggle="offcanvas"
-              data-bs-target="#modal-relatorios-{{$item->action->id}}" aria-controls="offcanvasExample">
-              Relatórios
+            <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top"
+              title="Relatórios">
+              <button class="btn btn-sm btn-secondary btn-icon position-relative" data-bs-toggle="offcanvas"
+                data-bs-target="#modal-relatorios-{{$item->action->id}}" aria-controls="offcanvasExample">
 
-              @if ($submissoesPendentes > 0)
-              <span class="badge bg-danger badge-notification">
-                {{ $submissoesPendentes }}
-              </span>
-              @endif
-            </button>
+                <i class="ti ti-file-description"></i>
+                @if ($submissoesPendentes > 0)
+                <span class="badge bg-danger badge-notification">
+                  {{ $submissoesPendentes }}
+                </span>
+                @endif
+              </button>
+            </span>
         </td>
       </tr>
       @endforeach
@@ -124,21 +131,21 @@
             </div>
 
             @if($submissao->evaluation_progress < 100 && $submissao->qtd_progress > 0) <div
-              class="mt-2 text-danger fw-bold d-flex align-items-center gap-1" style="font-size: 0.8rem;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
-                class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
-                <path
-                  d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-              </svg>
-              Requer correções! Clique para ajustar.
-          </div>
-          @endif
-          @endif
+                class="mt-2 text-danger fw-bold d-flex align-items-center gap-1" style="font-size: 0.8rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                  class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                  <path
+                    d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                </svg>
+                Requer correções! Clique para ajustar.
+              </div>
+              @endif
+              @endif
 
+          </div>
         </div>
-    </div>
-    </a>
-    @endforeach
+      </a>
+      @endforeach
     </div>
   </x-slot:content>
 </x-modal.offcanvas>
