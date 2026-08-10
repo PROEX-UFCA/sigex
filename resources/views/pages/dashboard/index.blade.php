@@ -381,7 +381,7 @@
                     if (icone.complete && icone.naturalHeight !== 0) {
                         ctx.save();
                         ctx.filter = 'brightness(0) invert(1)'; 
-                        ctx.drawImage(icone, inX - 13, inY - 15, 27, 27); 
+                        ctx.drawImage(icone, inX - 14, inY - 15, 25, 25); 
                         ctx.restore();
                     }
                 });
