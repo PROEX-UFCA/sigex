@@ -51,7 +51,7 @@
                 <a href="#tabs-areas" class="nav-link" data-bs-toggle="tab">Áreas</a>
               </li>
               <li class="nav-item">
-                <a href="#tabs-dept" class="nav-link" data-bs-toggle="tab">Departamentos</a>
+                <a href="#tabs-dept" class="nav-link" data-bs-toggle="tab">Centros</a>
               </li>
               <li class="nav-item">
                 <a href="#tabs-eventos" class="nav-link" data-bs-toggle="tab">Eventos</a>
@@ -61,79 +61,96 @@
             <div class="card-body">
               <div class="tab-content">
                 
-                <!-- 1a tab: geral -->
-                <div class="tab-pane active show" id="tabs-resumo">
-                  <div class="row">
-                    <div class="col-sm-6 mb-3 mb-sm-0">
-                      <div class="card card-sm">
-                        <div class="card-body">
-                          <div class="row align-items-center">
-                            <div class="col-auto pe-lg-0">
+            <!-- 1a tab: geral -->
+                <div class="tab-pane active show mt-2" id="tabs-resumo">
+
+                    <div class="row align-items-baseline text-center">
+
+                        <div class="col">
+                            <div class="justify-middle pe-lg-0">
                               <span class="bg-primary text-white avatar avatar-xs"><i class="ti ti-briefcase fs-3"></i></span>
-                            </div>
-                            <div class="col">
                               <div class="font-weight-medium">{{ $totalAcoes }}</div>
                               <div class="text-muted fs-6">Ações Ativas</div>
                             </div>
-                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <div class="col-sm-6">
-                      <div class="card card-sm">
-                        <div class="card-body">
-                          <div class="row align-items-center">
-                            <div class="col-auto pe-lg-0">
-                              <span class="bg-success text-white avatar avatar-xs"><i class="ti ti-currency-dollar fs-3"></i></span>
-                            </div>
-                            <div class="col">
-                              <div class="font-weight-medium">{{ $totalBolsas }}</div>
-                              <div class="text-muted fs-6">Bolsas Ativas</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
-                <!-- 2a tab: equipe -->
+                        <div class="col">
+                              <div class="pe-lg-0">
+                                  <span class="bg-success text-white avatar avatar-xs"><i class="ti ti-currency-dollar fs-3"></i></span>
+                                  <div class="font-weight-medium">{{ $totalBolsas }}</div>
+                                  <div class="text-muted fs-6">Bolsas Ativas</div>
+                              </div>
+                        </div>
+
+                        <div class="col">
+                            <span class="bg-info text-white avatar avatar-xs"><i class="ti ti-clock fs-3"></i></span>
+                            <div class="font-weight-medium">{{ $duracaoMedia }} dias</div>
+                            <div class="text-muted fs-6">Duração média das ações</div>
+                        </div>
+
+                    </div>
+
+                  
+                    
+                    <!-- fluxo de cadastro, inicio e término de ações -->
+                    <div class="col-12 mt-3 border-top">
+                        <div class="my-3">
+                            <h3 class="card-title mb-4 text-start">Fluxo Mensal de Ações</h3>
+                            <div style="position: relative; height: 250px; width: 100%;">
+                                <canvas id="fluxoAcoesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- ods -->
+                    <div class="col-12 mt-3 border-top">
+                        <div class="my-3">
+                            <h3 class="card-title mb-4 text-start   ">Quantidade de ações associadas a cada <span class="fw-bold">Objetivo de Desenvolvimento Sustentável</span>.</h3>
+                            <div style="position: relative; height: 40dvh; width: 100%;">
+                                <canvas id="odsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+            <!-- 2a tab: equipe -->
                 <div class="tab-pane" id="tabs-equipe">
-                  <div class="row align-items-center">
-                    <div class="text-center mb-3 mb-sm-0">
-                      <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.8rem;">Total no ano</div>
-                      <div class="display-4 font-weight-bold text-success">{{ $totalPessoas }}</div>
-                      <div class="text-muted mt-1 mb-3">Pessoas Únicas</div>
-                      <div style="position: relative; height: 200px; width: 100%;">
-                        <canvas id="pessoasChart"></canvas>
+                    <div class="row align-items-center">
+                        <div class="text-center mb-3 mb-sm-0">
+                            <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.8rem;">Total no ano</div>
+                            <div class="display-4 font-weight-bold text-success">{{ $totalPessoas }}</div>
+                            <div class="text-muted mt-1 mb-3">Pessoas Únicas</div>
+                            <div style="position: relative; height: 200px; width: 100%;">
+                                <canvas id="pessoasChart"></canvas>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- 3a tab: areas -->
+            <!-- 3a tab: areas -->
                 <div class="tab-pane" id="tabs-areas">
                   <div style="position: relative; height: 300px; width: 100%;">
                       <canvas id="areaTematicaChart"></canvas>
                   </div>
                 </div>
 
-                <!-- 4a tab: centros -->
+            <!-- 4a tab: centros -->
                 <div class="tab-pane" id="tabs-dept">
                   <div style="position: relative; height: 350px; width: 100%;">
                     <canvas id="departamentoChart"></canvas>
                   </div>
                 </div>
 
-                <!-- 5a tab: eventos -->
+            <!-- 5a tab: eventos -->
                 <div class="tab-pane" id="tabs-eventos">
                   <div class="row align-items-center">
-                    <div class="col-sm-4 text-center mb-3 mb-sm-0">
+                    <div class="col-sm-3 text-center mb-3 mb-sm-0">
                       <div class="text-muted text-uppercase font-weight-bold" style="font-size: 0.8rem;">Total anual</div>
                       <div class="display-4 font-weight-bold text-primary">{{ $totalEventos }}</div>
-                      <div class="text-muted mt-1">Eventos Realizados</div>
+                      <div class="text-muted mt-1 fs-5">Eventos Realizados</div>
                     </div>
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                       <div style="position: relative; height: 180px; width: 100%;">
                         <canvas id="eventosChart"></canvas>
                       </div>
@@ -143,7 +160,6 @@
 
               </div>
             </div>
-          </div>
         </div>
 
   </div>
@@ -247,6 +263,169 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    //GRÁFICO FLUXO MENSAL
+        const dadosFluxo = @json($distribuicaoAcoes);
+        
+        const ctxFluxo = document.getElementById('fluxoAcoesChart').getContext('2d');
+        new Chart(ctxFluxo, {
+            type: 'line',
+            data: {
+                labels: dadosFluxo.map(item => item.mes),
+                datasets: [
+                    {
+                        label: 'Cadastradas',
+                        data: dadosFluxo.map(item => item.cadastradas),
+                        borderColor: '#94a3b8',
+                        borderWidth: 2,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Iniciadas',
+                        data: dadosFluxo.map(item => item.iniciadas),
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Finalizadas',
+                        data: dadosFluxo.map(item => item.finalizadas),
+                        borderColor: '#f43f5e',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+
+    //GRAFICO ODS
+        const dadosOds = @json($todasOds);
+        
+        const labelsOds = Object.keys(dadosOds).map(ods => 'ODS ' + ods);
+        const valoresReaisOds = Object.values(dadosOds);
+        const fatiasIguais = Array(17).fill(1);
+
+        const coresOficiaisOds = [
+            '#E5243B', '#DDA63A', '#4C9F38', '#C5192D', '#FF3A21', '#26BDE2', '#FCC30B', 
+            '#A21942', '#FD6925', '#DD1367', '#FD9D24', '#BF8B2E', '#3F7E44', '#0A97D9', 
+            '#56C02B', '#00689D', '#19486A'
+        ];
+
+        const iconesPreCarregados = {};
+        let imagensCarregadas = 0;
+
+        for (let i = 1; i <= 17; i++) {
+            iconesPreCarregados[i] = new Image();
+            iconesPreCarregados[i].src = '/assets/img/ods/' + i + '.png'; 
+            
+            iconesPreCarregados[i].onload = function() {
+                imagensCarregadas++;
+                if (window.meuGraficoOds) {
+                    window.meuGraficoOds.update();
+                }
+            };
+        }
+
+        const nomesOdsPT = [
+            'Erradicação da Pobreza', 'Fome Zero', 'Saúde e Bem-Estar', 'Educação de Qualidade',
+            'Igualdade de Gênero', 'Água Potável e Saneamento', 'Energia Limpa e Acessível',
+            'Trabalho Decente e Crescimento Econômico', 'Indústria, Inovação e Infraestrutura',
+            'Redução das Desigualdades', 'Cidades e Comunidades Sustentáveis',
+            'Consumo e Produção Responsáveis', 'Ação Contra a Mudança Global do Clima',
+            'Vida na Água', 'Vida Terrestre', 'Paz, Justiça e Instituições Eficazes',
+            'Parcerias e Meios de Implementação'
+        ];
+
+        const unWheelPlugin = {
+            id: 'unWheel',
+            afterDatasetsDraw: function(chart) {
+                const ctx = chart.ctx;
+                const meta = chart.getDatasetMeta(0);
+                
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                meta.data.forEach((arc, index) => {
+                    const odsNumero = index + 1; 
+                    const valorReal = valoresReaisOds[index];
+                    const angulo = (arc.startAngle + arc.endAngle) / 2;
+                    
+                    // nº de ações)
+                    const outerRadius = arc.outerRadius;
+                    const outX = arc.x + Math.cos(angulo) * (outerRadius + 25);
+                    const outY = arc.y + Math.sin(angulo) * (outerRadius + 25);
+                    
+                    ctx.fillStyle = coresOficiaisOds[index]; 
+                    ctx.font = 'bold 16px sans-serif';
+                    ctx.fillText(valorReal, outX, outY);
+
+                    // 2. png
+                    const innerRadius = arc.innerRadius;
+                    const midRadius = innerRadius + ((outerRadius - innerRadius) / 2);
+                    
+                    const inX = arc.x + Math.cos(angulo) * midRadius;
+                    const inY = arc.y + Math.sin(angulo) * midRadius;
+                
+                    
+                    const icone = iconesPreCarregados[odsNumero];
+                    if (icone.complete && icone.naturalHeight !== 0) {
+                        ctx.save();
+                        ctx.filter = 'brightness(0) invert(1)'; 
+                        ctx.drawImage(icone, inX - 13, inY - 15, 27, 27); 
+                        ctx.restore();
+                    }
+                });
+                
+                ctx.restore();
+            }
+        };
+
+        const ctxOds = document.getElementById('odsChart').getContext('2d');
+
+        window.meuGraficoOds = new Chart(ctxOds, {
+            type: 'doughnut',
+            data: {
+                labels: labelsOds,
+                datasets: [{
+                    data: fatiasIguais,
+                    backgroundColor: coresOficiaisOds,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 6
+                }]
+            },
+            plugins: [unWheelPlugin], 
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '45%', 
+                layout: { padding: 40 },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const nome = nomesOdsPT[index];
+                                const valor = valoresReaisOds[index];
+                                return ` ${nome}: ${valor} ações`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
     //GRÁFICO DE EQUIPE
         const dadosPessoas = @json($pessoasPorTipo);
         const labelsPessoas = dadosPessoas.map(item => item.tipo_membro || 'NÃO INFORMADO');

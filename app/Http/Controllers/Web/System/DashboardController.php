@@ -64,8 +64,7 @@ class DashboardController extends Controller
             }
         }
 
-    //EQUIPE
-
+    //GERAL
         $situacoesValidas = ['EM EXECUÇÃO', 'CONCLUÍDA'];
 
         $acoesEmAndamento = Acao::whereIn('situacao', $situacoesValidas)
@@ -77,7 +76,77 @@ class DashboardController extends Controller
             ->where($filtroAno)
             ->whereNull('acao.deleted_at')
             ->sum('bolsas_concedidas');
+        // frequencia de acoes (cadastro, inicio e fim)
+        $ano = trim($request->input('ano', date('Y')));
 
+        $agruparPorMes = function($colunaData) use ($ano) {
+            return DB::table('acao')
+                ->whereYear($colunaData, $ano)
+                ->whereNull('deleted_at')
+                ->selectRaw("MONTH({$colunaData}) as mes, COUNT(*) as total")
+                ->groupBy('mes')
+                ->pluck('total', 'mes')
+                ->toArray();
+        };
+
+        $cadastradasRaw = $agruparPorMes('data_cadastro');
+        $iniciadasRaw = $agruparPorMes('data_inicio');
+        $finalizadasRaw = $agruparPorMes('data_fim');
+
+        $mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        $distribuicaoAcoes = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $distribuicaoAcoes[] = [
+                'mes' => $mesesNomes[$i - 1],
+                'cadastradas' => $cadastradasRaw[$i] ?? 0,
+                'iniciadas' => $iniciadasRaw[$i] ?? 0,
+                'finalizadas' => $finalizadasRaw[$i] ?? 0,
+            ];
+        }
+
+        //duração media
+        $duracaoMediaDias = DB::table('acao')
+            ->where($filtroAno)
+            ->whereNotNull('data_inicio')
+            ->whereNotNull('data_fim')
+            ->whereNull('deleted_at')
+            ->selectRaw('AVG(DATEDIFF(data_fim, data_inicio)) as media')
+            ->value('media');
+        
+        $duracaoMedia = $duracaoMediaDias ? round($duracaoMediaDias) : 0;
+
+        //ODSs
+        $acoesOds = DB::table('acao')
+            ->where($filtroAno)
+            ->whereNotNull('ods')
+            ->where('ods', '!=', '')
+            ->whereNull('deleted_at')
+            ->pluck('ods');
+
+        $contagemOds = [];
+        foreach ($acoesOds as $linhaOds) {
+            $listaOds = explode(';', $linhaOds);
+            foreach ($listaOds as $ods) {
+                $odsLimpa = trim($ods);
+                if (!empty($odsLimpa)) {
+                    if (!isset($contagemOds[$odsLimpa])) {
+                        $contagemOds[$odsLimpa] = 0;
+                    }
+                    $contagemOds[$odsLimpa]++;
+                }
+            }
+        }
+        
+        ksort($contagemOds); 
+        
+        $todasOds = [];
+        for ($i = 1; $i <= 17; $i++) {
+            $todasOds[strval($i)] = $contagemOds[strval($i)] ?? 0;
+        }
+    
+
+    //EQUIPE
         $filtroAnoEquipe = function ($query) use ($ano) {
             $query->where(function ($q) use ($ano) {
                     $anoLimpo = trim($ano);
@@ -180,6 +249,7 @@ class DashboardController extends Controller
             ];
         }
 
+    //RETORNO
         return view('pages.dashboard.index', [
             'totalAcoes' => $acoesEmAndamento,
             'totalBolsas' => $bolsasAtivas,
@@ -190,7 +260,10 @@ class DashboardController extends Controller
             'distribuicaoMensal' => $distribuicaoMensal,
             'acoesPorDepartamento' => $acoesPorDepartamento,
             'totalPessoas' => $totalPessoas,
-            'pessoasPorTipo' => $pessoasPorTipo
+            'pessoasPorTipo' => $pessoasPorTipo,
+            'distribuicaoAcoes' => $distribuicaoAcoes,
+            'duracaoMedia' => $duracaoMedia,
+            'todasOds' => $todasOds
         ]);
 
     }
