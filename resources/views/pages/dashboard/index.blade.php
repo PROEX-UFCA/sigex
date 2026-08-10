@@ -325,7 +325,7 @@
 
         for (let i = 1; i <= 17; i++) {
             iconesPreCarregados[i] = new Image();
-            iconesPreCarregados[i].src = '/assets/img/ods/' + i + '.png'; 
+            iconesPreCarregados[i].src = '{{ asset('assets/img/ods') }}/' + i + '.png'; 
             
             iconesPreCarregados[i].onload = function() {
                 imagensCarregadas++;

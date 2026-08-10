@@ -76,8 +76,6 @@ class DashboardController extends Controller
             ->where($filtroAno)
             ->whereNull('acao.deleted_at')
             ->sum('bolsas_concedidas');
-        // frequencia de acoes (cadastro, inicio e fim)
-        $ano = trim($request->input('ano', date('Y')));
 
         $agruparPorMes = function($colunaData) use ($ano) {
             return DB::table('acao')
