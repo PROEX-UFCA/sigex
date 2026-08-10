@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\System\HomeController;
 use App\Http\Controllers\Web\System\MembersController;
 use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
+use App\Http\Controllers\Web\System\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -26,7 +27,7 @@ Route::get('login/registrar/{token}', [LoginController::class, 'register'])->nam
 Route::post('login/atualizar/{token}', [LoginController::class, 'update'])->name('login.update');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [HomeController::class, 'index'])->name('home.index');
+    Route::get('/home', [HomeController::class, 'index'])->name('home.index');
 
     Route::get('users/sair', [UsersController::class, 'logout'])->name('logout');
     
@@ -121,4 +122,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('respostas/auto-save', [ReportController::class, 'autoSave'])->name('respostas.autosave');
     Route::delete('relatorio/finalizar/{uuid}', [ReportController::class, 'finish'])->name('report.finish');
 
+    Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index');
 });

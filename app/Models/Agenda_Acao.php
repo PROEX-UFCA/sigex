@@ -23,4 +23,8 @@ class Agenda_Acao extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+    public function acao()
+    {
+        return $this->belongsTo(Acao::class, 'id_acao');
+    }
 }
