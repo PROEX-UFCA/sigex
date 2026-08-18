@@ -79,10 +79,11 @@ function initWizardNavigation() {
 /**
  * 3. Inicialização dos mapas (Leaflet + Nominatim) e TomSelect
  */
-function initMapsAndLocations(mapInstances) {
-    const cearaViewbox = "-41.4,-2.7,-37.2,-7.8";
 
-    document.querySelectorAll('.select-location-tom').forEach(function (selectEl) {
+function initMapsAndLocations(mapInstances, root = document) {
+    const cearaViewbox = "-41.4,-2.7,-37.2,-7.8";
+    
+    root.querySelectorAll('.select-location-tom').forEach(function (selectEl) {
         const id = selectEl.getAttribute('data-map-id');
         const mapContainer = document.getElementById('map-' + id);
         if (!mapContainer) return;
@@ -256,53 +257,210 @@ window.toggleLocationInput = function (id) {
 function adicionarLinhaTabela(perguntaPaiId) {
     const container = document.getElementById('linhas-' + perguntaPaiId);
     const linhasAtuais = container.querySelectorAll('.linha-item');
-    
+
     // Pega o maior índice atual para gerar o próximo (+1)
     let maiorIndice = -1;
     linhasAtuais.forEach(linha => {
         let idx = parseInt(linha.getAttribute('data-indice'));
         if (idx > maiorIndice) maiorIndice = idx;
     });
+
     const novoIndice = maiorIndice + 1;
 
-    // Clona o HTML da primeira linha (índice base)
     const linhaBase = linhasAtuais[0];
     const novaLinha = linhaBase.cloneNode(true);
 
-    // Atualiza os atributos da nova linha
+    novaLinha.querySelectorAll('.location-wrapper').forEach(wrapper => {
+        wrapper.querySelectorAll('.ts-wrapper').forEach(tsWrapper => {
+            tsWrapper.remove();
+        });
+    });
+
     novaLinha.setAttribute('data-indice', novoIndice);
     novaLinha.id = 'linha-' + perguntaPaiId + '-' + novoIndice;
-    
-    // Atualiza a numeração visual (Item #2, Item #3)
+
     novaLinha.querySelector('.numero-item').innerText = linhasAtuais.length + 1;
 
-    // Ajusta o botão de remover
     const btnRemover = novaLinha.querySelector('.btn-outline-danger');
-    btnRemover.setAttribute('onclick', `removerLinhaTabela('${perguntaPaiId}', '${novoIndice}')`);
+    if (btnRemover) {
+        btnRemover.setAttribute(
+            'onclick',
+            `removerLinhaTabela('${perguntaPaiId}', '${novoIndice}')`
+        );
+    }
 
-    // Limpa os valores e atualiza o data-indice dos inputs para o AutoSave
     const inputs = novaLinha.querySelectorAll('input, select, textarea');
+
     inputs.forEach(input => {
         input.setAttribute('data-indice', novoIndice);
-        
-        // Limpa o valor (exceto checkboxes/radios que devem ser desmarcados)
+
         if (input.type === 'checkbox' || input.type === 'radio') {
             input.checked = false;
         } else {
             input.value = '';
         }
-
-        // Se você tiver LOCATION (Mapas), precisará atualizar o ID da div do mapa e re-iniciar o Leaflet/TomSelect aqui, 
-        // substituindo a parte velha do ID pelo 'novoIndice'.
     });
 
-    // Anexa a nova linha na tela
+    // CORREÇÃO DAS LOCALIZAÇÕES
+    novaLinha.querySelectorAll('.location-wrapper').forEach(wrapper => {
+
+        const select = wrapper.querySelector('.select-location-tom');
+        if (!select) return;
+
+        const match = (select.getAttribute('name') || '')
+            .match(/respostas\[(.*?)\]/);
+
+        if (!match) return;
+
+        const colunaId = match[1];
+        const inputUnicoId = colunaId + '-' + novoIndice;
+
+        // Remove o wrapper visual criado pelo TomSelect
+        const tsWrapper = select.closest('.ts-wrapper');
+
+        if (tsWrapper) {
+            tsWrapper.replaceWith(select);
+        }
+
+        select.classList.remove(
+            'tomselected',
+            'ts-hidden-accessible'
+        );
+
+        select.removeAttribute('tabindex');
+        select.removeAttribute('style');
+
+        // Novo ID da localização
+        wrapper.id = 'location-wrapper-' + inputUnicoId;
+
+        const divSelect =
+            wrapper.querySelector('[id^="div-select-local-"]');
+
+        if (divSelect) {
+            divSelect.id =
+                'div-select-local-' + inputUnicoId;
+        }
+
+        const divInput =
+            wrapper.querySelector('[id^="div-chose-"]');
+
+        if (divInput) {
+            divInput.id =
+                'div-chose-' + inputUnicoId;
+        }
+
+        const inputManual =
+            wrapper.querySelector('[id^="input-local-"]');
+
+        if (inputManual) {
+            inputManual.id =
+                'input-local-' + inputUnicoId;
+
+            inputManual.removeAttribute('name');
+            inputManual.value = '';
+        }
+
+        // Select
+        select.id =
+            'select-local-' + inputUnicoId;
+
+        select.setAttribute(
+            'data-map-id',
+            inputUnicoId
+        );
+
+        select.setAttribute(
+            'name',
+            'respostas[' + colunaId + ']'
+        );
+
+        select.innerHTML =
+            '<option value="">Pesquisar...</option>';
+
+        select.value = '';
+
+        // Mapa
+        const map =
+            wrapper.querySelector('.map-container');
+
+        if (map) {
+            map.id = 'map-' + inputUnicoId;
+            map.setAttribute('data-saved-lat', '');
+            map.setAttribute('data-saved-lng', '');
+        }
+
+        // Latitude
+        const latitude =
+            wrapper.querySelector('input[id^="latitude-"]');
+
+        if (latitude) {
+            latitude.id =
+                'latitude-' + inputUnicoId;
+
+            latitude.setAttribute(
+                'name',
+                'latitude[' + colunaId + ']'
+            );
+
+            latitude.value = '';
+        }
+
+        // Longitude
+        const longitude =
+            wrapper.querySelector('input[id^="longitude-"]');
+
+        if (longitude) {
+            longitude.id =
+                'longitude-' + inputUnicoId;
+
+            longitude.setAttribute(
+                'name',
+                'longitude[' + colunaId + ']'
+            );
+
+            longitude.value = '';
+        }
+
+        // Sempre começa pesquisando pelo mapa
+        if (divSelect) {
+            divSelect.classList.remove('d-none');
+        }
+
+        if (divInput) {
+            divInput.classList.add('d-none');
+        }
+
+        // Atualiza o botão Manual?
+        const toggleLink =
+            wrapper.querySelector(
+                'a[onclick^="toggleLocationInput"]'
+            );
+
+        if (toggleLink) {
+            toggleLink.setAttribute(
+                'onclick',
+                `toggleLocationInput('${inputUnicoId}')`
+            );
+        }
+    });
+
+    // Adiciona a nova linha antes de inicializar os mapas
     container.appendChild(novaLinha);
 
-    // Re-inicia as máscaras jQuery para os novos inputs gerados
-    $(novaLinha).find('input[data-mascara]').each(function() {
-        $(this).mask($(this).attr('data-mascara'));
-    });
+    // Reativa máscaras
+    $(novaLinha)
+        .find('input[data-mascara]')
+        .each(function () {
+            $(this).mask(
+                $(this).attr('data-mascara')
+            );
+        });
+
+    // IMPORTANTE:
+    // Inicializa os novos mapas/localizações
+    const novasInstancias = [];
+    // container.appendChild(novaLinha);
+    initMapsAndLocations(novasInstancias, novaLinha);
 }
 
 function removerLinhaTabela(perguntaPaiId, indice) {
