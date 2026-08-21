@@ -22,14 +22,17 @@
               <button class="nav-link text-start" id="ods-tab" data-bs-toggle="tab" data-bs-target="#ods-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-leaf me-2"></i>ODS
               </button>
-              <button class="nav-link text-start" id="banner-tab" data-bs-toggle="tab" data-bs-target="#banner-pane" type="button" role="tab" aria-selected="false">
-                <i class="ti ti-photo me-2"></i>Banner
+              <button class="nav-link text-start" id="capa-ilustrativa-tab" data-bs-toggle="tab" data-bs-target="#capa-ilustrativa-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-photo me-2"></i>Capa
               </button>
               <button class="nav-link text-start" id="membros-tab" data-bs-toggle="tab" data-bs-target="#membros-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-users me-2"></i>Membros
               </button>
-              <button class="nav-link text-start" id="agenda-tab" data-bs-toggle="tab" data-bs-target="#agenda-pane" type="button" role="tab" aria-selected="false">
-                <i class="ti ti-calendar me-2"></i>Agenda
+              <button class="nav-link text-start" id="cronograma-externo-tab" data-bs-toggle="tab" data-bs-target="#cronograma-externo-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-calendar me-2"></i>Cronograma
+              </button>
+              <button class="nav-link text-start" id="agenda-interna-tab" data-bs-toggle="tab" data-bs-target="#agenda-interna-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-notebook me-2"></i>Agenda
               </button>
             </div>
           </div>
@@ -183,33 +186,39 @@
               </div>
             </div>
 
-            <div class="tab-pane fade" id="banner-pane" role="tabpanel" tabindex="0">
+            <div class="tab-pane fade" id="capa-ilustrativa-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
                   <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
-                    <h3 class="m-0">Banner da ação</h3>
+                    <h3 class="m-0">Capa Ilustrativa da Ação</h3>
                     <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-banner"
                       aria-controls="offcanvasExample">
                       Inserir
                     </button>
                     <x-modal.offcanvas route="{{ route('actions.addBanner', $action->id) }}" id="modal-add-banner"
-                      class="offcanvas-end" title="Adicionar banner">
-                      <x-slot:content>
-                        <div class="text-start">
-                          <label for="banner" class="form-label fw-bold">Anexe um banner</label>
-                          <div class="input-group">
-                            <input type="file" class="form-control" id="banner" name="banner" accept=".jpg,.png,.jpeg,.webp">
-                          </div>
-                          <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
+                    class="offcanvas-end" title="Adicionar capa">
+                    <x-slot:content>
+                      <div class="text-start">
+                        <label for="banner" class="form-label fw-bold">Anexe uma imagem que será a capa do projeto no portal.</label>
+                        <div class="input-group">
+                          <input type="file" class="form-control" id="banner" name="banner" accept=".jpg,.png,.jpeg,.webp">
                         </div>
-                      </x-slot:content>
-                    </x-modal.offcanvas>
-                  </div>
+                        <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
+                        <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
+                      </div>
+                    </x-slot:content>
+                  </x-modal.offcanvas>
+                </div>
+                <div>
+                  <p class="text-muted mb-4 border-start border-3 border-info ps-3">
+                    A imagem escolhida será a capa da ação no portal SIGEX. Certifique-se de inserir uma imagem com o formato "paisagem" para uma melhor visualização.
+                  </p>
+                </div>
                   @if ($action->img)
                   <p><img src="{{ asset('storage/' . $action->img) }}" alt="Image Alt"></p>
                   @else
                   <div class="alert alert-warning">
-                    Não foi enviado banner.
+                    Ainda não foi enviada uma capa.
                   </div>
                   @endif
                 </div>
@@ -260,18 +269,18 @@
               </div>
             </div>
 
-            <div class="tab-pane fade" id="agenda-pane" role="tabpanel" tabindex="0">
+            <div class="tab-pane fade" id="cronograma-externo-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
                   <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
-                    <h3 class="m-0">Agenda da ação</h3>
+                    <h3 class="m-0">Cronograma Externo da Ação</h3>
                     @can('adicionar_agenda')
                     <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-agenda"
                       aria-controls="offcanvasExample">
                       Inserir
                     </button>
                     <x-modal.offcanvas route="{{ route('actions.storeSchedule', $action->id) }}" id="modal-add-agenda"
-                      class="offcanvas-end" title="Adicionar agenda">
+                      class="offcanvas-end" title="Adicionar cronograma externo">
                       <x-slot:content>
                         @include('components.form-elements.input.input', [
                         'title' => 'Título do evento',
@@ -321,6 +330,13 @@
                     </x-modal.offcanvas>
                     @endcan
                   </div>
+
+                  <div>
+                    <p class="text-muted mb-4 border-start border-3 border-info ps-3">
+                      Use essa seção para inserir a programação da ação, ela será disponibilizada para instituições e pessoas interessadas no portal do SIGEX.
+                    </p>
+                  </div>
+
                   <div class="table-responsive p-0 mb-3">
                     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
                       <thead>
@@ -349,7 +365,7 @@
                               </button>
                             </span>
 
-                            <x-modal.offcanvas route="{{ route('actions.updateSchedule', $item->id) }}" id="modal-edit-agenda-{{ $item->id }}" class="offcanvas-end" title="Editar agenda">
+                            <x-modal.offcanvas route="{{ route('actions.updateSchedule', $item->id) }}" id="modal-edit-agenda-{{ $item->id }}" class="offcanvas-end" title="Editar cronograma externo">
                               <x-slot:content>
                                 @method('PUT')
                                 
@@ -422,7 +438,7 @@
                                 </div>
                                 
                                 <div class="modal-body text-start text-wrap">
-                                  Tem certeza que deseja deletar o evento <strong>{{ $item->titulo_evento }}</strong> da agenda? <br><br>
+                                  Tem certeza que deseja deletar o evento <strong>{{ $item->titulo_evento }}</strong> do cronograma externo? <br><br>
                                   <span class="text-muted small">Esta ação removerá permanentemente o evento do sistema.</span>
                                 </div>
                                 
@@ -447,6 +463,15 @@
                       </tbody>
                     </table>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade show" id="agenda-interna-pane" role="tabpanel" tabindex="0">
+              <div class="card card-lg mb-3">
+                <div class="card-body p-5">
+                  <h3 class="m-0">Agenda Interna da Ação</h3>
+                  <div>Em processo de desenvolvimento.</div>
                 </div>
               </div>
             </div>

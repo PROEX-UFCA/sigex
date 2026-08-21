@@ -507,13 +507,13 @@ class ActionController extends Controller
                 'required',
                 'file',
                 'mimes:jpeg,png,jpg,webp',
-                // 'max:5120',
+                'max:2048',
             ],
         ], [
-            'banner.required' => 'O banner é obrigatório.',
-            'banner.file' => 'O banner deve ser um arquivo válido.',
-            'banner.mimes' => 'O banner deve ser uma imagem (jpg, png, jpeg ou webp).',
-            // 'banner.max' => 'O banner não pode ser maior que 5MB.',
+            'banner.required' => 'A capa é obrigatória.',
+            'banner.file' => 'A capa deve ser um arquivo válido.',
+            'banner.mimes' => 'A capa deve ser uma imagem (jpg, png, jpeg ou webp).',
+            'banner.max' => 'O banner não pode ser maior que 2MB.',
         ]);
 
         $action = $this->actionsRepository->getByUuid($uuid);
@@ -530,13 +530,13 @@ class ActionController extends Controller
                 $action->img = $path;
                 $action->save();
 
-                return redirect()->to(url()->previous() . '#banner-pane')->with('success', 'Banner adicionado com sucesso!');
+                return redirect()->to(url()->previous() . '#banner-pane')->with('success', 'Capa adicionada com sucesso!');
             }
 
             return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'O arquivo enviado não é válido.');
 
         } catch (\Throwable $th) {
-            return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'Erro ao tentar adicionar banner, tente novamente mais tarde.');
+            return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'Erro ao tentar adicionar capa, tente novamente mais tarde.');
         }
     }
 }
