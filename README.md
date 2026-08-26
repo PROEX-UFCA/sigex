@@ -8,6 +8,7 @@ erDiagram
     USUARIO ||--o{ EQUIPE_ACAO : "atua_como_membro"
 
     ACAO ||--o{ AGENDA_ACAO : "possui_eventos"
+    ACAO ||--o{ AGENDA_INTERNA_ACAO : "possui_eventos_internos"
     INSTITUICAO_EXTERNA ||--o{ AGENDA_INSTITUICAO_EXTERNA : "informa_disponibilidade"
     INSTITUICAO_EXTERNA ||--o{ INTERESSE_ACAO : "demonstra_interesse"
     ACAO ||--o{ INTERESSE_ACAO : "recebe_interesse"
@@ -88,6 +89,19 @@ erDiagram
         string local_formato "Ex: Auditório Principal, Google Meet"
         string descricao
     }
+
+    AGENDA_INTERNA_ACAO {
+        uuid id PK
+        uuid id_acao FK
+        string titulo_evento "Ex: Palestra Magna, Oficina 1"
+        datetime data_hora_inicio
+        datetime data_hora_fim
+        string local_formato "Ex: Auditório Principal, Google Meet"
+        string descricao
+        string pauta_interna
+    }
+
+
 
     AGENDA_INSTITUICAO_EXTERNA {
         uuid id PK
