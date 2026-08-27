@@ -5,14 +5,14 @@ namespace App\Http\Requests\Web\Action;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class InternalScheduleRequest extends FormRequest
+class InternalScheduleRequest extends ScheduleRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**

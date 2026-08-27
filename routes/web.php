@@ -104,6 +104,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::delete('/actions/schedule/{id_agenda}', [ActionController::class, 'deleteSchedule'])->name('actions.deleteSchedule')->middleware(['auth' => 'permission:remover_agenda']);
 
+        Route::post('acoes/agenda-interna/{uuid}', [ActionController::class, 'storeInternalSchedule'])->name('actions.storeInternalSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);
+
+        Route::put('/actions/internal-schedule/{id_agenda}', [ActionController::class, 'updateInternalSchedule'])->name('actions.updateInternalSchedule')->middleware(['auth' => 'permission:editar_agenda']);
+
+        Route::delete('/actions/internal-schedule/{id_agenda}', [ActionController::class, 'deleteInternalSchedule'])->name('actions.deleteInternalSchedule')->middleware(['auth' => 'permission:remover_agenda']);
+
         Route::delete('membro/deletar/{uuid}', [MembersController::class, 'deleteMember'])->name('members.delete');
     
     });

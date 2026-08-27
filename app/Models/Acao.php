@@ -32,7 +32,7 @@ class Acao extends Model
 
     public function agendaInterna()
     {
-        return $this->hasMany(AgendaInternaAcao::class, 'id_acao', 'id');
+        return $this->hasMany(Agenda_Interna_Acao::class, 'id_acao', 'id');
     }
 
     public function submissoes() : HasMany {
