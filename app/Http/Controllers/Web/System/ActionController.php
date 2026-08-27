@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web\System;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Action\ScheduleRequest;
+use App\Http\Requests\Web\Action\InternalScheduleRequest;
 use App\Http\Requests\Web\Action\StoreRequest;
 use App\Http\Requests\Web\Action\TeamRequest;
 use App\Models\Acao;
@@ -539,4 +540,38 @@ class ActionController extends Controller
             return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'Erro ao tentar adicionar capa, tente novamente mais tarde.');
         }
     }
+
+    public function storeInternalSchedule(InternalScheduleRequest $request, $id_acao)
+    {
+        try {
+            $this->actionsRepository->createInternalSchedule($request, $id_acao);
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("success", "Evento interno adicionado com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("error", "Erro ao adicionar evento interno. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
+
+    public function updateInternalSchedule(InternalScheduleRequest $request, $id_agenda)
+    {
+        try {
+            $this->actionsRepository->updateInternalSchedule($request, $id_agenda);
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("success", "Evento interno atualizado com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("error", "Erro ao atualizar evento interno. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
+
+    public function deleteInternalSchedule($id_agenda)
+    {
+        try {
+            $this->actionsRepository->deleteInternalSchedule($id_agenda);
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("success", "Evento interno removido com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("error", "Erro ao remover o evento interno. Por favor, tente novamente mais tarde.");
+        }
+    }
+
 }

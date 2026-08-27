@@ -15,4 +15,7 @@ interface ActionsRepository{
   public function getActionsForReports(array $filtros);
   public function updateSchedule($request, $id_agenda);
   public function deleteSchedule($id_agenda);
+  public function createInternalSchedule($request, $id_acao);
+  public function updateInternalSchedule($request, $id_agenda_interna);
+  public function deleteInternalSchedule($id_agenda_interna);
 } 
