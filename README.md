@@ -9,9 +9,12 @@ erDiagram
 
     ACAO ||--o{ AGENDA_ACAO : "possui_eventos"
     ACAO ||--o{ AGENDA_INTERNA_ACAO : "possui_eventos_internos"
+
     INSTITUICAO_EXTERNA ||--o{ AGENDA_INSTITUICAO_EXTERNA : "informa_disponibilidade"
     INSTITUICAO_EXTERNA ||--o{ INTERESSE_ACAO : "demonstra_interesse"
     ACAO ||--o{ INTERESSE_ACAO : "recebe_interesse"
+
+    ACAO ||--o{ GALERIA_ACAO : "possui"
 
     INSTITUICAO_EXTERNA {
         uuid id PK
@@ -113,6 +116,14 @@ erDiagram
     INTERESSE_ACAO {
         uuid id_instituicao PK, FK
         uuid id_acao PK, FK
+    }
+
+    GALERIA_ACAO {
+    char(36) id PK
+    char(36) id_acao FK
+    varchar(255) caminho_imagem
+    timestamp created_at
+    timestamp updated_at
     }
 ```
 

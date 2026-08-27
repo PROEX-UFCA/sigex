@@ -47,4 +47,9 @@ class Acao extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
+    public function galeria()
+    {
+        return $this->hasMany(Galeria_Acao::class, 'id_acao', 'id');
+    }
 }
