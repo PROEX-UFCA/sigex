@@ -46,9 +46,6 @@
               <button class="nav-link text-start active" id="acao-tab" data-bs-toggle="tab" data-bs-target="#acao-pane" type="button" role="tab" aria-selected="true">
                 <i class="ti ti-info-circle me-2"></i>Ação
               </button>
-              <button class="nav-link text-start" id="ods-tab" data-bs-toggle="tab" data-bs-target="#ods-pane" type="button" role="tab" aria-selected="false">
-                <i class="ti ti-leaf me-2"></i>ODS
-              </button>
               <button class="nav-link text-start" id="imagem-destaque-tab" data-bs-toggle="tab" data-bs-target="#imagem-destaque-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-photo me-2"></i>Capa
               </button>
@@ -163,57 +160,49 @@
                     </div>
 
                   </div>
-                </div>
-              </div>
-            </div>
+                  
+                  <h4 class="text-cyan mb-3 border-bottom pb-2">Objetivos de Desenvolvimento Sustentável</h3>
+                  <div class="card-body">
+                    @if(!empty($action->ods))
+                      @php
+                        $odsArray = array_map('trim', explode(';', $action->ods));
+                    @endphp
 
-            <div class="tab-pane fade" id="ods-pane" role="tabpanel" tabindex="0">
-              <div class="card card-lg mb-3">
-                <div class="card-body p-5">
-                  <h3 class="m-0 mb-4">Objetivos de Desenvolvimento Sustentável</h3>
-                  <p class="text-muted mb-4 border-start border-3 border-info ps-3">
-                    Abaixo estão os Objetivos de Desenvolvimento Sustentável (ODS) da ONU vinculados a este projeto. Os ícones coloridos representam os objetivos que esta ação atende diretamente.
-                  </p>
-
-                  @if(!empty($action->ods))
-                    @php
-                      $odsArray = array_map('trim', explode(';', $action->ods));
-                  @endphp
-
-                    <div class="w-100 w-lg-75 mx-auto">
-                      <div class="row row-cols-3 row-cols-md-6 g-1 justify-content-center align-items-center p-2 shadow-sm">
-                        
-                        @for ($i = 1; $i <= 17; $i++)
-                          @php
-                            $isActive = in_array((string)$i, $odsArray);
-                            $imgName = $isActive ? "{$i}.png" : "{$i}_light.png";
-                          @endphp
+                      <div class="w-100 w-lg-75 mx-auto">
+                        <div class="row row-cols-3 row-cols-md-6 g-1 justify-content-center align-items-center p-2 shadow-sm">
                           
-                          <div class="col">
-                            <img 
-                              src="https://sig.ufca.edu.br/sigaa/img/ODS/{{ $imgName }}" 
-                              class="img-fluid w-100" 
-                              alt="ODS {{ $i }}"
-                              title="ODS {{ $i }}"
-                            >
-                          </div>
-                        @endfor
+                          @for ($i = 1; $i <= 17; $i++)
+                            @php
+                              $isActive = in_array((string)$i, $odsArray);
+                              $imgName = $isActive ? "{$i}.png" : "{$i}_light.png";
+                            @endphp
+                            
+                            <div class="col">
+                              <img 
+                                src="https://sig.ufca.edu.br/sigaa/img/ODS/{{ $imgName }}" 
+                                class="img-fluid w-100" 
+                                alt="ODS {{ $i }}"
+                                title="ODS {{ $i }}"
+                              >
+                            </div>
+                          @endfor
+                            <div class="col">
+                              <img 
+                                src="https://sig.ufca.edu.br/sigaa/img/ODS/ods_.png" 
+                                class="img-fluid w-100" 
+                                alt="Logo ODS Geral"
+                              >
+                            </div>
 
-                        <div class="col">
-                          <img 
-                            src="https://sig.ufca.edu.br/sigaa/img/ODS/ods_.png" 
-                            class="img-fluid w-100" 
-                            alt="Logo ODS Geral"
-                          >
                         </div>
-
                       </div>
-                    </div>
-                  @else
-                    <div class="alert alert-info mb-0">
-                      Nenhum ODS vinculado a esta ação no momento.
-                    </div>
-                  @endif
+
+                    @else
+                      <div class="alert alert-info mb-0">
+                        Nenhum ODS vinculado a esta ação no momento.
+                      </div>
+                    @endif
+                  </div>
 
                 </div>
               </div>
@@ -758,7 +747,7 @@
                           </td>
                         @endif
 
-                        @if($canDeleteAgenda)
+                        @if($canRemoveAgenda)
                           <td>
                             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Deletar">
                               <button type="button" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modal-delete-internal-agenda-{{ $item->id }}">
