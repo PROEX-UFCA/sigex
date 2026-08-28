@@ -50,6 +50,7 @@ class DatabaseSeeder extends Seeder
             "adicionar_agenda",
             "editar_agenda",
             "remover_agenda",
+            "editar_imagens", 
 
             "ver_formulários",
             "adicionar_formulários",
@@ -91,6 +92,7 @@ class DatabaseSeeder extends Seeder
                     "adicionar_agenda",
                     "editar_agenda",
                     "remover_agenda",
+                    "editar_imagens", 
 
                     "ver_formulários",
                     "adicionar_formulários",
@@ -127,6 +129,7 @@ class DatabaseSeeder extends Seeder
                     "adicionar_agenda",
                     "editar_agenda",
                     "remover_agenda",
+                    "editar_imagens", 
 
                     "ver_formulários",
                     "adicionar_formulários",
@@ -154,6 +157,7 @@ class DatabaseSeeder extends Seeder
                     "adicionar_agenda",
                     "editar_agenda",
                     "remover_agenda",
+                    "editar_imagens", 
                 ]
             ],
         ];
