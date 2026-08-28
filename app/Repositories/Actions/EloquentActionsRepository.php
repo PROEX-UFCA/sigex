@@ -7,6 +7,7 @@ use App\Models\Agenda_Acao;
 use App\Models\Equipe_Acao;
 use Illuminate\Support\Facades\DB;
 use App\Models\Agenda_Interna_Acao;
+use App\Models\Galeria_Acao;
 
 class EloquentActionsRepository implements ActionsRepository
 {
@@ -277,6 +278,22 @@ class EloquentActionsRepository implements ActionsRepository
     {
         $agenda = Agenda_Interna_Acao::findOrFail($id_agenda);
         return $agenda->delete();
+    }
+
+    public function createGalleryImages(array $paths, $id_acao)
+    {
+        foreach ($paths as $path) {
+            Galeria_Acao::create([
+                'id_acao' => $id_acao,
+                'caminho_imagem' => $path,
+            ]);
+        }
+    }
+
+    public function deleteGalleryImage($id_imagem)
+    {
+        $imagem = Galeria_Acao::findOrFail($id_imagem);
+        return $imagem->delete();
     }
 
 }

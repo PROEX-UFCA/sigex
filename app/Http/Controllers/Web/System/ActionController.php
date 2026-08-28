@@ -7,6 +7,7 @@ use App\Http\Requests\Web\Action\ScheduleRequest;
 use App\Http\Requests\Web\Action\InternalScheduleRequest;
 use App\Http\Requests\Web\Action\StoreRequest;
 use App\Http\Requests\Web\Action\TeamRequest;
+use App\Http\Requests\Web\Action\GaleriaRequest;
 use App\Models\Acao;
 use App\Models\Equipe_Acao;
 use App\Models\Parametro;
@@ -504,40 +505,40 @@ class ActionController extends Controller
     public function addBanner(Request $request, $uuid)
     {
         $request->validate([
-            'banner' => [
+            'imagem-destaque' => [
                 'required',
                 'file',
                 'mimes:jpeg,png,jpg,webp',
                 'max:2048',
             ],
         ], [
-            'banner.required' => 'A capa é obrigatória.',
-            'banner.file' => 'A capa deve ser um arquivo válido.',
-            'banner.mimes' => 'A capa deve ser uma imagem (jpg, png, jpeg ou webp).',
-            'banner.max' => 'O banner não pode ser maior que 2MB.',
+            'imagem-destaque.required' => 'A capa é obrigatória.',
+            'imagem-destaque.file' => 'A capa deve ser um arquivo válido.',
+            'imagem-destaque.mimes' => 'A capa deve ser uma imagem (jpg, png, jpeg ou webp).',
+            'imagem-destaque.max' => 'A capa não pode ser maior que 2MB.',
         ]);
 
         $action = $this->actionsRepository->getByUuid($uuid);
 
         try {
-            if ($request->hasFile("banner") && $request->file("banner")->isValid()) {
+            if ($request->hasFile("imagem-destaque") && $request->file("imagem-destaque")->isValid()) {
                 
                 if ($action->img && Storage::disk('public')->exists($action->img)) {
                     Storage::disk('public')->delete($action->img);
                 }
 
-                $path = $request->file("banner")->store('banner', 'public');
+                $path = $request->file("imagem-destaque")->store('imagem-destaque', 'public');
                 
                 $action->img = $path;
                 $action->save();
 
-                return redirect()->to(url()->previous() . '#banner-pane')->with('success', 'Capa adicionada com sucesso!');
+                return redirect()->to(url()->previous() . '#imagem-destaque-pane')->with('success', 'Capa adicionada com sucesso!');
             }
 
-            return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'O arquivo enviado não é válido.');
+            return redirect()->to(url()->previous() . '#bannimagem-destaqueer-pane')->with('error', 'O arquivo enviado não é válido.');
 
         } catch (\Throwable $th) {
-            return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'Erro ao tentar adicionar capa, tente novamente mais tarde.');
+            return redirect()->to(url()->previous() . '#imagem-destaque-pane')->with('error', 'Erro ao tentar adicionar capa, tente novamente mais tarde.');
         }
     }
 
@@ -574,4 +575,33 @@ class ActionController extends Controller
         }
     }
 
+    public function storeGallery(GaleriaRequest $request, $uuid)
+    {
+        try {
+            $paths = [];
+            if ($request->hasFile('imagens')) {
+                foreach ($request->file('imagens') as $file) {
+                    $paths[] = $file->store('galeria', 'public');
+                }
+            }
+
+            $this->actionsRepository->createGalleryImages($paths, $uuid);
+
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("success", "Imagens adicionadas com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("error", "Erro ao salvar as imagens da galeria.");
+        }
+    }
+
+    public function deleteGalleryImage($id_imagem)
+    {
+        try {
+            $this->actionsRepository->deleteGalleryImage($id_imagem);
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("success", "Imagem removida com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("error", "Erro ao remover a imagem.");
+        }
+    }
 }

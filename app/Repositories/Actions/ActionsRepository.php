@@ -18,4 +18,7 @@ interface ActionsRepository{
   public function createInternalSchedule($request, $id_acao);
   public function updateInternalSchedule($request, $id_agenda_interna);
   public function deleteInternalSchedule($id_agenda_interna);
+  public function createGalleryImages(array $paths, $id_acao);
+  public function deleteGalleryImage($id_imagem);
+  
 } 

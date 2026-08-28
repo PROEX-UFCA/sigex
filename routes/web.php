@@ -111,7 +111,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/actions/internal-schedule/{id_agenda}', [ActionController::class, 'deleteInternalSchedule'])->name('actions.deleteInternalSchedule')->middleware(['auth' => 'permission:remover_agenda']);
 
         Route::delete('membro/deletar/{uuid}', [MembersController::class, 'deleteMember'])->name('members.delete');
-    
+
+        Route::post('acoes/galeria/{uuid}', [ActionController::class, 'storeGallery'])->name('actions.storeGallery')->middleware(['auth' => 'permission:editar_ação']);
+
+        Route::delete('acoes/galeria/{id_imagem}', [ActionController::class, 'deleteGalleryImage'])->name('actions.deleteGalleryImage')->middleware(['auth' => 'permission:editar_ação']);    
     });
 
     Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
