@@ -3,6 +3,33 @@
 @section('styles')
 @endsection
 @section('content')
+@php
+    $userId = (string) auth()->user()->uuid;
+    
+    $isEquipe = $action->equipe->contains(function ($membro) use ($userId) {
+        return trim((string) $membro->id_usuario) === $userId;
+    });
+    
+    $isCoordinator = $action->equipe->contains(function ($membro) use ($userId) {
+        $isSameUser = trim((string) $membro->id_usuario) === $userId;
+        $categoria = trim(strtoupper($membro->categoria_membro));
+        
+        $validCategories = [
+            'COORDENADOR', 
+            'COORDENADOR(A)', 
+            'COORDENADOR(A) ADJUNTO(A)', 
+            'COORDENADORA', 
+            'COORDENADOR ADJUNTO'
+        ];
+        
+        return $isSameUser && in_array($categoria, $validCategories);
+    });
+
+    $canEditImages = auth()->user()->can('editar_imagens') && $isCoordinator;
+    $canAddAgenda = auth()->user()->can('adicionar_agenda') && $isCoordinator;
+    $canEditAgenda = auth()->user()->can('editar_agenda') && $isCoordinator;
+    $canRemoveAgenda = auth()->user()->can('remover_agenda') && $isCoordinator;
+@endphp
 <div class="page-body row">  
   <div class="container-xl">
     <div class="row g-5">
@@ -22,8 +49,11 @@
               <button class="nav-link text-start" id="ods-tab" data-bs-toggle="tab" data-bs-target="#ods-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-leaf me-2"></i>ODS
               </button>
-              <button class="nav-link text-start" id="capa-ilustrativa-tab" data-bs-toggle="tab" data-bs-target="#capa-ilustrativa-pane" type="button" role="tab" aria-selected="false">
+              <button class="nav-link text-start" id="imagem-destaque-tab" data-bs-toggle="tab" data-bs-target="#imagem-destaque-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-photo me-2"></i>Capa
+              </button>
+              <button class="nav-link text-start" id="galeria-tab" data-bs-toggle="tab" data-bs-target="#galeria-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-library-photo me-2"></i>Galeria
               </button>
               <button class="nav-link text-start" id="membros-tab" data-bs-toggle="tab" data-bs-target="#membros-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-users me-2"></i>Membros
@@ -31,9 +61,11 @@
               <button class="nav-link text-start" id="cronograma-externo-tab" data-bs-toggle="tab" data-bs-target="#cronograma-externo-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-calendar me-2"></i>Cronograma
               </button>
+              @if($isEquipe)
               <button class="nav-link text-start" id="agenda-interna-tab" data-bs-toggle="tab" data-bs-target="#agenda-interna-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-notebook me-2"></i>Agenda
               </button>
+              @endif
             </div>
           </div>
         </div>
@@ -134,6 +166,7 @@
                 </div>
               </div>
             </div>
+
             <div class="tab-pane fade" id="ods-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
@@ -186,28 +219,30 @@
               </div>
             </div>
 
-            <div class="tab-pane fade" id="capa-ilustrativa-pane" role="tabpanel" tabindex="0">
+            <div class="tab-pane fade" id="imagem-destaque-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
                   <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
                     <h3 class="m-0">Capa Ilustrativa da Ação</h3>
-                    <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-banner"
+                    @if($canEditImages)
+                    <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-imagem-destaque"
                       aria-controls="offcanvasExample">
                       Inserir
                     </button>
-                    <x-modal.offcanvas route="{{ route('actions.addBanner', $action->id) }}" id="modal-add-banner"
-                    class="offcanvas-end" title="Adicionar capa">
-                    <x-slot:content>
-                      <div class="text-start">
-                        <label for="banner" class="form-label fw-bold">Anexe uma imagem que será a capa do projeto no portal.</label>
-                        <div class="input-group">
-                          <input type="file" class="form-control" id="banner" name="banner" accept=".jpg,.png,.jpeg,.webp">
+                    <x-modal.offcanvas route="{{ route('actions.addBanner', $action->id) }}" id="modal-add-imagem-destaque"
+                    class="offcanvas-end" title="Adicionar imagem">
+                      <x-slot:content>
+                        <div class="text-start">
+                          <label for="imagem-destaque" class="form-label fw-bold">Anexe uma imagem que será a capa do seu projeto no portal.</label>
+                          <div class="input-group">
+                            <input type="file" class="form-control" id="imagem-destaque" name="imagem-destaque" accept=".jpg,.png,.jpeg,.webp">
+                          </div>
+                          <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
+                          <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
                         </div>
-                        <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
-                        <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
-                      </div>
-                    </x-slot:content>
-                  </x-modal.offcanvas>
+                      </x-slot:content>
+                    </x-modal.offcanvas>
+                    @endif
                 </div>
                 <div>
                   <p class="text-muted mb-4 border-start border-3 border-info ps-3">
@@ -221,6 +256,92 @@
                     Ainda não foi enviada uma capa.
                   </div>
                   @endif
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="galeria-pane" role="tabpanel" tabindex="0">
+              <div class="card card-lg mb-3">
+                <div class="card-body p-5">
+                  <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
+                    <h3 class="m-0">Galeria da Ação</h3>
+                    @if($canEditImages)
+                    <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-image-gallery" aria-controls="offcanvasExample">
+                      Inserir
+                    </button>
+                    <x-modal.offcanvas route="{{ route('actions.storeGallery', $action->id) }}" id="modal-add-image-gallery"
+                    class="offcanvas-end" title="Adicionar imagem">
+                      <x-slot:content>
+                        <div class="text-start">
+                          <label for="imagem-destaque" class="form-label fw-bold">Anexe uma imagem à galeria do seu projeto no portal.</label>
+                          <div class="input-group">
+                            <input type="file" multiple class="form-control" id="imagem-destaque" name="imagens[]" accept=".jpg,.png,.jpeg,.webp">
+                          </div>
+                          <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
+                          <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
+                        </div>
+                      </x-slot:content>
+                    </x-modal.offcanvas>
+                    @endif
+                  </div>
+
+                  <div>
+                    <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
+                      <thead>
+                        <th>Imagem</th>
+                        <th></th>
+                      </thead>
+                      <tbody>
+                        @foreach ($action->galeria as $item)
+                        <tr>
+                          <td>
+                            <p><img src="{{ asset('storage/' . $item->caminho_imagem) }}" alt="Recurso em desenvovimento"></p>
+                          </td>
+
+                          @if($canEditImages)
+                          <td>
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Deletar">
+                              <button type="button" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modal-delete-gallery-{{ $item->id }}">
+                                <i class="ti ti-trash"></i>
+                              </button>
+                            </span>
+
+                            <div class="modal fade" id="modal-delete-gallery-{{ $item->id }}" tabindex="-1" aria-labelledby="modalLabelGallery{{ $item->id }}" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                  
+                                  <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title" id="modalLabelGallery{{ $item->id }}">Confirmar Exclusão</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  
+                                  <div class="modal-body text-start text-wrap">
+                                    Tem certeza que deseja deletar a imagem da galeria?<br><br>
+                                    <span class="text-muted small">Esta ação removerá permanentemente a imagem.</span>
+                                  </div>
+                                  
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    
+                                    <form action="{{ route('actions.deleteGalleryImage', $item->id) }}" method="POST" class="m-0 p-0">
+                                      @csrf
+                                      @method('DELETE')
+                                      <button type="submit" class="btn btn-danger">Sim, deletar imagem</button>
+                                    </form>
+                                  </div>
+                                  
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          @endif
+
+                        </tr>
+                        @endforeach
+                      </tbody>
+                    </table>
+                  </div>
+            
                 </div>
               </div>
             </div>
@@ -274,7 +395,7 @@
                 <div class="card-body p-5">
                   <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
                     <h3 class="m-0">Cronograma Externo da Ação</h3>
-                    @can('adicionar_agenda')
+                    @if($canAddAgenda)
                     <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-agenda"
                       aria-controls="offcanvasExample">
                       Inserir
@@ -328,7 +449,7 @@
                         ])
                       </x-slot:content>
                     </x-modal.offcanvas>
-                    @endcan
+                    @endif
                   </div>
 
                   <div>
@@ -357,7 +478,7 @@
                           <td>{{ $item->local_formato }}</td>
                           <td>{{ $item->descricao }}</td>
                         
-                        @can('editar_agenda')
+                        @if($canEditAgenda)
                           <td>
                             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Editar">
                               <button type="button" class="btn btn-sm btn-primary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-agenda-{{ $item->id }}" aria-controls="offcanvasExample">
@@ -418,9 +539,9 @@
                               </x-slot:content>
                             </x-modal.offcanvas>
                           </td>
-                        @endcan
+                        @endif
 
-                        @can('remover_agenda')
+                        @if($canRemoveAgenda)
                         <td>
                           <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Deletar">
                             <button type="button" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modal-delete-agenda-{{ $item->id }}">
@@ -456,7 +577,7 @@
                             </div>
                           </div>
                         </td>
-                        @endcan
+                        @endif
 
                         </tr>
                         @endforeach
@@ -467,12 +588,13 @@
               </div>
             </div>
 
+          @if($isEquipe)
             <div class="tab-pane fade show" id="agenda-interna-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
                   <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
                     <h3 class="m-0">Agenda Interna da Ação</h3>
-                    @can('adicionar_agenda')
+                    @if($canAddAgenda)
                     <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-internal-agenda"
                     aria-controls="offcanvasExample">
                     Inserir
@@ -534,7 +656,7 @@
                           ])
                         </x-slot:content>
                       </x-modal.offcanvas>
-                    @endcan
+                    @endif
                   </div>
 
                   <div>
@@ -564,7 +686,7 @@
                           <td>{{ $item->descricao }}</td>
                           <td>{{ $item->pauta_interna }}</td>
                         
-                        @can('editar_agenda')
+                        @if($canEditAgenda)
                           <td>
                             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Editar">
                               <button type="button" class="btn btn-sm btn-primary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-internal-agenda-{{ $item->id }}" aria-controls="offcanvasExample">
@@ -634,9 +756,9 @@
                               </x-slot:content>
                             </x-modal.offcanvas>
                           </td>
-                        @endcan
+                        @endif
 
-                        @can('remover_agenda')
+                        @if($canDeleteAgenda)
                           <td>
                             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Deletar">
                               <button type="button" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modal-delete-internal-agenda-{{ $item->id }}">
@@ -672,7 +794,7 @@
                               </div>
                             </div>
                           </td>
-                        @endcan
+                        @endif
 
                         </tr>
                         @endforeach
@@ -683,11 +805,11 @@
                 </div>
               </div>
             </div>
-
+          @endif
           </div>
         </div>
 
-      </div>
+      </div> 
     </div>
 </div>
 @endsection
