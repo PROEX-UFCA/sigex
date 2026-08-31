@@ -64,6 +64,8 @@ class DatabaseSeeder extends Seeder
 
             "importar_membros",
 
+            "gerenciar_vitrine",
+
             "ver_dashboard",
         ];
 
@@ -106,6 +108,8 @@ class DatabaseSeeder extends Seeder
                     'importar_membros',
 
                     "ver_dashboard",
+
+                    "gerenciar_vitrine"
                 ]
             ],
             [
@@ -154,6 +158,11 @@ class DatabaseSeeder extends Seeder
                     "adicionar_agenda",
                     "editar_agenda",
                     "remover_agenda",
+                ]
+            ],
+            [
+                "role" => "Instituição",
+                "permissions" => [
                 ]
             ],
         ];

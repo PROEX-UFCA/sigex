@@ -84,9 +84,11 @@
                 isActive="{{ request()->routeIs(['home.*']) ? true : false }}" icon="ti-home">
               </x-navbar.navbar-item>
 
+              @can('ver_dashboard')
               <x-navbar.navbar-item route="{{ route('dashboard.index') }}" title="Painel"
                 isActive="{{ request()->routeIs(['dashboard.index']) ? true : false }}" icon="ti ti-layout-dashboard  ">
               </x-navbar.navbar-item>
+              @endcan
 
               @can('ver_suas_ações')
               <x-navbar.navbar-item route="{{ route('actions.my') }}" title="Minhas ações"
@@ -95,37 +97,40 @@
               </x-navbar.navbar-item>
               @endcan
 
-              @can('ver_todas_as_ações')
-              <x-navbar.navbar-item route="{{ route('actions.index') }}" title="Ações"
-                isActive="{{ request()->routeIs(['actions.index', 'actions.create']) ? true : false }}"
-                icon="ti-list-details">
-              </x-navbar.navbar-item>    
-              @endcan
               @canany(['ver_formulários', 'ver_relatórios'])
-              <x-navbar.navbar-item route="" title="Formulários"
-                isActive="{{ request()->routeIs(['forms.index', 'sessions.*', 'report.*']) ? true : false }}"
-                icon="ti-clipboard-text">
+              <x-navbar.navbar-item route="" title="Módulos"
+                isActive="{{ request()->routeIs(['actions.index', 'actions.create', 'users.*', 'forms.index', 'sessions.*', 'report.*', 'vitrine.*']) ? true : false }}"
+                icon="ti-hexagons">
                 <x-slot:links>
-                  @can('ver_formulários')
-                  <a class="dropdown-item" href="{{ route('forms.index') }}">Templates</a>
+                  @can('ver_todas_as_ações')
+                  <a class="dropdown-item" href="{{ route('actions.index') }}">Ações e Relatórios</a>
                   @endcan
-                  @can('ver_relatórios')
-                  <a class="dropdown-item" href="{{ route('report.index') }}">Relatórios</a>
+                  @can('ver_usuários')
+                  <a class="dropdown-item" href="{{ route('users.index') }}">Gestão de Usuários</a>
+                  @endcan
+                  @can('gerenciar_vitrine')
+                  <a href="{{route('vitrine.index')}}" class="dropdown-item" href="">Vitrine</a>
                   @endcan
                 </x-slot:links>
               </x-navbar.navbar-item>
               @endcanany
 
-              @can('ver_usuários')
-              <x-navbar.navbar-item route="{{ route('users.index') }}" title="Usuários"
-                isActive="{{ request()->routeIs(['users.*']) ? true : false }}" icon="ti-user">
+              @canany(['ver_formulários', 'ver_relatórios'])
+              <x-navbar.navbar-item route="" title="Ferramentas"
+                isActive="{{ request()->routeIs([]) ? true : false }}"
+                icon="ti-tools">
+                <x-slot:links>
+                  {{-- @can('ver_formulários')
+                  <a class="dropdown-item" href="{{ route('forms.index') }}">Formulários</a>
+                  @endcan --}}
+                </x-slot:links>
               </x-navbar.navbar-item>
-              @endcan
+              @endcanany
 
               @canany(['adicionar_e_editar_grupo', 'ver_todos_os_logs', 'ver_seus_logs'])
               <x-navbar.navbar-item route="" title="Dev Tools"
                 isActive="{{ request()->routeIs(['roles.*', 'permissions.*', 'logs.*']) ? true : false }}"
-                icon="ti-tools">
+                icon="ti-code">
                 <x-slot:links>
                   @can('adicionar_e_editar_grupo')
                   <a class="dropdown-item" href="{{ route('roles.index') }}">Grupos de permissões</a>
