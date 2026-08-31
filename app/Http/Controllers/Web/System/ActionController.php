@@ -126,7 +126,7 @@ class ActionController extends Controller
 
     public function details($uuid){
 
-        $this->data['action'] = $this->actionsRepository->getByUserUuid(Auth::user()->uuid, $uuid)->action;
+        $this->data['action'] = $this->actionsRepository->getByUuid($uuid);
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CATEGORIA_MEMBRO', 'TIPO_MEMBRO', 'STATUS_MEMBROS', 'TIPO_VINCULO'])->groupBy('function');
 

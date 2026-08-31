@@ -36,7 +36,7 @@
       <div class="col-12 col-md-3 col-lg-2">
 
         <div class="sticky-top" style="top: 1rem; z-index: 1020;"> 
-          <a href="{{route('actions.my')}}" class="btn w-100 mb-3">
+          <a href="{{ url()->previous() }}" class="btn w-100 mb-3">
             Voltar página
           </a>
         </div>
@@ -231,12 +231,12 @@
                         </div>
                       </x-slot:content>
                     </x-modal.offcanvas>
+                    <div>
+                      <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+                        A imagem escolhida será a capa da ação no portal SIGEX. Certifique-se de inserir uma imagem com o formato "paisagem" para uma melhor visualização.
+                      </p>
+                    </div>
                     @endif
-                </div>
-                <div>
-                  <p class="text-muted mb-4 border-start border-3 border-info ps-3">
-                    A imagem escolhida será a capa da ação no portal SIGEX. Certifique-se de inserir uma imagem com o formato "paisagem" para uma melhor visualização.
-                  </p>
                 </div>
                   @if ($action->img)
                   <p><img src="{{ asset('storage/' . $action->img) }}" alt="Image Alt"></p>
@@ -438,14 +438,14 @@
                         ])
                       </x-slot:content>
                     </x-modal.offcanvas>
+                    <div>
+                      <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+                        Use essa seção para inserir a programação da ação, ela será disponibilizada para instituições e pessoas interessadas no portal do SIGEX.
+                      </p>
+                    </div>
                     @endif
                   </div>
 
-                  <div>
-                    <p class="text-muted mb-4 border-start border-3 border-info ps-3">
-                      Use essa seção para inserir a programação da ação, ela será disponibilizada para instituições e pessoas interessadas no portal do SIGEX.
-                    </p>
-                  </div>
 
                   <div class="table-responsive p-0 mb-3">
                     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
@@ -820,6 +820,24 @@ document.addEventListener("DOMContentLoaded", function() {
             window.history.replaceState(null, null, event.target.dataset.bsTarget);
         });
     });
+    
+    const isEquipe = @json($isEquipe);
+
+    if (!isEquipe) {
+        document.querySelectorAll('.nav-link').forEach(link => {
+            const text = link.textContent.trim();
+
+            if (text.includes('Minhas ações')) {
+                link.classList.remove('active');
+                if (link.parentElement) link.parentElement.classList.remove('active');
+            }
+
+            if (text.includes('Módulos')) {
+                link.classList.add('active');
+                if (link.parentElement) link.parentElement.classList.add('active');
+            }
+        });
+    }
 });
 </script>
 @endsection
