@@ -42,14 +42,14 @@
   <div class="col-12 col-lg-6 bg-white">
     @yield('content')
   </div>
-
-  <script src="{{ asset('assets/js/demo-theme.min.js?1684106062') }}"></script>
+  
   <script src="{{ asset('assets/js/jquery-3.5.1.js') }}"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+  <script src="{{ asset('assets/js/demo-theme.min.js?1684106062') }}"></script>
   <script src="{{ asset('assets/js/tabler.min.js?1684106062') }}" defer></script>
   <script src="{{ asset('assets/js/demo.min.js?1684106062') }}" defer></script>
-  <script src="{{ asset('assets/js/jquery-3.5.1.js') }}"></script>
   <script src="{{ asset('assets/js/sweetalert2.all.min.js') }}"></script>
+  @yield('scripts')
   <script>
     function change(id) {
       const input = document.getElementById(id);

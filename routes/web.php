@@ -11,6 +11,7 @@ use App\Http\Controllers\Web\System\MembersController;
 use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use App\Http\Controllers\Web\System\DashboardController;
+use App\Http\Controllers\Web\System\VitrineController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -146,6 +147,12 @@ Route::middleware(['auth'])->group(function () {
     
     Route::post('relatorios/monitorar/validar/{uuid}', [ReportController::class, 'validar'])->name('report.validate.store')->middleware(['auth' => 'permission:monitorar_relatórios']);
 
-    Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar')->middleware(['auth' => 'permission:monitorar_relatórios']);;
-    Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar')->middleware(['auth' => 'permission:monitorar_relatórios']);
+    
+    Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index')->middleware(['auth' => 'permission:ver_dashboard']);
+    
+    Route::get('/modulo/vitrine', [VitrineController::class, 'index'])->name('vitrine.index')->middleware(['auth' => 'permission:gerenciar_vitrine']);
+    Route::post('/modulo/vitrine/aprovar/{uuid}', [VitrineController::class, 'aprovar'])->name('vitrine.aprovar')->middleware(['auth' => 'permission:gerenciar_vitrine']);
 });
+    
+Route::get('/vitrine', [VitrineController::class, 'vitrine'])->name('vitrine.vitrine');
