@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Web\System;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Action\ScheduleRequest;
+use App\Http\Requests\Web\Action\InternalScheduleRequest;
 use App\Http\Requests\Web\Action\StoreRequest;
 use App\Http\Requests\Web\Action\TeamRequest;
+use App\Http\Requests\Web\Action\GaleriaRequest;
 use App\Models\Acao;
 use App\Models\Equipe_Acao;
 use App\Models\Parametro;
@@ -85,9 +87,9 @@ class ActionController extends Controller
     public function storeSchedule(ScheduleRequest $request, $id_acao){
         try {
             $this->actionsRepository->createSchedule($request, $id_acao);
-            return redirect()->to(url()->previous() . '#agenda-pane')->with("success", "Evento adicionado a ação com sucesso.");
+            return redirect()->to(url()->previous() . '#cronograma-externo-pane')->with("success", "Evento adicionado a ação com sucesso.");
         } catch (\Throwable $th) {
-            return redirect()->to(url()->previous() . '#agenda-pane')->with("error", "Erro. Por favor, tente novamente mais tarde.")->withInput();
+            return redirect()->to(url()->previous() . '#cronograma-externo-pane')->with("error", "Erro. Por favor, tente novamente mais tarde.")->withInput();
         }
     }
 
@@ -95,9 +97,9 @@ class ActionController extends Controller
         try {
             $this->actionsRepository->updateSchedule($request, $id_agenda);
             
-            return redirect()->to(url()->previous() . '#agenda-pane')->with("success", "Evento atualizado com sucesso.");
+            return redirect()->to(url()->previous() . '#cronograma-externo-pane')->with("success", "Evento atualizado com sucesso.");
         } catch (\Throwable $th) {
-            return redirect()->to(url()->previous() . '#agenda-pane')->with("error", "Erro ao atualizar evento. Por favor, tente novamente mais tarde.")->withInput();
+            return redirect()->to(url()->previous() . '#cronograma-externo-pane')->with("error", "Erro ao atualizar evento. Por favor, tente novamente mais tarde.")->withInput();
         }
     }
 
@@ -106,9 +108,9 @@ class ActionController extends Controller
         try {
             $this->actionsRepository->deleteSchedule($id_agenda);
             
-            return redirect()->to(url()->previous() . '#agenda-pane')->with("success", "Evento removido da ação com sucesso.");
+            return redirect()->to(url()->previous() . '#cronograma-externo-pane')->with("success", "Evento removido da ação com sucesso.");
         } catch (\Throwable $th) {
-            return redirect()->to(url()->previous() . '#agenda-pane')->with("error", "Erro ao remover o evento. Por favor, tente novamente mais tarde.");
+            return redirect()->to(url()->previous() . '#cronograma-externo-pane')->with("error", "Erro ao remover o evento. Por favor, tente novamente mais tarde.");
         }
     }
 
@@ -124,7 +126,7 @@ class ActionController extends Controller
 
     public function details($uuid){
 
-        $this->data['action'] = $this->actionsRepository->getByUserUuid(Auth::user()->uuid, $uuid)->action;
+        $this->data['action'] = $this->actionsRepository->getByUuid($uuid);
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CATEGORIA_MEMBRO', 'TIPO_MEMBRO', 'STATUS_MEMBROS', 'TIPO_VINCULO'])->groupBy('function');
 
@@ -503,40 +505,133 @@ class ActionController extends Controller
     public function addBanner(Request $request, $uuid)
     {
         $request->validate([
-            'banner' => [
+            'imagem-destaque' => [
                 'required',
                 'file',
                 'mimes:jpeg,png,jpg,webp',
-                // 'max:5120',
+                'max:2048',
             ],
+            'alt_capa' => 'max:255'
         ], [
-            'banner.required' => 'O banner é obrigatório.',
-            'banner.file' => 'O banner deve ser um arquivo válido.',
-            'banner.mimes' => 'O banner deve ser uma imagem (jpg, png, jpeg ou webp).',
-            // 'banner.max' => 'O banner não pode ser maior que 5MB.',
+            'imagem-destaque.required' => 'A capa é obrigatória.',
+            'imagem-destaque.file' => 'A capa deve ser um arquivo válido.',
+            'imagem-destaque.mimes' => 'A capa deve ser uma imagem (jpg, png, jpeg ou webp).',
+            'imagem-destaque.max' => 'A capa não pode ser maior que 2MB.',
+            'alt_capa.max' => 'O texto alternativo tem um máximo de 255 caracteres.',
         ]);
 
         $action = $this->actionsRepository->getByUuid($uuid);
 
         try {
-            if ($request->hasFile("banner") && $request->file("banner")->isValid()) {
+            if ($request->hasFile("imagem-destaque") && $request->file("imagem-destaque")->isValid()) {
                 
                 if ($action->img && Storage::disk('public')->exists($action->img)) {
                     Storage::disk('public')->delete($action->img);
                 }
 
-                $path = $request->file("banner")->store('banner', 'public');
+                $path = $request->file("imagem-destaque")->store('imagem-destaque', 'public');
                 
                 $action->img = $path;
+                $action->alt_capa = $request->input('alt_capa');
                 $action->save();
 
-                return redirect()->to(url()->previous() . '#banner-pane')->with('success', 'Banner adicionado com sucesso!');
+                return redirect()->to(url()->previous() . '#imagem-destaque-pane')->with('success', 'Capa adicionada com sucesso!');
             }
 
-            return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'O arquivo enviado não é válido.');
+            return redirect()->to(url()->previous() . '#imagem-destaque-pane')->with('error', 'O arquivo enviado não é válido.');
 
         } catch (\Throwable $th) {
-            return redirect()->to(url()->previous() . '#banner-pane')->with('error', 'Erro ao tentar adicionar banner, tente novamente mais tarde.');
+            return redirect()->to(url()->previous() . '#imagem-destaque-pane')->with('error', 'Erro ao tentar adicionar capa, tente novamente mais tarde.');
+        }
+    }
+
+    public function storeInternalSchedule(InternalScheduleRequest $request, $id_acao)
+    {
+        try {
+            $this->actionsRepository->createInternalSchedule($request, $id_acao);
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("success", "Evento interno adicionado com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("error", "Erro ao adicionar evento interno. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
+
+    public function updateInternalSchedule(InternalScheduleRequest $request, $id_agenda)
+    {
+        try {
+            $this->actionsRepository->updateInternalSchedule($request, $id_agenda);
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("success", "Evento interno atualizado com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("error", "Erro ao atualizar evento interno. Por favor, tente novamente mais tarde.")->withInput();
+        }
+    }
+
+    public function deleteInternalSchedule($id_agenda)
+    {
+        try {
+            $this->actionsRepository->deleteInternalSchedule($id_agenda);
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("success", "Evento interno removido com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#agenda-interna-pane')->with("error", "Erro ao remover o evento interno. Por favor, tente novamente mais tarde.");
+        }
+    }
+
+    public function storeGallery(GaleriaRequest $request, $uuid)
+    {
+        try {
+            $paths = [];
+            if ($request->hasFile('imagens')) {
+                foreach ($request->file('imagens') as $file) {
+                    $paths[] = $file->store('galeria', 'public');
+                }
+            }
+
+            $altTexts = $request->input('textos_alternativos');
+
+            $this->actionsRepository->createGalleryImages($paths, $altTexts, $uuid);
+
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("success", "Imagem(ns) adicionadas com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("error", "Erro ao salvar as imagens da galeria.");
+        }
+    }
+
+    public function updateGalleryAlt(Request $request, $id_imagem)
+    {
+        $request->validate(['texto_alternativo' => 'required|string|max:255']);
+        
+        try {
+            $this->actionsRepository->updateGalleryAltText($id_imagem, $request->texto_alternativo);
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("success", "Texto alternativo atualizado com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("error", "Erro ao atualizar texto alternativo.");
+        }
+    }
+
+    public function deleteGalleryImage($id_imagem)
+    {
+        try {
+            $this->actionsRepository->deleteGalleryImage($id_imagem);
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("success", "Imagem removida com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#galeria-pane')->with("error", "Erro ao remover a imagem.");
+        }
+    }
+
+    public function updateBannerAlt(Request $request, $uuid)
+    {
+        $request->validate(['alt_capa' => 'required|string|max:255']);
+        
+        try {
+            $this->actionsRepository->updateBannerAltText($uuid, $request->alt_capa);
+            return redirect()->to(url()->previous() . '#imagem-destaque-pane')->with("success", "Texto alternativo da capa atualizado com sucesso.");
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#imagem-destaque-pane')->with("error", "Erro ao atualizar texto alternativo da capa.");
         }
     }
 }

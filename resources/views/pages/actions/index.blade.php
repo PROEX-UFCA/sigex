@@ -349,6 +349,14 @@
                 @endcan
               </td>
               @endcan
+              @can('detalhar_ação')
+              <td>
+                <a href="{{ route('actions.details', $item->id) }}" class="btn btn-sm btn-info btn-icon"
+                  data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhar">
+                  <i class="ti ti-eye"></i>
+                </a>
+              </td>
+              @endcan
             </tr>
             @endforeach
           </tbody>

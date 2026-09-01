@@ -3,13 +3,40 @@
 @section('styles')
 @endsection
 @section('content')
+@php
+    $userId = (string) auth()->user()->uuid;
+    
+    $isEquipe = $action->equipe->contains(function ($membro) use ($userId) {
+        return trim((string) $membro->id_usuario) === $userId;
+    });
+    
+    $isCoordinator = $action->equipe->contains(function ($membro) use ($userId) {
+        $isSameUser = trim((string) $membro->id_usuario) === $userId;
+        $categoria = trim(strtoupper($membro->categoria_membro));
+        
+        $validCategories = [
+            'COORDENADOR', 
+            'COORDENADOR(A)', 
+            'COORDENADOR(A) ADJUNTO(A)', 
+            'COORDENADORA', 
+            'COORDENADOR ADJUNTO'
+        ];
+        
+        return $isSameUser && in_array($categoria, $validCategories);
+    });
+
+    $canEditImages = auth()->user()->can('editar_imagens') && $isCoordinator;
+    $canAddAgenda = auth()->user()->can('adicionar_agenda') && $isCoordinator;
+    $canEditAgenda = auth()->user()->can('editar_agenda') && $isCoordinator;
+    $canRemoveAgenda = auth()->user()->can('remover_agenda') && $isCoordinator;
+@endphp
 <div class="page-body row">  
   <div class="container-xl">
     <div class="row g-5">
       <div class="col-12 col-md-3 col-lg-2">
 
         <div class="sticky-top" style="top: 1rem; z-index: 1020;"> 
-          <a href="{{route('actions.my')}}" class="btn w-100 mb-3">
+          <a href="{{ url()->previous() }}" class="btn w-100 mb-3">
             Voltar página
           </a>
         </div>
@@ -19,18 +46,23 @@
               <button class="nav-link text-start active" id="acao-tab" data-bs-toggle="tab" data-bs-target="#acao-pane" type="button" role="tab" aria-selected="true">
                 <i class="ti ti-info-circle me-2"></i>Ação
               </button>
-              <button class="nav-link text-start" id="ods-tab" data-bs-toggle="tab" data-bs-target="#ods-pane" type="button" role="tab" aria-selected="false">
-                <i class="ti ti-leaf me-2"></i>ODS
+              <button class="nav-link text-start" id="imagem-destaque-tab" data-bs-toggle="tab" data-bs-target="#imagem-destaque-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-photo me-2"></i>Capa
               </button>
-              <button class="nav-link text-start" id="banner-tab" data-bs-toggle="tab" data-bs-target="#banner-pane" type="button" role="tab" aria-selected="false">
-                <i class="ti ti-photo me-2"></i>Banner
+              <button class="nav-link text-start" id="galeria-tab" data-bs-toggle="tab" data-bs-target="#galeria-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-library-photo me-2"></i>Galeria
               </button>
               <button class="nav-link text-start" id="membros-tab" data-bs-toggle="tab" data-bs-target="#membros-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-users me-2"></i>Membros
               </button>
-              <button class="nav-link text-start" id="agenda-tab" data-bs-toggle="tab" data-bs-target="#agenda-pane" type="button" role="tab" aria-selected="false">
-                <i class="ti ti-calendar me-2"></i>Agenda
+              <button class="nav-link text-start" id="cronograma-externo-tab" data-bs-toggle="tab" data-bs-target="#cronograma-externo-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-calendar me-2"></i>Cronograma
               </button>
+              @if($isEquipe)
+              <button class="nav-link text-start" id="agenda-interna-tab" data-bs-toggle="tab" data-bs-target="#agenda-interna-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-notebook me-2"></i>Agenda
+              </button>
+              @endif
             </div>
           </div>
         </div>
@@ -128,90 +160,253 @@
                     </div>
 
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="tab-pane fade" id="ods-pane" role="tabpanel" tabindex="0">
-              <div class="card card-lg mb-3">
-                <div class="card-body p-5">
-                  <h3 class="m-0 mb-4">Objetivos de Desenvolvimento Sustentável</h3>
-                  <p class="text-muted mb-4 border-start border-3 border-info ps-3">
-                    Abaixo estão os Objetivos de Desenvolvimento Sustentável (ODS) da ONU vinculados a este projeto. Os ícones coloridos representam os objetivos que esta ação atende diretamente.
-                  </p>
+                  
+                  <h4 class="text-cyan mb-3 border-bottom pb-2">Objetivos de Desenvolvimento Sustentável</h3>
+                  <div class="card-body">
+                    @if(!empty($action->ods))
+                      @php
+                        $odsArray = array_map('trim', explode(';', $action->ods));
+                    @endphp
 
-                  @if(!empty($action->ods))
-                    @php
-                      $odsArray = array_map('trim', explode(';', $action->ods));
-                  @endphp
-
-                    <div class="w-100 w-lg-75 mx-auto">
-                      <div class="row row-cols-3 row-cols-md-6 g-1 justify-content-center align-items-center p-2 shadow-sm">
-                        
-                        @for ($i = 1; $i <= 17; $i++)
-                          @php
-                            $isActive = in_array((string)$i, $odsArray);
-                            $imgName = $isActive ? "{$i}.png" : "{$i}_light.png";
-                          @endphp
+                      <div class="w-100 w-lg-75 mx-auto">
+                        <div class="row row-cols-3 row-cols-md-6 g-1 justify-content-center align-items-center p-2 shadow-sm">
                           
-                          <div class="col">
-                            <img 
-                              src="https://sig.ufca.edu.br/sigaa/img/ODS/{{ $imgName }}" 
-                              class="img-fluid w-100" 
-                              alt="ODS {{ $i }}"
-                              title="ODS {{ $i }}"
-                            >
-                          </div>
-                        @endfor
+                          @for ($i = 1; $i <= 17; $i++)
+                            @php
+                              $isActive = in_array((string)$i, $odsArray);
+                              $imgName = $isActive ? "{$i}.png" : "{$i}_light.png";
+                            @endphp
+                            
+                            <div class="col">
+                              <img 
+                                src="https://sig.ufca.edu.br/sigaa/img/ODS/{{ $imgName }}" 
+                                class="img-fluid w-100" 
+                                alt="ODS {{ $i }}"
+                                title="ODS {{ $i }}"
+                              >
+                            </div>
+                          @endfor
+                            <div class="col">
+                              <img 
+                                src="https://sig.ufca.edu.br/sigaa/img/ODS/ods_.png" 
+                                class="img-fluid w-100" 
+                                alt="Logo ODS Geral"
+                              >
+                            </div>
 
-                        <div class="col">
-                          <img 
-                            src="https://sig.ufca.edu.br/sigaa/img/ODS/ods_.png" 
-                            class="img-fluid w-100" 
-                            alt="Logo ODS Geral"
-                          >
                         </div>
-
                       </div>
-                    </div>
-                  @else
-                    <div class="alert alert-info mb-0">
-                      Nenhum ODS vinculado a esta ação no momento.
-                    </div>
-                  @endif
+
+                    @else
+                      <div class="alert alert-info mb-0">
+                        Nenhum ODS vinculado a esta ação no momento.
+                      </div>
+                    @endif
+                  </div>
 
                 </div>
               </div>
             </div>
 
-            <div class="tab-pane fade" id="banner-pane" role="tabpanel" tabindex="0">
+            <div class="tab-pane fade" id="imagem-destaque-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
                   <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
-                    <h3 class="m-0">Banner da ação</h3>
-                    <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-banner"
+                    <h3 class="m-0">Capa Ilustrativa da Ação</h3>
+                    @if($canEditImages)
+                    <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-imagem-destaque"
                       aria-controls="offcanvasExample">
                       Inserir
                     </button>
-                    <x-modal.offcanvas route="{{ route('actions.addBanner', $action->id) }}" id="modal-add-banner"
-                      class="offcanvas-end" title="Adicionar banner">
+                    <x-modal.offcanvas route="{{ route('actions.addBanner', $action->id) }}" id="modal-add-imagem-destaque"
+                    class="offcanvas-end" title="Adicionar imagem">
                       <x-slot:content>
                         <div class="text-start">
-                          <label for="banner" class="form-label fw-bold">Anexe um banner</label>
+                          <label for="imagem-destaque" class="form-label fw-bold">Anexe uma imagem que será a capa do seu projeto no portal.</label>
                           <div class="input-group">
-                            <input type="file" class="form-control" id="banner" name="banner" accept=".jpg,.png,.jpeg,.webp">
+                            <input type="file" class="form-control" id="imagem-destaque" name="imagem-destaque" accept=".jpg,.png,.jpeg,.webp">
+                          </div>
+                          <div>
+                            <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+                              O texto alternativo é essencial para que usuários com deficiencias visuais possam também entender o que a imagem diz sobre seu projeto. Inserir essa descrição garante que leitores de tela possam indicar à pessoa o que está sendo representado.
+                            </p>
+                            <label for="alt_capa" class="form-label fw-bold mt-3">Texto Alternativo (Recurso de Acessibilidade)</label>
+                            <input type="text" class="form-control" id="alt_capa" name="alt_capa" placeholder="Ex: Fotografia de estudantes em sala de aula...">
                           </div>
                           <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
+                          <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
                         </div>
                       </x-slot:content>
                     </x-modal.offcanvas>
-                  </div>
+                    <div>
+                      <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+                        A imagem escolhida será a capa da ação no portal SIGEX. Certifique-se de inserir uma imagem com o formato "paisagem" para uma melhor visualização.
+                      </p>
+                    </div>
+                    @endif
+                </div>
                   @if ($action->img)
-                  <p><img src="{{ asset('storage/' . $action->img) }}" alt="Image Alt"></p>
-                  @else
-                  <div class="alert alert-warning">
-                    Não foi enviado banner.
+                  <p><img src="{{ asset('storage/' . $action->img) }}" alt="{{ $action->alt_capa }}" style="max-height: 300px; object-fit: cover;"></p>
+
+                  <div class="d-flex align-items-center gap-3 mt-3">
+                    <p class="mb-0"><strong>Texto alternativo: </strong>{{ $action->alt_capa ?? 'Sem texto alternativo' }}</p>
+                    
+                    @if($canEditImages)
+                      <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" data-bs-toggle="modal" data-bs-target="#modal-edit-capa-alt" title="Editar texto alternativo">
+                        <i class="ti ti-pencil"></i>
+                      </button>
+
+                      <div class="modal fade" id="modal-edit-capa-alt" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-sm">
+                          <div class="modal-content">
+                            <form action="{{ route('actions.updateBannerAlt', $action->id) }}" method="POST" class="m-0">
+                              @csrf
+                              @method('PUT')
+                              <div class="modal-header bg-light text-dark">
+                                <h5 class="modal-title fs-5">Editar Texto Alternativo</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body text-start">
+                                <label class="form-label fw-bold">Descrição da Capa</label>
+                                <input type="text" name="alt_capa" class="form-control" value="{{ $action->alt_capa }}" required placeholder="Descreva esta imagem...">
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary btn-sm">Salvar Alteração</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    @endif
                   </div>
+                  @else
+                    <div class="alert alert-warning">
+                      Ainda não foi enviada uma capa.
+                    </div>
                   @endif
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="galeria-pane" role="tabpanel" tabindex="0">
+              <div class="card card-lg mb-3">
+                <div class="card-body p-5">
+                  <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
+                    <h3 class="m-0">Galeria da Ação</h3>
+                    @if($canEditImages)
+                    <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-image-gallery" aria-controls="offcanvasExample">
+                      Inserir
+                    </button>
+                    <x-modal.offcanvas route="{{ route('actions.storeGallery', $action->id) }}" id="modal-add-image-gallery"
+                    class="offcanvas-end" title="Adicionar imagem">
+                      <x-slot:content>
+                        <div class="text-start">
+                          <label for="imagens-galeria" class="form-label fw-bold">Anexe uma imagem à galeria do seu projeto no portal.</label>
+                          <div class="input-group">
+                            <input type="file" multiple class="form-control" id="imagens-galeria" name="imagens[]" accept=".jpg,.png,.jpeg,.webp">
+                            <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+                              O texto alternativo é essencial para que usuários com deficiencias visuais possam também entender o que a imagem diz sobre seu projeto. Inserir essa descrição garante que leitores de tela possam indicar à pessoa o que está sendo representado.
+                            </p>
+                          </div>
+                          <div id="galeria-alt-container" class="mt-3"></div>
+                          <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
+                          <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
+                        </div>
+                      </x-slot:content>
+                    </x-modal.offcanvas>
+                    @endif
+                  </div>
+
+                  <div>
+                    <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
+                      <thead>
+                        <th>Imagem</th>
+                        <th>Texto Alternativo</th>
+                        <th></th>
+                      </thead>
+                      <tbody>
+                        @foreach ($action->galeria as $item)
+                        <tr>
+                          <td class="text-center">
+                            <p>
+                              <img src="{{ asset('storage/' . $item->caminho_imagem) }}" alt="{{ $item->texto_alternativo }}" style="max-height: 250px; object-fit: cover;">
+                            </p>
+                          </td>
+
+                          <td class="text-wrap" style="min-width: 250px; max-width:300px;">
+                            <div class="d-flex align-items-center justify-content-center gap-3">
+                              <span>{{ $item->texto_alternativo ?? 'Sem texto alternativo' }}</span>
+                              
+                              @if($canEditImages)
+                                <button type="button" class="btn btn-sm btn-icon btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-edit-alt-{{ $item->id }}" title="Editar texto alternativo">
+                                  <i class="ti ti-pencil"></i>
+                                </button>
+
+                                <div class="modal fade" id="modal-edit-alt-{{ $item->id }}" tabindex="-1" aria-hidden="true">
+                                  <div class="modal-dialog modal-dialog-centered modal-sm">
+                                    <div class="modal-content">
+                                      <form action="{{ route('actions.updateGalleryAlt', $item->id) }}" method="POST" class="m-0">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-header bg-light text-dark">
+                                          <h5 class="modal-title fs-5">Editar Texto Alternativo</h5>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                          <label class="form-label fw-bold">Descrição da Imagem</label>
+                                          <input type="text" name="texto_alternativo" class="form-control" value="{{ $item->texto_alternativo }}" required placeholder="Descreva esta imagem...">
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                                          <button type="submit" class="btn btn-primary btn-sm">Salvar Alteração</button>
+                                        </div>
+                                      </form>
+                                    </div>
+                                  </div>
+                                </div>
+                              @endif
+                            </div>
+                          </td>
+
+                          @if($canEditImages)
+                          <td class="text-center">
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Deletar">
+                              <button type="button" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modal-delete-gallery-{{ $item->id }}">
+                                <i class="ti ti-trash"></i>
+                              </button>
+                            </span>
+
+                            <div class="modal fade" id="modal-delete-gallery-{{ $item->id }}" tabindex="-1" aria-labelledby="modalLabelGallery{{ $item->id }}" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                  <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title" id="modalLabelGallery{{ $item->id }}">Confirmar Exclusão</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body text-start text-wrap">
+                                    Tem certeza que deseja deletar a imagem da galeria?<br><br>
+                                    <span class="text-muted small">Esta ação removerá permanentemente a imagem.</span>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <form action="{{ route('actions.deleteGalleryImage', $item->id) }}" method="POST" class="m-0 p-0">
+                                      @csrf
+                                      @method('DELETE')
+                                      <button type="submit" class="btn btn-danger">Sim, deletar imagem</button>
+                                    </form>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          @endif
+                        </tr>
+                        @endforeach
+                      </tbody>
+                    </table>
+                  </div>
+            
                 </div>
               </div>
             </div>
@@ -260,18 +455,18 @@
               </div>
             </div>
 
-            <div class="tab-pane fade" id="agenda-pane" role="tabpanel" tabindex="0">
+            <div class="tab-pane fade" id="cronograma-externo-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
                   <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
-                    <h3 class="m-0">Agenda da ação</h3>
-                    @can('adicionar_agenda')
+                    <h3 class="m-0">Cronograma Externo da Ação</h3>
+                    @if($canAddAgenda)
                     <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-agenda"
                       aria-controls="offcanvasExample">
                       Inserir
                     </button>
                     <x-modal.offcanvas route="{{ route('actions.storeSchedule', $action->id) }}" id="modal-add-agenda"
-                      class="offcanvas-end" title="Adicionar agenda">
+                      class="offcanvas-end" title="Adicionar cronograma externo">
                       <x-slot:content>
                         @include('components.form-elements.input.input', [
                         'title' => 'Título do evento',
@@ -319,8 +514,15 @@
                         ])
                       </x-slot:content>
                     </x-modal.offcanvas>
-                    @endcan
+                    <div>
+                      <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+                        Use essa seção para inserir a programação da ação, ela será disponibilizada para instituições e pessoas interessadas no portal do SIGEX.
+                      </p>
+                    </div>
+                    @endif
                   </div>
+
+
                   <div class="table-responsive p-0 mb-3">
                     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
                       <thead>
@@ -341,15 +543,14 @@
                           <td>{{ $item->local_formato }}</td>
                           <td>{{ $item->descricao }}</td>
                         
-                        @can('editar_agenda')
+                        @if($canEditAgenda)
                           <td>
                             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Editar">
                               <button type="button" class="btn btn-sm btn-primary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-agenda-{{ $item->id }}" aria-controls="offcanvasExample">
                                 <i class="ti ti-pencil"></i>
                               </button>
-                            </span>
 
-                            <x-modal.offcanvas route="{{ route('actions.updateSchedule', $item->id) }}" id="modal-edit-agenda-{{ $item->id }}" class="offcanvas-end" title="Editar agenda">
+                            <x-modal.offcanvas route="{{ route('actions.updateSchedule', $item->id) }}" id="modal-edit-agenda-{{ $item->id }}" class="offcanvas-end" title="Editar cronograma externo">
                               <x-slot:content>
                                 @method('PUT')
                                 
@@ -402,9 +603,9 @@
                               </x-slot:content>
                             </x-modal.offcanvas>
                           </td>
-                        @endcan
+                        @endif
 
-                        @can('remover_agenda')
+                        @if($canRemoveAgenda)
                         <td>
                           <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Deletar">
                             <button type="button" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modal-delete-agenda-{{ $item->id }}">
@@ -422,7 +623,7 @@
                                 </div>
                                 
                                 <div class="modal-body text-start text-wrap">
-                                  Tem certeza que deseja deletar o evento <strong>{{ $item->titulo_evento }}</strong> da agenda? <br><br>
+                                  Tem certeza que deseja deletar o evento <strong>{{ $item->titulo_evento }}</strong> do cronograma externo? <br><br>
                                   <span class="text-muted small">Esta ação removerá permanentemente o evento do sistema.</span>
                                 </div>
                                 
@@ -440,7 +641,7 @@
                             </div>
                           </div>
                         </td>
-                        @endcan
+                        @endif
 
                         </tr>
                         @endforeach
@@ -451,10 +652,228 @@
               </div>
             </div>
 
+          @if($isEquipe)
+            <div class="tab-pane fade show" id="agenda-interna-pane" role="tabpanel" tabindex="0">
+              <div class="card card-lg mb-3">
+                <div class="card-body p-5">
+                  <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
+                    <h3 class="m-0">Agenda Interna da Ação</h3>
+                    @if($canAddAgenda)
+                    <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-internal-agenda"
+                    aria-controls="offcanvasExample">
+                    Inserir
+                    </button>
+                        <x-modal.offcanvas route="{{ route('actions.storeInternalSchedule', $action->id) }}" id="modal-add-internal-agenda"
+                        class="offcanvas-end" title="Adicionar à agenda interna">
+                        <x-slot:content>
+                          @include('components.form-elements.input.input', [
+                          'title' => 'Título da reunião',
+                          'type' => 'text',
+                          'class' => 'mb-3',
+                          'name' => 'titulo',
+                          'required' => 'true',
+                          'placeholder' => 'Digite o título da reunião',
+                          'value' => old('titulo') ?? '',
+                          ])
+                          @include('components.form-elements.input.input', [
+                          'title' => 'Local ou formato da reunião',
+                          'type' => 'text',
+                          'class' => 'mb-3',
+                          'name' => 'local_formato',
+                          'required' => 'true',
+                          'placeholder' => 'Digite o local ou formato da reunião',
+                          'value' => old('local_formato') ?? '',
+                          ])
+                          @include('components.form-elements.input.input', [
+                          'title' => 'Data e hora de início da reunião',
+                          'type' => 'datetime-local',
+                          'class' => 'mb-3',
+                          'name' => 'data_hora_inicio',
+                          'required' => 'true',
+                          'placeholder' => 'Digite a data e hora de início',
+                          'value' => old('data_hora_inicio') ?? '',
+                          ])
+                          @include('components.form-elements.input.input', [
+                          'title' => 'Data e hora do fim da reunião',
+                          'type' => 'datetime-local',
+                          'class' => 'mb-3',
+                          'name' => 'data_hora_fim',
+                          'required' => 'true',
+                          'placeholder' => 'Digite a data e hora do fim',
+                          'value' => old('data_hora_fim') ?? '',
+                          ])
+                          @include('components.form-elements.textarea.textarea', [
+                          'title' => 'Descrição da reunião',
+                          'class' => 'mb-3',
+                          'name' => 'descricao',
+                          'required' => 'true',
+                          'placeholder' => 'Descrição da reunião',
+                          'value' => old('descricao') ?? '',
+                          ])
+                          @include('components.form-elements.textarea.textarea', [
+                          'title' => 'Pautas da reunião',
+                          'class' => 'mb-3',
+                          'name' => 'pauta_interna',
+                          'required' => 'true',
+                          'placeholder' => 'Primeira pauta; Segunda pauta; ...',
+                          'value' => old('pauta_interna') ?? '',
+                          ])
+                        </x-slot:content>
+                      </x-modal.offcanvas>
+                    @endif
+                  </div>
+
+                  <div>
+                    <p class="text-muted mb-4 border-start border-3 border-info ps-3">
+                      Use essa seção para inserir reuniões e compromissos internos da ação, promovendo organização da sua equipe. As informações inseridas são privadas.
+                    </p>
+                  </div>
+
+                  <div class="table-responsive p-0 mb-3">
+                    <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
+                      <thead>
+                        <th>Ocasião</th>
+                        <th>Data/Hora de início</th>
+                        <th>Data/Hora de fim</th>
+                        <th>Local</th>
+                        <th>Descrição</th>
+                        <th>Pautas</th>
+                        <th></th>
+                      </thead>
+                      <tbody>
+                        @foreach ($action->agendaInterna as $item)
+                        <tr>
+                          <td>{{ $item->titulo_evento }}</td>
+                          <td>{{ $item->data_hora_inicio ? \Carbon\Carbon::parse($item->data_hora_inicio)->format('d/m/Y \à\s H:i') : '/' }}</td>
+                          <td>{{ $item->data_hora_fim ? \Carbon\Carbon::parse($item->data_hora_fim)->format('d/m/Y \à\s H:i') : '/' }}</td>
+                          <td>{{ $item->local_formato }}</td>
+                          <td>{{ $item->descricao }}</td>
+                          <td>{{ $item->pauta_interna }}</td>
+                        
+                        @if($canEditAgenda)
+                          <td>
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Editar">
+                              <button type="button" class="btn btn-sm btn-primary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-internal-agenda-{{ $item->id }}" aria-controls="offcanvasExample">
+                                <i class="ti ti-pencil"></i>
+                              </button>
+                            </span>
+
+                            <x-modal.offcanvas route="{{ route('actions.updateInternalSchedule', $item->id) }}" id="modal-edit-internal-agenda-{{ $item->id }}" class="offcanvas-end" title="Editar cronograma externo">
+                              <x-slot:content>
+                                @method('PUT')
+                                
+                                @include('components.form-elements.input.input', [
+                                  'title' => 'Título do evento',
+                                  'type' => 'text',
+                                  'class' => 'mb-3',
+                                  'name' => 'titulo',
+                                  'required' => 'true',
+                                  'placeholder' => 'Digite o título do evento',
+                                  'value' => old('titulo') ?? $item->titulo_evento,
+                                ])
+                                
+                                @include('components.form-elements.input.input', [
+                                  'title' => 'Local ou formato do evento',
+                                  'type' => 'text',
+                                  'class' => 'mb-3',
+                                  'name' => 'local_formato',
+                                  'required' => 'true',
+                                  'placeholder' => 'Digite o local ou formato do evento',
+                                  'value' => old('local_formato') ?? $item->local_formato,
+                                ])
+                                
+                                @include('components.form-elements.input.input', [
+                                  'title' => 'Data e hora de início do evento',
+                                  'type' => 'datetime-local',
+                                  'class' => 'mb-3',
+                                  'name' => 'data_hora_inicio',
+                                  'required' => 'true',
+                                  'value' => old('data_hora_inicio') ?? $item->data_hora_inicio,
+                                ])
+                                
+                                @include('components.form-elements.input.input', [
+                                  'title' => 'Data e hora do fim do evento',
+                                  'type' => 'datetime-local',
+                                  'class' => 'mb-3',
+                                  'name' => 'data_hora_fim',
+                                  'required' => 'true',
+                                  'value' => old('data_hora_fim') ?? $item->data_hora_fim,
+                                ])
+                                
+                                @include('components.form-elements.textarea.textarea', [
+                                  'title' => 'Descrição do evento',
+                                  'class' => 'mb-3',
+                                  'name' => 'descricao',
+                                  'required' => 'true',
+                                  'placeholder' => 'Descricao do evento',
+                                  'value' => old('descricao') ?? $item->descricao,
+                                ])
+
+                                @include('components.form-elements.textarea.textarea', [
+                                'title' => 'Pautas da reunião',
+                                'class' => 'mb-3',
+                                'name' => 'pauta_interna',
+                                'required' => 'true',
+                                'placeholder' => 'Pautas da reunião',
+                                'value' => old('pauta_interna') ?? $item->pauta_interna,
+                                ])
+                              </x-slot:content>
+                            </x-modal.offcanvas>
+                          </td>
+                        @endif
+
+                        @if($canRemoveAgenda)
+                          <td>
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Deletar">
+                              <button type="button" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modal-delete-internal-agenda-{{ $item->id }}">
+                                <i class="ti ti-trash"></i>
+                              </button>
+                            </span>
+
+                            <div class="modal fade" id="modal-delete-internal-agenda-{{ $item->id }}" tabindex="-1" aria-labelledby="modalLabelInternalAgenda{{ $item->id }}" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                  
+                                  <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title" id="modalLabelInternalAgenda{{ $item->id }}">Confirmar Exclusão</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  
+                                  <div class="modal-body text-start text-wrap">
+                                    Tem certeza que deseja deletar o evento <strong>{{ $item->titulo_evento }}</strong> do evento interno? <br><br>
+                                    <span class="text-muted small">Esta ação removerá permanentemente o evento do sistema.</span>
+                                  </div>
+                                  
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    
+                                    <form action="{{ route('actions.deleteInternalSchedule', $item->id) }}" method="POST" class="m-0 p-0">
+                                      @csrf
+                                      @method('DELETE')
+                                      <button type="submit" class="btn btn-danger">Sim, Deletar Evento</button>
+                                    </form>
+                                  </div>
+                                  
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        @endif
+
+                        </tr>
+                        @endforeach
+                      </tbody>
+                    </table>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          @endif
           </div>
         </div>
 
-      </div>
+      </div> 
     </div>
 </div>
 @endsection
@@ -475,6 +894,38 @@ document.addEventListener("DOMContentLoaded", function() {
         tab.addEventListener('shown.bs.tab', event => {
             window.history.replaceState(null, null, event.target.dataset.bsTarget);
         });
+    });
+    
+    const isEquipe = @json($isEquipe);
+
+    if (!isEquipe) {
+        document.querySelectorAll('.nav-link').forEach(link => {
+            const text = link.textContent.trim();
+
+            if (text.includes('Minhas ações')) {
+                link.classList.remove('active');
+                if (link.parentElement) link.parentElement.classList.remove('active');
+            }
+
+            if (text.includes('Módulos')) {
+                link.classList.add('active');
+                if (link.parentElement) link.parentElement.classList.add('active');
+            }
+        });
+    }
+});
+
+document.getElementById('imagens-galeria').addEventListener('change', function(e) {
+    const container = document.getElementById('galeria-alt-container');
+    container.innerHTML = '';
+
+    Array.from(e.target.files).forEach((file, index) => {
+        container.innerHTML += `
+            <div class="mb-2 p-2 border rounded bg-light">
+                <label class="form-label fw-bold text-dark mb-1">Texto Alternativo para "${file.name}"</label>
+                <input type="text" name="textos_alternativos[]" class="form-control" placeholder="Descreva esta imagem para deficientes visuais">
+            </div>
+        `;
     });
 });
 </script>

@@ -30,6 +30,11 @@ class Acao extends Model
         return $this->hasMany(Agenda_Acao::class, 'id_acao', 'id');
     }
 
+    public function agendaInterna()
+    {
+        return $this->hasMany(Agenda_Interna_Acao::class, 'id_acao', 'id');
+    }
+
     public function submissoes() : HasMany {
         return $this->hasMany(Submissao::class, 'id_acao', 'id');
     }
@@ -41,5 +46,10 @@ class Acao extends Model
             ->useLogName('acao')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    public function galeria()
+    {
+        return $this->hasMany(Galeria_Acao::class, 'id_acao', 'id');
     }
 }

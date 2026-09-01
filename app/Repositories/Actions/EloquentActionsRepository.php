@@ -6,6 +6,8 @@ use App\Models\Acao;
 use App\Models\Agenda_Acao;
 use App\Models\Equipe_Acao;
 use Illuminate\Support\Facades\DB;
+use App\Models\Agenda_Interna_Acao;
+use App\Models\Galeria_Acao;
 
 class EloquentActionsRepository implements ActionsRepository
 {
@@ -242,4 +244,75 @@ class EloquentActionsRepository implements ActionsRepository
 
         return $query->get();
     }
+
+    public function createInternalSchedule($request, $id_acao)
+    {
+        return Agenda_Interna_Acao::create([
+            'id_acao' => $id_acao,
+            'titulo_evento' => $request->titulo,
+            'data_hora_inicio' => $request->data_hora_inicio,
+            'data_hora_fim' => $request->data_hora_fim,
+            'local_formato' => $request->local_formato,
+            'descricao' => $request->descricao,
+            'pauta_interna' => $request->pauta_interna,
+        ]);
+    }
+
+    public function updateInternalSchedule($request, $id_agenda)
+    {
+        $agenda = Agenda_Interna_Acao::findOrFail($id_agenda);
+        
+        $agenda->update([
+            'titulo_evento' => $request->titulo,
+            'data_hora_inicio' => $request->data_hora_inicio,
+            'data_hora_fim' => $request->data_hora_fim,
+            'local_formato' => $request->local_formato,
+            'descricao' => $request->descricao,
+            'pauta_interna' => $request->pauta_interna,
+        ]);
+
+        return $agenda;
+    }
+
+    public function deleteInternalSchedule($id_agenda)
+    {
+        $agenda = Agenda_Interna_Acao::findOrFail($id_agenda);
+        return $agenda->delete();
+    }
+
+    public function createGalleryImages(array $paths, array $altTexts, $id_acao)
+    {
+        foreach ($paths as $index => $path) {
+            Galeria_Acao::create([
+                'id_acao' => $id_acao,
+                'caminho_imagem' => $path,
+                'texto_alternativo' => $altTexts[$index] ?? null,
+            ]);
+        }
+    }
+
+    public function updateGalleryAltText($id_imagem, $altText)
+    {
+        $imagem = Galeria_Acao::findOrFail($id_imagem);
+        $imagem->texto_alternativo = $altText;
+        $imagem->save();
+        
+        return $imagem;
+    }
+
+    public function deleteGalleryImage($id_imagem)
+    {
+        $imagem = Galeria_Acao::findOrFail($id_imagem);
+        return $imagem->delete();
+    }
+
+    public function updateBannerAltText($uuid, $altText)
+    {
+        $acao = Acao::findOrFail($uuid);
+        $acao->alt_capa = $altText;
+        $acao->save();
+        
+        return $acao;
+    }
+
 }

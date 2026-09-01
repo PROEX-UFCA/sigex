@@ -45,35 +45,19 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
                     <nav class="navbar-nav ms-auto">
-                        <div class="d-flex justify-content-end p-0 m-0">
-                            <x-table.search route=""></x-table.search>
-                        </div>
                         <div class="nav-item">
-                            <a class="nav-link active" href="../marketing"><span class="nav-link-title">Home</span></a>
+                            <a class="nav-link active" href="{{route('vitrine.vitrine')}}"><span class="nav-link-title">Início</span></a>
                         </div>
                         <div class="nav-item">
                             <a class="nav-link" href="../marketing/testimonials.html"><span
-                                    class="nav-link-title">Testimonials</span></a>
+                            class="nav-link-title">Filtros</span></a>
                         </div>
                         <div class="nav-item">
                             <a class="nav-link" href="../marketing/pricing.html"><span
-                                    class="nav-link-title">Pricing</span></a>
+                            class="nav-link-title">Catálogo</span></a>
                         </div>
-                        <div class="nav-item">
-                            <a class="nav-link" href="../marketing/about.html"><span
-                                    class="nav-link-title">About</span></a>
-                        </div>
-                        <div class="nav-item">
-                            <a class="nav-link" href="../marketing/text.html"><span
-                                    class="nav-link-title">Text</span></a>
-                        </div>
-                        <div class="nav-item">
-                            <a class="nav-link" href="../marketing/hero.html"><span
-                                    class="nav-link-title">App</span></a>
-                        </div>
-                        <div class="nav-item">
-                            <a class="nav-link" href="../marketing/real-estate.html"><span class="nav-link-title">Real
-                                    estate</span></a>
+                        <div class="d-flex justify-content-end p-0 m-0">
+                            <x-table.search route=""></x-table.search>
                         </div>
                         <div class="nav-item ms-4">
                             <a href="{{route('login')}}" class="btn btn-yellow">

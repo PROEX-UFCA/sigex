@@ -105,8 +105,21 @@ Route::middleware(['auth'])->group(function () {
 
         Route::delete('/actions/schedule/{id_agenda}', [ActionController::class, 'deleteSchedule'])->name('actions.deleteSchedule')->middleware(['auth' => 'permission:remover_agenda']);
 
+        Route::post('acoes/agenda-interna/{uuid}', [ActionController::class, 'storeInternalSchedule'])->name('actions.storeInternalSchedule')->middleware(['auth' => 'permission:adicionar_agenda']);
+
+        Route::put('/actions/internal-schedule/{id_agenda}', [ActionController::class, 'updateInternalSchedule'])->name('actions.updateInternalSchedule')->middleware(['auth' => 'permission:editar_agenda']);
+
+        Route::delete('/actions/internal-schedule/{id_agenda}', [ActionController::class, 'deleteInternalSchedule'])->name('actions.deleteInternalSchedule')->middleware(['auth' => 'permission:remover_agenda']);
+
         Route::delete('membro/deletar/{uuid}', [MembersController::class, 'deleteMember'])->name('members.delete');
-    
+
+        Route::post('acoes/galeria/{uuid}', [ActionController::class, 'storeGallery'])->name('actions.storeGallery')->middleware(['auth' => 'permission:editar_ação']);
+
+        Route::put('acoes/galeria/{id_imagem}/alt', [ActionController::class, 'updateGalleryAlt'])->name('actions.updateGalleryAlt')->middleware(['auth' => 'permission:editar_ação']);
+
+        Route::delete('acoes/galeria/{id_imagem}', [ActionController::class, 'deleteGalleryImage'])->name('actions.deleteGalleryImage')->middleware(['auth' => 'permission:editar_ação']);    
+
+        Route::put('acoes/banner/{uuid}/alt', [ActionController::class, 'updateBannerAlt'])->name('actions.updateBannerAlt')->middleware(['auth' => 'permission:editar_ação']);
     });
 
     Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
