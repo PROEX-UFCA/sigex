@@ -17,6 +17,7 @@ class Galeria_Acao extends Model
     protected $fillable = [
         'id_acao',
         'caminho_imagem',
+        'texto_alternativo',
     ];
 
     public function acao()

@@ -280,20 +280,39 @@ class EloquentActionsRepository implements ActionsRepository
         return $agenda->delete();
     }
 
-    public function createGalleryImages(array $paths, $id_acao)
+    public function createGalleryImages(array $paths, array $altTexts, $id_acao)
     {
-        foreach ($paths as $path) {
+        foreach ($paths as $index => $path) {
             Galeria_Acao::create([
                 'id_acao' => $id_acao,
                 'caminho_imagem' => $path,
+                'texto_alternativo' => $altTexts[$index] ?? null,
             ]);
         }
+    }
+
+    public function updateGalleryAltText($id_imagem, $altText)
+    {
+        $imagem = Galeria_Acao::findOrFail($id_imagem);
+        $imagem->texto_alternativo = $altText;
+        $imagem->save();
+        
+        return $imagem;
     }
 
     public function deleteGalleryImage($id_imagem)
     {
         $imagem = Galeria_Acao::findOrFail($id_imagem);
         return $imagem->delete();
+    }
+
+    public function updateBannerAltText($uuid, $altText)
+    {
+        $acao = Acao::findOrFail($uuid);
+        $acao->alt_capa = $altText;
+        $acao->save();
+        
+        return $acao;
     }
 
 }

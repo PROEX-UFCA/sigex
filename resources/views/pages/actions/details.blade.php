@@ -226,6 +226,13 @@
                           <div class="input-group">
                             <input type="file" class="form-control" id="imagem-destaque" name="imagem-destaque" accept=".jpg,.png,.jpeg,.webp">
                           </div>
+                          <div>
+                            <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+                              O texto alternativo é essencial para que usuários com deficiencias visuais possam também entender o que a imagem diz sobre seu projeto. Inserir essa descrição garante que leitores de tela possam indicar à pessoa o que está sendo representado.
+                            </p>
+                            <label for="alt_capa" class="form-label fw-bold mt-3">Texto Alternativo (Recurso de Acessibilidade)</label>
+                            <input type="text" class="form-control" id="alt_capa" name="alt_capa" placeholder="Ex: Fotografia de estudantes em sala de aula...">
+                          </div>
                           <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
                           <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
                         </div>
@@ -239,11 +246,44 @@
                     @endif
                 </div>
                   @if ($action->img)
-                  <p><img src="{{ asset('storage/' . $action->img) }}" alt="Image Alt"></p>
-                  @else
-                  <div class="alert alert-warning">
-                    Ainda não foi enviada uma capa.
+                  <p><img src="{{ asset('storage/' . $action->img) }}" alt="{{ $action->alt_capa }}" style="max-height: 300px; object-fit: cover;"></p>
+
+                  <div class="d-flex align-items-center gap-3 mt-3">
+                    <p class="mb-0"><strong>Texto alternativo: </strong>{{ $action->alt_capa ?? 'Sem texto alternativo' }}</p>
+                    
+                    @if($canEditImages)
+                      <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" data-bs-toggle="modal" data-bs-target="#modal-edit-capa-alt" title="Editar texto alternativo">
+                        <i class="ti ti-pencil"></i>
+                      </button>
+
+                      <div class="modal fade" id="modal-edit-capa-alt" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-sm">
+                          <div class="modal-content">
+                            <form action="{{ route('actions.updateBannerAlt', $action->id) }}" method="POST" class="m-0">
+                              @csrf
+                              @method('PUT')
+                              <div class="modal-header bg-light text-dark">
+                                <h5 class="modal-title fs-5">Editar Texto Alternativo</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body text-start">
+                                <label class="form-label fw-bold">Descrição da Capa</label>
+                                <input type="text" name="alt_capa" class="form-control" value="{{ $action->alt_capa }}" required placeholder="Descreva esta imagem...">
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary btn-sm">Salvar Alteração</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    @endif
                   </div>
+                  @else
+                    <div class="alert alert-warning">
+                      Ainda não foi enviada uma capa.
+                    </div>
                   @endif
                 </div>
               </div>
@@ -262,10 +302,14 @@
                     class="offcanvas-end" title="Adicionar imagem">
                       <x-slot:content>
                         <div class="text-start">
-                          <label for="imagem-destaque" class="form-label fw-bold">Anexe uma imagem à galeria do seu projeto no portal.</label>
+                          <label for="imagens-galeria" class="form-label fw-bold">Anexe uma imagem à galeria do seu projeto no portal.</label>
                           <div class="input-group">
-                            <input type="file" multiple class="form-control" id="imagem-destaque" name="imagens[]" accept=".jpg,.png,.jpeg,.webp">
+                            <input type="file" multiple class="form-control" id="imagens-galeria" name="imagens[]" accept=".jpg,.png,.jpeg,.webp">
+                            <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+                              O texto alternativo é essencial para que usuários com deficiencias visuais possam também entender o que a imagem diz sobre seu projeto. Inserir essa descrição garante que leitores de tela possam indicar à pessoa o que está sendo representado.
+                            </p>
                           </div>
+                          <div id="galeria-alt-container" class="mt-3"></div>
                           <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
                           <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
                         </div>
@@ -278,17 +322,55 @@
                     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
                       <thead>
                         <th>Imagem</th>
+                        <th>Texto Alternativo</th>
                         <th></th>
                       </thead>
                       <tbody>
                         @foreach ($action->galeria as $item)
                         <tr>
-                          <td>
-                            <p><img src="{{ asset('storage/' . $item->caminho_imagem) }}" alt="Recurso em desenvovimento"></p>
+                          <td class="text-center">
+                            <p>
+                              <img src="{{ asset('storage/' . $item->caminho_imagem) }}" alt="{{ $item->texto_alternativo }}" style="max-height: 250px; object-fit: cover;">
+                            </p>
+                          </td>
+
+                          <td class="text-wrap" style="min-width: 250px; max-width:300px;">
+                            <div class="d-flex align-items-center justify-content-center gap-3">
+                              <span>{{ $item->texto_alternativo ?? 'Sem texto alternativo' }}</span>
+                              
+                              @if($canEditImages)
+                                <button type="button" class="btn btn-sm btn-icon btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modal-edit-alt-{{ $item->id }}" title="Editar texto alternativo">
+                                  <i class="ti ti-pencil"></i>
+                                </button>
+
+                                <div class="modal fade" id="modal-edit-alt-{{ $item->id }}" tabindex="-1" aria-hidden="true">
+                                  <div class="modal-dialog modal-dialog-centered modal-sm">
+                                    <div class="modal-content">
+                                      <form action="{{ route('actions.updateGalleryAlt', $item->id) }}" method="POST" class="m-0">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-header bg-light text-dark">
+                                          <h5 class="modal-title fs-5">Editar Texto Alternativo</h5>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                          <label class="form-label fw-bold">Descrição da Imagem</label>
+                                          <input type="text" name="texto_alternativo" class="form-control" value="{{ $item->texto_alternativo }}" required placeholder="Descreva esta imagem...">
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                                          <button type="submit" class="btn btn-primary btn-sm">Salvar Alteração</button>
+                                        </div>
+                                      </form>
+                                    </div>
+                                  </div>
+                                </div>
+                              @endif
+                            </div>
                           </td>
 
                           @if($canEditImages)
-                          <td>
+                          <td class="text-center">
                             <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Deletar">
                               <button type="button" class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal" data-bs-target="#modal-delete-gallery-{{ $item->id }}">
                                 <i class="ti ti-trash"></i>
@@ -298,33 +380,27 @@
                             <div class="modal fade" id="modal-delete-gallery-{{ $item->id }}" tabindex="-1" aria-labelledby="modalLabelGallery{{ $item->id }}" aria-hidden="true">
                               <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
-                                  
                                   <div class="modal-header bg-danger text-white">
                                     <h5 class="modal-title" id="modalLabelGallery{{ $item->id }}">Confirmar Exclusão</h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                   </div>
-                                  
                                   <div class="modal-body text-start text-wrap">
                                     Tem certeza que deseja deletar a imagem da galeria?<br><br>
                                     <span class="text-muted small">Esta ação removerá permanentemente a imagem.</span>
                                   </div>
-                                  
                                   <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                    
                                     <form action="{{ route('actions.deleteGalleryImage', $item->id) }}" method="POST" class="m-0 p-0">
                                       @csrf
                                       @method('DELETE')
                                       <button type="submit" class="btn btn-danger">Sim, deletar imagem</button>
                                     </form>
                                   </div>
-                                  
                                 </div>
                               </div>
                             </div>
                           </td>
                           @endif
-
                         </tr>
                         @endforeach
                       </tbody>
@@ -473,7 +549,6 @@
                               <button type="button" class="btn btn-sm btn-primary btn-icon" data-bs-toggle="offcanvas" data-bs-target="#modal-edit-agenda-{{ $item->id }}" aria-controls="offcanvasExample">
                                 <i class="ti ti-pencil"></i>
                               </button>
-                            </span>
 
                             <x-modal.offcanvas route="{{ route('actions.updateSchedule', $item->id) }}" id="modal-edit-agenda-{{ $item->id }}" class="offcanvas-end" title="Editar cronograma externo">
                               <x-slot:content>
@@ -838,6 +913,20 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
     }
+});
+
+document.getElementById('imagens-galeria').addEventListener('change', function(e) {
+    const container = document.getElementById('galeria-alt-container');
+    container.innerHTML = '';
+
+    Array.from(e.target.files).forEach((file, index) => {
+        container.innerHTML += `
+            <div class="mb-2 p-2 border rounded bg-light">
+                <label class="form-label fw-bold text-dark mb-1">Texto Alternativo para "${file.name}"</label>
+                <input type="text" name="textos_alternativos[]" class="form-control" placeholder="Descreva esta imagem para deficientes visuais">
+            </div>
+        `;
+    });
 });
 </script>
 @endsection

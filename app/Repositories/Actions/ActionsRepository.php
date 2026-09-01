@@ -18,7 +18,8 @@ interface ActionsRepository{
   public function createInternalSchedule($request, $id_acao);
   public function updateInternalSchedule($request, $id_agenda_interna);
   public function deleteInternalSchedule($id_agenda_interna);
-  public function createGalleryImages(array $paths, $id_acao);
+  public function createGalleryImages(array $paths, array $altTexts, $id_acao);
+  public function updateGalleryAltText($id_imagem, $altText);
   public function deleteGalleryImage($id_imagem);
-  
+  public function updateBannerAltText($uuid, $altText);
 } 

@@ -25,6 +25,8 @@ class GaleriaRequest extends FormRequest
         return [
             'imagens' => ['required', 'array', 'max:10'],
             'imagens.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:5120'],
+            'textos_alternativos' => ['size:' . count($this->file('imagens', []))],
+            'textos_alternativos.*' => ['max:255'],
         ];
     }
 
@@ -36,6 +38,7 @@ class GaleriaRequest extends FormRequest
             'imagens.*.image' => 'Os arquivos devem ser imagens válidas.',
             'imagens.*.mimes' => 'As imagens devem ser nos formatos JPEG, PNG, JPG ou WEBP.',
             'imagens.*.max' => 'Cada imagem não pode ultrapassar 5MB.',
+            "textos_alternativos.*.max" => 'Um texto alternativo não podem exceder 255 caractéres',
         ];
     }
 }

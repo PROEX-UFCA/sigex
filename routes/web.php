@@ -115,7 +115,11 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('acoes/galeria/{uuid}', [ActionController::class, 'storeGallery'])->name('actions.storeGallery')->middleware(['auth' => 'permission:editar_ação']);
 
+        Route::put('acoes/galeria/{id_imagem}/alt', [ActionController::class, 'updateGalleryAlt'])->name('actions.updateGalleryAlt')->middleware(['auth' => 'permission:editar_ação']);
+
         Route::delete('acoes/galeria/{id_imagem}', [ActionController::class, 'deleteGalleryImage'])->name('actions.deleteGalleryImage')->middleware(['auth' => 'permission:editar_ação']);    
+
+        Route::put('acoes/banner/{uuid}/alt', [ActionController::class, 'updateBannerAlt'])->name('actions.updateBannerAlt')->middleware(['auth' => 'permission:editar_ação']);
     });
 
     Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
