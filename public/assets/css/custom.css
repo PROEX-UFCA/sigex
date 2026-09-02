@@ -1,0 +1,17 @@
+body, [data-bs-theme="light"], [data-bs-theme="dark"] {
+    --tblr-blue: #50BDCA;
+    --tblr-orange: #F08D60;
+    --tblr-yellow: #F5BE56;
+    --tblr-green: #75b747;
+}
+
+.bg-brown { background-color: #532B1D !important; }
+.text-brown { color: #532B1D !important; }
+.btn-brown {
+    background-color: #532B1D;
+    color: #ffffff;
+}
+.btn-brown:hover {
+    background-color: #402116;
+    color: #ffffff;
+}
