@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Repositories\Tokens\UserTokens\UsersTokensRepository;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Acao;
 
 class VitrineController extends Controller
 {
@@ -22,7 +23,22 @@ class VitrineController extends Controller
         $this->userTokensRepository = $userTokensRepository;
     }
 
-    public function vitrine(){
+    public function vitrine()
+    {
+        $this->data['mainCarousel'] = Acao::where('situacao', 'EM EXECUÇÃO')
+            ->whereNull('acao.deleted_at')
+            ->orderByRaw('img IS NULL') 
+            ->latest('data_cadastro')
+            ->take(10)
+            ->get();
+
+        $this->data['thematicAreas'] = Acao::where('situacao', 'EM EXECUÇÃO')
+            ->whereNull('acao.deleted_at')
+            ->orderByRaw('img IS NULL')
+            ->latest('data_cadastro')
+            ->get()
+            ->groupBy('area_tematica');
+
         return view('pages.vitrine.vitrine', $this->data);
     }
 
@@ -63,5 +79,12 @@ class VitrineController extends Controller
         } catch (\Throwable $err) {
             return redirect()->back()->with('error', 'Erro ao aprovar instituição. Por favor, tente novamente mais tarde.');
         }
+    }
+
+    public function show($id)
+    {
+        $this->data['acao'] = Acao::with('galeria')->findOrFail($id);
+        
+        return view('pages.vitrine.show', $this->data);
     }
 }

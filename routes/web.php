@@ -160,3 +160,4 @@ Route::middleware(['auth'])->group(function () {
 });
     
 Route::get('/vitrine', [VitrineController::class, 'vitrine'])->name('vitrine.vitrine');
+Route::get('/vitrine/detalhar/{uuid}', [VitrineController::class, 'show'])->name('vitrine.show');
