@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\System;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Report\StoreRequest;
 use App\Http\Requests\Web\Report\UpdateRequest;
+use App\Models\Equipe_Acao;
 use App\Models\Pergunta;
 use App\Models\Resposta;
 use App\Models\ValidacaoResposta;
@@ -12,6 +13,7 @@ use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Forms\FormsRepository;
 use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Reports\ReportsRepository;
+use App\Repositories\Settings\User\UsersRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,13 +27,15 @@ class ReportController extends Controller
     private $parametrosRepository;
     private $formsRepository;
     private $reportRepository;
+    private $usersRepository;
 
-    public function __construct(ActionsRepository $actionsRepository, ParametrosRepository $parametrosRepository, FormsRepository $formsRepository, ReportsRepository $reportRepository)
+    public function __construct(ActionsRepository $actionsRepository, ParametrosRepository $parametrosRepository, FormsRepository $formsRepository, ReportsRepository $reportRepository, UsersRepository $usersRepository)
     {
         $this->actionsRepository = $actionsRepository;
         $this->parametrosRepository = $parametrosRepository;
         $this->formsRepository = $formsRepository;
         $this->reportRepository = $reportRepository;
+        $this->usersRepository = $usersRepository;
     }
 
     public function index(Request $request){
@@ -48,37 +52,67 @@ class ReportController extends Controller
         return view('pages.report.index', $this->data);
     }
 
-    public function create(){
+    public function create(Request $request)
+    {
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE_EDITAL', 'SITUACAO'])->groupBy('function');
         $this->data['formularios'] = $this->formsRepository->getAllActive();
+        $this->data['parametros_membros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO_MEMBRO', 'CATEGORIA_MEMBRO', 'STATUS_MEMBROS'])->groupBy('function');
+
+        $this->data['who'] = $request->input('who', old('who', ''));
+        $this->data['items'] = collect();
+
+        if ($request->isMethod('post') && !empty($this->data['who'])) {
+            switch ($this->data['who']) {
+                case 'acoes':
+                    $this->data['items'] = $this->actionsRepository->getActionsForReports($request->only(['parametros', 'is_ej']));
+                    break;
+                case 'membros':
+                    $this->data['items'] = $this->actionsRepository->getMembersForReports($request->only(['parametros']));
+                    break;
+                case 'usuarios':
+                    // Substitua pelo método correto do repositório de usuários
+                    $this->data['items'] = $this->usersRepository->getForCoordinator();
+                    break;
+            }
+        }
 
         return view('pages.report.create', $this->data);
     }
 
     public function store(StoreRequest $request){
+
+        // dd($request->all());
         try {
-            $actions = $this->actionsRepository->getActionsForReports($request->only(['parametros']));
+            
+            // $actions = $this->actionsRepository->getActionsForReports($request->only(['parametros']));
 
             $report = $this->reportRepository->create($request);
     
             $submissoes = [];
     
-            foreach ($actions as $action) {
+            foreach ($request->target_ids as $targetJson) {
+                $target = json_decode($targetJson, true);
+
+                $idAcao = $target['id_acao'] ?? null;
+                $idUsuario = $target['id_usuario'] ?? null;
+                
                 $submissoes[] = [
                     'id' => Str::uuid(),
                     'id_relatorio' => $report->id,
-                    'id_acao' => $action->id,
+                    'id_acao' => $idAcao,
+                    'id_usuario' => $idUsuario,
                     'finalizada_em' => null,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
+            
             }
     
             if (!empty($submissoes)) {
                 $this->reportRepository->bulkInsertSubmission($submissoes);
             }
     
-            return redirect()->route('report.index')->with('success', "Relatório criado e ações vinculadas com sucesso! {$actions->count()} Ações foram contempladas.");
+            return redirect()->route('report.index')->with('success', "Relatório criado e ações vinculadas com sucesso.");
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', "Erro ao tentar criar relatório, tente novamente mais tarde.");
         }

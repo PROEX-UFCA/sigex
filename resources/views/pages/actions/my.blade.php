@@ -15,7 +15,7 @@
     <thead>
       <tr>
         <th class="text-wrap">titulo</th>
-        {{-- <th>vínculo</th> --}}
+        <th>vínculo</th>
         <th>inicio</th>
         <th>fim</th>
         <th>situação</th>
@@ -27,7 +27,7 @@
       @foreach ($actions as $item)
       <tr>
         <td class="text-wrap" style="min-width: 400px;">{{$item->action->titulo}}</td>
-        {{-- <td>{{$item->categorias_membros}}</td> --}}
+        <td>{{$item->categorias_membros}}</td>
         <td>{{date('d/m/Y', strtotime($item->action->data_inicio))}}</td>
         <td>{{date('d/m/Y', strtotime($item->action->data_fim))}}</td>
         <td>{{ $item->action->situacao }}</td>
@@ -43,7 +43,7 @@
           @php
           $submissoesPendentes = $item->action->submissoes->filter(function($submissao) {
           return (is_null($submissao->finalizada_em) || $submissao->evaluation_progress < 100 && $submissao->
-            qtd_progress > 0) && $submissao->relatorio->status == 1; })->count();
+            qtd_progress > 0) && $submissao->relatorio->status == 1 && $submissao->id_usuario == auth()->user()->uuid; })->count();
             @endphp
 
             <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -74,6 +74,7 @@
   <x-slot:content>
     <div class="list-group shadow-sm">
       @foreach ($item->action->submissoes as $submissao)
+      @if ($submissao->id_usuario == auth()->user()->uuid)
       <a href="{{ route('actions.report', $submissao->id) }}" class="list-group-item list-group-item-action p-3">
         <div class="d-flex w-100 justify-content-between align-items-start gap-2 mb-2">
           <h3 class="fw-bold mb-0 text-dark text-break">
@@ -145,6 +146,7 @@
           </div>
         </div>
       </a>
+      @endif
       @endforeach
     </div>
   </x-slot:content>

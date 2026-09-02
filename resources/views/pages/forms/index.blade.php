@@ -6,6 +6,7 @@
 <div class="page-body row">
   <div class="m-0 p-0 mb-4 row">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
+      <a href="{{route('actions.index')}}" class="btn">Voltar</a>
       @can('adicionar_formulários')
       <bottom class="btn" data-bs-toggle="collapse" data-bs-target="#inserir" aria-expanded="false"
         aria-controls="collapseExample">Inserir</bottom>

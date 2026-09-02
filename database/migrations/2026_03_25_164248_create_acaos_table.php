@@ -39,6 +39,7 @@ return new class extends Migration
             $table->string('contexto')->nullable();
             $table->integer('status')->default(1);
             $table->text('img')->nullable();
+            $table->boolean('is_ej')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -86,10 +86,13 @@
 
           @foreach ([
             'name' => 'Nome',
+            'id_instituicao' => 'Instituição?',
             'email' => 'Email',
             'telefone' => 'Telefone',
             'centro_departamento' => 'Centro/Departamento',
             'matricula_siape' => 'Matrícula SIAPE',
+            'cpf' => 'cpf',
+            'curso' => 'Curso',
             'grupo' => 'Grupo',
             'status' => 'Status',
           ] as $field => $label)
@@ -117,10 +120,13 @@
         @foreach ($users as $user)
         <tr>
           <td>{{$user->name}}</td>
+          <td>{{$user->id_instituicao == null ? 'Não' : 'Sim'}}</td>
           <td>{{$user->email}}</td>
           <td>{{ $user->phone ?? "-" }}</td>
-          <td>{{ $user->centro_departamento ?? "-" }}</td>
+          <td>{{ $user->centro ?? "-" }}</td>
           <td>{{ $user->matricula_siape ?? "-" }}</td>
+          <td>{{ $user->cpf ?? "-" }}</td>
+          <td>{{ $user->curso ?? "-" }}</td>
           <td>{{ $user->roles->first()->name ?? "-" }}</td>
           <td>{{ $user->status == 0 ? 'Inativo' : 'Ativo' }}</td>
           <td>

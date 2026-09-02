@@ -213,6 +213,7 @@ class EloquentActionsRepository implements ActionsRepository
         $acao->financiamento_externo = $request->financiamento_externo;
         $acao->data_atualizacao = now();
         $acao->contexto = $request->contexto;
+        $acao->is_ej = $request->is_ej;
 
         $acao->save();
 
@@ -230,6 +231,7 @@ class EloquentActionsRepository implements ActionsRepository
         $tipos = array_filter($parametros['tipo'] ?? []);
         $modalidades = array_filter($parametros['modalidade_edital'] ?? []);
         $situacoes = array_filter($parametros['situacao'] ?? []);
+        $is_ej = $filtros['is_ej'] ?? 0;
 
         $query = Acao::query()
             ->when(!empty($tipos), function ($q) use ($tipos) {
@@ -240,6 +242,28 @@ class EloquentActionsRepository implements ActionsRepository
             })
             ->when(!empty($situacoes), function ($q) use ($situacoes) {
                 $q->whereIn('situacao', $situacoes);
+            })->where('is_ej', $is_ej);
+
+        return $query->get();
+    }
+
+    public function getMembersForReports(array $filtros)
+    {
+        $parametros = $filtros['parametros'] ?? [];
+        
+        $tipo_membro = array_filter($parametros['tipo_membro'] ?? []);
+        $categoria_membro = array_filter($parametros['categoria_membro'] ?? []);
+        $status_membros = array_filter($parametros['status_membros'] ?? []);
+
+        $query = Equipe_Acao::query()
+            ->when(!empty($tipo_membro), function ($q) use ($tipo_membro) {
+            $q->whereIn('tipo_membro', $tipo_membro);
+            })
+            ->when(!empty($categoria_membro), function ($q) use ($categoria_membro) {
+                $q->whereIn('categoria_membro', $categoria_membro);
+            })
+            ->when(!empty($status_membros), function ($q) use ($status_membros) {
+                $q->whereIn('status', $status_membros);
             });
 
         return $query->get();

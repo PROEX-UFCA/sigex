@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>Proex</title>
+  <title>SIGEx</title>
   <!-- CSS files -->
 
   @yield('styles')
@@ -15,7 +15,7 @@
   <link href="{{ asset('assets/css/tabler-payments.min.css') }}" rel="stylesheet" />
   <link href="{{ asset('assets/css/tabler-vendors.min.css') }}" rel="stylesheet" />
   <link href="{{ asset('assets/css/demo.min.css') }}" rel="stylesheet" />
-
+  <link rel="shortcut icon" href="{{asset('assets/img/illustrations/favicon.png')}}" type="image/x-icon">
 
   <style>
     @import url('https://rsms.me/inter/inter.css');
@@ -40,8 +40,8 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <h1 class="navbar-brand text-blue navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-          <a href="/dashboard" class="text-decoration-none text-light">
-            Proex
+          <a href="/home" class="text-decoration-none text-light">
+              <img src="{{asset('assets/img/illustrations/logo_proex_top.png')}}" alt="" style="width: 150px; filter: brightness(0) invert(1);">
           </a>
         </h1>
         <div class="navbar-nav flex-row order-md-last">
@@ -188,9 +188,9 @@
   <script src="{{ asset('assets/js/echarts.min.js') }}"></script>
   <script src="{{ asset('assets/js/tabler.min.js?1684106062') }}" defer></script>
   <script src="{{ asset('assets/js/demo.min.js?1684106062') }}" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> --}}
   <script src="{{ asset('assets/js/kanban/dataTables.min.js') }}"></script>
-  {{-- <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script> --}}
+  <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script>
   @yield('scripts')
 
 </body>

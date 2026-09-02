@@ -6,6 +6,7 @@
 <div class="page-body row">
   <div class="m-0 p-0 mb-4 row">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
+      <a href="{{route('actions.index')}}" class="btn">Voltar</a>
       @can('adicionar_relatórios')
       <a href="{{ route('report.create') }}" class="btn">Novo relatório</a>
       @endcan
@@ -71,7 +72,7 @@
           @endcan
           @can('monitorar_relatórios')
           <td class="text-center">
-            <a href="{{route('report.monitor', $item->id)}}" class="btn btn-sm btn-success">Monitorar</a>
+            <a href="{{route('report.monitor', $item->id)}}" class="btn btn-sm btn-success">Homologar</a>
           </td>
           @endcan
         </tr>

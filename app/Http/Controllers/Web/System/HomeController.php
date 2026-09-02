@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\System;
 
 use App\Http\Controllers\Controller;
+use App\Models\Submissao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,7 +13,8 @@ class HomeController extends Controller
 
     public function index()
     {
-        $this->data['user'] = Auth::user();
+        $user = Auth::user();
+        $this->data['user'] = $user;
 
         $diff = $this->data['user']->updated_at->diffInMonths();
 
@@ -50,6 +52,7 @@ class HomeController extends Controller
 
         $this->data['profile'] = $profile;
 
+        $this->data['submissoes'] = Submissao::where(['id_usuario' => $user->uuid, 'id_acao' => null])->get();
         return view('pages.home.index', $this->data);
     }
 }

@@ -38,7 +38,8 @@
           <select class="form-select" id="teachers" name="id_coordenador">
             <option value="">Selecione</option>
             @foreach ($coordinators as $coordinator)
-            <option value="{{ $coordinator->uuid }}" {{ $actual_coordinator ? ($actual_coordinator->id_usuario == $coordinator->uuid ?
+            <option value="{{ $coordinator->uuid }}" {{ $actual_coordinator ? ($actual_coordinator->id_usuario ==
+              $coordinator->uuid ?
               'selected' : '') : '' }}>
               {{ $coordinator->name }}</option>
             @endforeach
@@ -71,16 +72,16 @@
         </x-form-elements.select.select>
         @endforeach
 
-        <x-form-elements.select.select title="Financiamento interno?" id="financiamento_interno" name="financiamento_interno"
-          class="col-12 col-md-4 col-lg-4" required="true">
+        <x-form-elements.select.select title="Financiamento interno?" id="financiamento_interno"
+          name="financiamento_interno" class="col-12 col-md-4 col-lg-4" required="true">
           <x-slot:options>
             <option value="SIM" {{ $action->financiamento_interno =='SIM' ? 'selected' : '' }}>Sim</option>
             <option value="NÃO" {{ $action->financiamento_interno =='NÃO' ? 'selected' : '' }}>Não</option>
           </x-slot:options>
         </x-form-elements.select.select>
 
-        <x-form-elements.select.select title="Financiamento externo?" id="financiamento_externo" name="financiamento_externo"
-          class="col-12 col-md-4 col-lg-4" required="true">
+        <x-form-elements.select.select title="Financiamento externo?" id="financiamento_externo"
+          name="financiamento_externo" class="col-12 col-md-4 col-lg-4" required="true">
           <x-slot:options>
             <option value="SIM" {{ $action->financiamento_externo =='SIM' ? 'selected' : '' }}>Sim</option>
             <option value="NÃO" {{ $action->financiamento_externo =='NÃO' ? 'selected' : '' }}>Não</option>
@@ -136,6 +137,14 @@
         'required' => 'true',
         'value' => $action->data_fim ?? '',
         ])
+
+        <x-form-elements.select.select title="É uma EJ?" id="is_ej"
+          name="is_ej" class="col-12 col-md-4 col-lg-4" required="true">
+          <x-slot:options>
+            <option value="0" {{ $action->is_ej == 0 ? 'selected' : '' }}>Não</option>
+            <option value="1" {{ $action->is_ej == 1 ? 'selected' : '' }}>Sim</option>
+          </x-slot:options>
+        </x-form-elements.select.select>
 
       </div>
 

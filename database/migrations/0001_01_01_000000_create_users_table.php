@@ -25,7 +25,9 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->boolean('status')->default(0);
             $table->rememberToken();
-            $table->string('centro_departamento')->nullable();
+            $table->string('centro')->nullable();
+            $table->string('curso')->nullable();
+            $table->string('cpf')->nullable();
             $table->string('matricula_siape')->nullable();
             $table->string('perfil_ativo')->nullable();
             $table->string('phone')->nullable();

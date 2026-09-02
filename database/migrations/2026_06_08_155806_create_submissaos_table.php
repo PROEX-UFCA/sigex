@@ -21,6 +21,8 @@ return new class extends Migration
             $table->foreign('id_relatorio')->references('id')->on('relatorio')->onDelete('cascade');
             $table->uuid('id_acao')->nullable();
             $table->foreign('id_acao')->references('id')->on('acao')->onDelete('cascade');
+            $table->uuid('id_usuario')->nullable();
+            $table->foreign('id_usuario')->references('uuid')->on('users')->onDelete('cascade');
             $table->datetime('finalizada_em')->nullable();
             $table->timestamps();
         });

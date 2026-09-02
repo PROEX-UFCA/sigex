@@ -21,7 +21,7 @@
     <div class="m-0 p-0 mb-4 d-flex justify-content-between align-items-center">
         <div>
             <h3 class="mb-1 text-primary fw-bold">Validação: {{ $submissao->relatorio->titulo }}</h3>
-            <p class="mb-0 text-muted">Avaliando submissão: {{ $submissao->acao->titulo }}</p>
+            <p class="mb-0 text-muted">Avaliando submissão: {{$submissao->id_acao != null ? $submissao->acao->titulo : $submissao->user->name}}</p>
         </div>
         {{-- <a href="{{route('report.monitor', $submissao->id_relatorio)}}" class="btn">Voltar página</a> --}}
         <a href="{{ old('previous', url()->previous()) }}" class="btn">Voltar página</a>

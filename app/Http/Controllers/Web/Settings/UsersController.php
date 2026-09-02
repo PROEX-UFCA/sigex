@@ -45,7 +45,7 @@ class UsersController extends Controller
         if (!in_array($sort, $allowedFields)) $sort = 'name';
 
         $this->data['users'] = $this->usersRepository->getAll($request->query(), $sort, $direction);
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO_DEPARTAMENTO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO'])->groupBy('function');
         $this->data['roles'] = $this->rolesRepository->getAll();
 
         return view('pages.users.index')->with($this->data);

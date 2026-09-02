@@ -16,10 +16,11 @@ class Acao extends Model
 
     protected $table = 'acao';
 
-    protected $fillable = ['id_projeto', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'bolsas_concedidas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'resumo', 'palavras_chave', 'ods', 'contexto', 'status', 'img'];
+    protected $fillable = ['id_projeto', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'bolsas_concedidas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'resumo', 'palavras_chave', 'ods', 'contexto', 'status', 'img', 'is_ej'];
 
-    public function coordenador() : BelongsTo {
-        return $this->belongsTo(User::class, 'id_proponente', 'uuid');
+    public function coordenador(){
+            $coordeandor = $this->equipe->where('categoria_membro', 'COORDENADOR(A)')->first();
+        return $coordeandor;
     }
 
     public function equipe() : HasMany {
@@ -42,7 +43,7 @@ class Acao extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['id_projeto', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'resumo', 'palavras_chave', 'ods', 'contexto', 'status', 'img'])
+            ->logOnly(['id_projeto', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'resumo', 'palavras_chave', 'ods', 'contexto', 'status', 'img', 'is_ej'])
             ->useLogName('acao')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

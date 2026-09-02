@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Proex</title>
+    <title>SIGEx - Vitrine</title>
     <!-- CSS files -->
 
     @yield('styles')
@@ -15,7 +15,7 @@
     <link href="{{ asset('assets/css/tabler-payments.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/css/tabler-vendors.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/css/demo.min.css') }}" rel="stylesheet" />
-
+    <link rel="shortcut icon" href="{{asset('assets/img/illustrations/favicon.png')}}" type="image/x-icon">
 
     <style>
         /* @import url('https://rsms.me/inter/inter.css'); */
