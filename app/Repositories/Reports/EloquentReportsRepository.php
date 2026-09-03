@@ -46,6 +46,22 @@ class EloquentReportsRepository implements ReportsRepository
         return Relatorio::find($uuid);
     }
 
+    public function getSubmissionsForDownload($whatReport, $quais){
+
+        if($quais == "todos"){
+            return Submissao::where('id_relatorio', $whatReport)->get();
+        }
+        elseif($quais == "finalizados"){
+            return Submissao::where('id_relatorio', $whatReport)->whereNotNull('finalizada_em')->get();
+        }
+        elseif($quais == "nao_finalizados"){
+            return Submissao::where(['id_relatorio' => $whatReport, 'finalizada_em' => null])->get();
+        }
+        else{
+            return [];
+        }
+    } 
+
     public function getSubmissionsByIdReport($uuid, array $filtros = [], string $sort = 'id', string $direction = 'desc')
     {
         $query = Submissao::select('submissao.*')->where('submissao.id_relatorio', $uuid);

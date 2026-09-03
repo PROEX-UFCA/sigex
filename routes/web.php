@@ -146,6 +146,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('relatorios/addSubmissions/{uuid}', [ReportController::class, 'addSubmissions'])->name('report.addSubmissions')->middleware(['auth' => 'permission:editar_relatórios']);
     Route::delete('submissao/deletar/{uuid}', [ReportController::class, 'delete_submission'])->name('submissao.delete')->middleware(['auth' => 'permission:editar_relatórios']);
     Route::post('respostas/auto-save', [ReportController::class, 'autoSave'])->name('respostas.autosave')->middleware(['auth' => 'permission:responder_relatórios']);
+    Route::get('relatorios/baixar', [ReportController::class, 'download'])->name('report.download')->middleware(['auth' => 'permission:adicionar_relatórios']);
+    Route::post('relatorios/baixar/dados', [ReportController::class, 'baixar'])->name('report.baixar')->middleware(['auth' => 'permission:adicionar_relatórios']);
 
     Route::post('/api/respostas/remover-grupo', [ReportController::class, 'removerGrupo'])->name('respostas.remover-grupo')->middleware(['auth' => 'permission:responder_relatórios']);
     Route::delete('relatorio/finalizar/{uuid}', [ReportController::class, 'finish'])->name('report.finish')->middleware(['auth' => 'permission:responder_relatórios']);

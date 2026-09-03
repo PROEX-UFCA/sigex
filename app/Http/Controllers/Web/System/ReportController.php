@@ -8,7 +8,9 @@ use App\Http\Requests\Web\Report\UpdateRequest;
 use App\Mail\ReportCreatedMail;
 use App\Models\Acao;
 use App\Models\Equipe_Acao;
+use App\Models\Instituicao_Externa;
 use App\Models\Pergunta;
+use App\Models\Relatorio;
 use App\Models\Resposta;
 use App\Models\Submissao;
 use App\Models\User;
@@ -24,6 +26,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
@@ -887,5 +890,343 @@ class ReportController extends Controller
                 }
             }
         }
+    }
+
+    public function download(Request $request)
+    {
+        $this->data['reports'] = Relatorio::get();
+        $this->data['parametros_acao'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE_EDITAL', 'ÁREA_TEMÁTICA', 'SITUACAO'])->groupBy('function');
+        $this->data['anos'] = Acao::get()->groupBy('ano');
+        $this->data['parametros_membros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO_MEMBRO', 'CATEGORIA_MEMBRO', 'STATUS_MEMBROS'])->groupBy('function');
+
+        return view('pages.report.download', $this->data);
+    }
+
+    public function baixar(Request $request)
+    {
+        // 1. Validação dos parâmetros obrigatórios
+        $request->validate([
+            'what'   => 'required|in:relatorios,acoes,membros,instituicoes',
+            'format' => 'required|in:pdf,excel,csv',
+        ]);
+
+        $what   = $request->input('what');
+        $format = $request->input('format');
+
+        $data    = collect();
+        $title   = '';
+        $headers = [];
+
+        // 2. Montagem dos dados conforme o tipo selecionado
+        switch ($what) {
+            case 'relatorios':
+                $title = 'Relatorio_Submissoes_' . date('Y-m-d_H-i');
+                $whatReport = $request->input('what_report');
+                $quais      = $request->input('quais', 'todos');
+
+                // Consulta no repositório de relatórios/submissões
+                $submissoes = $this->reportRepository->getSubmissionsForDownload($whatReport, $quais);
+
+                $headers = ['Título do Relatório', 'Destinatário/Ação', 'Data Início', 'Prazo', 'Finalizado'];
+
+                $perguntas = collect();
+
+                // Identifica o modelo do Relatório e seu formulário vinculado
+                if ($whatReport) {
+                    $reportModel = Relatorio::find($whatReport);
+                    $formulario  = $reportModel->formulario ?? $reportModel->relatorio->formulario ?? null;
+                } else {
+                    // Se baixou "Todos os relatórios", pega a estrutura de formulário da primeira submissão existente
+                    $primeiraSubmissao = $submissoes->first();
+                    $formulario = $primeiraSubmissao->relatorio->formulario ?? $primeiraSubmissao->formulario ?? null;
+                }
+
+                // Mapeia todas as perguntas principais (cabeçalhos dinâmicos)
+                if ($formulario && isset($formulario->secoes)) {
+                    foreach ($formulario->secoes as $secao) {
+                        // Filtra apenas perguntas principais (não filhas de tabelas diretamente no topo)
+                        $perguntasPrincipais = $secao->perguntas ? $secao->perguntas->whereNull('id_pergunta_pai') : collect();
+
+                        foreach ($perguntasPrincipais as $pergunta) {
+                            $headers[] = $pergunta->enunciado;
+                            $perguntas->push($pergunta);
+                        }
+                    }
+                }
+
+                // Monta os dados de cada submissão combinando metadados + respostas dinâmicas
+                $data = $submissoes->map(function ($item) use ($perguntas) {
+                    $linha = [
+                        'titulo'      => $item->relatorio->titulo ?? $item->titulo ?? 'N/A',
+                        'destinatario'=> $item->action->titulo ?? $item->user->name ?? 'N/A',
+                        'data_inicio' => isset($item->relatorio->data_inicio) ? date('d/m/Y H:i', strtotime($item->relatorio->data_inicio)) : '',
+                        'prazo'       => isset($item->relatorio->prazo) ? date('d/m/Y H:i', strtotime($item->relatorio->prazo)) : '',
+                        'finalizado'  => $item->finalizada_em ? date('d/m/Y H:i', strtotime($item->finalizada_em)) : 'Não finalizado',
+                    ];
+
+                    // Mapeia a resposta correspondente para cada pergunta do formulário
+                    foreach ($perguntas as $pergunta) {
+                        $linha['pergunta_' . $pergunta->id] = $this->formatarRespostaParaExportacao($pergunta, $item->id);
+                    }
+
+                    return $linha;
+                });
+                break;
+            case 'acoes':
+                $title = 'Relatorio_Acoes_' . date('Y-m-d_H-i');
+                $filters = [
+                    'parametros' => $request->input('parametros', []),
+                    'anos'       => $request->input('anos', []),
+                    'is_ej'      => $request->input('is_ej', 'todas'),
+                ];
+
+                // Consulta ações filtradas
+                $acoes = $this->actionsRepository->getActionsForReports($filters);
+
+                $headers = ['id_projeto', 'coordenador(a)', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'bolsas_concedidas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'palavras_chave', 'ods', 'empresa_junior'];
+                $data = $acoes->map(function ($acao) {
+                    $coordenador = method_exists($acao, 'coordenador') ? $acao->coordenador() : null;
+                    return [
+                        'id_projeto'  => $acao->id_projeto,
+                        'coordenador' => $coordenador->user->name ?? $coordenador->nome ?? 'N/A',
+                        'ano'      => $acao->ano ?? 'N/A',
+                        'titulo'      => $acao->titulo ?? 'N/A',
+                        'modalidade_edital'  => $acao->modalidade_edital ?? 'N/A',
+                        'bolsas_solicitadas'        => $acao->bolsas_solicitadas ?? 'N/A',
+                        'bolsas_concedidas'        => $acao->bolsas_concedidas ?? 'N/A',
+                        'financiamento_interno'        => $acao->financiamento_interno ?? 'N/A',
+                        'financiamento_externo'        => $acao->financiamento_externo ?? 'N/A',
+                        'situacao'        => $acao->situacao ?? 'N/A',
+                        'data_cadastro'        => $acao->data_cadastro ?? 'N/A',
+                        'data_inicio'        => $acao->data_inicio ?? 'N/A',
+                        'data_fim'        => $acao->data_fim ?? 'N/A',
+                        'data_atualizacao'        => $acao->data_atualizacao ?? 'N/A',
+                        'centro_departamento_sigla'        => $acao->centro_departamento_sigla ?? 'N/A',
+                        'tipo_acao'        => $acao->tipo_acao ?? 'N/A',
+                        'area_tematica'        => $acao->area_tematica ?? 'N/A',
+                        'palavras_chave'  => $acao->palavras_chave ?? 'N/A',
+                        'ods'    => $acao->ods ?? 'N/A',
+                        'is_ej'       => $acao->is_ej ? 'Sim' : 'Não',
+                    ];
+                });
+                break;
+
+            case 'membros':
+                $title = 'Relatorio_Membros_' . date('Y-m-d_H-i');
+                $filters = [
+                    'parametros' => $request->input('parametros', []),
+                ];
+
+                // Consulta membros filtrados
+                $membros = $this->actionsRepository->getMembersForReports($filters);
+                
+                $headers = ['ID', 'Nome do Membro', 'Ação Relacionada', 'Tipo de Membro', 'Categoria', 'Status'];
+                $data = $membros->map(function ($membro) {
+                    return [
+                        'id'        => $membro->id,
+                        'nome'      => $membro->user->name ?? $membro->nome ?? 'N/A',
+                        'acao'      => $membro->action->titulo ?? 'N/A',
+                        'tipo'      => $membro->tipo_membro ?? 'N/A',
+                        'categoria' => $membro->categoria_membro ?? 'N/A',
+                        'status'    => $membro->status ?? 'N/A',
+                    ];
+                });
+                break;
+
+            case 'instituicoes':
+                $title = 'Relatorio_Instituicoes_' . date('Y-m-d_H-i');
+                $instituicoes = Instituicao_Externa::get();
+
+                $headers = ['ID', 'Nome da Instituição', 'CNPJ/Identificador', 'Cep', 'Logradouro', 'Numero', 'Complemento', 'Telefone_contato', 'Status'];
+                $data = $instituicoes->map(function ($inst) {
+                    return [
+                        'id'     => $inst->id,
+                        'nome'   => $inst->nome ?? 'N/A',
+                        'cnpj'   => $inst->cnpj ?? 'N/A',
+                        'cep' => $inst->cidade ?? 'N/A',
+                        'logradouro' => $inst->cidade ?? 'N/A',
+                        'numero' => $inst->cidade ?? 'N/A',
+                        'complemento' => $inst->estado ?? 'N/A',
+                        'telefone_contato' => $inst->estado ?? 'N/A',
+                        'status' => $inst->estado ?? 'N/A',
+                    ];
+                });
+                break;
+        }
+
+        // 3. Redireciona para o tipo de exportação solicitado
+        if ($format === 'pdf') {
+            return $this->exportToPdf($title, $headers, $data);
+        } elseif ($format === 'excel') {
+            return $this->exportToExcel($title, $headers, $data);
+        } else {
+            return $this->exportToCsv($title, $headers, $data);
+        }
+    }
+
+    /**
+     * Gera o arquivo PDF usando DomPDF
+     */
+    private function exportToPdf(string $title, array $headers, $data)
+    {
+        $pdf = Pdf::loadView('pages.report.exports.pdf', compact('title', 'headers', 'data'));
+        return $pdf->setPaper('a4', 'landscape')->download("{$title}.pdf");
+    }
+
+    /**
+     * Gera o arquivo CSV nativo sem necessidade de pacotes externos
+     */
+    private function exportToCsv(string $title, array $headers, $data)
+    {
+        $fileName = "{$title}.csv";
+
+        return response()->streamDownload(function () use ($headers, $data) {
+            $file = fopen('php://output', 'w');
+            
+            // Adiciona UTF-8 BOM para garantir acentuação correta no Excel em português
+            fputs($file, "\xEF\xBB\xBF");
+
+            // Linha de Cabeçalho (delimitador ponto e vírgula ';')
+            fputcsv($file, $headers, ';');
+
+            // Linhas de dados
+            foreach ($data as $row) {
+                fputcsv($file, (array) $row, ';');
+            }
+
+            fclose($file);
+        }, $fileName, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ]);
+    }
+
+    /**
+     * Gera o arquivo Excel (.xlsx) ou CSV com codificação Excel
+     */
+    private function exportToExcel(string $title, array $headers, $data)
+    {
+        // Se você tiver o pacote Maatwebsite\Excel instalado:
+        // return Excel::download(new GenericExport($headers, $data), "{$title}.xlsx");
+
+        // Caso contrário, gera um CSV otimizado para abertura no Microsoft Excel:
+        return $this->exportToCsv($title, $headers, $data);
+    }
+
+    /**
+    * Formata as respostas de uma pergunta para exibição na célula do relatório baixado (PDF, Excel, CSV).
+    */
+    private function formatarRespostaParaExportacao($pergunta, string $idSubmissao): string
+    {
+        // 1. TRATAMENTO PARA PERGUNTAS DO TIPO TABELA
+        if (in_array($pergunta->tipo, ['tabela', 'tabela_dinamica'])) {
+            $filhas = $pergunta->filhas;
+
+            if ($filhas && $filhas->count() > 0) {
+                // Busca todas as respostas das colunas/perguntas filhas vinculadas a esta submissão
+                $respostasFilhas = \App\Models\Resposta::whereIn('id_pergunta', $filhas->pluck('id'))
+                    ->where('id_submissao', $idSubmissao)
+                    ->get();
+
+                if ($respostasFilhas->isEmpty()) {
+                    return '-';
+                }
+
+                // Agrupa as respostas por linha/registro da tabela
+                $gruposLinha = $respostasFilhas->groupBy(function ($resp) {
+                    return $resp->id_linha ?? $resp->indice ?? $resp->created_at;
+                });
+
+                $linhasTexto = [];
+                $numLinha = 1;
+
+                foreach ($gruposLinha as $respostasDaLinha) {
+                    $colunasTexto = [];
+
+                    foreach ($respostasDaLinha as $resp) {
+                        $perguntaFilha = $filhas->firstWhere('id', $resp->id_pergunta);
+                        $nomeColuna    = $perguntaFilha->enunciado ?? 'Coluna';
+                        $valorColuna   = $this->tratarValorUnitario($resp->valor, $perguntaFilha->tipo ?? 'text');
+
+                        if ($valorColuna !== '' && $valorColuna !== '-') {
+                            $colunasTexto[] = "{$nomeColuna}: {$valorColuna}";
+                        }
+                    }
+
+                    if (!empty($colunasTexto)) {
+                        $linhasTexto[] = "[{$numLinha}] " . implode(' | ', $colunasTexto);
+                        $numLinha++;
+                    }
+                }
+
+                return !empty($linhasTexto) ? implode("\n", $linhasTexto) : '-';
+            }
+        }
+
+        // 2. TRATAMENTO PARA DEMAIS TIPOS DE PERGUNTAS (Texto, Select, Radio, Checkbox, Arquivo, Localização, etc.)
+        $respostas = $pergunta->respostas()->where('id_submissao', $idSubmissao)->get();
+
+        if ($respostas->isEmpty()) {
+            return '-';
+        }
+
+        $valoresFormatados = [];
+        foreach ($respostas as $resposta) {
+            $valorTratado = $this->tratarValorUnitario($resposta->valor, $pergunta->tipo ?? '');
+            if ($valorTratado !== '' && $valorTratado !== '-') {
+                $valoresFormatados[] = $valorTratado;
+            }
+        }
+
+        if (empty($valoresFormatados)) {
+            return '-';
+        }
+
+        return implode("\n", $valoresFormatados);
+    }
+
+    /**
+     * Trata o conteúdo do campo 'valor' com base no tipo da pergunta e no formato de armazenamento (JSON, Texto, etc.).
+     */
+    private function tratarValorUnitario($valor, string $tipoPergunta = ''): string
+    {
+        if (is_null($valor) || $valor === '') {
+            return '-';
+        }
+
+        // Trata valores gravados em formato JSON (Localização, Lista de Checkboxes, Multi-selects, etc.)
+        if (is_string($valor) && (str_starts_with($valor, '{') || str_starts_with($valor, '['))) {
+            $decoded = json_decode($valor, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+
+                // Caso 1: Localização (Endereço, Nome do Local e/ou Coordenadas Lat/Lng)
+                if (in_array($tipoPergunta, ['local', 'localizacao', 'mapa']) || isset($decoded['lat']) || isset($decoded['address']) || isset($decoded['endereco'])) {
+                    $partes = [];
+                    if (!empty($decoded['address'])) $partes[] = $decoded['address'];
+                    elseif (!empty($decoded['endereco'])) $partes[] = $decoded['endereco'];
+                    elseif (!empty($decoded['nome'])) $partes[] = $decoded['nome'];
+
+                    if (!empty($decoded['lat']) && !empty($decoded['lng'])) {
+                        $partes[] = "(Lat: {$decoded['lat']}, Lng: {$decoded['lng']})";
+                    }
+
+                    return !empty($partes) ? implode(' ', $partes) : implode(', ', array_filter($decoded));
+                }
+
+                // Caso 2: Múltipla escolha / Array de itens
+                $itens = array_map(function ($item) {
+                    return is_array($item) ? implode(': ', $item) : $item;
+                }, array_filter($decoded));
+
+                return implode(', ', $itens);
+            }
+        }
+
+        // Caso 3: Arquivos, Documentos ou Imagens (exibe apenas o nome do arquivo para não poluir a célula)
+        if (in_array($tipoPergunta, ['file', 'arquivo', 'imagem', 'documento'])) {
+            return basename($valor);
+        }
+
+        return (string) $valor;
     }
 }

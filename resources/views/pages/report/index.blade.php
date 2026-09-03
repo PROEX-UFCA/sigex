@@ -9,6 +9,7 @@
       <a href="{{route('actions.index')}}" class="btn">Voltar</a>
       @can('adicionar_relatórios')
       <a href="{{ route('report.create') }}" class="btn">Novo relatório</a>
+      <a href="{{ route('report.download') }}" class="btn">Baixar relatórios</a>
       @endcan
     </div>
     <div class="d-flex justify-content-end col-12 col-md-6 p-0 m-0">
@@ -117,15 +118,6 @@
       'required' => 'true',
       'value' => $item->prazo ?? '',
       ])
-
-      <x-form-elements.select.select title="Status" id="status" name="status" class="col-12" required="true">
-        <x-slot:options>
-          <option value="" disabled>Selecione</option>
-          <option value="0" {{ $item->status =='0' ? 'selected' : '' }}>Inativo</option>
-          <option value="1" {{ $item->status =='1' ? 'selected' : '' }}>Ativo</option>
-          <option value="2" {{ $item->status =='2' ? 'selected' : '' }}>Finalizado</option>
-        </x-slot:options>
-      </x-form-elements.select.select>
 
       <a href="{{route('report.edit', $item->id)}}" class="btn btn-secondary w-100">Editar submissões</a>
 
