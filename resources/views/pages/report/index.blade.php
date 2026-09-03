@@ -127,6 +127,8 @@
         </x-slot:options>
       </x-form-elements.select.select>
 
+      <a href="{{route('report.edit', $item->id)}}" class="btn btn-secondary w-100">Editar submissões</a>
+
     </x-slot:content>
   </x-modal.offcanvas>
   @endforeach

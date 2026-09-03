@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Web\System;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Report\StoreRequest;
 use App\Http\Requests\Web\Report\UpdateRequest;
+use App\Mail\ReportCreatedMail;
+use App\Models\Acao;
 use App\Models\Equipe_Acao;
 use App\Models\Pergunta;
 use App\Models\Resposta;
+use App\Models\Submissao;
+use App\Models\User;
 use App\Models\ValidacaoResposta;
 use App\Repositories\Actions\ActionsRepository;
 use App\Repositories\Forms\FormsRepository;
@@ -17,6 +21,7 @@ use App\Repositories\Settings\User\UsersRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -79,13 +84,148 @@ class ReportController extends Controller
         return view('pages.report.create', $this->data);
     }
 
+    public function edit(Request $request, $uuid)
+    {
+        $sort = $request->get('sort', 'created_at');
+        $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
+        $allowedFields = ['titulo', 'finalizada_em', 'created_at'];
+
+        if (!in_array($sort, $allowedFields)) {
+            $sort = 'created_at';
+        }
+
+        $this->data['relatorio'] = $this->reportRepository->getById($uuid);
+        $this->data['submissao'] = $this->data['relatorio']; 
+        $this->data['submissoes'] = $this->reportRepository->getSubmissionsByIdReport($uuid, $request->query(), $sort, $direction);
+
+        // Parâmetros para novos filtros
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE_EDITAL', 'SITUACAO'])->groupBy('function');
+        $this->data['parametros_membros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO_MEMBRO', 'CATEGORIA_MEMBRO', 'STATUS_MEMBROS'])->groupBy('function');
+
+        // Mapeia IDs já cadastrados para aplicar a interseção/exclusão
+        $existingAcaoIds = $this->data['relatorio']->submissoes->pluck('id_acao')->filter()->toArray();
+        $existingUserIds = $this->data['relatorio']->submissoes->pluck('id_usuario')->filter()->toArray();
+
+        $this->data['who'] = $request->input('who', old('who', ''));
+        $this->data['items'] = collect();
+
+        if ($request->isMethod('post') && !empty($this->data['who'])) {
+            switch ($this->data['who']) {
+                case 'acoes':
+                    $rawItems = $this->actionsRepository->getActionsForReports($request->only(['parametros', 'is_ej']));
+                    // Filtra removendo ações que já possuem submissão neste relatório
+                    $this->data['items'] = $rawItems->filter(function ($item) use ($existingAcaoIds) {
+                        return !in_array($item->id, $existingAcaoIds);
+                    });
+                    break;
+
+                case 'membros':
+                    $rawItems = $this->actionsRepository->getMembersForReports($request->only(['parametros']));
+                    // Filtra removendo membros que já possuem submissão vinculada
+                    $this->data['items'] = $rawItems->filter(function ($item) use ($existingUserIds, $existingAcaoIds) {
+                        $userId = $item->user->id ?? $item->id_usuario ?? null;
+                        $actionId = $item->action->id ?? $item->id_acao ?? null;
+                        return !in_array($userId, $existingUserIds) || !in_array($actionId, $existingAcaoIds);
+                    });
+                    break;
+
+                case 'usuarios':
+                    $rawItems = $this->usersRepository->getForCoordinator();
+                    // Filtra removendo usuários que já possuem submissão neste relatório
+                    $this->data['items'] = $rawItems->filter(function ($item) use ($existingUserIds) {
+                        return !in_array($item->id, $existingUserIds);
+                    });
+                    break;
+            }
+        }
+
+        return view('pages.report.edit', $this->data);
+    }
+
+    public function addSubmissions(Request $request, $uuid)
+    {
+        try {
+            $report = $this->reportRepository->getById($uuid);
+
+            if (!$request->has('target_ids') || empty($request->target_ids)) {
+                return redirect()->back()->with('error', 'Nenhum destinatário foi selecionado.');
+            }
+
+            $submissoes = [];
+            $notificacoes = [];
+
+            foreach ($request->target_ids as $targetJson) {
+                $target = json_decode($targetJson, true);
+                $idAcao = $target['id_acao'] ?? null;
+                $idUsuario = $target['id_usuario'] ?? null;
+                $submissionId = (string) Str::uuid();
+
+                $submissoes[] = [
+                    'id' => $submissionId,
+                    'id_relatorio' => $report->id,
+                    'id_acao' => $idAcao,
+                    'id_usuario' => $idUsuario,
+                    'finalizada_em' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                $notificacoes[] = [
+                    'submission_id' => $submissionId,
+                    'id_acao' => $idAcao,
+                    'id_usuario' => $idUsuario,
+                ];
+            }
+
+            if (!empty($submissoes)) {
+                $this->reportRepository->bulkInsertSubmission($submissoes);
+
+                // Disparo de notificações por e-mail para os novos cadastrados
+                foreach ($notificacoes as $item) {
+                    $email = null;
+                    $nomeAcao = null;
+                    $nome = null;
+
+                    if (!empty($item['id_acao'])) {
+                        $acao = Acao::find($item['id_acao']);
+                        if ($acao) {
+                            $nomeAcao = $acao->titulo;
+                            $coordenador = $acao->coordenador();
+                            $email = $coordenador->user->email ?? $coordenador->email ?? null;
+                            $nome = $coordenador->user->name ?? $coordenador->name ?? null;
+                        }
+                    }
+
+                    if (empty($email) && !empty($item['id_usuario'])) {
+                        $usuario = User::find($item['id_usuario']);
+                        $email = $usuario->email ?? null;
+                        $nome = $usuario->name ?? null;
+                    }
+
+                    if ($email) {
+                        $url = route('actions.report', $item['submission_id']);
+                        Mail::to($email)->queue(new ReportCreatedMail([
+                            'nome' => $nome,
+                            'titulo_relatorio' => $report->titulo,
+                            'nome_acao' => $nomeAcao,
+                            'data_inicio' => date('d/m/Y H:i:s', strtotime($report->data_inicio)),
+                            'prazo' => date('d/m/Y H:i:s', strtotime($report->prazo)),
+                            'url' => $url,
+                        ]));
+                    }
+                }
+            }
+
+            return redirect()->route('report.edit', $uuid)->with('success', "Novos destinatários vinculados com sucesso.");
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', "Erro ao vincular novos destinatários.");
+        }
+    }
+
     public function store(StoreRequest $request){
 
-        // dd($request->all());
         try {
             
-            // $actions = $this->actionsRepository->getActionsForReports($request->only(['parametros']));
-
             $report = $this->reportRepository->create($request);
     
             $submissoes = [];
@@ -95,9 +235,10 @@ class ReportController extends Controller
 
                 $idAcao = $target['id_acao'] ?? null;
                 $idUsuario = $target['id_usuario'] ?? null;
+                $submissionId = (string) Str::uuid();
                 
                 $submissoes[] = [
-                    'id' => Str::uuid(),
+                    'id' => $submissionId,
                     'id_relatorio' => $report->id,
                     'id_acao' => $idAcao,
                     'id_usuario' => $idUsuario,
@@ -105,7 +246,50 @@ class ReportController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
-            
+
+                $notificacoes[] = [
+                    'submission_id' => $submissionId,
+                    'id_acao' => $idAcao,
+                    'id_usuario' => $idUsuario,
+                ];
+
+                // Disparo dos e-mails
+                foreach ($notificacoes as $item) {
+                    $email = null;
+                    $nomeAcao = null;
+                    $nome = null;
+
+                    // Busca por Ação se houver id_acao
+                    if (!empty($item['id_acao'])) {
+                        $acao = Acao::find($item['id_acao']);
+                        if ($acao) {
+                            $nomeAcao = $acao->titulo;
+                            $coordenador = $acao->coordenador();
+                            $email = $coordenador->user->email ?? $coordenador->email ?? null;
+                            $nome = $coordenador->user->name ?? $coordenador->name ?? null;
+                        }
+                    }
+
+                    // Se houver id_usuario direto e o e-mail ainda não tiver sido capturado
+                    if (empty($email) && !empty($item['id_usuario'])) {
+                        $usuario = User::find($item['id_usuario']);
+                        $email = $usuario->email ?? null;
+                        $nome = $usuario->name ?? null;
+                    }
+
+                    if ($email) {
+                        $url = route('login');
+
+                        Mail::to($email)->queue(new ReportCreatedMail([
+                            'nome' => $nome,
+                            'titulo_relatorio' => $report->titulo,
+                            'nome_acao' => $nomeAcao,
+                            'data_inicio' => date('d/m/Y H:i:s', strtotime($report->data_inicio)),
+                            'prazo' => date('d/m/Y H:i:s', strtotime($report->prazo)),
+                            'url' => $url,
+                        ]));
+                    }
+                }
             }
     
             if (!empty($submissoes)) {
@@ -613,6 +797,15 @@ class ReportController extends Controller
             
             // Retorna para a tela de validação com o erro e os dados preenchidos (withInput ajuda o old() da view)
             return back()->withInput()->with('error', 'Ocorreu um erro ao salvar a avaliação: ' . $e->getMessage());
+        }
+    }
+
+    public function delete_submission($uuid){
+        try{
+            Submissao::findOrFail($uuid)->destroy($uuid);
+            return redirect()->back()->with('success', 'Submissão deletada com sucesso.');
+        } catch (\Throwable $err) {
+            return redirect()->back()->with('error', 'Erro ao deletar submissão. Por favor, tente novamente mais tarde.');
         }
     }
 
