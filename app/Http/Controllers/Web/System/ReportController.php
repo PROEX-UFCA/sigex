@@ -345,7 +345,13 @@ class ReportController extends Controller
         return view('pages.actions.report', $this->data);
     }
 
-    public function finish($uuid){
+    public function finish(Request $request, $uuid){
+        
+        $request->validate(['aceite' => 'required|accepted',], [
+            'aceite.required' => 'Você precisa marcar a caixa de consentimento para prosseguir.',
+            'aceite.accepted' => 'O termo de ciência deve ser aceito.',
+        ]);
+
         try {
             $submissao = $this->reportRepository->getSubmissionById($uuid);
 
@@ -364,7 +370,16 @@ class ReportController extends Controller
             $submissao->finalizada_em = now();
             $submissao->save();
 
-            return to_route('actions.my')->with('success', "Relatório finalizado com sucesso.");
+            $title = 'Relatorio_' . date('Y-m-d_H-i');
+            $pdf = Pdf::loadView('pages.report.exports.pdf2', compact('title', 'submissao'));
+
+            $pdfContent = base64_encode($pdf->setPaper('a4', 'landscape')->output());
+
+            return to_route('actions.my')
+                ->with('success', "Relatório finalizado com sucesso. Clique <a href='https://sig.ufca.edu.br/sigaa/public/home.jsf' class='fw-bol' target='_blank'><strong>Aqui</strong></a> para anexar no sigaa.")
+                ->with('pdf_content', $pdfContent)
+                ->with('pdf_name', "{$title}.pdf");
+
         }
         catch (\Throwable $th) {
             return redirect()->back()->with('error', "Erro ao finalizar formulário, tente novamente mais tarde! " . $th->getMessage());
