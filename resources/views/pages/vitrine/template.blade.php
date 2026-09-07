@@ -45,7 +45,7 @@
     <div class="page">
         <header class="navbar navbar-expand-lg py-3 bg-brown text-yellow">
             <div class="container">
-                <a href=".." aria-label="Tabler" class="navbar-brand navbar-brand-autodark">
+                <a href="./vitrine" aria-label="Tabler" class="navbar-brand navbar-brand-autodark">
                     <img src="{{asset('assets/img/illustrations/logo_proex_top.png')}}" alt="" style="width: 225px;">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -56,15 +56,15 @@
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
                     <nav class="navbar-nav ms-auto gap-2">
                         <div class="nav-item">
-                            <a class="row nav-link active px-1 px-xl-3" href="{{route('vitrine.vitrine')}}">
+                            <a class="row nav-link active px-1 px-xl-3" href="{{route('vitrine.vitrine')}}" title="Início">
                                 <i class="col-auto ti ti-home icon fs-2 m-0 p-0"></i>
-                                <span class="fw-bold col nav-link-title">Início</span>
+                                <span class="fw-medium col nav-link-title">Início</span>
                             </a>
                         </div>
                         <div class="nav-item">
                             <a class="row nav-link text-yellow px-1 px-xl-3" href="{{route('vitrine.catalogo')}}" title="Catálogo">
                                 <i class="col-auto ti ti-layout-grid icon fs-2 m-0 p-0"></i>
-                                <span class="fw-bold col nav-link-title">Catálogo</span>
+                                <span class="fw-medium col nav-link-title">Catálogo</span>
                         </a>
                         </div>
                         <div class="d-flex justify-content-end p-0 m-0">

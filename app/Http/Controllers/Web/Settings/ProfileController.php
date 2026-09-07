@@ -70,14 +70,12 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        // 2. STANDARD GATEKEEPER: If they are a university member, bounce them to the standard profile
         if (empty($user->id_instituicao)) {
             return redirect()->route('profile.index');
         }
 
         $this->data['user'] = $user;
 
-        // 3. THE CRASH FIX: Trim the invisible spaces from the database column before querying
         $cleanId = trim($user->id_instituicao);
         $this->data['instituicao'] = Instituicao_Externa::find($cleanId);
 
