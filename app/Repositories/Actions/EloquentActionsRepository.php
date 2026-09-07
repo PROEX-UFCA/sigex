@@ -231,7 +231,7 @@ class EloquentActionsRepository implements ActionsRepository
         $tipos = array_filter($parametros['tipo'] ?? []);
         $modalidades = array_filter($parametros['modalidade_edital'] ?? []);
         $situacoes = array_filter($parametros['situacao'] ?? []);
-        $is_ej = $filtros['is_ej'] ?? 0;
+        $is_ej = $filtros['is_ej'] == 'todos' ? [0, 1] : (array)$filtros['is_ej'];
 
         $query = Acao::query()
             ->when(!empty($tipos), function ($q) use ($tipos) {
@@ -242,7 +242,7 @@ class EloquentActionsRepository implements ActionsRepository
             })
             ->when(!empty($situacoes), function ($q) use ($situacoes) {
                 $q->whereIn('situacao', $situacoes);
-            })->where('is_ej', $is_ej);
+            })->whereIn('is_ej', $is_ej);
 
         return $query->get();
     }

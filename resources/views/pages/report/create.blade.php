@@ -49,6 +49,10 @@
             <div class="card p-3 h-100">
               <label class="form-label required">Empresas Júniores?</label>
               <label class="form-check">
+                <input class="form-check-input" type="radio" value="todos" name="is_ej" checked>
+                <span class="form-check-label">Todos</span>
+              </label>
+              <label class="form-check">
                 <input class="form-check-input" type="radio" value="1" name="is_ej" {{ request('is_ej')=='1' ? 'checked'
                   : '' }}>
                 <span class="form-check-label">Sim</span>

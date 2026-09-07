@@ -140,207 +140,254 @@
 
     <!-- 2. INFORMAÇÕES DA SUBMISSÃO -->
     @if (isset($submissao))
-        <table>
-            <thead>
-                <tr class="section-header">
-                    <th colspan="4" style="text-align: left; background-color: #2b5797; color: #fff;">
-                        Dados da Submissão
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td width="20%"><strong>Responsável:</strong></td>
-                    <td width="30%">{{ $submissao->user->name ?? ($submissao->usuario->name ?? 'Não informado') }}</td>
-                    <td width="20%"><strong>Ação / Projeto:</strong></td>
-                    <td width="30%">{{ $submissao->action->titulo ?? ($submissao->relatorio->titulo ?? 'N/A') }}</td>
-                </tr>
-                <tr>
-                    <td><strong>Data Início:</strong></td>
-                    <td>{{ isset($submissao->created_at) ? date('d/m/Y H:i', strtotime($submissao->created_at)) : '-' }}</td>
-                    <td><strong>Status Finalização:</strong></td>
-                    <td>
-                        @if (!empty($submissao->finalizada_em))
-                            <span class="badge badge-success">
-                                Finalizado em {{ date('d/m/Y H:i', strtotime($submissao->finalizada_em)) }}
-                            </span>
-                        @else
-                            <span class="badge badge-danger">Em andamento / Pendente</span>
-                        @endif
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <table>
+        <thead>
+            <tr class="section-header">
+                <th colspan="4" style="text-align: left; background-color: #2b5797; color: #fff;">
+                    Dados da Submissão
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td width="20%"><strong>Responsável:</strong></td>
+                <td width="30%">{{ $submissao->user->name ?? ($submissao->usuario->name ?? 'Não informado') }}</td>
+                <td width="20%"><strong>Ação / Projeto:</strong></td>
+                <td width="30%">{{ $submissao->action->titulo ?? ($submissao->relatorio->titulo ?? 'N/A') }}</td>
+            </tr>
+            <tr>
+                <td><strong>Data Início:</strong></td>
+                <td>{{ isset($submissao->created_at) ? date('d/m/Y H:i', strtotime($submissao->created_at)) : '-' }}
+                </td>
+                <td><strong>Status Finalização:</strong></td>
+                <td>
+                    @if (!empty($submissao->finalizada_em))
+                    <span class="badge badge-success">
+                        Finalizado em {{ date('d/m/Y H:i', strtotime($submissao->finalizada_em)) }}
+                    </span>
+                    @else
+                    <span class="badge badge-danger">Em andamento / Pendente</span>
+                    @endif
+                </td>
+            </tr>
+        </tbody>
+    </table>
     @endif
 
     <!-- 3. LISTAGEM VERTICAL DE SEÇÕES, PERGUNTAS E RESPOSTAS -->
     @php
-        // Suporta tanto o array $secoesData passado diretamente quanto o relacionamento $secoes
-        $secoesLoop = $secoesData ?? ($secoes ?? ($submissao->relatorio->formulario->secoes ?? []));
+    // Suporta tanto o array $secoesData passado diretamente quanto o relacionamento $secoes
+    $secoesLoop = $secoesData ?? ($secoes ?? ($submissao->relatorio->formulario->secoes ?? []));
     @endphp
 
     @foreach ($secoesLoop as $secao)
-        @php
-            $secaoTitulo = is_array($secao) ? $secao['titulo'] : $secao->titulo;
-            $secaoDescricao = is_array($secao) ? $secao['descricao'] ?? null : $secao->descricao ?? null;
-            $perguntas = is_array($secao) ? $secao['perguntas'] : $secao->perguntas;
-        @endphp
+    @php
+    $secaoTitulo = is_array($secao) ? $secao['titulo'] : $secao->titulo;
+    $secaoDescricao = is_array($secao) ? $secao['descricao'] ?? null : $secao->descricao ?? null;
+    $perguntas = is_array($secao) ? $secao['perguntas'] : $secao->perguntas->whereNull('id_pergunta_pai');
+    @endphp
 
-        <table>
-            <thead>
-                <tr class="section-header">
-                    <th colspan="2" style="text-align: left;">
-                        {{ $secaoTitulo }}
-                    </th>
-                </tr>
-                @if ($secaoDescricao)
-                    <tr class="section-description">
-                        <td colspan="2">
-                            {{ $secaoDescricao }}
-                        </td>
-                    </tr>
-                @endif
-            </thead>
-            <tbody>
-                @forelse ($perguntas as $pergunta)
-                    @php
-                        // Extrai os campos se for Array ou Objeto
-                        $pEnunciado = is_array($pergunta) ? $pergunta['enunciado'] : $pergunta->enunciado;
-                        $pTipo = is_array($pergunta) ? $pergunta['tipo'] : $pergunta->tipo;
-                        
-                        // Busca o valor direto do array ou acessa o relacionamento respostas->valor
-                        if (is_array($pergunta)) {
-                            $pValor = $pergunta['valor'] ?? null;
-                            $pValoresTabela = $pergunta['valores_tabela'] ?? [];
-                        } else {
-                            // Se for Model Eloquent: acessa $pergunta->respostas (hasMany) filtrado pela submissão
-                            $respostaModel = $pergunta->respostas->where('id_submissao', $submissao->id ?? null)->first();
-                            $pValor = $respostaModel ? $respostaModel->valor : null;
-                            $pValoresTabela = [];
-                        }
-                    @endphp
+    <table>
+        <thead>
+            <tr class="section-header">
+                <th colspan="2" style="text-align: left;">
+                    {{ $secaoTitulo }}
+                </th>
+            </tr>
+            @if ($secaoDescricao)
+            <tr class="section-description">
+                <td colspan="2">
+                    {{ $secaoDescricao }}
+                </td>
+            </tr>
+            @endif
+        </thead>
+        <tbody>
+            @forelse ($perguntas as $pergunta)
+            @php
+            // Extrai os campos se for Array ou Objeto
+            $pEnunciado = is_array($pergunta) ? $pergunta['enunciado'] : $pergunta->enunciado;
+            $pTipo = is_array($pergunta) ? $pergunta['tipo'] : $pergunta->tipo;
 
-                    <tr>
-                        <!-- Coluna da Esquerda: Pergunta -->
-                        <td class="question-col">
-                            {{ $pEnunciado }}
-                        </td>
-
-                        <!-- Coluna da Direita: Resposta / Estrutura -->
-                        <td class="answer-col">
-                            {{-- CASO 1: TIPO TABELA DINÂMICA --}}
-                            @if (in_array($pTipo, ['tabela', 'table']) || !empty($pValoresTabela))
-                                @if (!empty($pValoresTabela))
-                                    <table class="nested-table">
-                                        <thead>
-                                            <tr>
-                                                <th width="6%">#</th>
-                                                @php
-                                                    // Pega os enunciados das colunas a partir da primeira linha
-                                                    $primeiraLinha = $pValoresTabela[0] ?? [];
-                                                @endphp
-                                                @foreach ($primeiraLinha as $coluna)
-                                                    <th>{{ is_array($coluna) ? $coluna['enunciado'] : $coluna->enunciado }}</th>
-                                                @endforeach
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($pValoresTabela as $indexLinha => $linha)
-                                                <tr>
-                                                    <td style="text-align: center; font-weight: bold;">
-                                                        {{ $loop->iteration }}
-                                                    </td>
-                                                    @foreach ($linha as $celula)
-                                                        @php
-                                                            $valCelula = is_array($celula) ? $celula['valor'] : $celula->valor;
-                                                        @endphp
-                                                        <td>
-                                                            @if ($valCelula === 'Não respondido' || is_null($valCelula))
-                                                                <span style="color: #999; font-style: italic;">-</span>
-                                                            @else
-                                                                {{ $valCelula }}
-                                                            @endif
-                                                        </td>
-                                                    @endforeach
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @else
-                                    <em style="color: #888;">Sem registros na tabela.</em>
-                                @endif
-
-                            {{-- CASO 2: TIPO LOCALIZAÇÃO / ENDEREÇO --}}
-                            @elseif (in_array($pTipo, ['location', 'localizacao', 'mapa']))
+            // Busca o valor direto do array ou acessa o relacionamento respostas->valor
+            if (is_array($pergunta)) {
+            $pValor = $pergunta['valor'] ?? null;
+            $pValoresTabela = $pergunta->filhas ?? [];
+            } else {
+            // Se for Model Eloquent: acessa $pergunta->respostas (hasMany) filtrado pela submissão
+            $respostaModel = $pergunta->respostas->where('id_submissao', $submissao->id ?? null)->first();
+            $pValor = $respostaModel ? $respostaModel->valor : null;
+            $pValoresTabela = [];
+            }
+            @endphp
+            <tr>
+                <!-- Coluna da Esquerda: Pergunta -->
+                <td class="question-col">
+                    {{ $pEnunciado }}
+                </td>
+                <!-- Coluna da Direita: Resposta / Estrutura -->
+                <td class="answer-col">
+                    {{-- CASO 1: TIPO TABELA DINÂMICA --}}
+                    @if (in_array($pTipo, ['tabela', 'table']) || !empty($pValoresTabela))
+                    @if ($pergunta->filhas->count() > 0)
+                    <table class="nested-table">
+                        <thead>
+                            <tr>
+                                @foreach ($pergunta->filhas as $filha)
+                                <th>{{ $filha->enunciado }}</th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if($pergunta->filhas->isNotEmpty() && $pergunta->filhas->first()->respostas)
+                            @foreach ($pergunta->filhas->first()->respostas->where('id_submissao', $submissao->id)
+                            as $index => $respostaBase)
+                            <tr>
+                                @foreach ($pergunta->filhas as $filha)
                                 @php
-                                    $locData = is_string($pValor) && str_starts_with($pValor, '{') ? json_decode($pValor, true) : $pValor;
+                                $respostaFilha = $filha->respostas[$index] ?? null;
+                                $valorResposta = $respostaFilha ? $respostaFilha->valor : null;
                                 @endphp
 
-                                @if (is_array($locData))
-                                    <div>
-                                        <strong>Endereço:</strong> {{ $locData['endereco'] ?? ($locData['address'] ?? 'Não especificado') }}<br>
-                                        @if (isset($locData['latitude']) && isset($locData['longitude']))
-                                            <small style="color: #555;">Coordenadas: {{ $locData['latitude'] }}, {{ $locData['longitude'] }}</small>
-                                        @endif
-                                    </div>
-                                @else
-                                    {{ $pValor ?? 'Não respondido' }}
-                                @endif
-
-                            {{-- CASO 3: ARQUIVOS / DOCUMENTOS / IMAGENS --}}
-                            @elseif (in_array($pTipo, ['file', 'arquivo', 'imagem', 'image']))
-                                @if ($pValor && $pValor !== 'Não respondido')
+                                @if ($filha->tipo == 'location')
+                                <td>
                                     @php
-                                        $ext = strtolower(pathinfo($pValor, PATHINFO_EXTENSION));
-                                        $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                    $locData = is_string($valorResposta) && str_starts_with($valorResposta, '{')
+                                    ? json_decode($valorResposta, true)
+                                    : $valorResposta;
                                     @endphp
 
-                                    @if ($isImage && file_exists(public_path($pValor)))
-                                        <div style="margin-top: 3px;">
-                                            <img src="{{ public_path($pValor) }}" style="max-width: 150px; max-height: 110px; border: 1px solid #ccc; padding: 2px;">
-                                        </div>
+                                    @if (is_array($locData))
+                                    <div>
+                                        <strong>Endereço:</strong> {{ $locData['nome'] ?? ($locData['address'] ?? 'Não
+                                        especificado') }}<br>
+                                        @if (isset($locData['lat']) && isset($locData['lng']))
+                                        <small style="color: #555;">Coordenadas: {{ $locData['lat'] }}, {{
+                                            $locData['lng'] }}</small>
+                                        @endif
+                                    </div>
                                     @else
-                                        📎 <strong>Arquivo:</strong> {{ basename($pValor) }}
+                                    <em style="color: #888;">Localização inválida</em>
                                     @endif
-                                @else
+                                </td>
+
+                                @elseif ($filha->tipo == 'file')
+                                <td>
+                                    @if ($valorResposta)
+                                    @php
+                                    $ext = strtolower(pathinfo($valorResposta, PATHINFO_EXTENSION));
+                                    $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                    @endphp
+
+                                    @if ($isImage && file_exists(public_path($valorResposta)))
+                                    <div style="margin-top: 3px;">
+                                        <img src="{{ asset($valorResposta) }}"
+                                            style="max-width: 150px; max-height: 110px; border: 1px solid #ccc; padding: 2px;">
+                                    </div>
+                                    @else
+                                    <strong>Arquivo:</strong>
+                                    <a href="{{ route('arquivo.visualizar', ['path' => $valorResposta]) }}"
+                                        target="_blank">
+                                        <i class="ti ti-external-link"></i> Abrir
+                                    </a>
+                                    @endif
+                                    @else
                                     <em style="color: #888;">Nenhum arquivo enviado</em>
-                                @endif
+                                    @endif
+                                </td>
 
-                            {{-- CASO 4: CHECKBOX / MÚLTIPLA ESCOLHA --}}
-                            @elseif (in_array($pTipo, ['checkbox', 'select_multiple']))
-                                @php
-                                    $itensArray = is_string($pValor) && str_starts_with($pValor, '[') ? json_decode($pValor, true) : null;
-                                @endphp
+                                @elseif ($filha->tipo == 'checkbox')
+                                <td>-</td>
 
-                                @if (is_array($itensArray))
-                                    <ul class="list-unstyled">
-                                        @foreach ($itensArray as $item)
-                                            <li>• {{ $item }}</li>
-                                        @endforeach
-                                    </ul>
                                 @else
-                                    {{ $pValor ?? 'Não respondido' }}
+                                <td>{{ $valorResposta ?? '-' }}</td>
                                 @endif
-
-                            {{-- CASO PADRÃO: TEXTO, TEXTAREA, DATA, RADIO, SELECT --}}
-                            @else
-                                @if (is_null($pValor) || $pValor === '' || $pValor === 'Não respondido')
-                                    <em style="color: #888;">Não respondido</em>
-                                @else
-                                    {!! nl2br(e($pValor)) !!}
-                                @endif
+                                @endforeach
+                            </tr>
+                            @endforeach
                             @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="2" style="text-align: center; color: #888;">
-                            Nenhuma pergunta registrada para esta seção.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                        </tbody>
+                    </table>
+                    @else
+                    <em style="color: #888;">Sem registros na tabela.</em>
+                    @endif
+
+                    {{-- CASO 2: TIPO LOCALIZAÇÃO / ENDEREÇO --}}
+                    @elseif (in_array($pTipo, ['location', 'localizacao', 'mapa']))
+                    @php
+                    $locData = is_string($pValor) && str_starts_with($pValor, '{') ? json_decode($pValor, true) :
+                    $pValor;
+                    @endphp
+
+                    @if (is_array($locData))
+                    <div>
+                        <strong>Endereço:</strong> {{ $locData['nome'] ?? ($locData['address'] ?? 'Não especificado')
+                        }}<br>
+                        @if (isset($locData['lat']) && isset($locData['lng']))
+                        <small style="color: #555;">Coordenadas: {{ $locData['lat'] }}, {{ $locData['lng'] }}</small>
+                        @endif
+                    </div>
+                    @else
+                    {{ $pValor ?? 'Não respondido' }}
+                    @endif
+
+                    {{-- CASO 3: ARQUIVOS / DOCUMENTOS / IMAGENS --}}
+                    @elseif (in_array($pTipo, ['file', 'arquivo', 'imagem', 'image']))
+                    @if ($pValor && $pValor !== 'Não respondido')
+                    @php
+                    $ext = strtolower(pathinfo($pValor, PATHINFO_EXTENSION));
+                    $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                    @endphp
+
+                    @if ($isImage && file_exists(public_path($pValor)))
+                    <div style="margin-top: 3px;">
+                        <img src="{{ public_path($pValor) }}"
+                            style="max-width: 150px; max-height: 110px; border: 1px solid #ccc; padding: 2px;">
+                    </div>
+                    @else
+                    <strong>Arquivo:</strong><a href="{{route('arquivo.visualizar', ['path' => $pValor])}}"
+                        target="_blank" class=""><i class="ti ti-external-link"></i> Abrir</a>
+                    @endif
+                    @else
+                    <em style="color: #888;">Nenhum arquivo enviado</em>
+                    @endif
+
+                    {{-- CASO 4: CHECKBOX / MÚLTIPLA ESCOLHA --}}
+                    @elseif (in_array($pTipo, ['checkbox', 'select_multiple']))
+                    @php
+                    $itensArray = is_string($pValor) && str_starts_with($pValor, '[') ? json_decode($pValor, true) :
+                    null;
+                    @endphp
+
+                    @if (is_array($itensArray))
+                    <ul class="list-unstyled">
+                        @foreach ($itensArray as $item)
+                        <li>{{ $item }}</li>
+                        @endforeach
+                    </ul>
+                    @else
+                    {{ $pValor ?? 'Não respondido' }}
+                    @endif
+
+                    {{-- CASO PADRÃO: TEXTO, TEXTAREA, DATA, RADIO, SELECT --}}
+                    @else
+                    @if (is_null($pValor) || $pValor === '' || $pValor === 'Não respondido')
+                    <em style="color: #888;">Não respondido</em>
+                    @else
+                    {!! nl2br(e($pValor)) !!}
+                    @endif
+                    @endif
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="2" style="text-align: center; color: #888;">
+                    Nenhuma pergunta registrada para esta seção.
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
     @endforeach
 
     <!-- RODAPÉ DO DOCUMENTO -->

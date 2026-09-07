@@ -18,7 +18,7 @@
   <link rel="shortcut icon" href="{{asset('assets/img/illustrations/favicon.png')}}" type="image/x-icon">
 
   <style>
-    /* @import url('https://rsms.me/inter/inter.css'); */
+    @import url('https://rsms.me/inter/inter.css');
 
     :root {
       --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
@@ -184,13 +184,13 @@
   </div>
 
   <script src="{{ asset('assets/js/jquery-3.5.1.js') }}"></script>
-  {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script> --}}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script src="{{ asset('assets/js/echarts.min.js') }}"></script>
   <script src="{{ asset('assets/js/tabler.min.js?1684106062') }}" defer></script>
   <script src="{{ asset('assets/js/demo.min.js?1684106062') }}" defer></script>
-  {{-- <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script> --}}
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="{{ asset('assets/js/kanban/dataTables.min.js') }}"></script>
-  {{-- <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script> --}}
+  <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script>
   @yield('scripts')
 
 </body>

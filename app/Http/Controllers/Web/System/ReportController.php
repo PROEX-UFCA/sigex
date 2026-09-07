@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web\System;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Report\StoreRequest;
 use App\Http\Requests\Web\Report\UpdateRequest;
+use App\Jobs\SendReportNotificationsJob;
 use App\Mail\ReportCreatedMail;
 use App\Models\Acao;
 use App\Models\Equipe_Acao;
@@ -225,14 +226,15 @@ class ReportController extends Controller
         }
     }
 
-    public function store(StoreRequest $request){
-
+    public function store(StoreRequest $request)
+    {
         try {
-            
             $report = $this->reportRepository->create($request);
-    
+
             $submissoes = [];
-    
+            $targets = [];
+
+            // 1. Extrai os alvos em um único loop O(N)
             foreach ($request->target_ids as $targetJson) {
                 $target = json_decode($targetJson, true);
 
@@ -250,55 +252,57 @@ class ReportController extends Controller
                     'updated_at' => now(),
                 ];
 
-                $notificacoes[] = [
-                    'submission_id' => $submissionId,
+                $targets[] = [
                     'id_acao' => $idAcao,
                     'id_usuario' => $idUsuario,
                 ];
+            }
 
-                // Disparo dos e-mails
-                foreach ($notificacoes as $item) {
+            if (!empty($submissoes)) {
+                // Bulk insert rápido
+                $this->reportRepository->bulkInsertSubmission($submissoes);
+
+                // 2. Pré-carrega ações e usuários em APENAS 2 CONSULTAS SQL (Evita N+1)
+                $actionIds = array_filter(array_column($targets, 'id_acao'));
+                $userIds = array_filter(array_column($targets, 'id_usuario'));
+
+                $acoes = !empty($actionIds) ? Acao::whereIn('id', $actionIds)->get()->keyBy('id') : collect();
+                $usuarios = !empty($userIds) ? User::whereIn('id', $userIds)->get()->keyBy('id') : collect();
+
+                // 3. Dispara cada e-mail para a fila individualmente (executa em < 100ms)
+                foreach ($targets as $item) {
                     $email = null;
                     $nomeAcao = null;
                     $nome = null;
 
-                    // Busca por Ação se houver id_acao
-                    if (!empty($item['id_acao'])) {
-                        $acao = Acao::find($item['id_acao']);
-                        if ($acao) {
-                            $nomeAcao = $acao->titulo;
-                            $coordenador = $acao->coordenador();
-                            $email = $coordenador->user->email ?? $coordenador->email ?? null;
-                            $nome = $coordenador->user->name ?? $coordenador->name ?? null;
-                        }
+                    if (!empty($item['id_acao']) && isset($acoes[$item['id_acao']])) {
+                        $acao = $acoes[$item['id_acao']];
+                        $nomeAcao = $acao->titulo;
+                        $coordenador = $acao->coordenador();
+                        $email = $coordenador->user->email ?? $coordenador->email ?? null;
+                        $nome = $coordenador->user->name ?? $coordenador->name ?? null;
                     }
 
-                    // Se houver id_usuario direto e o e-mail ainda não tiver sido capturado
-                    if (empty($email) && !empty($item['id_usuario'])) {
-                        $usuario = User::find($item['id_usuario']);
+                    if (empty($email) && !empty($item['id_usuario']) && isset($usuarios[$item['id_usuario']])) {
+                        $usuario = $usuarios[$item['id_usuario']];
                         $email = $usuario->email ?? null;
                         $nome = $usuario->name ?? null;
                     }
 
                     if ($email) {
-                        $url = route('login');
-
+                        // Cada Mail::to()->queue gera um Job isolado no banco/redis
                         Mail::to($email)->queue(new ReportCreatedMail([
                             'nome' => $nome,
                             'titulo_relatorio' => $report->titulo,
                             'nome_acao' => $nomeAcao,
                             'data_inicio' => date('d/m/Y H:i:s', strtotime($report->data_inicio)),
                             'prazo' => date('d/m/Y H:i:s', strtotime($report->prazo)),
-                            'url' => $url,
+                            'url' => route('login'),
                         ]));
                     }
                 }
             }
-    
-            if (!empty($submissoes)) {
-                $this->reportRepository->bulkInsertSubmission($submissoes);
-            }
-    
+
             return redirect()->route('report.index')->with('success', "Relatório criado e ações vinculadas com sucesso.");
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', "Erro ao tentar criar relatório, tente novamente mais tarde.");
@@ -372,6 +376,7 @@ class ReportController extends Controller
 
             $title = 'Relatorio_' . date('Y-m-d_H-i');
             $pdf = Pdf::loadView('pages.report.exports.pdf2', compact('title', 'submissao'));
+            // return view('pages.report.exports.pdf2', compact('title', 'submissao'));
 
             $pdfContent = base64_encode($pdf->setPaper('a4', 'landscape')->output());
 

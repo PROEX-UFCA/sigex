@@ -520,6 +520,7 @@
                 </div>
                 @endforeach
                 <form action="{{ route('report.finish', $submissao->id) }}" method="POST" id="form-finalizar">
+                  @csrf
                   <div class="mt-5">
                     <label class="form-check">
                       <input class="form-check-input" type="checkbox" name="aceite" required {{ old('aceite')
@@ -545,9 +546,7 @@
                       Próximo Passo <i class="bi bi-arrow-right"></i>
                     </button>
                     @else
-                    <div >
-                      @csrf
-                      @method('DELETE')
+                    <div>
                       <button type="button" id="btn-finalizar-fake" class="btn btn-success">
                         Finalizar e Enviar
                       </button>
