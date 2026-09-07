@@ -24,7 +24,9 @@ body, [data-bs-theme="light"], [data-bs-theme="dark"] {
     border-color: #532b1d67 !important;
 }
 body {
-    color: #532B1D;
+    color: #532B1D;8c
+.text-yellow{
+    color:#F5BE56 imporant !important;
 }
 /*carrosseis menores*/
 .text-muted {

@@ -43,7 +43,7 @@
 <body class="body-marketing body-gradient">
     <script src="{{ asset('assets/js/demo-theme.min.js?1684106062') }}"></script>
     <div class="page">
-        <header class="navbar navbar-expand-lg navbar-transparent py-3">
+        <header class="navbar navbar-expand-lg py-3 bg-brown text-yellow">
             <div class="container">
                 <a href=".." aria-label="Tabler" class="navbar-brand navbar-brand-autodark">
                     <img src="{{asset('assets/img/illustrations/logo_proex_top.png')}}" alt="" style="width: 225px;">
@@ -56,15 +56,16 @@
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
                     <nav class="navbar-nav ms-auto gap-2">
                         <div class="nav-item">
-                            <a class="nav-link active px-1 px-xl-3" href="{{route('vitrine.vitrine')}}"><span class="nav-link-title">Início</span></a>
+                            <a class="row nav-link active px-1 px-xl-3" href="{{route('vitrine.vitrine')}}">
+                                <i class="col-auto ti ti-home icon fs-2 m-0 p-0"></i>
+                                <span class="fw-bold col nav-link-title">Início</span>
+                            </a>
                         </div>
                         <div class="nav-item">
-                            <a class="nav-link px-1 px-xl-3" href="../marketing/testimonials.html"><span
-                            class="nav-link-title text-brown">Filtros</span></a>
-                        </div>
-                        <div class="nav-item">
-                            <a class="nav-link px-1 px-xl-3" href="../marketing/pricing.html"><span
-                            class="nav-link-title text-brown">Catálogo</span></a>
+                            <a class="row nav-link text-yellow px-1 px-xl-3" href="{{route('vitrine.catalogo')}}" title="Catálogo">
+                                <i class="col-auto ti ti-layout-grid icon fs-2 m-0 p-0"></i>
+                                <span class="fw-bold col nav-link-title">Catálogo</span>
+                        </a>
                         </div>
                         <div class="d-flex justify-content-end p-0 m-0">
                             <x-table.search route=""></x-table.search>
@@ -72,7 +73,7 @@
 
                         @auth
                             <div class="nav-item btn btn-yellow dropdown py-0 my-2 mx-2">
-                                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Abrir menu do usuário">
+                                <a href="#" class="nav-link d-flex lh-1 text p-0" data-bs-toggle="dropdown" aria-label="Abrir menu do usuário">
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="ti ti-user icon fs-2 m-0 p-0"></i>
                                         

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Repositories\Tokens\UserTokens\UsersTokensRepository;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use App\Models\Acao;
 
 class VitrineController extends Controller
@@ -42,13 +43,15 @@ class VitrineController extends Controller
         return view('pages.vitrine.vitrine', $this->data);
     }
 
-    public function index(){
+    public function index()
+    {
         $this->data['instituicoes'] = Instituicao_Externa::paginate(30);
 
         return view('pages.vitrine.index', $this->data);
     }
 
-    public function aprovar($uuid){
+    public function aprovar($uuid)
+    {
          try {
             $instituicao = Instituicao_Externa::findOrFail($uuid);
             $instituicao->status = 1;
@@ -81,10 +84,34 @@ class VitrineController extends Controller
         }
     }
 
-    public function show($id)
+    public function show($uuid)
     {
-        $this->data['acao'] = Acao::with('galeria')->findOrFail($id);
+        $this->data['acao'] = Acao::with('galeria')->findOrFail($uuid);
         
         return view('pages.vitrine.show', $this->data);
+    }
+
+    public function catalogo(Request $request)
+    {
+        $query = Acao::whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA'])
+            ->orderByRaw('img IS NULL')
+            ->latest('data_cadastro');
+
+        $query->when($request->area_tematica, function ($q, $area) {
+            return $q->where('area_tematica', $area);
+        })
+        ->when($request->situacao, function ($q, $situacao) {
+            return $q->where('situacao', $situacao);
+        })
+        ->when($request->tipo_acao, function ($q, $tipo) {
+            return $q->where('tipo_acao', $tipo);
+        })
+        ->when($request->ods, function ($q, $ods) {
+            return $q->where('ods', 'like', "%{$ods}%");
+        });
+
+        $this->data['acoes'] = $query->paginate(12)->appends($request->all());
+
+        return view('pages.vitrine.catalogo', $this->data);
     }
 }

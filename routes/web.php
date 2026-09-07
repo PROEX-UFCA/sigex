@@ -157,7 +157,9 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/modulo/vitrine', [VitrineController::class, 'index'])->name('vitrine.index')->middleware(['auth' => 'permission:gerenciar_vitrine']);
     Route::post('/modulo/vitrine/aprovar/{uuid}', [VitrineController::class, 'aprovar'])->name('vitrine.aprovar')->middleware(['auth' => 'permission:gerenciar_vitrine']);
+    Route::get('/vitrine/perfil', [ProfileController::class, 'vitrineIndex'])->name('vitrine.profile');
 });
     
 Route::get('/vitrine', [VitrineController::class, 'vitrine'])->name('vitrine.vitrine');
 Route::get('/vitrine/detalhar/{uuid}', [VitrineController::class, 'show'])->name('vitrine.show');
+Route::get('/vitrine/catalogo', [VitrineController::class, 'catalogo'])->name('vitrine.catalogo');

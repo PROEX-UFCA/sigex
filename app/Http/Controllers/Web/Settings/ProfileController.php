@@ -8,6 +8,7 @@ use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\User\UsersRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Instituicao_Externa;
 
 class ProfileController extends Controller
 {
@@ -25,8 +26,14 @@ class ProfileController extends Controller
 
     public function index()
     {
+        $user = Auth::user();
+
+        if (!empty($user->id_instituicao)) {
+            return redirect()->route('vitrine.profile');
+        }
+
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO_DEPARTAMENTO'])->groupBy('function');
-        $this->data['user'] = Auth::user();
+        $this->data['user'] = $user;
 
         return view('pages.profile.index', $this->data);
     }
@@ -57,5 +64,23 @@ class ProfileController extends Controller
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'Erro ao tentar atualizar informações, tente novamente mais tarde.');
         }
+    }
+
+    public function vitrineIndex()
+    {
+        $user = Auth::user();
+
+        // 2. STANDARD GATEKEEPER: If they are a university member, bounce them to the standard profile
+        if (empty($user->id_instituicao)) {
+            return redirect()->route('profile.index');
+        }
+
+        $this->data['user'] = $user;
+
+        // 3. THE CRASH FIX: Trim the invisible spaces from the database column before querying
+        $cleanId = trim($user->id_instituicao);
+        $this->data['instituicao'] = Instituicao_Externa::find($cleanId);
+
+        return view('pages.vitrine.profile', $this->data);
     }
 }
