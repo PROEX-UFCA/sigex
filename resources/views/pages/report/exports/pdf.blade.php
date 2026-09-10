@@ -26,7 +26,7 @@
             @forelse ($data as $row)
                 <tr>
                     @foreach ((array) $row as $val)
-                        <td>{{ $val }}</td>
+                        <td>{!! $val !!}</td>
                     @endforeach
                 </tr>
             @empty

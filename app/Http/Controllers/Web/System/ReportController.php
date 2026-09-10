@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Foundation\Console\ViewClearCommand;
 
 class ReportController extends Controller
 {
@@ -1089,8 +1090,9 @@ class ReportController extends Controller
      */
     private function exportToPdf(string $title, array $headers, $data)
     {
+        // return view('pages.report.exports.pdf', compact('title', 'headers', 'data'));
         $pdf = Pdf::loadView('pages.report.exports.pdf', compact('title', 'headers', 'data'));
-        return $pdf->setPaper('a4', 'landscape')->download("{$title}.pdf");
+        return $pdf->setPaper('tabloid', 'landscape')->download("{$title}.pdf");
     }
 
     /**
@@ -1136,14 +1138,19 @@ class ReportController extends Controller
     /**
     * Formata as respostas de uma pergunta para exibição na célula do relatório baixado (PDF, Excel, CSV).
     */
+    /**
+    * Formata as respostas de uma pergunta para exibição em exportações (Excel, CSV, PDF, etc.).
+    */
     private function formatarRespostaParaExportacao($pergunta, string $idSubmissao): string
     {
-        // 1. TRATAMENTO PARA PERGUNTAS DO TIPO TABELA
-        if (in_array($pergunta->tipo, ['tabela', 'tabela_dinamica'])) {
+        $tipo = strtolower($pergunta->tipo ?? '');
+
+        // 1. TRATAMENTO PARA PERGUNTAS DO TIPO TABELA DINÂMICA
+        if (in_array($tipo, ['tabela', 'tabela_dinamica', 'table'])) {
             $filhas = $pergunta->filhas;
 
             if ($filhas && $filhas->count() > 0) {
-                // Busca todas as respostas das colunas/perguntas filhas vinculadas a esta submissão
+                // Busca todas as respostas das colunas/perguntas filhas desta submissão
                 $respostasFilhas = \App\Models\Resposta::whereIn('id_pergunta', $filhas->pluck('id'))
                     ->where('id_submissao', $idSubmissao)
                     ->get();
@@ -1154,7 +1161,7 @@ class ReportController extends Controller
 
                 // Agrupa as respostas por linha/registro da tabela
                 $gruposLinha = $respostasFilhas->groupBy(function ($resp) {
-                    return $resp->id_linha ?? $resp->indice ?? $resp->created_at;
+                    return $resp->indice_grupo;
                 });
 
                 $linhasTexto = [];
@@ -1163,23 +1170,92 @@ class ReportController extends Controller
                 foreach ($gruposLinha as $respostasDaLinha) {
                     $colunasTexto = [];
 
-                    foreach ($respostasDaLinha as $resp) {
-                        $perguntaFilha = $filhas->firstWhere('id', $resp->id_pergunta);
-                        $nomeColuna    = $perguntaFilha->enunciado ?? 'Coluna';
-                        $valorColuna   = $this->tratarValorUnitario($resp->valor, $perguntaFilha->tipo ?? 'text');
+                    foreach ($filhas as $filha) {
+                        $resp = $respostasDaLinha->firstWhere('id_pergunta', $filha->id);
+
+                        $nomeColuna  = $filha->enunciado ?? 'Coluna';
+                        $valorColuna = $resp
+                            ? $this->tratarValorUnitario($resp->valor, $filha->tipo ?? 'text')
+                            : '-';
 
                         if ($valorColuna !== '' && $valorColuna !== '-') {
-                            $colunasTexto[] = "{$nomeColuna}: {$valorColuna}";
+                            $colunasTexto[] = [
+                                'nome'  => $nomeColuna,
+                                'valor' => $valorColuna
+                            ];
                         }
                     }
 
                     if (!empty($colunasTexto)) {
-                        $linhasTexto[] = "[{$numLinha}] " . implode(' | ', $colunasTexto);
+                        $linhasTexto[] = [
+                            'numero' => $numLinha,
+                            'colunas' => $colunasTexto
+                        ];
+
                         $numLinha++;
                     }
                 }
 
-                return !empty($linhasTexto) ? implode("\n", $linhasTexto) : '-';
+                if (empty($linhasTexto)) {
+                    return '-';
+                }
+
+                $html = '<table style="width: 100%; border-collapse: collapse;">';
+
+                // Cabeçalho
+                $html .= '<thead>';
+                $html .= '<tr>';
+
+                $html .= '<th style="border: 1px solid #ddd; padding: 5px;">#</th>';
+
+                foreach ($filhas as $filha) {
+                    $nomeColuna = $filha->enunciado ?? 'Coluna';
+
+                    $html .= '<th style="border: 1px solid #ddd; padding: 5px;">'
+                        . e($nomeColuna)
+                        . '</th>';
+                }
+
+                $html .= '</tr>';
+                $html .= '</thead>';
+
+                // Dados
+                $html .= '<tbody>';
+
+                $numLinha = 1;
+
+                foreach ($gruposLinha as $respostasDaLinha) {
+
+                    $html .= '<tr>';
+
+                    $html .= '<td>[' . $numLinha . ']</td>';
+
+                    foreach ($filhas as $filha) {
+
+                        $resp = $respostasDaLinha->firstWhere(
+                            'id_pergunta',
+                            $filha->id
+                        );
+
+                        $valorColuna = $resp
+                            ? $this->tratarValorUnitario(
+                                $resp->valor,
+                                $filha->tipo ?? 'text'
+                            )
+                            : '-';
+
+                        $html .= '<td>' . $valorColuna . '</td>';
+                    }
+
+                    $html .= '</tr>';
+
+                    $numLinha++;
+                }
+
+                $html .= '</tbody>';
+                $html .= '</table>';
+
+                return $html;
             }
         }
 
@@ -1192,7 +1268,7 @@ class ReportController extends Controller
 
         $valoresFormatados = [];
         foreach ($respostas as $resposta) {
-            $valorTratado = $this->tratarValorUnitario($resposta->valor, $pergunta->tipo ?? '');
+            $valorTratado = $this->tratarValorUnitario($resposta->valor, $tipo);
             if ($valorTratado !== '' && $valorTratado !== '-') {
                 $valoresFormatados[] = $valorTratado;
             }
@@ -1206,34 +1282,54 @@ class ReportController extends Controller
     }
 
     /**
-     * Trata o conteúdo do campo 'valor' com base no tipo da pergunta e no formato de armazenamento (JSON, Texto, etc.).
+     * Trata o valor unitário da resposta de acordo com o tipo da pergunta.
      */
     private function tratarValorUnitario($valor, string $tipoPergunta = ''): string
     {
-        if (is_null($valor) || $valor === '') {
+        if (is_null($valor) || $valor === '' || $valor === 'Não respondido') {
             return '-';
         }
 
-        // Trata valores gravados em formato JSON (Localização, Lista de Checkboxes, Multi-selects, etc.)
+        $tipo = strtolower($tipoPergunta);
+
+        // 1. ARQUIVOS / IMAGENS / DOCUMENTOS -> Retorna o caminho (path) exatamente como está no banco
+        if (in_array($tipo, ['file', 'arquivo', 'imagem', 'image', 'documento'])) {
+            // Caso múltiplos arquivos tenham sido salvos em formato JSON
+            if (is_string($valor) && (str_starts_with($valor, '[') || str_starts_with($valor, '{'))) {
+                $decoded = json_decode($valor, true);
+                if (is_array($decoded)) {
+                    return "<a href=".route('arquivo.visualizar', ['path' => implode("\n", array_filter($decoded))])." target='_blank'>Abrir</a>";
+                }
+            }
+            return "<a href=".route('arquivo.visualizar', ['path' => $valor])." target='_blank'>Abrir</a>"; // Ex: "uploads/submissoes/comprovante.pdf"
+        }
+
+        // 2. TRATAMENTO DE VALORES GRAVADOS EM JSON (Localização, Checkbox, Múltipla Escolha)
         if (is_string($valor) && (str_starts_with($valor, '{') || str_starts_with($valor, '['))) {
             $decoded = json_decode($valor, true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
 
-                // Caso 1: Localização (Endereço, Nome do Local e/ou Coordenadas Lat/Lng)
-                if (in_array($tipoPergunta, ['local', 'localizacao', 'mapa']) || isset($decoded['lat']) || isset($decoded['address']) || isset($decoded['endereco'])) {
+                // Caso A: Localização / Mapa
+                if (in_array($tipo, ['local', 'localizacao', 'location', 'mapa']) || isset($decoded['address']) || isset($decoded['endereco']) || isset($decoded['lat'])) {
                     $partes = [];
-                    if (!empty($decoded['address'])) $partes[] = $decoded['address'];
-                    elseif (!empty($decoded['endereco'])) $partes[] = $decoded['endereco'];
-                    elseif (!empty($decoded['nome'])) $partes[] = $decoded['nome'];
+                    if (!empty($decoded['endereco'])) {
+                        $partes[] = $decoded['endereco'];
+                    } elseif (!empty($decoded['address'])) {
+                        $partes[] = $decoded['address'];
+                    } elseif (!empty($decoded['nome'])) {
+                        $partes[] = $decoded['nome'];
+                    }
 
-                    if (!empty($decoded['lat']) && !empty($decoded['lng'])) {
+                    if (isset($decoded['latitude']) && isset($decoded['longitude'])) {
+                        $partes[] = "(Lat: {$decoded['latitude']}, Lng: {$decoded['longitude']})";
+                    } elseif (isset($decoded['lat']) && isset($decoded['lng'])) {
                         $partes[] = "(Lat: {$decoded['lat']}, Lng: {$decoded['lng']})";
                     }
 
                     return !empty($partes) ? implode(' ', $partes) : implode(', ', array_filter($decoded));
                 }
 
-                // Caso 2: Múltipla escolha / Array de itens
+                // Caso B: Múltipla Escolha / Lista de Itens
                 $itens = array_map(function ($item) {
                     return is_array($item) ? implode(': ', $item) : $item;
                 }, array_filter($decoded));
@@ -1242,11 +1338,7 @@ class ReportController extends Controller
             }
         }
 
-        // Caso 3: Arquivos, Documentos ou Imagens (exibe apenas o nome do arquivo para não poluir a célula)
-        if (in_array($tipoPergunta, ['file', 'arquivo', 'imagem', 'documento'])) {
-            return basename($valor);
-        }
-
+        // 3. TEXTO SIMPLES / VALOR PADRÃO
         return (string) $valor;
     }
 }
