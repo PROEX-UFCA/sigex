@@ -925,6 +925,9 @@ class ReportController extends Controller
 
     public function baixar(Request $request)
     {
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
         // 1. Validação dos parâmetros obrigatórios
         $request->validate([
             'what'   => 'required|in:relatorios,acoes,membros,instituicoes',
@@ -1004,30 +1007,31 @@ class ReportController extends Controller
                 // Consulta ações filtradas
                 $acoes = $this->actionsRepository->getActionsForReports($filters);
 
-                $headers = ['id_projeto', 'coordenador(a)', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'bolsas_concedidas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'palavras_chave', 'ods', 'empresa_junior'];
+                $headers = ['id_projeto', 'coordenador(a)', 'ano', 'titulo', 'modalidade edital', 'bolsas solicitadas', 'bolsas concedidas', 'financiamento interno', 'financiamento externo', 'situacao', 'data cadastro', 'data inicio', 'data fim', 'data atualizacao', 'centro departamento sigla', 'tipo acao', 'area tematica', 'palavras chave', 'ods', 'empresa junior'];
+                
                 $data = $acoes->map(function ($acao) {
                     $coordenador = method_exists($acao, 'coordenador') ? $acao->coordenador() : null;
                     return [
                         'id_projeto'  => $acao->id_projeto,
-                        'coordenador' => $coordenador->user->name ?? $coordenador->nome ?? 'N/A',
+                        'coordenador(a)' => $coordenador->user->name ?? $coordenador->nome ?? 'N/A',
                         'ano'      => $acao->ano ?? 'N/A',
                         'titulo'      => $acao->titulo ?? 'N/A',
-                        'modalidade_edital'  => $acao->modalidade_edital ?? 'N/A',
-                        'bolsas_solicitadas'        => $acao->bolsas_solicitadas ?? 'N/A',
-                        'bolsas_concedidas'        => $acao->bolsas_concedidas ?? 'N/A',
-                        'financiamento_interno'        => $acao->financiamento_interno ?? 'N/A',
-                        'financiamento_externo'        => $acao->financiamento_externo ?? 'N/A',
+                        'modalidade edital'  => $acao->modalidade_edital ?? 'N/A',
+                        'bolsas solicitadas'        => $acao->bolsas_solicitadas ?? 'N/A',
+                        'bolsas concedidas'        => $acao->bolsas_concedidas ?? 'N/A',
+                        'financiamento interno'        => $acao->financiamento_interno ?? 'N/A',
+                        'financiamento externo'        => $acao->financiamento_externo ?? 'N/A',
                         'situacao'        => $acao->situacao ?? 'N/A',
-                        'data_cadastro'        => $acao->data_cadastro ?? 'N/A',
-                        'data_inicio'        => $acao->data_inicio ?? 'N/A',
-                        'data_fim'        => $acao->data_fim ?? 'N/A',
-                        'data_atualizacao'        => $acao->data_atualizacao ?? 'N/A',
-                        'centro_departamento_sigla'        => $acao->centro_departamento_sigla ?? 'N/A',
-                        'tipo_acao'        => $acao->tipo_acao ?? 'N/A',
-                        'area_tematica'        => $acao->area_tematica ?? 'N/A',
-                        'palavras_chave'  => $acao->palavras_chave ?? 'N/A',
+                        'data cadastro'        => $acao->data_cadastro ?? 'N/A',
+                        'data inicio'        => $acao->data_inicio ?? 'N/A',
+                        'data fim'        => $acao->data_fim ?? 'N/A',
+                        'data atualizacao'        => $acao->data_atualizacao ?? 'N/A',
+                        'centro departamento sigla'        => $acao->centro_departamento_sigla ?? 'N/A',
+                        'tipo acao'        => $acao->tipo_acao ?? 'N/A',
+                        'area tematica'        => $acao->area_tematica ?? 'N/A',
+                        'palavras chave'  => $acao->palavras_chave ?? 'N/A',
                         'ods'    => $acao->ods ?? 'N/A',
-                        'is_ej'       => $acao->is_ej ? 'Sim' : 'Não',
+                        'ej?'       => $acao->is_ej ? 'Sim' : 'Não',
                     ];
                 });
                 break;
