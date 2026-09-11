@@ -48,64 +48,52 @@
                 <a href="./vitrine" aria-label="Tabler" class="navbar-brand navbar-brand-autodark">
                     <img src="{{asset('assets/img/illustrations/logo_proex_top.png')}}" alt="" style="width: 225px;">
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                <button class="navbar-toggler text-yellow" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false"
                     aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-                    <nav class="navbar-nav ms-auto gap-2">
+                    <nav class="navbar-nav ms-auto gap-3 align-items-center">
+                        
                         <div class="nav-item">
-                            <a class="row nav-link active px-1 px-xl-3" href="{{route('vitrine.vitrine')}}" title="Início">
+                            <a class="row nav-link active px-1 px-xl-3" href="{{ route('vitrine.vitrine') }}">
                                 <i class="col-auto ti ti-home icon fs-2 m-0 p-0"></i>
-                                <span class="fw-medium col nav-link-title">Início</span>
+                                <span class="fw-bold col nav-link-title">Início</span>
                             </a>
                         </div>
+                        
                         <div class="nav-item">
-                            <a class="row nav-link text-yellow px-1 px-xl-3" href="{{route('vitrine.catalogo')}}" title="Catálogo">
+                            <a class="row nav-link text-yellow px-1 px-xl-3" href="{{ route('vitrine.catalogo') }}" title="Catálogo">
                                 <i class="col-auto ti ti-layout-grid icon fs-2 m-0 p-0"></i>
-                                <span class="fw-medium col nav-link-title">Catálogo</span>
-                        </a>
+                                <span class="fw-bold col nav-link-title">Catálogo</span>
+                            </a>
                         </div>
-                        <div class="d-flex justify-content-end p-0 m-0">
-                            <x-table.search route=""></x-table.search>
+
+                        <div class="d-flex p-0">
+                            <x-table.search route="{{ route('vitrine.catalogo') }}"></x-table.search>
                         </div>
 
                         @auth
-                            <div class="nav-item btn btn-yellow dropdown py-0 my-2 mx-2">
-                                <a href="#" class="nav-link d-flex lh-1 text p-0" data-bs-toggle="dropdown" aria-label="Abrir menu do usuário">
+                            <div class="nav-item btn btn-yellow dropdown py-1 px-2 m-0">
+                                <a href="#" class="nav-link d-flex lh-1 p-0" data-bs-toggle="dropdown">
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="ti ti-user icon fs-2 m-0 p-0"></i>
-                                        
                                         <div class="d-flex flex-column text-start gap-0" style="max-width: 140px;">
-                                            <div class="fw-bold fs-5 text-truncate" title="{{ Auth::user()->name }}">
-                                                {{ Auth::user()->name }}
-                                            </div>
-                                            <div class="fw-light mt-1 fs-6 text-truncate" title="{{ Auth::user()->roles->first()->name }}">
-                                                {{ ucfirst(Auth::user()->roles->first()->name) ?? '' }}
-                                            </div>
+                                            <div class="fw-bold fs-5 text-truncate">{{ Auth::user()->name }}</div>
+                                            <div class="fw-light mt-1 fs-6 text-truncate">{{ ucfirst(Auth::user()->roles->first()->name) ?? '' }}</div>
                                         </div>
                                     </div>
                                 </a>
-                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                    @if(Auth::user()->id_instituicao)
-                                    <a href="{{ route('vitrine.profile') }}" class="dropdown-item m-0">Perfil</a>
-                                    @else
-                                    <a href="{{ route('profile.index') }}" class="dropdown-item m-0">Perfil</a>
-                                    @endif
-                                    <div class="dropdown-divider m-0"></div>
-                                    <a href="{{ route('logout') }}" class="dropdown-item text-danger">Sair</a>
-                                </div>
                             </div>
                         @else
-                            <div class="nav-item px-2">
-                                <a href="{{route('login')}}" class="btn btn-yellow">
+                            <div class="nav-item m-0">
+                                <a href="{{ route('login') }}" class="btn btn-yellow">
                                     <i class="ti ti-user icon"></i>
                                     Faça seu login 
                                 </a>
                             </div>
                         @endauth
-
                     </nav>
                 </div>
             </div>

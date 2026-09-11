@@ -108,6 +108,12 @@ class VitrineController extends Controller
         })
         ->when($request->ods, function ($q, $ods) {
             return $q->where('ods', 'like', "%{$ods}%");
+        })
+        ->when($request->search, function ($q, $search) {
+            return $q->where(function ($subQuery) use ($search) {
+                $subQuery->where('titulo', 'like', "%{$search}%")
+                        ->orWhere('palavras_chave', 'like', "%{$search}%");
+            });
         });
 
         $this->data['acoes'] = $query->paginate(12)->appends($request->all());

@@ -19,7 +19,7 @@
 
 @section('content')
 <div class="container">
-    <a href="{{ route('vitrine.vitrine') }}" class="btn btn-yellow mb-4">← Voltar Página</a>
+    <a href="{{ route('vitrine.vitrine') }}" class="btn btn-yellow my-4">← Voltar Página</a>
 
     <div class="card">
         @php
@@ -121,10 +121,49 @@
             </div>
 
             <h3 class="mt-5 border-bottom border-brown">Contato</h3>
-            <div class="bg-light px-4 py-2 rounded text-muted">
-                <p class="mb-1"><strong>Coordenador(a):</strong> (Nome temporário do coordenador)</p>
-                <p class="mb-0"><strong>Email:</strong> (temporario@instituicao.edu.br)</p>
-            </div>
+            @php
+                $membroCoordenador = $acao->equipe->first(function ($membro) {
+                    $categoria = trim(strtoupper($membro->categoria_membro));
+                    $validCategories = [
+                        'COORDENADOR', 
+                        'COORDENADOR(A)', 
+                        'COORDENADOR(A) ADJUNTO(A)', 
+                        'COORDENADORA', 
+                        'COORDENADOR ADJUNTO'
+                    ];
+                    return in_array($categoria, $validCategories);
+                });
+
+                $userCoordenador = null;
+                if ($membroCoordenador) {
+                    $cleanUserId = trim((string) $membroCoordenador->id_usuario);
+                    $userCoordenador = \App\Models\User::where('uuid', $cleanUserId)->first();
+                }
+            @endphp
+
+            @if($userCoordenador)
+                <div class="bg-light px-4 py-2 rounded text-muted shadow-sm">
+                    <p class="mb-1">
+                        <strong>Coordenador(a):</strong> {{ $userCoordenador->name }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Email:</strong> 
+                        <a href="mailto:{{ $userCoordenador->email }}" class="text-decoration-none text-brown fw-bold">
+                            {{ $userCoordenador->email }}
+                        </a>
+                    </p>
+                    
+                    @if(!empty($userCoordenador->phone))
+                        <p class="mb-0">
+                            <strong>Telefone:</strong> {{ $userCoordenador->phone }}
+                        </p>
+                    @endif
+                </div>
+            @else
+                <div class="alert alert-warning mb-0 border-0 shadow-sm">
+                    As informações de contato da coordenação não estão disponíveis no momento.
+                </div>
+            @endif
 
         <h3 class="mt-5 border-bottom border-brown">Local de atuação</h3>
         <div class="px-4 py-2">
