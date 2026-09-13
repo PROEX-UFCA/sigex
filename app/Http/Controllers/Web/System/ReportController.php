@@ -352,7 +352,7 @@ class ReportController extends Controller
 
     public function finish(Request $request, $uuid){
         
-        $request->validate(['aceite' => 'required|accepted',], [
+        $request->validate(['aceite' => 'required|accepted'], [
             'aceite.required' => 'Você precisa marcar a caixa de consentimento para prosseguir.',
             'aceite.accepted' => 'O termo de ciência deve ser aceito.',
         ]);

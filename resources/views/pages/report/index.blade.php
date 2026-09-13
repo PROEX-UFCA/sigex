@@ -119,6 +119,15 @@
       'value' => $item->prazo ?? '',
       ])
 
+      <x-form-elements.select.select title="Status" id="status" name="status" class="col-12" required="true">
+        <x-slot:options>
+          <option value="" disabled>Selecione</option>
+          <option value="0" {{ $item->status =='0' ? 'selected' : '' }}>Inativo</option>
+          <option value="1" {{ $item->status =='1' ? 'selected' : '' }}>Ativo</option>
+          <option value="2" {{ $item->status =='2' ? 'selected' : '' }}>Finalizado</option>
+        </x-slot:options>
+      </x-form-elements.select.select>
+
       <a href="{{route('report.edit', $item->id)}}" class="btn btn-secondary w-100">Editar submissões</a>
 
     </x-slot:content>
