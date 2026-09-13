@@ -519,8 +519,8 @@
                   @endswitch
                 </div>
                 @endforeach
-
-                <div class="d-flex justify-content-between mt-5 border-top pt-3">
+                @if (!$loop->last)
+                <div class="d-flex justify-content-between mt-1 border-top pt-3">
                   @if ($index > 0)
                   <button type="button" class="btn btn-outline-secondary btn-anterior">
                     <i class="bi bi-arrow-left"></i> Anterior
@@ -534,15 +534,53 @@
                     Próximo Passo <i class="bi bi-arrow-right"></i>
                   </button>
                   @else
-                  <form id="form-finalizar" action="{{ route('report.finish', $submissao->id) }}" method="POST">
-                    @csrf
-                    @method('DELETE')
+                  <div>
                     <button type="button" id="btn-finalizar-fake" class="btn btn-success">
                       Finalizar e Enviar
                     </button>
-                  </form>
+                  </div>
                   @endif
                 </div>
+                @else
+                <form action="{{ route('report.finish', $submissao->id) }}" method="POST" id="form-finalizar">
+                  @csrf
+                  @if ($loop->last)
+                  <div class="mt-5">
+                    <label class="form-check">
+                      <input class="form-check-input" type="checkbox" name="aceite" required {{ old('aceite')
+                        ? 'checked' : '' }}>
+                      <span class="form-check-label">
+                        Declaro que li e aceito os <a href="{{ route('terms.index') }}" target="_blank">Termos de Uso e
+                          Política de Privacidade</a>. Estou ciente de que meus dados serão coletados e tratados de
+                        forma
+                        segura para a prestação dos serviços e comunicações relacionadas.
+                      </span>
+                    </label>
+                  </div>
+                  @endif
+                  <div class="d-flex justify-content-between mt-1 border-top pt-3">
+                    @if ($index > 0)
+                    <button type="button" class="btn btn-outline-secondary btn-anterior">
+                      <i class="bi bi-arrow-left"></i> Anterior
+                    </button>
+                    @else
+                    <div></div>
+                    @endif
+
+                    @if (!$loop->last)
+                    <button type="button" class="btn btn-primary btn-proximo">
+                      Próximo Passo <i class="bi bi-arrow-right"></i>
+                    </button>
+                    @else
+                    <div>
+                      <button type="button" id="btn-finalizar-fake" class="btn btn-success">
+                        Finalizar e Enviar
+                      </button>
+                    </div>
+                    @endif
+                  </div>
+                </form>
+                @endif
               </div>
               @endforeach
             </div>

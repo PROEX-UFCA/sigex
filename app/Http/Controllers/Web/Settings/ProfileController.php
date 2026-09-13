@@ -25,7 +25,7 @@ class ProfileController extends Controller
 
     public function index()
     {
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO_DEPARTAMENTO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO', 'CURSO'])->groupBy('function');
         $this->data['user'] = Auth::user();
 
         return view('pages.profile.index', $this->data);

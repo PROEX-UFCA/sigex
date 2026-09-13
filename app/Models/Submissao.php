@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Submissao extends Model
 {
     use HasUuids;
 
     protected $table = 'submissao';
-    protected $fillable = ['id_relatorio', 'id_acao', 'finalizada_em'];
+    protected $fillable = ['id_relatorio', 'id_acao', 'finalizada_em', 'id_usuario'];
 
     public function relatorio() :BelongsTo{
         return $this->belongsTo(Relatorio::class, 'id_relatorio', 'id');
@@ -24,6 +25,10 @@ class Submissao extends Model
 
     public function respostas() :HasMany{
         return $this->hasMany(Resposta::class, 'id_submissao', 'id');
+    }
+
+    public function user() :HasOne{
+        return $this->hasOne(User::class, 'uuid', 'id_usuario');
     }
 
     public function getProgressAttribute() : float

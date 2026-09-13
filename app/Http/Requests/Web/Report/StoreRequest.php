@@ -24,10 +24,11 @@ class StoreRequest extends FormRequest
         return [
             'formulario'      => ['required', 'uuid'],
             'titulo'      => ['required', 'string', 'max:255'],
+            'who'      => ['required', 'string'],
             'data_inicio' => ['required', 'date'],
             'prazo'       => ['required', 'date', 'after:data_inicio'], 
-            'parametros'   => ['required', 'array'],
-            'parametros.*' => ['array'], 
+            'target_ids'   => ['required', 'array'],
+            // 'parametros.*' => ['array'], 
             // 'ano_acao'    => ['required', 'integer', 'digits:4'],
             // 'ano_inicio'  => ['required', 'integer', 'digits:4'],
             // 'ano_fim'     => ['required', 'integer', 'digits:4', 'gte:ano_inicio'],
@@ -47,6 +48,9 @@ class StoreRequest extends FormRequest
             'titulo.string'   => 'O título informado não é válido.',
             'titulo.max'      => 'O título não pode ultrapassar o limite de 255 caracteres.',
 
+            'who.required' => 'É necessário dizer para que/quem é o relatório.',
+            'who.string'   => 'É necessário dizer para que/quem é o relatório.',
+
             'data_inicio.required' => 'A "Data de início" é obrigatória.',
             'data_inicio.date'     => 'O formato da "Data de início" é inválido.',
 
@@ -54,9 +58,9 @@ class StoreRequest extends FormRequest
             'prazo.date'     => 'O formato do "Prazo" é inválido.',
             'prazo.after'    => 'O prazo definido deve ser uma data posterior à data de início.',
 
-            'parametros.required'   => 'Os parâmetros são obrigatórios.',
-            'parametros.array'   => 'O formato dos parâmetros selecionados é inválido.',
-            'parametros.*.array' => 'Houve um erro na seleção dos parâmetros.',
+            'target_ids.required'   => 'Os dados são obrigatórios.',
+            'target_ids.array'   => 'O formato dos dados selecionados é inválido.',
+            // 'parametros.*.array' => 'Houve um erro na seleção dos parâmetros.',
 
             // 'ano_acao.required' => 'Selecione o "Ano da ação".',
             // 'ano_acao.integer'  => 'O "Ano da ação" deve ser numérico.',

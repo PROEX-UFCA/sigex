@@ -197,71 +197,74 @@ class DatabaseSeeder extends Seeder
         ///// Parâmetros /////
         //////////////////////
 
-        // $parametros = [
-        //     "MODALIDADE" => [
-        //         "AÇÃO DE FLUXO CONTÍNUO",
-        //         "VINCULADA A EDITAL",
-        //         "UFCA ITINERANTE",
-        //         "PROPE",
-        //         "AMPLA CONCORRÊNCIA",
-        //     ],
-        //     "AREA_TEMATICA" => [
-        //         "COMUNICAÇÃO",
-        //         "EDUCAÇÃO",
-        //         "TECNOLOGIA E PRODUÇÃO",
-        //         "SAÚDE",
-        //         "TRABALHO",
-        //         "CULTURA",
-        //         "MEIO AMBIENTE",
-        //         "DIREITOS HUMANOS E JUSTIÇA",
-        //     ],
-        //     "TIPO" => [
-        //         "PRESTAÇÃO DE SERVIÇOS",
-        //         "EVENTO",
-        //         "CURSO",
-        //         "PROJETO",
-        //         "PROGRAMA",
-        //     ],
-        //     "PERFIL" => [
-        //         "Coordenador",
-        //         "Administrador"
-        //     ],
-        //     "CENTRO_DEPARTAMENTO" => [
-        //         "INSTITUTO INTERDISCIPLINAR DE SOCIEDADE, CULTURA E ARTE",
-        //         "COORDENADORIA DE GESTÃO DAS AÇÕES",
-        //         "CENTRO DE CIÊNCIAS E TECNOLOGIA",
-        //         "CENTRO DE CIÊNCIAS SOCIAIS APLICADAS",
-        //         "FACULDADE DE MEDICINA",
-        //         "CENTRO DE CIÊNCIAS AGRÁRIAS E DA BIODIVERSIDADE",
-        //         "INSTITUTO DE FORMAÇÃO DE EDUCADORES",
-        //         "PRÓ-REITORIA DE EXTENSÃO",
-        //         "DIVISÃO DE GESTÃO PEDAGÓGICA",
-        //         "DIVISÃO DE ADMISSIBILIDADE E SELEÇÃO",
-        //         "PRÓ-REITORIA DE PLANEJAMENTO E ORÇAMENTO",
-        //         "COORDENAÇÃO DO CURSO DE MEDICINA",
-        //         "COORDENADORIA DE QUALIDADE DE VIDA NO TRABALHO",
-        //         "DIVISÃO DE SAÚDE E NUTRIÇÃO",
-        //         "DIVISÃO DE SERVIÇO SOCIAL E ARTICULAÇÃO ESTUDANTIL",
-        //         "COORDENADORIA DE INTEGRAÇÃO, FORTALECIMENTO E ASSESSORAMENTO DAS AÇÕES DE EXTENSÃO",
-        //         "NÚCLEO DE GESTÃO",
-        //         "DIRETORIA DO SISTEMA DE BIBLIOTECAS",
-        //         "DIVISÃO DE SISTEMAS DE INFORMAÇÃO EDUCACIONAIS",
-        //     ],
-        //     "CETAGORIA_COORDENADOR" => [
-        //         "Coordenador Geral",
-        //         "Coordenador Secundário",
-        //         "Bolsista",
-        //         "Voluntário",
-        //     ]
-        // ];
+        $parametros = [
+            "CURSO" => [
+                "TECNOLOGIA EM PROCESSOS GERENCIAIS",
+                "AGRONOMIA",
+                "MEDICINA VETERINÁRIA",
+                "ADMINISTRAÇÃO",
+                "ADMINISTRAÇÃO PÚBLICA",
+                "ADMINISTRAÇÃO PÚBLICA E GESTÃO SOCIAL",
+                "ARQUIVOLOGIA",
+                "BIBLIOTECONOMIA",
+                "CIÊNCIAS CONTÁBEIS",
+                "MUSEOLOGIA",
+                "CIÊNCIA DA COMPUTAÇÃO",
+                "ENGENHARIA CIVIL",
+                "ENGENHARIA DE MATERIAIS",
+                "ENGENHARIA DE SOFTWARE",
+                "MATEMÁTICA COMPUTACIONAL",
+                "CEAD - CENTRO DE EDUCAÇÃO A DISTÂNCIA",
+                "ANÁLISE E DESENVOLVIMENTO DE SISTEMAS",
+                "FILOSOFIA",
+                "MATEMÁTICA",
+                "PRODUÇÃO MULTIMÍDIA",
+                "TECNOLOGIA EM GESTÃO FINANCEIRA",
+                "FARMÁCIA",
+                "MEDICINA",
+                "PSICOLOGIA",
+                "TERAPIA OCUPACIONAL",
+                "HISTÓRIA",
+                "BIOLOGIA",
+                "FÍSICA",
+                "INTERDISCIPLINAR EM CIÊNCIAS NATURAIS",
+                "INTERDISCIPLINAR EM CIÊNCIAS NATURAIS E MATEMÁTICA",
+                "MATEMÁTICA",
+                "PEDAGOGIA",
+                "QUÍMICA",
+                "TECNOLOGIA EM BANCO DE DADOS",
+                "CINEMA E AUDIOVISUAL",
+                "COMUNICAÇÃO SOCIAL - JORNALISMO",
+                "DESIGN",
+                "DESIGN DE PRODUTO",
+                "FILOSOFIA",
+                "FILOSOFIA",
+                "JORNALISMO",
+                "LETRAS - LIBRAS",
+                "MÚSICA",
+            ],
+            "CENTRO" => [
+                "CCAB - CENTRO DE CIÊNCIAS AGRÁRIAS E DA BIODIVERSIDADE",
+                "CCSA - CENTRO DE CIÊNCIAS SOCIAIS APLICADAS",
+                "CCT - CENTRO DE CIÊNCIAS E TECNOLOGIA",
+                "FAMED - FACULDADE DE MEDICINA",
+                "IESA - INSTITUTO DE ESTUDOS DO SEMIÁRIDO",
+                "IFE - INSTITUTO DE FORMAÇÃO DE EDUCADORES",
+                "IISCA - INSTITUTO INTERDISCIPLINAR DE SOCIEDADE, CULTURA E ARTE",
+            ]
+        ];
 
-        // foreach($parametros as $key => $parametro){
-        //     foreach($parametro as $item){
-        //         Parametro::create([
-        //             "function" => $key,
-        //             "value" => $item
-        //         ]);
-        //     }
-        // }
+        foreach($parametros as $key => $parametro){
+            foreach($parametro as $item){
+                Parametro::create([
+                    "function" => $key,
+                    "value" => $item
+                ]);
+            }
+        }
     }
 }
+
+
+
+
