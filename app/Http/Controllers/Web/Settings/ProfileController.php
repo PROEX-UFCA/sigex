@@ -32,7 +32,7 @@ class ProfileController extends Controller
             return redirect()->route('vitrine.profile');
         }
 
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO_DEPARTAMENTO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO', 'CURSO'])->groupBy('function');
         $this->data['user'] = $user;
 
         return view('pages.profile.index', $this->data);

@@ -13,7 +13,7 @@ class EloquentUsersRepository implements UsersRepository
     }
 
     public function getForCoordinator(){
-        return User::all();
+        return User::whereNull('id_instituicao')->get();
     }
 
     public function getByUuid($uuid){
@@ -29,14 +29,14 @@ class EloquentUsersRepository implements UsersRepository
                 $subQuery->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('status', 'like', "%{$search}%")
-                    ->orWhere('centro_departamento', 'like', "%{$search}%")
+                    ->orWhere('centro', 'like', "%{$search}%")
                     ->orWhere('matricula_siape', 'like', "%{$search}%")
                     ->orWhere('phone', 'like', "%{$search}%");
             });
         });
 
         $camposFiltro = [
-            'centro_departamento', 'status'
+            'centro', 'status'
         ];
 
         foreach ($camposFiltro as $campo) {
@@ -88,8 +88,14 @@ class EloquentUsersRepository implements UsersRepository
             $user->phone = $request->phone;
         }        
             
-        if ($request->filled('centro_departamento')) {
-            $user->centro_departamento = $request->centro_departamento;
+        if ($request->filled('centro')) {
+            $user->centro = $request->centro;
+        }
+        if ($request->filled('curso')) {
+            $user->curso = $request->curso;
+        }
+        if ($request->filled('cpf')) {
+            $user->cpf = $request->cpf;
         }
 
         if ($request->filled('matricula_siape')) {

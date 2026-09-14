@@ -32,8 +32,10 @@ class UpdateRequest extends FormRequest
             // Novos campos
             // 'birth' => 'nullable|date|before:today',
             'phone' => 'nullable|string|max:20|regex:/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/',
+            'cpf' => 'nullable|string|max:14|regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
             'matricula_siape' => 'nullable|string',
-            'centro_departamento' => 'nullable|string|exists:parametro,value',
+            'centro' => 'nullable|string|exists:parametro,value',
+            'curso' => 'nullable|string|exists:parametro,value',
         ];
     }
 
@@ -72,8 +74,15 @@ class UpdateRequest extends FormRequest
             'phone.max' => 'O telefone não pode ter mais de 20 caracteres.',
             'phone.regex' => 'O formato do telefone é inválido. Use o formato (99) 99999-9999.',
 
-            'centro_departamento.uuid' => 'O curso deve ser um UUID válido.',
-            'centro_departamento.exists' => 'O curso selecionado não existe.',
+            'cpf.string' => 'O cpf deve ser um texto.',
+            'cpf.max' => 'O cpf não pode ter mais de 14 caracteres.',
+            'cpf.regex' => 'O formato do cpf é inválido (Use o formato XXX.XXX.XXX-XX).',
+
+            'centro.uuid' => 'O centro deve ser um UUID válido.',
+            'centro.exists' => 'O centro selecionado não existe.',
+        
+            'curso.uuid' => 'O curso deve ser um UUID válido.',
+            'curso.exists' => 'O curso selecionado não existe.',
         ];
     }
 }

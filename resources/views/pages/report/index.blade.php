@@ -6,8 +6,10 @@
 <div class="page-body row">
   <div class="m-0 p-0 mb-4 row">
     <div class="btn-list col-12 col-md-6 p-0 m-0">
+      <a href="{{route('actions.index')}}" class="btn">Voltar</a>
       @can('adicionar_relatórios')
       <a href="{{ route('report.create') }}" class="btn">Novo relatório</a>
+      <a href="{{ route('report.download') }}" class="btn">Baixar relatórios</a>
       @endcan
     </div>
     <div class="d-flex justify-content-end col-12 col-md-6 p-0 m-0">
@@ -71,7 +73,7 @@
           @endcan
           @can('monitorar_relatórios')
           <td class="text-center">
-            <a href="{{route('report.monitor', $item->id)}}" class="btn btn-sm btn-success">Monitorar</a>
+            <a href="{{route('report.monitor', $item->id)}}" class="btn btn-sm btn-success">Homologar</a>
           </td>
           @endcan
         </tr>
@@ -125,6 +127,8 @@
           <option value="2" {{ $item->status =='2' ? 'selected' : '' }}>Finalizado</option>
         </x-slot:options>
       </x-form-elements.select.select>
+
+      <a href="{{route('report.edit', $item->id)}}" class="btn btn-secondary w-100">Editar submissões</a>
 
     </x-slot:content>
   </x-modal.offcanvas>

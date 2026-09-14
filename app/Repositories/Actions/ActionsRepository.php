@@ -13,6 +13,7 @@ interface ActionsRepository{
   public function update($request, $uuid);
   public function getParameters($parameter);
   public function getActionsForReports(array $filtros);
+  public function getMembersForReports(array $filtros);
   public function updateSchedule($request, $id_agenda);
   public function deleteSchedule($id_agenda);
   public function createInternalSchedule($request, $id_acao);

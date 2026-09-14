@@ -23,6 +23,7 @@
                     @endphp
 
                     @foreach ([
+                    'responsavel' => 'Responsável',
                     'titulo' => 'Título',
                     'finalizada_em' => 'Data finalização'
                     ] as $field => $label)
@@ -46,7 +47,8 @@
             <tbody>
                 @foreach ($submissoes as $item)
                 <tr>
-                    <td class="text-wrap" style="min-width: 200px;">{{$item->acao->titulo}}</td>
+                    <td>{{$item->id_usuario == null ? "Não se aplica" : $item->user->name}}</td>
+                    <td class="text-wrap" style="min-width: 200px;">{{$item->acao != null ? $item->acao->titulo : "Não se aplica"}}</td>
                     <td>
                         {!! $item->finalizada_em == null
                         ? '<span class="badge bg-danger">Não finalizado</span>'

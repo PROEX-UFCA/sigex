@@ -16,6 +16,8 @@ class HomeController extends Controller
     {
         $user = Auth::user();
         $this->data['user'] = $user;
+        $user = Auth::user();
+        $this->data['user'] = $user;
 
         $diff = $this->data['user']->updated_at->diffInMonths();
 

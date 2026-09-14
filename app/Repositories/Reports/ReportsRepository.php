@@ -10,4 +10,5 @@ interface ReportsRepository{
   public function getById($uuid);
   public function getSubmissionById($uuid);
   public function getSubmissionsByIdReport($uuid, array $filtros = [], string $sort = 'titulo', string $direction = 'desc');
+  public function getSubmissionsForDownload($whatReport, $quais);
 } 

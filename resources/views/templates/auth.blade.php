@@ -13,7 +13,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>Docker-Laravel</title>
+  <title>SIGEx</title>
   <!-- CSS files -->
   <link href="{{ asset('assets/css/tabler.min.css?1684106062') }}" rel="stylesheet" />
   <link href="{{ asset('assets/css/tabler-flags.min.css?1684106062') }}" rel="stylesheet" />
@@ -21,6 +21,7 @@
   <link href="{{ asset('assets/css/tabler-vendors.min.css?1684106062') }}" rel="stylesheet" />
   <link href="{{ asset('assets/css/demo.min.css?1684106062') }}" rel="stylesheet" />
   <link href="{{ asset('assets/css/tabler-icons.min.css') }}" rel="stylesheet" />
+  <link rel="shortcut icon" href="{{asset('assets/img/illustrations/favicon.png')}}" type="image/x-icon">
 
   <style>
     @import url('https://rsms.me/inter/inter.css');
@@ -37,7 +38,7 @@
 
 <body class="row m-0 p-0 vh-100">
   <div class="d-none d-lg-flex col-6 flex-wrap justify-content-center align-content-center bg-primary bg-gradient">
-    <img src="{{ asset('assets/img/illustrations/login.svg') }}" class="w-75" alt="">
+    <img src="{{ asset('assets/img/illustrations/logo_proex_top.png') }}" class="w-50" alt="" style="filter: brightness(0) invert(1);">
   </div>
   <div class="col-12 col-lg-6 bg-white">
     @yield('content')

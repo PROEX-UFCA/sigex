@@ -25,6 +25,11 @@
       @csrf
       <div class="card">
         <div class="card-body row">
+          <div>
+            <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+              É importante que seu perfil esteja completo.
+            </p>
+          </div>
           <div class="card-title">Informações do Usuário</div>
           @include('components.form-elements.input.input', [
           'title' => 'Nome',
@@ -52,6 +57,16 @@
           'value' => $user->matricula_siape ?? '',
           ])
 
+          @include('components.form-elements.input.input', [
+          'title' => 'Cpf',
+          'type' => 'text',
+          'class' => 'mb-3 col-12 col-md-6',
+          'name' => 'cpf',
+          'id' => 'cpf',
+          'placeholder' => 'Digite seu cpf',
+          'value' => $user->cpf ?? $user->cpf,
+          ])
+
           @foreach ($parametros as $key => $parametro)
           <x-form-elements.select.select title="{{ ucfirst(strtolower($key)) }}" id="{{ strtolower($key) }}"
             name="{{ strtolower($key) }}" class="col-12 col-md-6">
@@ -59,7 +74,7 @@
             <x-slot:options>
               <option value="" disabled {{ old(strtolower($key))=='' ? 'selected' : '' }}>Selecione</option>
               @foreach ($parametro as $lista)
-              <option value="{{ $lista->value }}" {{ old(strtolower($key))==$lista->value ? 'selected' : '' }}>
+              <option value="{{ $lista->value }}" {{ $user->{strtolower($key)}==$lista->value ? 'selected' : '' }}>
                 {{ $lista->value }}
               </option>
               @endforeach
@@ -154,8 +169,18 @@
             }}</strong>
         </div>
         <div class="mb-2">
+          <i class="icon me-2 text-secondary icon-2 ti ti-school"></i>
+          Curso: <strong>{{ $user->curso != null ? $user->curso : 'Não
+            informado' }}</strong>
+        </div>
+        <div class="mb-2">
+          <i class="icon me-2 text-secondary icon-2 ti ti-id"></i>
+          Cpf: <strong>{{ $user->cpf != null ? $user->cpf : 'Não
+            informado' }}</strong>
+        </div>
+        <div class="mb-2">
           <i class="icon me-2 text-secondary icon-2 ti ti-building-community"></i>
-          Centro/Departamento: <strong>{{ $user->centro_departamento != null ? $user->centro_departamento : 'Não
+          Centro/Departamento: <strong>{{ $user->centro != null ? $user->centro : 'Não
             informado' }}</strong>
         </div>
       </div>
@@ -176,7 +201,10 @@
 
     }
 
-    $('#phone').mask('(00)00000-0000', {
+    $('#phone').mask('(00) 00000-0000', {
+      reverse: false
+    });
+    $('#cpf').mask('000.000.000-00', {
       reverse: false
     });
 </script>
