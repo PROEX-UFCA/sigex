@@ -71,7 +71,7 @@
                         </div>
 
                         <div class="d-flex p-0">
-                            <x-table.search route="{{ route('vitrine.catalogo') }}"></x-table.search>
+                            <x-table.vitrine-search route="{{ route('vitrine.catalogo') }}"></x-table.vitrine-search>
                         </div>
 
                         @auth
@@ -85,6 +85,16 @@
                                         </div>
                                     </div>
                                 </a>
+                                
+                                <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                    @if(Auth::user()->id_instituicao)
+                                        <a href="{{ route('vitrine.profile') }}" class="dropdown-item m-0">Perfil</a>
+                                    @else
+                                        <a href="{{ route('profile.index') }}" class="dropdown-item m-0">Perfil</a>
+                                    @endif
+                                    <div class="dropdown-divider m-0"></div>
+                                    <a href="{{ route('logout') }}" class="dropdown-item text-danger">Sair</a>
+                                </div>
                             </div>
                         @else
                             <div class="nav-item m-0">

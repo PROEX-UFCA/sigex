@@ -11,7 +11,8 @@ use App\Http\Controllers\Web\System\MembersController;
 use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use App\Http\Controllers\Web\System\DashboardController;
-use App\Http\Controllers\Web\System\VitrineController;
+use App\Http\Controllers\Web\Vitrine\VitrineController;
+use App\Http\Controllers\Web\Vitrine\MatchController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -163,3 +164,11 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/vitrine', [VitrineController::class, 'vitrine'])->name('vitrine.vitrine');
 Route::get('/vitrine/detalhar/{uuid}', [VitrineController::class, 'show'])->name('vitrine.show');
 Route::get('/vitrine/catalogo', [VitrineController::class, 'catalogo'])->name('vitrine.catalogo');
+
+Route::post('/vitrine/acoes/{id_acao}/interesse', [MatchController::class, 'expressInterest'])
+    ->name('vitrine.match.interest')
+    ->middleware(['auth', 'role:instituicao_externa']);
+
+Route::post('/acoes/match/{id_match}/confirmar', [MatchController::class, 'confirmMatch'])
+    ->name('actions.match.confirm')
+    ->middleware(['auth', 'permission:editar_ação']);

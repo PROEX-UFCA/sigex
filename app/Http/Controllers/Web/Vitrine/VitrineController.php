@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Web\System;
+namespace App\Http\Controllers\Web\Vitrine;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Web\Settings\UsersController;
