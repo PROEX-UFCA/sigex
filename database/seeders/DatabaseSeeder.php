@@ -149,6 +149,8 @@ class DatabaseSeeder extends Seeder
                     'importar_membros',
 
                     "ver_dashboard",
+
+                    "gerenciar_vitrine"
                 ]
             ],
             [
@@ -162,6 +164,7 @@ class DatabaseSeeder extends Seeder
                     "editar_agenda",
                     "remover_agenda",
                     "editar_imagens", 
+                    "responder_relatórios",
                 ]
             ],
             [

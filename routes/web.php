@@ -113,13 +113,13 @@ Route::middleware(['auth'])->group(function () {
 
         Route::delete('membro/deletar/{uuid}', [MembersController::class, 'deleteMember'])->name('members.delete');
 
-        Route::post('acoes/galeria/{uuid}', [ActionController::class, 'storeGallery'])->name('actions.storeGallery')->middleware(['auth' => 'permission:editar_ação']);
+        Route::post('acoes/galeria/{uuid}', [ActionController::class, 'storeGallery'])->name('actions.storeGallery')->middleware(['auth' => 'permission:editar_imagens']);
 
-        Route::put('acoes/galeria/{id_imagem}/alt', [ActionController::class, 'updateGalleryAlt'])->name('actions.updateGalleryAlt')->middleware(['auth' => 'permission:editar_ação']);
+        Route::put('acoes/galeria/{id_imagem}/alt', [ActionController::class, 'updateGalleryAlt'])->name('actions.updateGalleryAlt')->middleware(['auth' => 'permission:editar_imagens']);
 
-        Route::delete('acoes/galeria/{id_imagem}', [ActionController::class, 'deleteGalleryImage'])->name('actions.deleteGalleryImage')->middleware(['auth' => 'permission:editar_ação']);    
+        Route::delete('acoes/galeria/{id_imagem}', [ActionController::class, 'deleteGalleryImage'])->name('actions.deleteGalleryImage')->middleware(['auth' => 'permission:editar_imagens']);    
 
-        Route::put('acoes/banner/{uuid}/alt', [ActionController::class, 'updateBannerAlt'])->name('actions.updateBannerAlt')->middleware(['auth' => 'permission:editar_ação']);
+        Route::put('acoes/banner/{uuid}/alt', [ActionController::class, 'updateBannerAlt'])->name('actions.updateBannerAlt')->middleware(['auth' => 'permission:editar_imagens']);
     });
 
     Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
@@ -158,7 +158,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::post('relatorios/monitorar/validar/{uuid}', [ReportController::class, 'validar'])->name('report.validate.store')->middleware(['auth' => 'permission:monitorar_relatórios']);
 
-    Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar')->middleware(['auth' => 'permission:monitorar_relatórios']);
+    Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar');
     
     Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index')->middleware(['auth' => 'permission:ver_dashboard']);
     

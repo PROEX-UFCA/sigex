@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Submissao extends Model
 {
-    use HasUuids;
+    use HasUuids, LogsActivity;
 
     protected $table = 'submissao';
     protected $fillable = ['id_relatorio', 'id_acao', 'finalizada_em', 'id_usuario'];
@@ -110,5 +112,14 @@ class Submissao extends Model
         }
 
         return $qtdAvaliadasAprovadas;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['id_relatorio', 'id_acao', 'finalizada_em', 'id_usuario'])
+            ->useLogName('submissao')
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }
