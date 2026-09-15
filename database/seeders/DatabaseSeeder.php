@@ -68,6 +68,8 @@ class DatabaseSeeder extends Seeder
             "gerenciar_vitrine",
 
             "ver_dashboard",
+
+            "editar_acoes_em_massa",
         ];
 
         $roles = [
@@ -111,7 +113,9 @@ class DatabaseSeeder extends Seeder
 
                     "ver_dashboard",
 
-                    "gerenciar_vitrine"
+                    "gerenciar_vitrine",
+
+                    "editar_acoes_em_massa"
                 ]
             ],
             [
@@ -150,7 +154,9 @@ class DatabaseSeeder extends Seeder
 
                     "ver_dashboard",
 
-                    "gerenciar_vitrine"
+                    "gerenciar_vitrine",
+
+                    "editar_acoes_em_massa"
                 ]
             ],
             [

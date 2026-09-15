@@ -99,7 +99,7 @@
 
               @canany(['ver_formulários', 'ver_relatórios'])
               <x-navbar.navbar-item route="" title="Módulos"
-                isActive="{{ request()->routeIs(['actions.index', 'actions.create', 'users.*', 'forms.index', 'sessions.*', 'report.*', 'vitrine.*']) ? true : false }}"
+                isActive="{{ request()->routeIs(['actions.index', 'actions.editLot', 'actions.create', 'users.*', 'forms.index', 'sessions.*', 'report.*', 'vitrine.*']) ? true : false }}"
                 icon="ti-hexagons">
                 <x-slot:links>
                   @can('ver_todas_as_ações')

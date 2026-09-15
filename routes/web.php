@@ -11,6 +11,7 @@ use App\Http\Controllers\Web\System\MembersController;
 use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use App\Http\Controllers\Web\System\DashboardController;
+use App\Http\Controllers\Web\System\SuportActionController;
 use App\Http\Controllers\Web\System\VitrineController;
 use Illuminate\Support\Facades\Route;
 
@@ -164,6 +165,11 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/modulo/vitrine', [VitrineController::class, 'index'])->name('vitrine.index')->middleware(['auth' => 'permission:gerenciar_vitrine']);
     Route::post('/modulo/vitrine/aprovar/{uuid}', [VitrineController::class, 'aprovar'])->name('vitrine.aprovar')->middleware(['auth' => 'permission:gerenciar_vitrine']);
+
+    Route::group(['middleware' => ['auth', 'permission:editar_acoes_em_massa']], function () {
+        Route::get('edicao_em_massa', [SuportActionController::class, 'indexEditLot'])->name('actions.editLot');
+        Route::post('edicao_em_massa', [SuportActionController::class, 'storeEditLot'])->name('actions.editLotStore');
+    });
 });
     
 Route::get('/vitrine', [VitrineController::class, 'vitrine'])->name('vitrine.vitrine');
