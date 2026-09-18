@@ -157,7 +157,7 @@
                                     @endphp
 
                                         <span class="badge border-0" style=" background: {{$corTema}}">{{ $acao->area_tematica }}</span>
-                                        <span class="badge {{ $acao->situacao === 'CONCLUÍDA' ? 'bg-green-lt' : 'bg-blue-lt' }} border-0">
+                                        <span class="badge {{ $acao->situacao === 'CONCLUÍDA' ? 'bg-grey-lt border-secondary border-opacity-25' : 'bg-green-lt border-green' }} border-1">
                                             {{ $acao->situacao }}
                                         </span>
                                     </div>

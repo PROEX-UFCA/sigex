@@ -17,6 +17,7 @@ class Match_Acao extends Model
         'id_instituicao',
         'id_acao',
         'mutual',
+        'concluida',
     ];
 
     public function instituicao()

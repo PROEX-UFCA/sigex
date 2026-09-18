@@ -44,4 +44,15 @@ class MatchController extends Controller
             return redirect()->back()->with('error', 'Erro ao confirmar o match. Tente novamente mais tarde.');
         }
     }
+
+    public function endMatch($id_match)
+    {
+        $match = \App\Models\Match_Acao::findOrFail($id_match);
+        
+        $match->update([
+            'concluida' => true
+        ]);
+
+        return back()->with('success', 'Parceria concluída com sucesso!'); 
+    }
 }

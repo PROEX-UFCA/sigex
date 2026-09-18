@@ -24,6 +24,17 @@ class EloquentMatchesRepository implements MatchesRepository
             'mutual' => true
         ]);
 
-        return $match;
+        return back()->with('success', 'Parceria iniciada! Cheque a ação em "Minhas ações" para mais detalhes sobre as parcerias.'); 
+    }
+
+    public function endMatch($id_match)
+    {
+        $match = Match_Acao::findOrFail($id_match);
+        
+        $match->update([
+            'concluída' => true
+        ]);
+
+        return back()->with('success', 'Parceria concluída com sucesso!'); 
     }
 }

@@ -19,7 +19,7 @@
 
 @section('content')
 <div class="container">
-    <a href="{{ route('vitrine.vitrine') }}" class="btn btn-yellow my-4">← Voltar Página</a>
+    <a href="{{ url()->previous() }}" class="btn btn-yellow my-4">← Voltar Página</a>
 
     <div class="card">
         @php
@@ -42,6 +42,108 @@
 
             <h3 class="mt-5 border-bottom border-brown">Resumo</h3>
             <div class="text-muted px-4 py-2">{!! $acao->resumo ?: 'O resumo da ação não está disponível no momento! Volte depois.' !!}</div>
+
+            <h3 class="mt-5 border-bottom border-brown">Contato</h3>
+            @php
+                $membroCoordenador = $acao->equipe->first(function ($membro) {
+                    $categoria = trim(strtoupper($membro->categoria_membro));
+                    $validCategories = [
+                        'COORDENADOR', 
+                        'COORDENADOR(A)', 
+                        'COORDENADOR(A) ADJUNTO(A)', 
+                        'COORDENADORA', 
+                        'COORDENADOR ADJUNTO'
+                    ];
+                    return in_array($categoria, $validCategories);
+                });
+
+                $userCoordenador = null;
+                if ($membroCoordenador) {
+                    $cleanUserId = trim((string) $membroCoordenador->id_usuario);
+                    $userCoordenador = \App\Models\User::where('uuid', $cleanUserId)->first();
+                }
+            @endphp
+
+            @if($userCoordenador)
+                <div class="bg-light px-4 py-2 rounded text-muted shadow-sm">
+                    <p class="mb-1">
+                        <strong>Coordenador(a):</strong> {{ $userCoordenador->name }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Email:</strong> 
+                        <a href="mailto:{{ $userCoordenador->email }}" class="text-decoration-none text-brown fw-bold">
+                            {{ $userCoordenador->email }}
+                        </a>
+                    </p>
+                    
+                    @if(!empty($userCoordenador->phone))
+                        <p class="mb-0">
+                            <strong>Telefone:</strong> {{ $userCoordenador->phone }}
+                        </p>
+                    @endif
+                </div>
+            @else
+                <div class="alert alert-warning mb-0 border-0 shadow-sm">
+                    As informações de contato da coordenação não estão disponíveis no momento.
+                </div>
+            @endif
+            
+            @auth
+                @if(Auth::user()->id_instituicao !== null)
+                    @php
+                        $cleanId = trim((string) Auth::user()->id_instituicao);
+                        
+                        $currentMatch = \App\Models\Match_Acao::where('id_acao', $acao->id)
+                            ->where('id_instituicao', $cleanId)
+                            ->first();
+                    @endphp
+
+                    <div class="mt-3 pt-1 border-top border-light mw-fit">
+                    @if(!$currentMatch && $acao->situacao == 'EM EXECUÇÃO')
+                        <button type="button" class="btn btn-yellow fw-bold shadow-sm fs-3 py-3 w-auto m-0" data-bs-toggle="modal" data-bs-target="#modal-confirm-interest">
+                            <i class="ti ti-heart-handshake me-2 fs-2"></i> Gostaria de uma parceria com essa ação.
+                        </button>
+
+                        <div class="modal fade" id="modal-confirm-interest" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow-lg">
+                                    <div class="modal-header bg-light">
+                                        <h5 class="modal-title fs-3 text-brown"><i class="ti ti-info-circle me-2"></i> Confirmar Interesse</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-start p-4">
+                                        <p class="fs-3 mb-3">Você está prestes a solicitar uma parceria com o projeto <strong>{{ $acao->titulo }}</strong>.</p>
+                                        <div class="alert alert-info border-0 shadow-sm mb-0">
+                                            <i class="ti ti-mail-forward me-2"></i>
+                                            Ao confirmar, a coordenação da ação será notificada e receberá os dados de contato da sua instituição (Email, Telefone, Endereço e CNPJ) para dar continuidade ao processo.
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer bg-light">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <form action="{{ route('vitrine.match.interest', $acao->id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            <button type="submit" class="btn btn-yellow fw-bold shadow-sm">
+                                                Sim, Confirmar interesse.
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @elseif($currentMatch && $currentMatch->mutual == false)
+                            <button class="btn btn-secondary w-100 fw-bold shadow-sm fs-3 py-3 m-0 opacity-75 w-auto" disabled>
+                                <i class="ti ti-clock me-2 fs-2"></i> Esperando a coordenação aprovar a parceria...
+                            </button>
+
+                        @elseif($currentMatch && $currentMatch->mutual == true)
+                            <div class="btn btn-success w-100 fw-bold shadow-sm fs-4 py-3 m-0 w-auto" style="pointer-events: none;">
+                                <i class="ti ti-circle-check me-2 fs-2"></i> Vínculo aceito! A coordenação da ação também tem interesse numa parceria.
+                            </div>
+                        @endif
+                    </div>
+                @endif
+            @endauth
 
             <h3 class="mt-5 border-bottom border-brown">ODS Vinculados</h3>
             <div class="text-muted px-4 py-2">
@@ -119,51 +221,6 @@
                     <p class="text-muted p-0">Nenhuma imagem disponível na galeria.</p>
                 @endforelse
             </div>
-
-            <h3 class="mt-5 border-bottom border-brown">Contato</h3>
-            @php
-                $membroCoordenador = $acao->equipe->first(function ($membro) {
-                    $categoria = trim(strtoupper($membro->categoria_membro));
-                    $validCategories = [
-                        'COORDENADOR', 
-                        'COORDENADOR(A)', 
-                        'COORDENADOR(A) ADJUNTO(A)', 
-                        'COORDENADORA', 
-                        'COORDENADOR ADJUNTO'
-                    ];
-                    return in_array($categoria, $validCategories);
-                });
-
-                $userCoordenador = null;
-                if ($membroCoordenador) {
-                    $cleanUserId = trim((string) $membroCoordenador->id_usuario);
-                    $userCoordenador = \App\Models\User::where('uuid', $cleanUserId)->first();
-                }
-            @endphp
-
-            @if($userCoordenador)
-                <div class="bg-light px-4 py-2 rounded text-muted shadow-sm">
-                    <p class="mb-1">
-                        <strong>Coordenador(a):</strong> {{ $userCoordenador->name }}
-                    </p>
-                    <p class="mb-1">
-                        <strong>Email:</strong> 
-                        <a href="mailto:{{ $userCoordenador->email }}" class="text-decoration-none text-brown fw-bold">
-                            {{ $userCoordenador->email }}
-                        </a>
-                    </p>
-                    
-                    @if(!empty($userCoordenador->phone))
-                        <p class="mb-0">
-                            <strong>Telefone:</strong> {{ $userCoordenador->phone }}
-                        </p>
-                    @endif
-                </div>
-            @else
-                <div class="alert alert-warning mb-0 border-0 shadow-sm">
-                    As informações de contato da coordenação não estão disponíveis no momento.
-                </div>
-            @endif
 
         <h3 class="mt-5 border-bottom border-brown">Local de atuação</h3>
         <div class="px-4 py-2">

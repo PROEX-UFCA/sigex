@@ -46,7 +46,7 @@
     <div class="page">
         <header class="navbar navbar-expand-lg py-3 bg-brown text-yellow">
             <div class="container">
-                <a href="./vitrine" aria-label="Tabler" class="navbar-brand navbar-brand-autodark">
+                <a href="/vitrine" aria-label="Tabler" class="navbar-brand navbar-brand-autodark">
                     <img src="{{asset('assets/img/illustrations/logo_proex_top.png')}}" alt="" style="width: 225px;">
                 </a>
                 <button class="navbar-toggler text-yellow" type="button" data-bs-toggle="collapse"

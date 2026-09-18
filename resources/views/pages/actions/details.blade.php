@@ -15,11 +15,8 @@
         $categoria = trim(strtoupper($membro->categoria_membro));
         
         $validCategories = [
-            'COORDENADOR', 
             'COORDENADOR(A)', 
             'COORDENADOR(A) ADJUNTO(A)', 
-            'COORDENADORA', 
-            'COORDENADOR ADJUNTO'
         ];
         
         return $isSameUser && in_array($categoria, $validCategories);
@@ -61,6 +58,11 @@
               @if($isEquipe)
               <button class="nav-link text-start" id="agenda-interna-tab" data-bs-toggle="tab" data-bs-target="#agenda-interna-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-notebook me-2"></i>Agenda
+              </button>
+              @endif
+              @if($isCoordinator)
+              <button class="nav-link text-start" id="parcerias-tab" data-bs-toggle="tab" data-bs-target="#parcerias-pane" type="button" role="tab" aria-selected="false">
+                <i class="ti ti-world-heart me-2"></i>Parcerias
               </button>
               @endif
             </div>
@@ -652,7 +654,7 @@
               </div>
             </div>
 
-          @if($isEquipe)
+            @if($isEquipe)
             <div class="tab-pane fade show" id="agenda-interna-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
@@ -869,7 +871,86 @@
                 </div>
               </div>
             </div>
-          @endif
+            @endif
+
+            @if($isCoordinator)
+            <div class="tab-pane fade" id="parcerias-pane" role="tabpanel" tabindex="0">
+              <div class="card card-lg mb-3">
+                <div class="card-body p-5">
+                  <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
+                    <h3 class="m-0">Parcerias da ação</h3>
+                  </div>
+                  @if($action->matches->where('mutual', true)->count() > 0)
+                    <div class="table-responsive p-0 mb-5">
+                      <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
+                        <thead>
+                          <th>Instituição</th>
+                          <th>Email</th>
+                          <th>Telefone</th>
+                          <th>Endereço</th>
+                          <th>Status da parceria</th>
+                          <th></th>
+
+                        </thead>
+                        <tbody>
+                          @foreach ($action->matches as $item)
+                          <tr>
+                            <td>{{ $item->instituicao->nome }}</td>
+                            <td>{{ $item->instituicao->email }}</td>
+                            <td>{{ $item->instituicao->telefone_contato }}</td>
+                            
+                            <td>{{ $item->instituicao->logradouro }}, {{ $item->instituicao->numero }} - {{ $item->instituicao->cep }}</td>
+                            
+                            <td>
+                                @if($item->concluida)
+                                    <span class="badge bg-secondary">Concluída</span>
+                                @else
+                                    <span class="badge bg-success">Ativa</span>
+                                @endif
+                            </td>
+
+
+                            <td>
+                              @if(!$item->concluida)
+                                  <button type="button" class="btn btn-sm btn-danger fw-bold" data-bs-toggle="modal" data-bs-target="#modal-end-match-{{ $item->id }}">
+                                      <i class="ti ti-trash me-1"></i> Concluir
+                                  </button>
+
+                                  <div class="modal fade" id="modal-end-match-{{ $item->id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-sm modal-dialog-centered">
+                                      <div class="modal-content text-wrap">
+                                        <div class="modal-body text-center py-4">
+                                          <i class="ti ti-alert-triangle text-danger fs-1 mb-2"></i>
+                                          <h3>Encerrar Parceria?</h3>
+                                          <div class="text-muted">Tem certeza que deseja finalizar esta parceria com <strong>{{ $item->instituicao->nome }}</strong>? Esta operação não pode ser desfeita.</div>
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary me-auto" data-bs-dismiss="modal">Cancelar</button>
+                                          <form action="{{ route('actions.match.end', $item->id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger">Sim, concluir</button>
+                                          </form>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                              @endif
+                            </td>
+                          </tr>
+                          @endforeach
+                        </tbody>
+                      </table>
+                    </div>
+                  @else
+                    <div class="alert alert-secondary shadow-sm border-0 mt-3">
+                        <i class="ti ti-info-circle me-2"></i> Esta ação ainda não possui parcerias registradas.
+                    </div>
+                  @endif
+                </div>
+              </div>
+            </div>
+            @endif
           </div>
         </div>
 
