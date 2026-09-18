@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Repositories\Tokens\UserTokens\UsersTokensRepository;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Acao;
 
@@ -94,13 +95,17 @@ class VitrineController extends Controller
         return view('pages.vitrine.show', $this->data);
     }
 
-    public function catalogo(Request $request)
-    {
-        $query = Acao::whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA'])
-            ->orderByRaw('img IS NULL')
-            ->latest('data_cadastro');
+public function catalogo(Request $request)
+{
+    $subQuery = DB::table('acao')
+        ->select('id')
+        ->selectRaw('ROW_NUMBER() OVER (PARTITION BY titulo ORDER BY data_fim DESC) as rn')
+        ->whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
 
-        $query->when($request->area_tematica, function ($q, $area) {
+    $query = Acao::whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
+
+    $aplicarFiltros = function ($q) use ($request) {
+        $q->when($request->area_tematica, function ($q, $area) {
             return $q->where('area_tematica', $area);
         })
         ->when($request->situacao, function ($q, $situacao) {
@@ -118,9 +123,22 @@ class VitrineController extends Controller
                         ->orWhere('palavras_chave', 'like', "%{$search}%");
             });
         });
+    };
 
-        $this->data['acoes'] = $query->paginate(12)->appends($request->all());
+    $aplicarFiltros($subQuery);
+    $aplicarFiltros($query);
 
-        return view('pages.vitrine.catalogo', $this->data);
-    }
+    $query->joinSub($subQuery, 'top_acoes', function ($join) {
+        $join->on('acao.id', '=', 'top_acoes.id')
+             ->where('top_acoes.rn', '=', 1);
+    });
+
+    $query->orderByRaw('img IS NULL ASC')
+          ->latest('data_cadastro');
+
+    $this->data['acoes'] = $query->paginate(12)->appends($request->all());
+
+    return view('pages.vitrine.catalogo', $this->data);
+}
+
 }
