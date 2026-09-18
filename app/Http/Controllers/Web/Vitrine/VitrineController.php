@@ -47,6 +47,9 @@ class VitrineController extends Controller
     {
         $this->data['instituicoes'] = Instituicao_Externa::paginate(30);
 
+        $this->data['totalInstituicoes'] = Instituicao_Externa::count();
+        $this->data['pendentesInstituicoes'] = Instituicao_Externa::where('status', 0)->count();
+
         return view('pages.vitrine.index', $this->data);
     }
 

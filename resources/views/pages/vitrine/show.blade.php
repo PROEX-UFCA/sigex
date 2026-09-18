@@ -100,9 +100,11 @@
 
                     <div class="mt-3 pt-1 border-top border-light mw-fit">
                     @if(!$currentMatch && $acao->situacao == 'EM EXECUÇÃO')
-                        <button type="button" class="btn btn-yellow fw-bold shadow-sm fs-3 py-3 w-auto m-0" data-bs-toggle="modal" data-bs-target="#modal-confirm-interest">
-                            <i class="ti ti-heart-handshake me-2 fs-2"></i> Gostaria de uma parceria com essa ação.
-                        </button>
+                        <div id="match-button-container">
+                            <button type="button" class="btn btn-yellow fw-bold shadow-sm fs-3 py-3 w-auto m-0" data-bs-toggle="modal" data-bs-target="#modal-confirm-interest">
+                                <i class="ti ti-heart-handshake me-2 fs-2"></i> Gostaria de uma parceria com essa ação.
+                            </button>
+                        </div>
 
                         <div class="modal fade" id="modal-confirm-interest" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
@@ -120,9 +122,9 @@
                                     </div>
                                     <div class="modal-footer bg-light">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <form action="{{ route('vitrine.match.interest', $acao->id) }}" method="POST" class="m-0">
+                                        <form id="form-express-interest" action="{{ route('vitrine.match.interest', $acao->id) }}" method="POST" class="m-0">
                                             @csrf
-                                            <button type="submit" class="btn btn-yellow fw-bold shadow-sm">
+                                            <button id="btn-submit-interest" type="submit" class="btn btn-yellow fw-bold shadow-sm">
                                                 Sim, Confirmar interesse.
                                             </button>
                                         </form>
@@ -441,6 +443,60 @@
                 targetCity.innerHTML = `<title>${cidadeId.replace(/_/g, ' ')}</title>`;
             }
         }
+
+        const form = document.getElementById('form-express-interest');
+        const submitBtn = document.getElementById('btn-submit-interest');
+        const container = document.getElementById('match-button-container');
+    
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Prevent the default page reload
+                e.preventDefault();
+                
+                // Show loading state to prevent double-clicks
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processando...';
+                submitBtn.disabled = true;
+    
+                // Send the background request
+                fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const modalEl = document.getElementById('modal-confirm-interest');
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        modalInstance.hide();
+    
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="alert alert-success shadow-sm d-inline-flex align-items-center mb-0 fs-3 py-3">
+                                    <i class="ti ti-check fs-2 me-2"></i> 
+                                    <strong>Interesse registrado!</strong>&nbsp;A coordenação foi notificada.
+                                </div>
+                            `;
+                        }
+                    } else {
+                        alert(data.message);
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ocorreu um erro ao processar a solicitação.');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            });
+        }
     });
+
 </script>
 @endsection

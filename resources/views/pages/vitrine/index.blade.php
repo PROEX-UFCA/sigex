@@ -4,6 +4,45 @@
 @endsection
 @section('content')
 <div class="page-body row">
+
+    <div class="row row-cards mb-4 m-0 p-0">
+        <div class="col-sm-6 col-lg-4">
+            <div class="card card-sm shadow-sm border-0">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="bg-blue text-white avatar">
+                                <i class="ti ti-building-community fs-2"></i>
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium fs-3">Total Registradas</div>
+                            <div class="text-muted">{{ $totalInstituicoes }} instituições na base</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+            <div class="card card-sm shadow-sm border-0">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <span class="bg-yellow text-white avatar">
+                                <i class="ti ti-clock-exclamation fs-2"></i>
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="font-weight-medium fs-3">Aguardando Aprovação</div>
+                            <div class="text-muted">{{ $pendentesInstituicoes }} {{ $pendentesInstituicoes == 1 ? 'pendente' : 'pendentes' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="m-0 p-0 mb-4 row">
         {{-- <div class="btn-list col-12 col-md-6 p-0 m-0"> --}}
             <div class="d-flex justify-content-end col-12 p-0 m-0">
@@ -27,7 +66,7 @@
                         'cnpj' => 'cnpj',
                         'endereço' => 'endereço',
                         'status' => 'status',
-                        'telefone_contato' => 'telefone_contato',
+                        'telefone_contato' => 'telefone',
                         'created_at' => 'Data',
                         ] as $field => $label)
                         <th>

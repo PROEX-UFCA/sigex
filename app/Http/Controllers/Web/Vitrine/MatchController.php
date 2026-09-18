@@ -21,15 +21,29 @@ class MatchController extends Controller
         try {
             $user = Auth::user();
             
-            // Clean the UUID to prevent the invisible char(36) spacing bug
             $id_instituicao = trim((string) $user->id_instituicao);
 
             $this->matchesRepository->expressInterest($id_instituicao, $id_acao);
 
-            return redirect()->back()->with('success', 'Interesse registrado com sucesso! A coordenação da ação será notificada.');
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true, 
+                    'message' => 'Interesse registrado com sucesso!'
+                ]);
+            }
+
+            return back()->with('success', 'Interesse registrado com sucesso! A coordenação da ação será notificada.');
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
-            return redirect()->back()->with('error', 'Erro ao registrar interesse. Tente novamente mais tarde.');
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Erro ao registrar interesse. Tente novamente mais tarde.'
+                ], 500);
+            }
+
+            return back()->with('error', 'Erro ao registrar interesse. Tente novamente mais tarde.');
         }
     }
 
