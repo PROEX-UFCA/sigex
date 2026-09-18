@@ -57,19 +57,19 @@
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
                     <nav class="navbar-nav ms-auto gap-3 align-items-center">
                         
-                        <div class="nav-item">
-                            <a class="row nav-link active px-1 px-xl-3" href="{{ route('vitrine.vitrine') }}">
-                                <i class="col-auto ti ti-home icon fs-2 m-0 p-0"></i>
-                                <span class="fw-bold col nav-link-title">Início</span>
-                            </a>
-                        </div>
-                        
-                        <div class="nav-item">
-                            <a class="row nav-link text-yellow px-1 px-xl-3" href="{{ route('vitrine.catalogo') }}" title="Catálogo">
-                                <i class="col-auto ti ti-layout-grid icon fs-2 m-0 p-0"></i>
-                                <span class="fw-bold col nav-link-title">Catálogo</span>
-                            </a>
-                        </div>
+                    <div class="nav-item">
+                        <a class="row nav-link active px-1 px-xl-3 {{ request()->routeIs('vitrine.vitrine') ? 'border-bottom border-1 border-yellow' : '' }}" href="{{ route('vitrine.vitrine') }}">
+                            <i class="col-auto ti ti-home icon fs-2 m-0 p-0"></i>
+                            <span class="fw-bold col nav-link-title">Início</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-item">
+                        <a class="row nav-link text-yellow px-1 px-xl-3 {{ request()->routeIs('vitrine.catalogo') ? 'border-bottom border-1 border-yellow' : '' }}" href="{{ route('vitrine.catalogo') }}" title="Catálogo">
+                            <i class="col-auto ti ti-layout-grid icon fs-2 m-0 p-0"></i>
+                            <span class="fw-bold col nav-link-title">Catálogo</span>
+                        </a>
+                    </div>
 
                         <div class="d-flex p-0">
                             <x-table.vitrine-search route="{{ route('vitrine.catalogo') }}"></x-table.vitrine-search>
