@@ -383,4 +383,18 @@
       });
     });
 </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const form1 = document.getElementById('modal-formimportar');
+      const form2 = document.getElementById('modal-formimportar-membros');
+      const overlay = document.getElementById('loading-overlay');
+
+      form1.addEventListener('submit', function() {
+        overlay.style.display = 'flex';
+      });
+      form2.addEventListener('submit', function() {
+        overlay.style.display = 'flex';
+      });
+    });
+</script>
 @endsection
