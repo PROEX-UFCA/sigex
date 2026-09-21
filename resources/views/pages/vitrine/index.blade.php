@@ -5,10 +5,10 @@
 @section('content')
 <div class="page-body row">
 
-    <div class="row">
-        <div class="card col-6 col-lg-6 my-4">
-            <h3 class="card-title text-brown fw-bold mt-3 ms-3 text-uppercase"><i class="ti ti-calendar-stats"></i> Dados mensais</h3>
-            <div class="shadow-sm">
+    <div class="row mb-3">
+        <div class="card col-6">
+            <h3 class="card-title text-brown fw-bold my-3 ms-3 text-uppercase"><i class="ti ti-calendar-stats"></i> Dados mensais</h3>
+            <div class="shadow-sm border-secondary border-top border-1">
                 <div class="fs-4">
                     <div class="d-flex justify-content-between align-items-center p-3 bg-light border-bottom border-1">
                         <span><i class="ti ti-click text-muted me-2"></i> Acessos</span>
@@ -30,8 +30,8 @@
         </div>
 
         <div class="col-6">
-            <div class="ms-2 row row-cards mt-2 p-0">
-                <div class="card col-sm-12 col-lg-10">
+            <div class="ms-2 row row-cards p-0">
+                <div class="card col-12">
                     <div class="card card-sm shadow-sm border-0">
                         <div class="card-body">
                             <div class="row align-items-center">
@@ -41,8 +41,8 @@
                                     </span>
                                 </div>
                                 <div class="col">
-                                    <div class="font-weight-medium fs-3">Total Registradas</div>
-                                    <div class="text-muted">{{ $totalInstituicoes }} instituições na base</div>
+                                    <div class="font-weight-medium fs-3">Total Ativas</div>
+                                    <div class="text-muted">{{ $totalInstituicoes }} {{ $totalInstituicoes == 1 ? 'instituição' : 'instituições' }} na base</div>
                                 </div>
                             </div>
                         </div>
@@ -69,13 +69,16 @@
 
     </div>
 
-    <div class="card m-0 p-2 mb-3 row">
+    <div class="card mb-3 row">
         <div class="row p-2">
-            <div class="col-4 mt-2 text-uppercase">
-                <h2>Listagem das Instituições Externas</h2>
+            <div class="col-5 m-0 mt-3 text-uppercase">
+                <h3>Listagem das Instituições Externas</h3>
             </div>
-            <div class="d-flex justify-content-end col-8 p-0 m-0">
+            <div class="d-flex justify-content-end col-7 p-0 m-0">
                 <x-table.search route="{{ route('vitrine.index') }}"></x-table.search>
+                <a href="{{ route('vitrine.index') }}" class="btn ms-2 my-2" title="Limpar busca">
+                    Limpar
+                </a>
             </div>
         </div>
         

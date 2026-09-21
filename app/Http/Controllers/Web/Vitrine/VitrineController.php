@@ -60,6 +60,20 @@ class VitrineController extends Controller
         $currentMonth = Vitrine_Access::whereMonth('created_at', Carbon::now()->month)
         ->whereYear('created_at', Carbon::now()->year);
 
+        $this->data['instituicoes'] = Instituicao_Externa::when($request->search, function ($q, $search) {
+                return $q->where(function ($subQuery) use ($search) {
+                    $subQuery->where('nome', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('cnpj', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy($request->input('sort', 'created_at'), $request->input('dir', 'desc'))
+            ->paginate(30)
+            ->appends($request->all());
+
+        $currentMonth = Vitrine_Access::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year);
+
         $this->data['acessosGerais'] = (clone $currentMonth)->count();
 
         $this->data['visitantesUnicos'] = (clone $currentMonth)
@@ -84,7 +98,7 @@ class VitrineController extends Controller
         ->distinct('user_id')
         ->count('user_id');
 
-        $this->data['totalInstituicoes'] = Instituicao_Externa::count();
+        $this->data['totalInstituicoes'] = Instituicao_Externa::where('status', 1)->count();
         $this->data['pendentesInstituicoes'] = Instituicao_Externa::where('status', 0)->count();
 
         return view('pages.vitrine.index', $this->data);
