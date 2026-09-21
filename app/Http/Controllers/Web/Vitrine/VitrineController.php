@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Web\Vitrine;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Web\Settings\UsersController;
+use Carbon\Carbon;
 use App\Jobs\Auth\SendEmailToDoFirstAccess;
 use App\Models\Instituicao_Externa;
 use App\Models\User;
+use App\Models\Vitrine_Access;
 use App\Repositories\Tokens\UserTokens\UsersTokensRepository;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -25,28 +27,62 @@ class VitrineController extends Controller
         $this->userTokensRepository = $userTokensRepository;
     }
 
-    public function vitrine()
+    public function vitrine(Request $request)
     {
+        Vitrine_Access::create([
+        'ip_address' => $request->ip(),
+        'user_agent' => $request->userAgent(),
+        'user_id'    => auth()->id()
+    ]);
+
+        
         $this->data['mainCarousel'] = Acao::where('situacao', 'EM EXECUÇÃO')
-            ->whereNull('acao.deleted_at')
-            ->orderByRaw('img IS NULL') 
-            ->latest('data_cadastro')
-            ->take(10)
-            ->get();
-
+        ->whereNull('acao.deleted_at')
+        ->orderByRaw('img IS NULL') 
+        ->latest('data_cadastro')
+        ->take(10)
+        ->get();
+        
         $this->data['thematicAreas'] = Acao::where('situacao', 'EM EXECUÇÃO')
-            ->whereNull('acao.deleted_at')
-            ->orderByRaw('img IS NULL')
-            ->latest('data_cadastro')
-            ->get()
-            ->groupBy('area_tematica');
-
+        ->whereNull('acao.deleted_at')
+        ->orderByRaw('img IS NULL')
+        ->latest('data_cadastro')
+        ->get()
+        ->groupBy('area_tematica');
+        
         return view('pages.vitrine.vitrine', $this->data);
-    }
-
-    public function index()
+        }
+        
+    public function index(Request $request)
     {
         $this->data['instituicoes'] = Instituicao_Externa::paginate(30);
+
+        $currentMonth = Vitrine_Access::whereMonth('created_at', Carbon::now()->month)
+        ->whereYear('created_at', Carbon::now()->year);
+
+        $this->data['acessosGerais'] = (clone $currentMonth)->count();
+
+        $this->data['visitantesUnicos'] = (clone $currentMonth)
+        ->distinct('ip_address')
+        ->count('ip_address');
+
+        $this->data['instituicoesConectando'] = (clone $currentMonth)
+        ->whereHas('user', function ($query) {
+            $query->whereNotNull('id_instituicao')
+                  ->whereRaw("TRIM(id_instituicao) != ''");
+        })
+        ->distinct('user_id')
+        ->count('user_id');
+
+        $this->data['internosConectando'] = (clone $currentMonth)
+        ->whereHas('user', function ($query) {
+            $query->where(function ($q) {
+                $q->whereNull('id_instituicao')
+                  ->orWhereRaw("TRIM(id_instituicao) = ''");
+            });
+        })
+        ->distinct('user_id')
+        ->count('user_id');
 
         $this->data['totalInstituicoes'] = Instituicao_Externa::count();
         $this->data['pendentesInstituicoes'] = Instituicao_Externa::where('status', 0)->count();
@@ -95,50 +131,50 @@ class VitrineController extends Controller
         return view('pages.vitrine.show', $this->data);
     }
 
-public function catalogo(Request $request)
-{
-    $subQuery = DB::table('acao')
-        ->select('id')
-        ->selectRaw('ROW_NUMBER() OVER (PARTITION BY titulo ORDER BY data_fim DESC) as rn')
-        ->whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
+    public function catalogo(Request $request)
+    {
+        $subQuery = DB::table('acao')
+            ->select('id')
+            ->selectRaw('ROW_NUMBER() OVER (PARTITION BY titulo ORDER BY data_fim DESC) as rn')
+            ->whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
 
-    $query = Acao::whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
+        $query = Acao::whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
 
-    $aplicarFiltros = function ($q) use ($request) {
-        $q->when($request->area_tematica, function ($q, $area) {
-            return $q->where('area_tematica', $area);
-        })
-        ->when($request->situacao, function ($q, $situacao) {
-            return $q->where('situacao', $situacao);
-        })
-        ->when($request->tipo_acao, function ($q, $tipo) {
-            return $q->where('tipo_acao', $tipo);
-        })
-        ->when($request->ods, function ($q, $ods) {
-            return $q->where('ods', 'like', "%{$ods}%");
-        })
-        ->when($request->search, function ($q, $search) {
-            return $q->where(function ($subQuery) use ($search) {
-                $subQuery->where('titulo', 'like', "%{$search}%")
-                        ->orWhere('palavras_chave', 'like', "%{$search}%");
+        $aplicarFiltros = function ($q) use ($request) {
+            $q->when($request->area_tematica, function ($q, $area) {
+                return $q->where('area_tematica', $area);
+            })
+            ->when($request->situacao, function ($q, $situacao) {
+                return $q->where('situacao', $situacao);
+            })
+            ->when($request->tipo_acao, function ($q, $tipo) {
+                return $q->where('tipo_acao', $tipo);
+            })
+            ->when($request->ods, function ($q, $ods) {
+                return $q->where('ods', 'like', "%{$ods}%");
+            })
+            ->when($request->search, function ($q, $search) {
+                return $q->where(function ($subQuery) use ($search) {
+                    $subQuery->where('titulo', 'like', "%{$search}%")
+                            ->orWhere('palavras_chave', 'like', "%{$search}%");
+                });
             });
+        };
+
+        $aplicarFiltros($subQuery);
+        $aplicarFiltros($query);
+
+        $query->joinSub($subQuery, 'top_acoes', function ($join) {
+            $join->on('acao.id', '=', 'top_acoes.id')
+                ->where('top_acoes.rn', '=', 1);
         });
-    };
 
-    $aplicarFiltros($subQuery);
-    $aplicarFiltros($query);
+        $query->orderByRaw('img IS NULL ASC')
+            ->latest('data_cadastro');
 
-    $query->joinSub($subQuery, 'top_acoes', function ($join) {
-        $join->on('acao.id', '=', 'top_acoes.id')
-             ->where('top_acoes.rn', '=', 1);
-    });
+        $this->data['acoes'] = $query->paginate(12)->appends($request->all());
 
-    $query->orderByRaw('img IS NULL ASC')
-          ->latest('data_cadastro');
-
-    $this->data['acoes'] = $query->paginate(12)->appends($request->all());
-
-    return view('pages.vitrine.catalogo', $this->data);
-}
+        return view('pages.vitrine.catalogo', $this->data);
+    }
 
 }

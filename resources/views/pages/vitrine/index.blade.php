@@ -5,53 +5,82 @@
 @section('content')
 <div class="page-body row">
 
-    <div class="row row-cards mb-4 m-0 p-0">
-        <div class="col-sm-6 col-lg-4">
-            <div class="card card-sm shadow-sm border-0">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="bg-blue text-white avatar">
-                                <i class="ti ti-building-community fs-2"></i>
-                            </span>
+    <div class="row">
+        <div class="card col-6 col-lg-6 my-4">
+            <h3 class="card-title text-brown fw-bold mt-3 ms-3 text-uppercase"><i class="ti ti-calendar-stats"></i> Dados mensais</h3>
+            <div class="shadow-sm">
+                <div class="fs-4">
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light border-bottom border-1">
+                        <span><i class="ti ti-click text-muted me-2"></i> Acessos</span>
+                        <span class="badge bg-secondary text-white rounded-pill fs-5 px-3 py-1">{{ $acessosGerais }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-1">
+                        <span><i class="ti ti-world text-muted me-2"></i> Visitantes</span>
+                        <span class="badge bg-blue text-white rounded-pill fs-5 px-3 py-1">{{ $visitantesUnicos }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center p-3">
+                        <span><i class="ti ti-building-community text-muted me-2"></i> Instituições externas conectadas</span>
+                        <span class="badge bg-success text-white rounded-pill fs-5 px-3 py-1">{{ $instituicoesConectando }}</span>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="ms-2 row row-cards mt-2 p-0">
+                <div class="card col-sm-12 col-lg-10">
+                    <div class="card card-sm shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-blue text-white avatar">
+                                        <i class="ti ti-building-community fs-2"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="font-weight-medium fs-3">Total Registradas</div>
+                                    <div class="text-muted">{{ $totalInstituicoes }} instituições na base</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col">
-                            <div class="font-weight-medium fs-3">Total Registradas</div>
-                            <div class="text-muted">{{ $totalInstituicoes }} instituições na base</div>
+                    </div>
+                    <div class="card card-sm shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <span class="bg-yellow text-white avatar">
+                                        <i class="ti ti-clock-exclamation fs-2"></i>
+                                    </span>
+                                </div>
+                                <div class="col">
+                                    <div class="font-weight-medium fs-3">Aguardando Aprovação</div>
+                                    <div class="text-muted">{{ $pendentesInstituicoes }} {{ $pendentesInstituicoes == 1 ? 'pendente' : 'pendentes' }}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-sm-6 col-lg-4">
-            <div class="card card-sm shadow-sm border-0">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="bg-yellow text-white avatar">
-                                <i class="ti ti-clock-exclamation fs-2"></i>
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="font-weight-medium fs-3">Aguardando Aprovação</div>
-                            <div class="text-muted">{{ $pendentesInstituicoes }} {{ $pendentesInstituicoes == 1 ? 'pendente' : 'pendentes' }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
 
-    <div class="m-0 p-0 mb-4 row">
-        {{-- <div class="btn-list col-12 col-md-6 p-0 m-0"> --}}
-            <div class="d-flex justify-content-end col-12 p-0 m-0">
+    <div class="card m-0 p-2 mb-3 row">
+        <div class="row p-2">
+            <div class="col-4 mt-2 text-uppercase">
+                <h2>Listagem das Instituições Externas</h2>
+            </div>
+            <div class="d-flex justify-content-end col-8 p-0 m-0">
                 <x-table.search route="{{ route('vitrine.index') }}"></x-table.search>
             </div>
         </div>
-
+        
         <div class="table-responsive p-0">
-            <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
+            <table class="table table-bordered align-middle mb-0 text-nowrap">
                 <thead>
                     <tr>
                         @php
@@ -91,10 +120,11 @@
                         <td>{{$item->email}}</td>
                         <td>{{$item->cnpj}}</td>
                         <td>{{$item->logradouro}}, {{$item->numero}}, {{$item->complemento ? $item->complemento .', ' : ''}} {{$item->cep}}</td>
-                        <td class="{{ $item->status == 0 ? 'bg-red-lt' : 'bg-success-lt' }}">{{ $item->status == 0 ?
+                        <td class="text-wrap {{ $item->status == 0 ? 'bg-red-lt' : 'bg-success-lt' }}">{{ $item->status == 0 ?
                             'Inativo' : 'Ativo' }}</td>
                         <td>{{$item->telefone_contato}}</td>
                         <td>{{date('d-m-Y', strtotime($item->created_at))}}</td>
+                        @if($item->status == 0)
                         <td class="text-center">
                             <form action="{{ route('vitrine.aprovar', $item->id) }}" method="POST"
                                 onsubmit="return confirm('Deseja realmente aprovar esta instituição?')">
@@ -106,6 +136,7 @@
                                 </button>
                             </form>
                         </td>
+                        @endif
                     </tr>
                     @endforeach
                 </tbody>
