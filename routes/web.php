@@ -12,10 +12,11 @@ use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use App\Http\Controllers\Web\System\DashboardController;
 use App\Http\Controllers\Web\System\SuportActionController;
-use App\Http\Controllers\Web\System\VitrineController;
+use App\Http\Controllers\Web\Vitrine\VitrineController;
+use App\Http\Controllers\Web\Vitrine\MatchController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/login');
+Route::redirect('/', '/vitrine');
 
 
 Route::get('login', [LoginController::class, 'index'])->name('login');
@@ -170,6 +171,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('edicao_em_massa', [SuportActionController::class, 'indexEditLot'])->name('actions.editLot');
         Route::post('edicao_em_massa', [SuportActionController::class, 'storeEditLot'])->name('actions.editLotStore');
     });
+    Route::get('/vitrine/perfil', [ProfileController::class, 'vitrineIndex'])->name('vitrine.profile');
+    Route::put('/vitrine/perfil/atualizar', [ProfileController::class, 'vitrineUpdate'])->name('vitrine.profile.update');
 });
     
 Route::get('/vitrine', [VitrineController::class, 'vitrine'])->name('vitrine.vitrine');
+Route::get('/vitrine/detalhar/{uuid}', [VitrineController::class, 'show'])->name('vitrine.show');
+Route::get('/vitrine/catalogo', [VitrineController::class, 'catalogo'])->name('vitrine.catalogo');
+
+Route::post('/vitrine/acoes/{id_acao}/interesse', [MatchController::class, 'expressInterest'])
+    ->name('vitrine.match.interest')
+    ->middleware(['auth', 'role:Instituição']);
+
+Route::post('/acoes/match/{id_match}/confirmar', [MatchController::class, 'confirmMatch'])
+    ->name('actions.match.confirm')
+    ->middleware(['auth', 'permission:editar_ação']);
+
+Route::delete('/acoes/match/{id_match}/encerrar', [MatchController::class, 'endMatch'])
+    ->name('actions.match.end')
+    ->middleware(['auth', 'permission:editar_ação']);

@@ -16,6 +16,8 @@ use App\Repositories\Settings\User\EloquentUsersRepository;
 use App\Repositories\Settings\User\UsersRepository;
 use App\Repositories\Tokens\UserTokens\EloquentUsersTokensRepository;
 use App\Repositories\Tokens\UserTokens\UsersTokensRepository;
+use App\Repositories\Matches\MatchesRepository;
+use App\Repositories\Matches\EloquentMatchesRepository;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ParametrosRepository::class, EloquentParametrosRepository::class);
         $this->app->bind(FormsRepository::class, EloquentFormsRepository::class);
         $this->app->bind(ReportsRepository::class, EloquentReportsRepository::class);
+        $this->app->bind(MatchesRepository::class, EloquentMatchesRepository::class);
     }
 
     /**
