@@ -64,6 +64,9 @@ class ReportController extends Controller
 
     public function create(Request $request)
     {
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+        
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO', 'MODALIDADE_EDITAL', 'SITUACAO'])->groupBy('function');
         $this->data['formularios'] = $this->formsRepository->getAllActive();
         $this->data['parametros_membros'] = $this->parametrosRepository->getAllActiveByFunctions(['TIPO_MEMBRO', 'CATEGORIA_MEMBRO', 'STATUS_MEMBROS'])->groupBy('function');
@@ -84,7 +87,11 @@ class ReportController extends Controller
                     $this->data['items'] = $this->usersRepository->getForCoordinator();
                     break;
             }
+            if($this->data['items']->count() == 0){
+                return redirect()->back()->with('error', 'Nenhum registro encontrado.');
+            }
         }
+
 
         return view('pages.report.create', $this->data);
     }
@@ -382,7 +389,7 @@ class ReportController extends Controller
             $pdfContent = base64_encode($pdf->setPaper('a4', 'landscape')->output());
 
             return to_route('actions.my')
-                ->with('success', "Relatório finalizado com sucesso. Clique <a href='https://sig.ufca.edu.br/sigaa/public/home.jsf' class='fw-bol' target='_blank'><strong>Aqui</strong></a> para anexar no sigaa.")
+                ->with('success', "Relatório finalizado com sucesso. Clique <a href='https://sig.ufca.edu.br/sigaa/public/home.jsf' class='fw-bol' target='_blank'><strong>Aqui</strong></a> e anexe no sigaa caso seja um relatório relacionado a ações.")
                 ->with('pdf_content', $pdfContent)
                 ->with('pdf_name', "{$title}.pdf");
 

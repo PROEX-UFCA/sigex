@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Relatorio extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes, LogsActivity;
 
     protected $table = 'relatorio';
     protected $fillable = ['id_formulario', 'titulo', 'data_inicio', 'prazo', 'status'];
@@ -21,5 +23,14 @@ class Relatorio extends Model
 
     public function formulario() :BelongsTo{
         return $this->belongsTo(Formulario::class, 'id_formulario', 'id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['id_formulario', 'titulo', 'data_inicio', 'prazo', 'status'])
+            ->useLogName('relatorio')
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

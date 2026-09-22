@@ -33,7 +33,9 @@ class User extends Authenticatable
         'password',
         'uuid',
         'status',
-        'centro_departamento',
+        'centro',
+        'curso',
+        'cpf',
         'matricula_siape',
         'perfil_ativo',
         'phone',
@@ -75,7 +77,7 @@ class User extends Authenticatable
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'id_instituicao', 'email', 'uuid', 'status', 'centro_departamento', 'matricula_siape', 'perfil_ativo', 'phone'])
+            ->logOnly(['id_instituicao', 'name', 'email', 'password', 'uuid', 'status', 'centro', 'curso', 'cpf', 'matricula_siape', 'perfil_ativo', 'phone'])
             ->useLogName('users')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

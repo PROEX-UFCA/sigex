@@ -1,89 +1,84 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cadastrar senha</title>
-  <style>
-    * {
-      padding: 0px;
-      /* font-family: Arial, Helvetica, sans-serif; */
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
-    }
-
-    body {
-      background-color: #F5F5F5;
-      padding: 15px;
-    }
-
-
-    #header {
-      padding: 5px;
-      padding-bottom: 5px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #11C76F;
-    }
-
-    #body {
-      background-color: white;
-      box-shadow: 0px 0px 0.5px black;
-      border-top: 6px solid #11C76F;
-      padding: 20px;
-    }
-
-    h2 {
-      color: #333F4C;
-      font-size: 26px;
-    }
-
-    hr {
-      border-top: 1px solid #EAEAEF;
-    }
-
-
-    p {
-      color: #4E5964;
-      font-size: 18px;
-    }
-
-    span {
-      color: #333F4C;
-      font-weight: bold;
-    }
-
-    a {
-      background-color: #11C76F;
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
-      border-radius: 25px;
-      display: block;
-      width: 180px;
-      height: 45px;
-      text-align: center;
-      align-content: center;
-      margin: 20px auto 0px auto;
-    }
-  </style>
 </head>
 
-<body>
-  <div id="header">
-    <h1>Primeiro acesso</h1>
-  </div>
-  <div id="body">
-    <h2>
-      Instruções para cadastrar senha!
-    </h2>
-    <p>Olá, <span>{{ $name }}</span>! <br><br> Você foi cadastrado no nosso sistema
-      no horário <span>{{ $time }}</span>. <br><br> Acesse o link abaixo para iniciar e cadastrar uma senha!
-      <hr>
-      <a href="{{ route('login.register', $token) }}">Acessar</a>
-  </div>
+<body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: Arial, Helvetica, sans-serif;">
+
+  <!-- Tabela Container Principal -->
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F5F5F5; padding: 20px 0;">
+    <tr>
+      <td align="center">
+
+        <!-- Tabela do Card Centralizado (Max-width 600px) -->
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
+
+          <!-- Cabeçalho -->
+          <tr>
+            <td align="center" style="padding: 10px 0 20px 0;">
+              <h1 style="color: #11C76F; font-size: 24px; margin: 0; font-family: Arial, Helvetica, sans-serif;">
+                Primeiro acesso
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Corpo da Mensagem -->
+          <tr>
+            <td bgcolor="#FFFFFF"
+              style="background-color: #ffffff; border-top: 6px solid #11C76F; padding: 30px; font-family: Arial, Helvetica, sans-serif;">
+
+              <h2 style="color: #333F4C; font-size: 22px; margin: 0 0 15px 0;">
+                Instruções para cadastrar senha!
+              </h2>
+
+              <!-- Texto Informativo -->
+              <p style="color: #4E5964; font-size: 16px; line-height: 1.5; margin: 0 0 20px 0;">
+                Olá, <span style="color: #333F4C; font-weight: bold;">{{ $name }}</span>!<br><br>
+                Você foi cadastrado no nosso sistema no horário <span style="color: #333F4C; font-weight: bold;">{{
+                  $time }}</span>.<br><br>
+                Acesse o link abaixo para iniciar e cadastrar uma senha!
+              </p>
+
+              <!-- Divisor -->
+              <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td style="border-bottom: 1px solid #EAEAEF; font-size: 1px; line-height: 1px; padding-bottom: 15px;">
+                    &nbsp;</td>
+                </tr>
+              </table>
+
+              <!-- Botão de Ação -->
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 25px;">
+                <tr>
+                  <td align="center">
+                    <table border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" bgcolor="#11C76F" style="border-radius: 25px;">
+                          <a href="{{ route('login.register', $token) }}" target="_blank"
+                            style="font-size: 16px; font-family: Arial, Helvetica, sans-serif; color: #ffffff; text-decoration: none; border-radius: 25px; padding: 12px 35px; display: inline-block; font-weight: bold;">
+                            Acessar
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
 </body>
 
 </html>
