@@ -232,7 +232,7 @@
             @endphp
                 
                 <div class="mx-auto">
-                    <p class="text-muted border-start border-3 border-warning ps-3">Nenhum dado disponível no momento.</p>
+                    <p class="text-muted">Nenhum dado disponível no momento.</p>
                 </div>
 
                 <div style="opacity: {{ $localDaAcao ? '1' : '0.5' }}; transition: opacity 0.3s; width:75%;" class="mx-auto     ">
@@ -450,15 +450,12 @@
     
         if (form) {
             form.addEventListener('submit', function(e) {
-                // Prevent the default page reload
                 e.preventDefault();
                 
-                // Show loading state to prevent double-clicks
                 const originalText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processando...';
                 submitBtn.disabled = true;
     
-                // Send the background request
                 fetch(form.action, {
                     method: 'POST',
                     body: new FormData(form),
