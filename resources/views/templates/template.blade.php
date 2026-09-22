@@ -67,7 +67,11 @@
               </div>
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              <a href="{{ route('profile.index') }}" class="dropdown-item m-0">Perfil</a>
+                @if(Auth::user()->id_instituicao)
+                <a href="{{ route('vitrine.profile') }}" class="dropdown-item m-0">Perfil</a>
+                @else
+                <a href="{{ route('profile.index') }}" class="dropdown-item m-0">Perfil</a>
+                @endif
               <div class="dropdown-divider m-0"></div>
               <a href="{{ route('logout') }}" class="dropdown-item">Sair</a>
             </div>

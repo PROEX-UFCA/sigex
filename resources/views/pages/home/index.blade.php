@@ -8,10 +8,10 @@
     <div class="row g-2 align-items-center">
       <div class="col">
         <div class="page-pretitle">
-          <a href="{{ route('home.index') }}">Home</a>
+          <a href="{{ route('home.index') }}">Início</a>
         </div>
         <h2 class="page-title">
-          Home
+          Início
         </h2>
       </div>
       <div class="col-auto ms-auto">
@@ -19,13 +19,60 @@
     </div>
   </div>
 </div>
+
 <div class="page-body row">
+
   <div class="col-12 col-md-9">
+    @if(isset($pendingMatches) && $pendingMatches->count() > 0)
+        <h3 class="mb-0 text-primary">
+            <i class="ti ti-bell-ringing me-2"></i>Novos Interesses
+        </h3>
+        <hr class="my-3">
+        @foreach($pendingMatches as $match)
+            <div class="card mb-3 shadow-sm border-start">
+                <div class="card-body p-2">
+                    <div class="d-flex align-items-center my-1 ms-3">
+                        <div>
+                            <h3 class="m-0 text-brown">Nova demonstração de interesse!</h3>
+                            <div class="text-muted fs-3">A instituição <strong>{{ $match->instituicao->nome }}</strong> deseja firmar uma parceria com o projeto <strong>{{ $match->acao->titulo }}</strong>.</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-light p-3 rounded mb-1 text-muted border border-light">
+                        <div class="row row-cols-1 row-cols-md-2 g-3 mt-1">
+                            <div class="col">
+                                <strong><i class="ti ti-mail me-1"></i> Email:</strong> <br> 
+                                <a href="mailto:{{ $match->instituicao->email }}" class="text-decoration-none text-brown">{{ $match->instituicao->email }}</a>
+                            </div>
+                            <div class="col">
+                                <strong><i class="ti ti-phone me-1"></i> Telefone:</strong> <br> 
+                                {{ $match->instituicao->telefone_contato }}
+                            </div>
+                            <div class="col-12">
+                                <strong><i class="ti ti-map-pin me-1"></i> Endereço:</strong> <br> 
+                                {{ $match->instituicao->logradouro }}, {{ $match->instituicao->numero }} {{ $match->instituicao->complemento ? ' - ' . $match->instituicao->complemento : '' }} - CEP: {{ $match->instituicao->cep }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 border-top pt-1">
+                        <form action="{{ route('actions.match.confirm', $match->id) }}" method="POST" class="m-0">
+                            @csrf
+                            <button type="submit" class="btn btn-success fw-bold shadow-sm px-4">
+                                <i class="ti ti-check me-2"></i> Aceitar Parceria
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @endif
+    
     <h3 class="mb-0">Suas tarefas</h3>
     <hr class="my-3">
     <div class="card">
       <div class="card-header">
-        Ralatórios para prencher
+        Relatórios para prencher
       </div>
       <div class="card-body">
         <div class="table-responsive p-0">
@@ -70,6 +117,7 @@
       </div>
     </div>
   </div>
+
   <div class="col-sm-12 col-md-3">
     <div class="card">
       <div class="card-body">

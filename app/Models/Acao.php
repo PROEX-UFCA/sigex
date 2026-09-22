@@ -53,4 +53,9 @@ class Acao extends Model
     {
         return $this->hasMany(Galeria_Acao::class, 'id_acao', 'id');
     }
+
+    public function matches()
+    {
+        return $this->hasMany(Match_Acao::class, 'id_acao', 'id');
+    }
 }
