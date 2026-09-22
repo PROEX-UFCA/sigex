@@ -389,7 +389,7 @@ class ReportController extends Controller
             $pdfContent = base64_encode($pdf->setPaper('a4', 'landscape')->output());
 
             return to_route('actions.my')
-                ->with('success', "Relatório finalizado com sucesso. Clique <a href='https://sig.ufca.edu.br/sigaa/public/home.jsf' class='fw-bol' target='_blank'><strong>Aqui</strong></a> para anexar no sigaa.")
+                ->with('success', "Relatório finalizado com sucesso. Clique <a href='https://sig.ufca.edu.br/sigaa/public/home.jsf' class='fw-bol' target='_blank'><strong>Aqui</strong></a> e anexe no sigaa caso seja um relatório relacionado a ações.")
                 ->with('pdf_content', $pdfContent)
                 ->with('pdf_name', "{$title}.pdf");
 
