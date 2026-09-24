@@ -8,18 +8,18 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Opcao_Pergunta extends Model
+class Localidade_Acao extends Model
 {
     use HasUuids, SoftDeletes, LogsActivity;
 
-    protected $table = 'opcao_pergunta';
-    protected $fillable = ['id_pergunta', 'rotulo', 'valor'];
+    protected $table = 'localidade_acao';
+    protected $fillable = ['id_projeto', 'cidade', 'estado', 'sim', 'area_tematica'];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['id_pergunta', 'rotulo', 'valor'])
-            ->useLogName('opcao_pergunta')
+            ->logOnly(['id_projeto', 'cidade', 'estado', 'sim', 'area_tematica'])
+            ->useLogName('localidade_acao')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }

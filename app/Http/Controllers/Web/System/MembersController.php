@@ -25,6 +25,9 @@ class MembersController extends Controller
 
     public function previewImport(Request $request)
     {
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
         $cacheKey = 'import_preview_members_' . $this->userId;
 
         if ($request->hasFile('csv')) {
@@ -182,6 +185,9 @@ class MembersController extends Controller
 
     public function storeImport(Request $request)
     {
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+        
         $cacheKey = 'import_preview_members_' . $this->userId;
         $cacheData = Cache::get($cacheKey);
 

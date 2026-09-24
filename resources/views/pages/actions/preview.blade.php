@@ -253,4 +253,15 @@
         });
     });
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('importForm');
+      const overlay = document.getElementById('loading-overlay');
+
+      form.addEventListener('submit', function() {
+        overlay.style.display = 'flex';
+      });
+    });
+</script>
 @endsection

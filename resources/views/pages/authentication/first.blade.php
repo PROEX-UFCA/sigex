@@ -9,16 +9,16 @@
         <form action="{{ route('access.store') }}" method="post" autocomplete="off" novalidate>
           @csrf
           <div class="mb-3">
-            <label class="form-label">Você faz parte da UFCA?</label>
+            <label class="form-label">Você tem vínculo institucional com a UFCA?</label>
             <div class="form-selectgroup">
               <label class="form-selectgroup-item">
-                <input type="radio" name="is_external_institution" value="0" class="form-selectgroup-input" {{
-                  old('is_external_institution')=='0' ? 'checked' : '' }}>
+                <input type="radio" name="is_external_institution" value="1" class="form-selectgroup-input" {{
+                  old('is_external_institution')=='1' ? 'checked' : '' }}>
                   <span class="form-selectgroup-label">Sim</span>
                 </label>
                 <label class="form-selectgroup-item">
-                  <input type="radio" name="is_external_institution" value="1" class="form-selectgroup-input" {{
-                    old('is_external_institution')=='1' ? 'checked' : '' }}>
+                  <input type="radio" name="is_external_institution" value="0" class="form-selectgroup-input" {{
+                    old('is_external_institution')=='0' ? 'checked' : '' }}>
                   <span class="form-selectgroup-label">Não</span>
                 </label>
             </div>
@@ -137,13 +137,13 @@
     const formExternal = document.getElementById('form-external');
 
     function toggleForms(value) {
-      if (value == '0') { // Não é instituição
+      if (value == '1') { // Não é instituição
         formInternal.classList.remove('d-none');
         formExternal.classList.add('d-none');
         
         toggleInputs(formInternal, true);  // Ativa e exige inputs internos
         toggleInputs(formExternal, false); // Oculta e desabilita inputs externos
-      } else if (value == '1') { // É instituição
+      } else if (value == '0') { // É instituição
         formExternal.classList.remove('d-none');
         formInternal.classList.add('d-none');
         

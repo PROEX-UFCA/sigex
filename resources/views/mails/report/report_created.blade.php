@@ -65,7 +65,7 @@
     <div class="card">
         <div class="header">Novo Relatório Disponível</div>
         <div class="content">
-            <p>Olá, {{ $data['name'] }}</p>
+            <p>Olá, {{ $data['nome'] }}</p>
             <p>Um novo relatório foi disponibilizado e requer seu preenchimento.</p>
 
             <div class="info-box">

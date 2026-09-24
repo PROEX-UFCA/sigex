@@ -180,7 +180,7 @@
                   <input class="form-check-input" type="checkbox" id="select-all" checked>
                 </th>
                 <th>Nome / Descrição</th>
-                <th class="w-1 text-end">Ação</th>
+                {{-- <th class="w-1 text-end">Ação</th> --}}
               </tr>
             </thead>
             <tbody>
@@ -224,11 +224,11 @@
                 <td class="item-text">
                   {{ $label }}
                 </td>
-                <td class="text-end">
+                {{-- <td class="text-end">
                   <button type="button" class="btn btn-danger btn-icon btn-sm remove-row" title="Remover da lista">
                     <i class="ti ti-trash"></i>
                   </button>
-                </td>
+                </td> --}}
               </tr>
               @empty
               <tr id="empty-row">
@@ -313,5 +313,19 @@
         cb.addEventListener('change', updateCount);
     });
   });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('form-filtro');
+      const form2 = document.getElementById('form-create');
+      const overlay = document.getElementById('loading-overlay');
+
+      form.addEventListener('submit', function() {
+        overlay.style.display = 'flex';
+      });
+      form2.addEventListener('submit', function() {
+        overlay.style.display = 'flex';
+      });
+    });
 </script>
 @endsection

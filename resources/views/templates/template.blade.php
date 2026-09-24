@@ -31,6 +31,14 @@
 </head>
 
 <body>
+  <div id="loading-overlay"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px); z-index: 9999; display: none; justify-content: center; align-items: center;">
+    <div class="text-center">
+      <div class="spinner-border text-light" style="width: 3rem; height: 3rem;" role="status">
+      </div>
+      <span class="text-white d-block mt-3">Carregando...</span>
+    </div>
+  </div>
   <script src="{{ asset('assets/js/demo-theme.min.js?1684106062') }}"></script>
   <div class="page">
     <header class="navbar navbar-expand-md d-print-none" style="background: #48362f">
@@ -41,7 +49,8 @@
         </button>
         <h1 class="navbar-brand text-blue navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
           <a href="/home" class="text-decoration-none text-light">
-              <img src="{{asset('assets/img/illustrations/logo_proex_top.png')}}" alt="" style="width: 150px; filter: brightness(0) invert(1);">
+            <img src="{{asset('assets/img/illustrations/logo_proex_top.png')}}" alt=""
+              style="width: 150px; filter: brightness(0) invert(1);">
           </a>
         </h1>
         <div class="navbar-nav flex-row order-md-last">
@@ -103,7 +112,7 @@
 
               @canany(['ver_formulários', 'ver_relatórios'])
               <x-navbar.navbar-item route="" title="Módulos"
-                isActive="{{ request()->routeIs(['actions.index', 'actions.create', 'users.*', 'forms.index', 'sessions.*', 'report.*', 'vitrine.*']) ? true : false }}"
+                isActive="{{ request()->routeIs(['actions.index', 'actions.editLot', 'actions.create', 'users.*', 'forms.index', 'sessions.*', 'report.*', 'vitrine.*']) ? true : false }}"
                 icon="ti-hexagons">
                 <x-slot:links>
                   @can('ver_todas_as_ações')
@@ -120,8 +129,7 @@
               @endcanany
 
               @canany(['ver_formulários', 'ver_relatórios'])
-              <x-navbar.navbar-item route="" title="Ferramentas"
-                isActive="{{ request()->routeIs([]) ? true : false }}"
+              <x-navbar.navbar-item route="" title="Ferramentas" isActive="{{ request()->routeIs([]) ? true : false }}"
                 icon="ti-tools">
                 <x-slot:links>
                   {{-- @can('ver_formulários')

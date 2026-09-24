@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Galeria_Acao extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes, LogsActivity;
 
     protected $table = 'galeria_acao';
     public $incrementing = false;
@@ -23,5 +25,14 @@ class Galeria_Acao extends Model
     public function acao()
     {
         return $this->belongsTo(Acao::class, 'id_acao', 'id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['id_acao', 'caminho_imagem', 'texto_alternativo'])
+            ->useLogName('galeria_acao')
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

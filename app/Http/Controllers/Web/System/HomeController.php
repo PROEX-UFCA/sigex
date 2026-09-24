@@ -46,11 +46,20 @@ class HomeController extends Controller
 
         $profile = 100;
 
-        if($this->data['user']->birth == null){
-            $profile -= 20;
+        if($this->data['user']->centro == null){
+            $profile -= 10;
+        }
+        if($this->data['user']->curso == null){
+            $profile -= 10;
+        }
+        if($this->data['user']->cpf == null){
+            $profile -= 10;
+        }
+        if($this->data['user']->matricula_siape == null){
+            $profile -= 10;
         }
         if($this->data['user']->phone == null){
-            $profile -= 20;
+            $profile -= 10;
         }
 
         $this->data['profile'] = $profile;
