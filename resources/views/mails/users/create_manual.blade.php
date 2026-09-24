@@ -9,7 +9,7 @@
     * {
       padding: 0px;
       /* font-family: Arial, Helvetica, sans-serif; */
-      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+      font-family: 'Alegreya', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
     }
 
     body {

@@ -121,7 +121,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer bg-light">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button id="btn-cancel-interest" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                                         <form id="form-express-interest" action="{{ route('vitrine.match.interest', $acao->id) }}" method="POST" class="m-0">
                                             @csrf
                                             <button id="btn-submit-interest" type="submit" class="btn btn-yellow fw-bold shadow-sm">
@@ -446,6 +446,7 @@
 
         const form = document.getElementById('form-express-interest');
         const submitBtn = document.getElementById('btn-submit-interest');
+        const cancelBtn = document.getElementById('btn-cancel-interest');
         const container = document.getElementById('match-button-container');
     
         if (form) {
@@ -455,6 +456,7 @@
                 const originalText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processando...';
                 submitBtn.disabled = true;
+                cancelBtn.disabled = true;
     
                 fetch(form.action, {
                     method: 'POST',

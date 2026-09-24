@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Alegreya', Arial, sans-serif;
             background-color: #f4f6f9;
             color: #333;
             margin: 0;
