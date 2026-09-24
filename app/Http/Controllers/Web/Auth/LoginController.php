@@ -46,7 +46,8 @@ class LoginController extends Controller
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $seconds = RateLimiter::availableIn($key);
 
-            return back()->with('error', "Muitas tentativas. Tente novamente em {$seconds} segundos.");
+            return back()->with('error', "Muitas tentativas. Tente novamente em {$seconds} segundos.")
+                ->with('login_modal', true);
         }
 
         RateLimiter::hit($key, 300);
@@ -58,19 +59,16 @@ class LoginController extends Controller
                 session(['last_login_temp' => Auth::user()->last_login_at]);
                 $this->userRepository->updateLastLogin(Auth::user()->uuid);
 
-                if(Auth::user()->id_instituicao != null){
-                    return redirect()->route('vitrine.vitrine')->with('success', 'Você está logado.');
-                }
-                else{
-                    return redirect()->route('home.index');
-                }
+                return redirect()->route('vitrine.vitrine')->with('success', 'Você está logado.');
             } else {
                 Auth::logout();
-                return back()->with("error", "verifique se o email e senha foram digitados corretamente.")->withInput();
+                return back()->with("error", "verifique se o email e senha foram digitados corretamente.")
+                    ->with('login_modal', true)->withInput();
             }
         }
 
-        return back()->with("error", "verifique se o email e senha foram digitados corretamente.")->withInput();
+        return back()->with("error", "verifique se o email e senha foram digitados corretamente.")
+            ->with('login_modal', true)->withInput();
     }
 
     public function reset()
@@ -143,43 +141,44 @@ class LoginController extends Controller
     public function storeFirstAccess(FirstRequest $request)
     {
         try {
-            if($request->is_external_institution == 1){
+            if ($request->is_external_institution == 1) {
                 try {
                     Instituicao_Externa::create([
-                        'nome' => $request->nome, 
-                        'email' => $request->email, 
-                        'cnpj' => $request->cnpj, 
-                        'cep' => $request->cep, 
-                        'logradouro' => $request->logradouro, 
-                        'numero' => $request->numero, 
-                        'complemento' => $request->complemento, 
+                        'nome' => $request->nome,
+                        'email' => $request->email,
+                        'cnpj' => $request->cnpj,
+                        'cep' => $request->cep,
+                        'logradouro' => $request->logradouro,
+                        'numero' => $request->numero,
+                        'complemento' => $request->complemento,
                         'telefone_contato' => $request->telefone_contato,
                         'status' => 0
                     ]);
 
                     return redirect()->back()->with(
-                        'success', 
+                        'success',
                         'Sua solicitação foi enviada! Enviaremos um e-mail quando for aprovado. Clique <a href="' . route('vitrine.vitrine') . '" class="fw-bold"><strong>Aqui</strong></a> para retomar a página das ações.'
-                    );
+                    )->with('first_access_modal', true);
                 } catch (\Throwable $th) {
-                    return redirect()->back()->with("error", "Erro ao fazer primeiro acesso, entre em contato com a proex.")->withInput();
+                    return redirect()->back()->with("error", "Erro ao fazer primeiro acesso, entre em contato com a proex.")
+                        ->with('first_access_modal', true)->withInput();
                 }
             }
 
-            if($request->is_external_institution == 0){
+            if ($request->is_external_institution == 0) {
                 $user = $this->userRepository->getByEmail($request->email);
-    
+
                 if ($user && $user->status == 0) {
                     try {
                         $password = Str::random(10);
-    
+
                         $user->password = Hash::make($password);
                         $user->status = 1;
-    
+
                         $user->save();
-                        
+
                         $token = $this->userTokensRepository->store($user, "first_access");
-    
+
                         SendEmailToDoFirstAccess::dispatch(
                             $user,
                             $token->created_at,
@@ -187,17 +186,21 @@ class LoginController extends Controller
                             $password,
                             1
                         );
-                        return redirect()->back()->with("success", "Verifique a caixa de entrada do seu email.");
+                        return redirect()->back()->with("success", "Verifique a caixa de entrada do seu email.")
+                            ->with('first_access_modal', true);
                     } catch (\Throwable $th) {
-                        return redirect()->back()->with("error", "Erro ao enviar o email, tente novamente em alguns instantes.")->withInput();
+                        return redirect()->back()->with("error", "Erro ao enviar o email, tente novamente em alguns instantes.")
+                            ->with('first_access_modal', true)->withInput();
                     }
                 }
             }
 
-            return redirect()->back()->with("error", "Você não é elegível para fazer primeiro cadastro, entre em contato com a proex.")->withInput();
+            return redirect()->back()->with("error", "Você não é elegível para fazer primeiro cadastro, entre em contato com a proex.")
+                ->with('first_access_modal', true)->withInput();
 
         } catch (\Throwable $th) {
-            return redirect()->back()->with("error", "Erro ao fazer primeiro acesso, entre em contato com a proex.")->withInput();
+            return redirect()->back()->with("error", "Erro ao fazer primeiro acesso, entre em contato com a proex.")
+                ->with('first_access_modal', true)->withInput();
         }
     }
 }
