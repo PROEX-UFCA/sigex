@@ -284,10 +284,14 @@
                     </div>
                     <div class="modal-footer d-block">
                         <button type="submit" class="btn btn-primary w-100">Fazer login</button>
-                        <div class="d-flex justify-content-between mt-3">
-                            <a href="{{ route('login.reset') }}">Esqueceu sua senha?</a>
-                            <button type="button" class="btn btn-link p-0" data-bs-target="#firstAccessModal"
-                                data-bs-toggle="modal">Primeiro acesso</button>
+                        <div class="d-grid gap-2 mt-3">
+                            <a class="btn btn-outline-secondary w-100" href="{{ route('login.reset') }}">
+                                <i class="ti ti-key me-1" aria-hidden="true"></i>Recuperar senha
+                            </a>
+                            <button type="button" class="btn btn-outline-secondary w-100"
+                                data-bs-target="#firstAccessModal" data-bs-toggle="modal">
+                                <i class="ti ti-user-plus me-1" aria-hidden="true"></i>Solicitar primeiro acesso
+                            </button>
                         </div>
                     </div>
                 </form>
