@@ -10,7 +10,7 @@
     </div>
   </div>
   <div class="card form-fieldset mb-3">
-    <form class="card-body row p-0" method="POST" action="{{ route('report.create') }}" id="form-filtro">
+    <form class="card-body row p-0" method="POST" action="{{ route('report.create_post') }}" id="form-filtro">
       @csrf
       <div class="col-12 row m-0 p-0">
 

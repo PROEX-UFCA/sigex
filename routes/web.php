@@ -140,11 +140,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('relatorios', [ReportController::class, 'index'])->name('report.index')->middleware(['auth' => 'permission:ver_relatórios']);
     Route::get('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create')->middleware(['auth' => 'permission:adicionar_relatórios']);
-    Route::post('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create')->middleware(['auth' => 'permission:adicionar_relatórios']);
+    Route::post('relatorios/adicionar', [ReportController::class, 'create'])->name('report.create_post')->middleware(['auth' => 'permission:adicionar_relatórios']);
     Route::post('relatorios/inserir', [ReportController::class, 'store'])->name('report.store')->middleware(['auth' => 'permission:adicionar_relatórios']);
     Route::post('relatorios/atualizar/{uuid}', [ReportController::class, 'update'])->name('report.update')->middleware(['auth' => 'permission:editar_relatórios']);
     Route::get('relatorios/editar/{uuid}', [ReportController::class, 'edit'])->name('report.edit')->middleware(['auth' => 'permission:editar_relatórios']);
-    Route::post('relatorios/editar/{uuid}', [ReportController::class, 'edit'])->name('report.edit')->middleware(['auth' => 'permission:editar_relatórios']);
+    Route::post('relatorios/editar/{uuid}', [ReportController::class, 'edit'])->name('report.edit_post')->middleware(['auth' => 'permission:editar_relatórios']);
     Route::post('relatorios/addSubmissions/{uuid}', [ReportController::class, 'addSubmissions'])->name('report.addSubmissions')->middleware(['auth' => 'permission:editar_relatórios']);
     Route::delete('submissao/deletar/{uuid}', [ReportController::class, 'delete_submission'])->name('submissao.delete')->middleware(['auth' => 'permission:editar_relatórios']);
     Route::post('respostas/auto-save', [ReportController::class, 'autoSave'])->name('respostas.autosave')->middleware(['auth' => 'permission:responder_relatórios']);

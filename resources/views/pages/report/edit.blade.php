@@ -153,7 +153,7 @@
         <div class="card-header bg-light">
             <h4 class="card-title fw-bold">Adicionar Novos Destinatários ao Relatório</h4>
         </div>
-        <form class="card-body row p-3" method="POST" action="{{ route('report.edit', $relatorio->id) }}">
+        <form class="card-body row p-3" method="POST" action="{{ route('report.edit_post', $relatorio->id) }}">
             @csrf
             <div class="col-12 row m-0 p-0">
                 <x-form-elements.select.select title="Para que/quem deseja criar essa nova disponibilidade?" id="who"
