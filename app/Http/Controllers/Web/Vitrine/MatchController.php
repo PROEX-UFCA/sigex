@@ -12,6 +12,7 @@ use App\Models\Match_Acao;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\Match\InterestExpressedMail;
 use App\Mail\Match\MatchConfirmedMail;
+use App\Mail\Match\MatchEndedMail;
 
 class MatchController extends Controller
 {
@@ -103,12 +104,27 @@ class MatchController extends Controller
 
     public function endMatch($id_match)
     {
-        $match = \App\Models\Match_Acao::findOrFail($id_match);
-        
-        $match->update([
-            'concluida' => true
-        ]);
-
-        return back()->with('success', 'Parceria concluída com sucesso!'); 
+        try{
+            $match = \App\Models\Match_Acao::findOrFail($id_match);
+            
+            $match->update([
+                'concluida' => true
+            ]);
+    
+            $coordenador = Auth::user();
+    
+            Mail::to($match->instituicao->email)->send(
+                new MatchEndedMail(
+                    $match->instituicao->nome,
+                    $coordenador->name,
+                    $coordenador->email,
+                    $match->acao->titulo
+                )
+            );
+            return back()->with('success', 'Parceria concluída com sucesso!'); 
+        } catch (\Throwable $th){
+            Log::error($th->getMessage());
+            return back()->with('error', 'Erro ao concluir parceria. Tente novamente mais tarde.');
+        }
     }
 }
