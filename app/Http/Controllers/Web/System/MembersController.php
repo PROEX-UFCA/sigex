@@ -58,7 +58,7 @@ class MembersController extends Controller
                 $checkData = [
                     'id_projeto' => $row[0] ?? null,
                     'id_pessoa' => $row[1] ?? null,
-                    'categoria_membro' => $row[4] ?? null,
+                    'categoria_membro' => $row[9] ?? null,
                     // 'tipo_membro' => $row[3] ?? null,
                     // 'nome' => $row[2] ?? null,
                     // 'email' => $row[5] ?? null,
@@ -78,26 +78,32 @@ class MembersController extends Controller
 
                 if (empty($row[0])) $errors['id_projeto'] = 'Campo obrigatório';
                 if (empty($row[1])) $errors['id_pessoa'] = 'Campo obrigatório';
-                if (empty($row[2])) $errors['nome'] = 'Campo obrigatório';
-                if (empty($row[3])) $errors['tipo_membro'] = 'Campo obrigatório';
-                if (empty($row[4])) $errors['categoria_membro'] = 'Campo obrigatório';
-                if (empty($row[5])) $errors['email'] = 'Campo obrigatório';
-                if (empty($row[6])) $errors['status'] = 'Campo obrigatório';
-                if (empty($row[7])) $errors['data_inicio'] = 'Campo obrigatório';
-                if (empty($row[8])) $errors['data_fim'] = 'Campo obrigatório';
-                if (empty($row[9])) $errors['tipo_vinculo'] = 'Campo obrigatório';
+                if (empty($row[2])) $errors['nome_ascii'] = 'Campo obrigatório';
+                if (empty($row[3])) $errors['sexo'] = 'Campo obrigatório';
+
+                if(empty($row[8])){
+                    if($row[8] != "EXTERNO"){
+                        if (empty($row[4])) $errors['email'] = 'Campo obrigatório';
+                    }
+                }
+
+                if (empty($row[5])) $errors['data_inicio'] = 'Campo obrigatório';
+                if (empty($row[6])) $errors['data_fim'] = 'Campo obrigatório';
+                if (empty($row[7])) $errors['status'] = 'Campo obrigatório';
+                if (empty($row[8])) $errors['tipo_membro'] = 'Campo obrigatório';
+                if (empty($row[9])) $errors['categoria_membro'] = 'Campo obrigatório';
 
                 $membersData[$rowIndex] = [
                     'id_projeto' => $row[0] ?? null,
                     'id_pessoa' => $row[1] ?? null,
-                    'nome' => $row[2] ?? null,
-                    'tipo_membro' => $row[3] ?? null,
-                    'categoria_membro' => $row[4] ?? null,
-                    'email' => $row[5] ?? null,
-                    'status' => $row[6] ?? null,
-                    'data_inicio' => $row[7] ?? null,
-                    'data_fim' => $row[8] ?? null,
-                    'tipo_vinculo' => $row[9] ?? null,
+                    'nome_ascii' => $row[2] ?? null,
+                    'sexo' => $row[3] ?? null,
+                    'email' => $row[4] ?? null,
+                    'data_inicio' => $row[5] ?? null,
+                    'data_fim' => $row[6] ?? null,
+                    'status' => $row[7] ?? null,
+                    'tipo_membro' => $row[8] ?? null,
+                    'categoria_membro' => $row[9] ?? null,
                     'errors' => $errors,
                     'row_index' => $rowIndex
                 ];
@@ -107,7 +113,7 @@ class MembersController extends Controller
 
             Cache::put($cacheKey, [
                 'members' => $membersData,
-                'duplicados_members' => $duplicadosIgnorados
+                'duplicados_members' => $duplicadosIgnorados ?? 0
             ], now()->addHours(2));
 
         } else {
@@ -117,8 +123,9 @@ class MembersController extends Controller
             }
             
             $allMembers = $cacheData['members'];
-            $duplicadosIgnorados = $cacheData['duplicados_members'];
+            $duplicadosIgnorados = $cacheData['duplicados_members'] ?? 0;
             $cacheFoiAtualizado = false;
+
 
             if ($request->filled('deleted_indexes')) {
                 $deletedIndexes = explode(',', $request->deleted_indexes);
@@ -139,14 +146,20 @@ class MembersController extends Controller
 
                         if (empty($allMembers[$index]['id_projeto'])) $errors['id_projeto'] = 'Campo obrigatório';
                         if (empty($allMembers[$index]['id_pessoa'])) $errors['id_pessoa'] = 'Campo obrigatório';
-                        if (empty($allMembers[$index]['nome'])) $errors['nome'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['nome_ascii'])) $errors['nome_ascii'] = 'Campo obrigatório';
                         if (empty($allMembers[$index]['tipo_membro'])) $errors['tipo_membro'] = 'Campo obrigatório';
                         if (empty($allMembers[$index]['categoria_membro'])) $errors['categoria_membro'] = 'Campo obrigatório';
-                        if (empty($allMembers[$index]['email'])) $errors['email'] = 'Campo obrigatório';
+
+                        if(empty($allMembers[$index]['tipo_membro'])){
+                            if($allMembers[$index]['tipo_membro'] != "EXTERNO"){
+                                if (empty($allMembers[$index]['email'])) $errors['email'] = 'Campo obrigatório';
+                            }
+                        }
+
                         if (empty($allMembers[$index]['status'])) $errors['status'] = 'Campo obrigatório';
                         if (empty($allMembers[$index]['data_inicio'])) $errors['data_inicio'] = 'Campo obrigatório';
                         if (empty($allMembers[$index]['data_fim'])) $errors['data_fim'] = 'Campo obrigatório';
-                        if (empty($allMembers[$index]['tipo_vinculo'])) $errors['tipo_vinculo'] = 'Campo obrigatório';
+                        if (empty($allMembers[$index]['sexo'])) $errors['sexo'] = 'Campo obrigatório';
 
                         $allMembers[$index]['errors'] = $errors;
                         $cacheFoiAtualizado = true;
@@ -211,7 +224,7 @@ class MembersController extends Controller
                     $allMembers[$index] = array_merge($allMembers[$index], $submittedData);
                     
                     $errors = [];
-                    $requiredFields = ['id_projeto', 'id_pessoa', 'nome', 'tipo_membro', 'categoria_membro', 'email', 'status', 'data_inicio', 'data_fim', 'tipo_vinculo'];
+                    $requiredFields = ['id_projeto', 'id_pessoa', 'nome_ascii', 'sexo', 'email', 'data_inicio', 'data_fim', 'status', 'tipo_membro', 'categoria_membro'];
                     
                     foreach ($requiredFields as $field) {
                         if (empty($allMembers[$index][$field])) {
@@ -244,7 +257,7 @@ class MembersController extends Controller
             
             $tiposMembrosReq = array_filter(array_unique(array_map(fn($v) => mb_strtoupper(trim($v), 'UTF-8'), array_column($allMembers, 'tipo_membro'))));
             $categoriasReq = array_filter(array_unique(array_map(fn($v) => mb_strtoupper(trim($v), 'UTF-8'), array_column($allMembers, 'categoria_membro'))));
-            $vinculosReq = array_filter(array_unique(array_map(fn($v) => mb_strtoupper(trim($v), 'UTF-8'), array_column($allMembers, 'tipo_vinculo'))));
+            $sexosReq = array_filter(array_unique(array_map(fn($v) => mb_strtoupper(trim($v), 'UTF-8'), array_column($allMembers, 'sexo'))));
             $statusReq = array_filter(array_unique(array_map(fn($v) => mb_strtoupper(trim($v), 'UTF-8'), array_column($allMembers, 'status'))));
 
             $usuariosExistentes = User::whereIn('email', $emails)->pluck('uuid', 'email')->toArray();
@@ -252,14 +265,14 @@ class MembersController extends Controller
             
             $this->garantirParametrosEmLote('TIPO_MEMBRO', $tiposMembrosReq);
             $this->garantirParametrosEmLote('CATEGORIA_MEMBRO', $categoriasReq);
-            $this->garantirParametrosEmLote('TIPO_VINCULO', $vinculosReq);
+            $this->garantirParametrosEmLote('SEXO', $sexosReq);
             $this->garantirParametrosEmLote('STATUS_MEMBROS', $statusReq);
 
             $emailsFaltantes = array_diff($emails, array_keys($usuariosExistentes));
             
             if (!empty($emailsFaltantes)) {
                 $novosUsuarios = [];
-                $emailParaNome = array_column($allMembers, 'nome', 'email');
+                $emailParaNome = array_column($allMembers, 'nome_ascii', 'email');
 
                 // 3.1 Prepara os dados e gera os UUIDs
                 foreach ($emailsFaltantes as $email) {
@@ -309,7 +322,7 @@ class MembersController extends Controller
 
                 $membrosParaInserir[] = [
                     'id' => (string) Str::uuid(),
-                    'id_usuario' => $id_user,
+                    'id_usuario' => $id_user ?? null,
                     'id_acao' => $id_acao,
                     'id_projeto' => $linha['id_projeto'] ?? null,
                     'id_pessoa' => $linha['id_pessoa'] ?? null, 
@@ -318,7 +331,7 @@ class MembersController extends Controller
                     'status' => $linha['status'] ?? null,
                     'data_inicio' => $linha['data_inicio'] ?? null,
                     'data_fim' => $linha['data_fim'] ?? null,
-                    'tipo_vinculo' => mb_strtoupper(trim($linha['tipo_vinculo'] ?? ''), 'UTF-8'),
+                    'sexo' => mb_strtoupper(trim($linha['sexo'] ?? ''), 'UTF-8'),
                     'created_at' => $agora,
                     'updated_at' => $agora,
                 ];

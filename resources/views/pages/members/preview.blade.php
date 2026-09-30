@@ -43,7 +43,7 @@
             <th class="p-2 border">status</th>
             <th class="p-2 border">data_inicio</th>
             <th class="p-2 border">data_fim</th>
-            <th class="p-2 border">tipo_vinculo</th>
+            <th class="p-2 border">sexo</th>
             <th class="p-2 border"></th>
           </tr>
         </thead>
@@ -66,10 +66,10 @@
               @endif
             </td>
             <td class="p-1" style="min-width: 200px;">
-              <input type="text" name="members[{{ $index }}][nome]" value="{{ $data['nome'] ?? '' }}"
-                class="form-control form-control-sm form-control-flush input-watch {{ isset($data['errors']['nome']) ? 'is-invalid' : '' }}">
-              @if(isset($data['errors']['nome']))
-              <div class="invalid-feedback d-block">{{ $data['errors']['nome'] }}</div>
+              <input type="text" name="members[{{ $index }}][nome_ascii]" value="{{ $data['nome_ascii'] ?? '' }}"
+                class="form-control form-control-sm form-control-flush input-watch {{ isset($data['errors']['nome_ascii']) ? 'is-invalid' : '' }}">
+              @if(isset($data['errors']['nome_ascii']))
+              <div class="invalid-feedback d-block">{{ $data['errors']['nome_ascii'] }}</div>
               @endif
             </td>
             <td class="p-1">
@@ -115,10 +115,10 @@
               @endif
             </td>
             <td class="p-1">
-              <input type="text" name="members[{{ $index }}][tipo_vinculo]" value="{{ $data['tipo_vinculo'] ?? '' }}"
-                class="form-control form-control-sm form-control-flush input-watch {{ isset($data['errors']['tipo_vinculo']) ? 'is-invalid' : '' }}">
-              @if(isset($data['errors']['tipo_vinculo']))
-              <div class="invalid-feedback d-block">{{ $data['errors']['tipo_vinculo'] }}</div>
+              <input type="text" name="members[{{ $index }}][sexo]" value="{{ $data['sexo'] ?? '' }}"
+                class="form-control form-control-sm form-control-flush input-watch {{ isset($data['errors']['sexo']) ? 'is-invalid' : '' }}">
+              @if(isset($data['errors']['sexo']))
+              <div class="invalid-feedback d-block">{{ $data['errors']['sexo'] }}</div>
               @endif
             </td>
             <td class="p-1 text-center align-middle">
@@ -135,7 +135,7 @@
     </div>
 
     <div class="d-flex justify-content-end">
-      <button type="submit" class="btn btn-success">Salvar Lote ({{ $paginatedMembers->total() }} registros)</button>
+      <button type="submit" class="btn btn-success" form="importForm">Salvar Lote ({{ $paginatedMembers->total() }} registros)</button>
     </div>
   </form>
 </div>
