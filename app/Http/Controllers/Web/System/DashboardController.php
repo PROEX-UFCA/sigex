@@ -158,7 +158,6 @@ class DashboardController extends Controller
         $equipeBase = DB::table('equipe_acao')
             ->join('acao', 'equipe_acao.id_acao', '=', 'acao.id')
             ->whereIn('acao.situacao', $situacoesValidas)
-            ->where('equipe_acao.tipo_vinculo', 'AÇÃO')
             ->whereNull('acao.deleted_at')
             ->whereNull('equipe_acao.deleted_at') 
             ->where($filtroAnoEquipe);

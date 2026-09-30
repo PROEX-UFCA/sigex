@@ -48,11 +48,7 @@
                 $membroCoordenador = $acao->equipe->first(function ($membro) {
                     $categoria = trim(strtoupper($membro->categoria_membro));
                     $validCategories = [
-                        'COORDENADOR', 
                         'COORDENADOR(A)', 
-                        'COORDENADOR(A) ADJUNTO(A)', 
-                        'COORDENADORA', 
-                        'COORDENADOR ADJUNTO'
                     ];
                     return in_array($categoria, $validCategories);
                 });
@@ -453,10 +449,20 @@
             cidadesIds.forEach(id => {
                 const targetCity = document.getElementById(id);
                 if (targetCity) {
-                    targetCity.style.fill = 'var(--tblr-yellow)'; 
-                    targetCity.innerHTML = `<title>${id.replace(/_/g, ' ')}</title>`;
+                    targetCity.style.fill = 'var(--tblr-brown)'; 
+                    targetCity.style.cursor = 'pointer';
+                    
+                    const cityName = id.replace(/_/g, ' ');
+                    
+                    targetCity.setAttribute('data-bs-toggle', 'tooltip');
+                    targetCity.setAttribute('data-bs-placement', 'top');
+                    targetCity.setAttribute('title', cityName);
+                    targetCity.setAttribute('data-bs-original-title', cityName);
                 }
             });
+            
+            const mapTooltipTriggerList = document.querySelectorAll('#mapa-svg [data-bs-toggle="tooltip"]');
+            const mapTooltipList = [...mapTooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
         }
 
         const form = document.getElementById('form-express-interest');

@@ -98,6 +98,29 @@
                                 </select>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-muted">Cidade de Atuação</label>
+                            <select name="cidade" class="form-select">
+                                <option value="">Todas as cidades</option>
+                                @php
+                                    $cidadesFiltro = [
+                                        'Abaiara', 'Altaneira', 'Antonina do Norte', 'Araripe', 'Assaré', 'Aurora', 
+                                        'Barbalha', 'Barro', 'Brejo Santo', 'Campos Sales', 'Caririaçu', 'Crato', 
+                                        'Farias Brito', 'Granjeiro', 'Icó', 'Jardim', 'Jati', 'Juazeiro do Norte', 
+                                        'Lavras da Mangabeira', 'Mauriti', 'Milagres', 'Missão Velha', 'Nova Olinda', 
+                                        'Penaforte', 'Porteiras', 'Potengi', 'Salitre', 'Santana do Cariri', 'Tarrafas', 
+                                        'Várzea Alegre'
+                                    ];
+                                @endphp
+                                
+                                @foreach($cidadesFiltro as $cidade)
+                                    <option value="{{ $cidade }}" {{ request('cidade') == $cidade ? 'selected' : '' }}>
+                                        {{ $cidade }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="d-flex flex-column gap-2 mt-4">
                             <button type="submit" class="btn btn-brown w-100">
                                 <i class="ti ti-filter me-2"></i> Aplicar Filtros
