@@ -11,9 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('agenda_acao')) {
+            return;
+        }
+
         Schema::create('agenda_acao', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('id_acao');
+            $table->foreign('id_acao')->references('id')->on('acao')->onDelete('cascade');
             $table->string('titulo_evento');
             $table->datetime('data_hora_inicio');
             $table->datetime('data_hora_fim');

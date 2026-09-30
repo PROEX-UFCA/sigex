@@ -11,15 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('instituicao_externa')) {
+            return;
+        }
+
         Schema::create('instituicao_externa', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('nome');
+            $table->string('email');
             $table->string('cnpj');
             $table->string('cep');
             $table->string('logradouro');
             $table->string('numero');
-            $table->string('complemento');
+            $table->string('complemento')->nullable();
             $table->string('telefone_contato');
+            $table->boolean('status');
             $table->timestamps();
             $table->softDeletes();
         });

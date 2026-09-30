@@ -1,227 +1,281 @@
+## Diagrama de Banco de Dados (ER) - Parte 1
+
+Abaixo está o modelo Entidade-Relacionamento das tabelas da primeira parte do sistema, ilustrando como usuários, ações e instituições se conectam.
+
+```mermaid
+erDiagram
+    ACAO ||--o{ EQUIPE_ACAO : "possui_membros"
+    USUARIO ||--o{ EQUIPE_ACAO : "atua_como_membro"
+
+    ACAO ||--o{ AGENDA_ACAO : "possui_eventos"
+    ACAO ||--o{ AGENDA_INTERNA_ACAO : "possui_eventos_internos"
+
+    INSTITUICAO_EXTERNA ||--o{ AGENDA_INSTITUICAO_EXTERNA : "informa_disponibilidade"
+    INSTITUICAO_EXTERNA ||--o{ INTERESSE_ACAO : "demonstra_interesse"
+    ACAO ||--o{ INTERESSE_ACAO : "recebe_interesse"
+
+    ACAO ||--o{ GALERIA_ACAO : "possui"
+
+    INSTITUICAO_EXTERNA {
+        uuid id PK
+        string nome
+        string cnpj
+        string cep
+        string logradouro
+        string numero
+        string complemento
+        string telefone_contato
+        string email
+        string senha
+        boolean status
+    }
+
+    ACAO {
+        uuid id PK
+        string id_projeto
+        int ano
+        text titulo
+        string modalidade_edital
+        string bolsas_solicitadas
+        string bolsas_concedidas
+        string financiamento_interno
+        string financiamento_externo
+        string situacao
+        date data_cadastro
+        date data_inicio
+        date data_fim
+        date data_atualizacao
+        string centro_departamento_sigla
+        string tipo_acao
+        string area_tematica
+        text resumo
+        text palavras_chave
+        string ods
+        string contexto
+        boolean status
+        text img
+    }
+
+    EQUIPE_ACAO {
+        uuid id_acao PK, FK
+        uuid id_usuario PK, FK
+        string id_pessoa
+        string tipo_membro
+        string categoria_membro
+        string status
+        date data_inicio
+        date data_fim
+        string tipo_vinculo
+    }
+
+    USUARIO {
+        int id PK
+        uuid uuid PK
+        string name
+        string email
+        datetime email_verified_at
+        string password "Hash"
+        boolean status "Sinaliza se a conta está ativa"
+        string centro_departamento
+        string matricula_siape
+        string perfil_ativo
+        string phone
+        datetime last_login_at
+    }
+
+    AGENDA_ACAO {
+        uuid id PK
+        uuid id_acao FK
+        string titulo_evento "Ex: Palestra Magna, Oficina 1"
+        datetime data_hora_inicio
+        datetime data_hora_fim
+        string local_formato "Ex: Auditório Principal, Google Meet"
+        string descricao
+    }
+
+    AGENDA_INTERNA_ACAO {
+        uuid id PK
+        uuid id_acao FK
+        string titulo_evento "Ex: Palestra Magna, Oficina 1"
+        datetime data_hora_inicio
+        datetime data_hora_fim
+        string local_formato "Ex: Auditório Principal, Google Meet"
+        string descricao
+        string pauta_interna
+    }
 
 
-# 🚀 Projeto Laravel com Docker
 
-Este projeto utiliza Docker para criar um ambiente de desenvolvimento Laravel completo, com os seguintes serviços:
+    AGENDA_INSTITUICAO_EXTERNA {
+        uuid id PK
+        uuid id_instituicao FK
+        date data_disponivel
+        string observacao "Ex: Auditório com 50 lugares disponível"
+    }
 
-- PHP (com Laravel)
-- MySQL
-- Nginx
-- Redis (opcional)
-- phpMyAdmin
+    INTERESSE_ACAO {
+        uuid id_instituicao PK, FK
+        uuid id_acao PK, FK
+    }
 
-## 📦 Requisitos
-
-- [Docker](https://www.docker.com/)
-- [Docker Compose](https://docs.docker.com/compose/)
-- Laravel já configurado no diretório do projeto
-
-## ⚙️ Configuração inicial
-
-### 1. Clonar o repositório
-
-```bash
-git clone https://github.com/Otavio-Ferreira/Docker-Laravel.git
-````
-
-### 2. Copiar o `.env`
-
-Se ainda não tiver um `.env`, copie:
-
-```bash
-cp .env.example .env
+    GALERIA_ACAO {
+    char(36) id PK
+    char(36) id_acao FK
+    varchar(255) caminho_imagem
+    timestamp created_at
+    timestamp updated_at
+    }
 ```
 
-E ajuste as seguintes variáveis de conexão com o banco de dados:
+## Diagrama de Banco de Dados (ER) - Parte 2
+
+Abaixo está o modelo Entidade-Relacionamento das tabelas da segunda parte do sistema, ilustrando como irá funcionar o mini forms.
+
+```mermaid
+erDiagram
+    FORMULARIO ||--o{ SECAO : possui
+    SECAO ||--o{ PERGUNTA : contem
+    PERGUNTA ||--o{ OPCAO_PERGUNTA : "tem (select, radio, checkbox)"
+    FORMULARIO ||--o{ RELATORIO : recebe
+    RELATORIO ||--o{ SUBMISSAO : recebe
+    SUBMISSAO ||--o{ RESPOSTA : contem
+    PERGUNTA ||--o{ RESPOSTA : "referencia a"
+    OPCAO_PERGUNTA ||--o{ RESPOSTA : "vinculada a (se aplicavel)"
+    
+    PERGUNTA ||--o{ VALIDACAO_RESPOSTA :tem
+    RESPOSTA ||--o{ VALIDACAO_RESPOSTA :tem
+
+    FORMULARIO {
+        uuid id PK
+        string titulo
+        text descricao
+        boolean status
+        boolean published
+    }
+
+    SECAO {
+        uuid id PK
+        uuid id_formulario FK
+        string titulo
+        text descricao
+        int ordem "Controla a sequência das páginas"
+    }
+
+    PERGUNTA {
+        uuid id PK
+        uuid id_secao FK
+        uuid id_pergunta_pai FK
+        string tipo "Ex: text, textarea, select, checkbox, radio, file, number"
+        text enunciado
+        boolean obrigatoria
+        double min "Tamanho mínimo do texto ou número"
+        double max "Tamanho máximo do texto ou número"
+        double step "Tamanho máximo do texto ou número"
+        double step "Intervalo numérico"
+        string accept "Extensões permitidas"
+        string regex "Padrão de validação customizado"
+    }
+
+    OPCAO_PERGUNTA {
+        uuid id PK
+        uuid id_pergunta FK
+        string rotulo
+        string valor
+    }
+
+    RELATORIO {
+        uuid id PK
+        uuid id_formulario FK
+        string titulo
+        datetime data_inicio
+        datetime prazo
+        boolean status
+    }
+
+    SUBMISSAO {
+        uuid id PK
+        uuid id_relatorio FK 
+        uuid id_acao FK
+        datetime finalizada_em
+    }
+
+    RESPOSTA {
+        uuid id PK
+        uuid id_submissao FK
+        uuid id_pergunta FK
+        text valor
+        int indice_grupo
+    }
+
+    VALIDACAO_RESPOSTA{
+        uuid id PK
+        uuid id_resposta FK
+        uuid id_avaliador FK
+        boolean status 
+        text correcao
+    }
+```
+---
+
+## Referência da API
+
+### Listar Ações
+Retorna todas as ações cadastradas no sistema com paginação.
+
+```http
+GET /api/acoes
+```
+
+### Filtrar Ações
+Você pode passar parâmetros na URL (Query Params) para filtrar os resultados. Ideal para barras de pesquisa e filtros no front-end.
+
+**Filtro Simples (Ex: por área temática)**
+```http
+GET /api/acoes?area_tematica=trabalho
+```
+
+**Filtros Combinados**
+```http
+GET /api/acoes?area_tematica=comunicacao&titulo=teste&modalidade=teste&centro_departamento=teste
+```
+
+---
+
+## Deploy no Coolify
+
+Use o arquivo `docker-compose.prod.yml` com o build pack `Docker Compose`.
+
+Serviços do stack:
+
+- `nginx`: serviço HTTP público na porta `80`
+- `app`: PHP-FPM com bootstrap do Laravel
+- `worker`: processamento das filas
+- `db`: MySQL com volume persistente
+- `redis`: Redis com volume persistente
+
+O serviço `app` executa `php artisan migrate --force` no bootstrap quando `RUN_MIGRATIONS=true`.
+
+Variáveis mínimas no Coolify:
 
 ```env
-DB_CONNECTION=mysql
+APP_KEY=base64:gere-uma-chave-valida
+APP_URL=https://seu-dominio.example.com
+DB_DATABASE=sigex
+DB_USERNAME=sigex
+DB_PASSWORD=troque-isto
+DB_ROOT_PASSWORD=troque-isto-tambem
+```
+
+Para produção, mantenha:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+LOG_CHANNEL=stderr
 DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=docker-laravel
-DB_USERNAME=phpmyadmin
-DB_PASSWORD=root
-```
-
-### 3. Criar os containers
-
-```bash
-sudo docker-compose up -d --build
-```
-
-Este comando irá:
-
-* Criar os containers definidos no `docker-compose.yml`
-* Instalar dependências PHP no container
-* Levantar o ambiente completo
-
-### 4. Acessar o container da aplicação
-
-```bash
-sudo docker-compose exec app bash
-```
-
-### 5. Instalar dependências PHP (dentro do container)
-
-```bash
-composer install
-```
-
-### 6. Rodar comandos Artisan (dentro do container)
-
-```bash
-php artisan key:generate
-```
-```bash
-php artisan migrate --seed
-```
-
-### 7. Instalar dependências JS (caso use frontend)
-
-```bash
-npm install && npm run dev
-```
-
-### 8. Rodar os testes (se houver)
-
-```bash
-php artisan test
-```
-
-## 🔍 Acessos úteis
-
-* Aplicação Laravel: [http://localhost:8000](http://localhost:8000)
-* phpMyAdmin: [http://localhost:8080](http://localhost:8080)
-
-  * Servidor: `db`
-  * Usuário: `phpmyadmin`
-  * Senha: `root`
-
-## ✅ Checklist ao levantar o ambiente
-
-* [x] Subiu os containers com `docker-compose up -d`
-* [x] Acessou o container com `docker-compose exec app bash`
-* [x] Rodou `composer install`
-* [x] Rodou `php artisan key:generate`
-* [x] Rodou `php artisan migrate`
-* [x] Verificou o site em [http://localhost:8000](http://localhost:8000)
-
-
-# Docker - Comandos úteis
-
-Aqui estão os principais comandos Docker e `docker-compose` para gerenciar seu ambiente Laravel:
-
----
-
-### 🔨 Buildar os containers (construir imagens)
-
-```bash
-sudo docker-compose build
-````
-
-Esse comando **reconstrói as imagens** com base nas instruções do `Dockerfile`, sem subir os containers.
-
----
-
-### 🚀 Subir os containers
-
-```bash
-sudo docker-compose up -d
-```
-
-`-d` significa "detached", ou seja, roda em segundo plano. Usa o `docker-compose.yml` para levantar todos os serviços definidos.
-
-> Dica: combine com `--build` se quiser buildar e subir ao mesmo tempo:
-
-```bash
-sudo docker-compose up -d --build
-```
-
----
-
-### 🛑 Parar os containers (sem remover)
-
-```bash
-sudo docker-compose stop
-```
-
-Isso apenas pausa os containers, mantendo-os disponíveis para restart.
-
----
-
-### ▶️ Iniciar os containers que estão parados
-
-```bash
-sudo docker-compose start
-```
-
-Reinicia os containers que foram pausados com `stop`.
-
----
-
-### ❌ Parar e remover todos os containers
-
-
-```bash
-sudo docker-compose down
-```
-
-Remove os containers criados, mas mantém as imagens, volumes e redes (a menos que você diga o contrário).
-
----
-
-### ❌🧹 Parar e remover containers + volumes + redes
-
-```bash
-sudo docker-compose down -v --remove-orphans
-```
-
-`-v`: remove volumes (ex: banco de dados) `--remove-orphans`: remove containers que não estão mais no `docker-compose.yml`
-
-> Use com cuidado, pois **apaga dados persistentes** como banco MySQL se estiver usando volumes locais.
-
----
-
-### 🐚 Acessar o terminal dentro do container da aplicação Laravel
-
-```bash
-sudo docker-compose exec app bash
-```
-
-Depois de entrar, você pode rodar comandos PHP/Artisan, por exemplo:
-
-```bash
-php artisan migrate
-```
-
----
-
-### 📦 Ver containers em execução
-
-```bash
-sudo docker ps
-```
-
----
-
-### 🔍 Ver todos os containers (mesmo os parados)
-
-```bash
-sudo docker ps -a
-```
-
----
-
-### 🗑️ Remover containers parados
-
-```bash
-sudo docker container prune
-```
-
----
-
-### 🗑️ Remover imagens que não estão sendo usadas
-
-```bash
-sudo docker image prune
+REDIS_HOST=redis
+QUEUE_CONNECTION=database
+SESSION_DRIVER=database
+CACHE_STORE=database
+RUN_MIGRATIONS=true
 ```

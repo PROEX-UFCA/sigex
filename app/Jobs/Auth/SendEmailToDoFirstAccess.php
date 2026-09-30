@@ -21,8 +21,7 @@ class SendEmailToDoFirstAccess implements ShouldQueue
         public readonly User $user,
         public readonly string $time,
         public readonly string $token,
-        public readonly string $password,
-        public readonly int $method,
+        public readonly string $password
     )
     {
         //
@@ -33,23 +32,13 @@ class SendEmailToDoFirstAccess implements ShouldQueue
      */
     public function handle(): void
     {
-        if($this->method == 1){
-            $email = new EmailToDoFirstAccessManual(
-                $this->user->name,
-                $this->user->email,
-                $this->time,
-                $this->token,
-                $this->password
-            );
-        }
-        elseif($this->method == 2){
-            $email = new EmailToDoFirstAccessInvite(
-                $this->user->name,
-                $this->user->email,
-                $this->time,
-                $this->token
-            );
-        }
+        $email = new EmailToDoFirstAccessManual(
+            $this->user->name,
+            $this->user->email,
+            $this->time,
+            $this->token,
+            $this->password
+        );
         Mail::to($this->user)->send($email);
     }
 }

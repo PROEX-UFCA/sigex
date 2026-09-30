@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Repositories\Actions;
+
+interface ActionsRepository{
+  public function getByFilter(array $filtros = [], string $sort = 'ano', string $direction = 'desc');
+  public function getAllByUuid($uuid, array $filtros = []);
+  public function getByUserUuid($user_uuid, $uuid);
+  public function create($request);
+  public function createTeam($request, $id_acao, $action);
+  public function createSchedule($request, $id_acao);
+  public function getByUuid($uuid);
+  public function update($request, $uuid);
+  public function getParameters($parameter);
+  public function getActionsForReports(array $filtros);
+  public function getMembersForReports(array $filtros);
+  public function updateSchedule($request, $id_agenda);
+  public function deleteSchedule($id_agenda);
+  public function createInternalSchedule($request, $id_acao);
+  public function updateInternalSchedule($request, $id_agenda_interna);
+  public function deleteInternalSchedule($id_agenda_interna);
+  public function createGalleryImages(array $paths, array $altTexts, $id_acao);
+  public function updateGalleryAltText($id_imagem, $altText);
+  public function deleteGalleryImage($id_imagem);
+  public function updateBannerAltText($uuid, $altText);
+} 

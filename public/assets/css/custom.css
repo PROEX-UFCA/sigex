@@ -1,0 +1,45 @@
+/*padronizacao cores da ufca*/
+body, [data-bs-theme="light"], [data-bs-theme="dark"] {
+    --tblr-brown: #532B1D;
+    --tblr-blue: #50BDCA;
+    --tblr-orange: #F08D60;
+    --tblr-yellow: #F5BE56;
+    --tblr-green: #75b747;
+    --tblr-body-color: var(--tblr-brown);
+    --tblr-muted-rgb: rgb(130, 109, 102);
+    --tblr-muted: rgb(130, 109, 102);
+}
+
+.bg-brown { background-color: #532B1D !important; }
+.text-brown { color: #532B1D !important; }
+.btn-brown {
+    background-color: #532B1D;
+    color: #ffffff;
+}
+.btn-brown:hover {
+    background-color: #402116;
+    color: #ffffff;
+}
+.border-brown{
+    border-color: #532b1d67 !important;
+}
+body {
+    color: #532B1D;
+}
+
+.text-yellow{
+    color:#F5BE56 !important;
+}
+
+/*carrosseis menores*/
+.text-muted {
+    color: rgb(130, 109, 102) !important;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

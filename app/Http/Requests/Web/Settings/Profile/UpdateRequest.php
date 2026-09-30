@@ -30,9 +30,12 @@ class UpdateRequest extends FormRequest
             'password_confirm' => 'nullable|string|max:255|required_with:actual_password,password|same:password',
 
             // Novos campos
-            'cpf' => 'nullable|string|size:14|regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
-            'birth' => 'nullable|date|before:today',
+            // 'birth' => 'nullable|date|before:today',
             'phone' => 'nullable|string|max:20|regex:/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/',
+            'cpf' => 'nullable|string|max:14|regex:/^\d{3}\.\d{3}\.\d{3}-\d{2}$/',
+            'matricula_siape' => 'nullable|string',
+            'centro' => 'nullable|string|exists:parametro,value',
+            'curso' => 'nullable|string|exists:parametro,value',
         ];
     }
 
@@ -42,6 +45,8 @@ class UpdateRequest extends FormRequest
             // Nome
             'name.string' => 'O nome deve ser um texto.',
             'name.max' => 'O nome não pode ter mais de 255 caracteres.',
+
+            'matricula_siape.string' => 'A matrícula ou siape deve ser um texto.',
 
             // Senha atual
             'actual_password.required_with' => 'A senha atual é obrigatória para alterar a senha.',
@@ -60,19 +65,24 @@ class UpdateRequest extends FormRequest
             'password_confirm.string' => 'A confirmação da nova senha deve ser um texto.',
             'password_confirm.max' => 'A confirmação da nova senha não pode ter mais de 255 caracteres.',
 
-            // CPF
-            'cpf.string' => 'O CPF deve ser um texto.',
-            'cpf.size' => 'O CPF deve conter exatamente 14 caracteres (formato 000.000.000-00).',
-            'cpf.regex' => 'O formato do CPF é inválido.',
-
             // Data de nascimento
-            'birth.date' => 'A data de nascimento deve ser uma data válida.',
-            'birth.before' => 'A data de nascimento deve ser anterior à data atual.',
+            // 'birth.date' => 'A data de nascimento deve ser uma data válida.',
+            // 'birth.before' => 'A data de nascimento deve ser anterior à data atual.',
 
             // Telefone
             'phone.string' => 'O telefone deve ser um texto.',
             'phone.max' => 'O telefone não pode ter mais de 20 caracteres.',
             'phone.regex' => 'O formato do telefone é inválido. Use o formato (99) 99999-9999.',
+
+            'cpf.string' => 'O cpf deve ser um texto.',
+            'cpf.max' => 'O cpf não pode ter mais de 14 caracteres.',
+            'cpf.regex' => 'O formato do cpf é inválido (Use o formato XXX.XXX.XXX-XX).',
+
+            'centro.uuid' => 'O centro deve ser um UUID válido.',
+            'centro.exists' => 'O centro selecionado não existe.',
+        
+            'curso.uuid' => 'O curso deve ser um UUID válido.',
+            'curso.exists' => 'O curso selecionado não existe.',
         ];
     }
 }

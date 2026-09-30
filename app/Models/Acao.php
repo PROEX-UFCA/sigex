@@ -4,12 +4,63 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Acao extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, SoftDeletes, LogsActivity;
 
     protected $table = 'acao';
-    protected $fillable = ['id_coordenador', 'id_atividade', 'id_projeto', 'titulo', 'centro_departamento', 'data_inicio', 'data_fim', 'ano', 'tipo_acao', 'area_tematica', 'modalidade', 'status'];
+
+    protected $fillable = ['id_projeto', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'bolsas_concedidas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'resumo', 'palavras_chave', 'ods', 'contexto', 'status', 'img', 'is_ej'];
+
+    public function coordenador(){
+            $coordeandor = $this->equipe->where('categoria_membro', 'COORDENADOR(A)')->first();
+        return $coordeandor;
+    }
+
+    public function equipe() : HasMany {
+        return $this->hasMany(Equipe_Acao::class, 'id_acao', 'id');
+    }
+
+    public function agenda() : HasMany {
+        return $this->hasMany(Agenda_Acao::class, 'id_acao', 'id');
+    }
+
+    public function agendaInterna()
+    {
+        return $this->hasMany(Agenda_Interna_Acao::class, 'id_acao', 'id');
+    }
+
+    public function submissoes() : HasMany {
+        return $this->hasMany(Submissao::class, 'id_acao', 'id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['id_projeto', 'ano', 'titulo', 'modalidade_edital', 'bolsas_solicitadas', 'financiamento_interno', 'financiamento_externo', 'situacao', 'data_cadastro', 'data_inicio', 'data_fim', 'data_atualizacao', 'centro_departamento_sigla', 'tipo_acao', 'area_tematica', 'resumo', 'palavras_chave', 'ods', 'contexto', 'status', 'img', 'is_ej'])
+            ->useLogName('acao')
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+
+    public function galeria()
+    {
+        return $this->hasMany(Galeria_Acao::class, 'id_acao', 'id');
+    }
+
+    public function matches()
+    {
+        return $this->hasMany(Match_Acao::class, 'id_acao', 'id');
+    }
+
+    public function localidade()
+    {
+        return $this->hasMany(Localidade_Acao::class, 'id_projeto', 'id_projeto');
+    }
 }

@@ -12,12 +12,42 @@ class EloquentUsersRepository implements UsersRepository
         return User::where('email', $email)->first();
     }
 
+    public function getForCoordinator(){
+        return User::whereNull('id_instituicao')->get();
+    }
+
     public function getByUuid($uuid){
         return User::where('uuid', $uuid)->first();
     }
 
-    public function getAll(){
-        return User::get();
+    public function getAll(array $filtros = [], string $sort = 'name', string $direction = 'desc')
+    {
+        $query = User::query();
+
+        $query->when($filtros['search'] ?? null, function ($q, $search) {
+            $q->where(function ($subQuery) use ($search) {
+                $subQuery->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhere('centro', 'like', "%{$search}%")
+                    ->orWhere('matricula_siape', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        });
+
+        $camposFiltro = [
+            'centro', 'status'
+        ];
+
+        foreach ($camposFiltro as $campo) {
+            $valor = $filtros[$campo] ?? null;
+
+            if ($valor !== null && $valor !== '') {
+            $query->where($campo, $valor);
+            }
+        }
+
+        return $query->orderBy($sort, $direction)->paginate(30)->withQueryString();
     }
 
     public function store($request){
@@ -53,18 +83,24 @@ class EloquentUsersRepository implements UsersRepository
         if ($request->filled('status')) {
             $user->status = $request->status;
         }       
-
+        
+        if ($request->filled('phone')) {
+            $user->phone = $request->phone;
+        }        
+            
+        if ($request->filled('centro')) {
+            $user->centro = $request->centro;
+        }
+        if ($request->filled('curso')) {
+            $user->curso = $request->curso;
+        }
         if ($request->filled('cpf')) {
             $user->cpf = $request->cpf;
         }
 
-        if ($request->filled('birth')) {
-            $user->birth = $request->birth;
+        if ($request->filled('matricula_siape')) {
+            $user->matricula_siape = $request->matricula_siape;
         }
-
-        if ($request->filled('phone')) {
-            $user->phone = $request->phone;
-        }        
 
         $user->save();
 

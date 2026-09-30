@@ -12,13 +12,15 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>Page 404 - Tabler - Premium and Open Source dashboard template with responsive and high quality UI.</title>
+    <title>SIGEx</title>
     <!-- CSS files -->
     <link href="{{ asset('assets/css/tabler.min.css?1684106062') }}" rel="stylesheet"/>
     <link href="{{ asset('assets/css/tabler-flags.min.css?1684106062') }}" rel="stylesheet"/>
     <link href="{{ asset('assets/css/tabler-payments.min.css?1684106062') }}" rel="stylesheet"/>
     <link href="{{ asset('assets/css/tabler-vendors.min.css?1684106062') }}" rel="stylesheet"/>
     <link href="{{ asset('assets/css/demo.min.css?1684106062') }}" rel="stylesheet"/>
+    <link rel="shortcut icon" href="{{asset('assets/img/illustrations/favicon.png')}}" type="image/x-icon">
+
     <style>
       @import url('https://rsms.me/inter/inter.css');
       :root {

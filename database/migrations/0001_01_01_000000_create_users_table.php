@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('users')) {
+            return;
+        }
+
         Schema::create('users', function (Blueprint $table) {
-            $table->id()->primary();
+            $table->id();
             $table->uuid('uuid')->unique();
             $table->uuid('id_instituicao')->nullable();
             $table->string('name');
@@ -21,8 +25,9 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->boolean('status')->default(0);
             $table->rememberToken();
+            $table->string('centro')->nullable();
+            $table->string('curso')->nullable();
             $table->string('cpf')->nullable();
-            $table->string('centro_departamento')->nullable();
             $table->string('matricula_siape')->nullable();
             $table->string('perfil_ativo')->nullable();
             $table->string('phone')->nullable();
@@ -31,11 +36,19 @@ return new class extends Migration
             $table->softDeletes();
         });
 
+        if (Schema::hasTable('password_reset_tokens')) {
+            return;
+        }
+
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
+
+        if (Schema::hasTable('sessions')) {
+            return;
+        }
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();

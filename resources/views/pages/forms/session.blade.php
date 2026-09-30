@@ -1,0 +1,801 @@
+@extends('templates.template')
+
+@section('styles')
+<style>
+  .active-tab {
+    background-color: #066fd1 !important;
+  }
+</style>
+@endsection
+@section('content')
+<div class="page-body row">
+  <div class="m-0 p-0 mb-4 row">
+    <div class="btn-list col-12 col-md-6 p-0 m-0">
+      @if($form->published == 0)
+      <bottom class="btn" data-bs-toggle="collapse" data-bs-target="#editar" aria-expanded="false"
+        aria-controls="collapseExample">Editar seção</bottom>
+
+      <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#modal-add"
+        aria-controls="offcanvasExample">Adicionar seção</button>
+
+      <bottom class="btn" data-bs-toggle="modal" data-bs-target="#deletar" aria-expanded="false"
+        aria-controls="modalExample">Excluir seção</bottom>
+
+      <x-modal.modal-alert route="{{ route('sessions.delete', $session->id) }}" id="deletar"
+        class="modal-dialog-centered modal-sm" background="bg-danger" classBody="text-center py-4" title="Excluír seção"
+        typeBtnClose="button" classBtnClose="me-auto w-100" textBtnClose="Cancelar" typeBtnSave="submit"
+        classBtnSave="btn-danger w-100" textBtnSave="Deletar">
+        <x-slot:content>
+          <i class="ti ti-alert-triangle icon icon-lg text-danger"></i>
+          <h3>Tem certeza?</h3>
+          <div class="text-secondary">
+            Você realmente deseja remover esse registro? Não será possível restaurá-lo depois!
+          </div>
+        </x-slot:content>
+      </x-modal.modal-alert>
+      <x-modal.offcanvas route="{{ route('sessions.store', $form->id) }}" id="modal-add" class="offcanvas-end"
+        title="Adicionar seção">
+        <x-slot:content>
+          @include('components.form-elements.input.input', [
+          'title' => 'Título',
+          'type' => 'text',
+          'class' => 'mb-3 col-12',
+          'name' => 'titulo',
+          'required' => 'true',
+          'placeholder' => 'Insira um título para a seção',
+          'value' => ''
+          ])
+
+          @include('components.form-elements.textarea.textarea', [
+          'title' => 'Descrição',
+          'class' => 'mb-3 col-12',
+          'name' => 'descricao',
+          'required' => 'true',
+          'placeholder' => 'Insira uma descrição para a seção',
+          'value' => ''
+          ])
+        </x-slot:content>
+      </x-modal.offcanvas>
+      @endif
+
+
+      <a href="{{route('forms.index')}}" class="btn">Voltar página</a>
+    </div>
+  </div>
+  <div class="collapse m-0 p-0 mb-3" id="editar">
+    <div class="card card-body m-0 p-3">
+      <form action="{{ route('sessions.update', $session->id) }}" method="POST" class="row">
+        @csrf
+        @include('components.form-elements.input.input', [
+        'title' => 'Título',
+        'type' => 'text',
+        'class' => 'mb-3 col-12 col-md-4',
+        'name' => 'titulo',
+        'required' => 'true',
+        'placeholder' => 'Insira um título para a seção',
+        'value' => $session->titulo
+        ])
+
+        @include('components.form-elements.input.input', [
+        'title' => 'Ordem da Seção',
+        'type' => 'number',
+        'class' => 'mb-3 col-12 col-md-2',
+        'name' => 'ordem',
+        'min' => 1,
+        'required' => 'true',
+        'placeholder' => 'Insira a ordem da seção',
+        'value' => $session->ordem
+        ])
+
+        @include('components.form-elements.input.input', [
+        'title' => 'Descrição',
+        'type' => 'text',
+        'class' => 'mb-3 col-12 col-md-4',
+        'name' => 'descricao',
+        'required' => 'true',
+        'placeholder' => 'Insira uma descrição para a seção',
+        'value' => $session->descricao
+        ])
+
+
+        <div class="col-12 col-md-2">
+          <label class="form-label d-block">&nbsp;</label>
+          <div class="d-flex">
+            <button class="btn btn-green w-100" type="submit">Salvar</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+  <div class="card mb-3">
+    <ul class="nav nav-pills p-2">
+      @foreach ($form->secoes as $key => $secao)
+      <li class="nav-item">
+        <a class="nav-link {{$session->id == $secao->id ? 'active-tab text-white' : ''}}" aria-current="page"
+          href="{{route('sessions.index', $secao->id)}}">Seção {{$key + 1}}</a>
+      </li>
+      @endforeach
+    </ul>
+  </div>
+  <div class="row m-0 p-0 gap-1">
+    <div class="col-12 col-md m-0 p-0">
+      <div class="card shadow-sm mb-4">
+        <div class="card-body p-4">
+          {{-- Você pode colocar um título da sessão aqui se quiser --}}
+          {{-- <h4 class="mb-4">{{ $session->titulo }}</h4> --}}
+
+          @foreach ($session->perguntas->whereNull('id_pergunta_pai') as $pergunta)
+          <div class="pergunta-item mb-4">
+            {{-- Enunciado da Pergunta --}}
+            <div class="d-flex mb-2 justify-content-between">
+              <label class="form-label fw-bold fs-4">
+                {{ $pergunta->enunciado }}
+                @if($pergunta->obrigatoria)
+                <span class="text-danger" title="Obrigatório">*</span>
+                @endif
+              </label>
+              @if($form->published == 0)
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Deletar seção">
+                <button class="btn btn-sm btn-danger btn-icon" data-bs-toggle="modal"
+                  data-bs-target="#deletar-pergunta-{{$pergunta->id}}" aria-expanded="false"
+                  aria-controls="modalExample"><i class="ti ti-trash"></i>
+                </button>
+              </span>
+              @endif
+            </div>
+            {{-- Renderiza o input de acordo com o tipo --}}
+            @switch($pergunta->tipo)
+
+            @case('text')
+            <input type="text" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            'required' : '' }}
+            @if($pergunta->min) minlength="{{ $pergunta->min }}" @endif
+            @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif
+            @if($pergunta->regex) pattern="{{ $pergunta->regex }}" @endif
+            placeholder="Sua resposta aqui">
+            @if($pergunta->min || $pergunta->max || $pergunta->regex)
+            <div class="form-text text-muted">
+              @if($pergunta->min) Mín: {{ $pergunta->min }} caracteres. @endif
+              @if($pergunta->max) Máx: {{ $pergunta->max }} caracteres. @endif
+              @if($pergunta->regex) <span title="{{ $pergunta->regex }}">Requer formato específico.</span> @endif
+            </div>
+            @endif
+            @break
+
+            @case('location')
+            <input type="text" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            'required' : '' }}
+            placeholder="Sua resposta aqui">
+            @break
+
+            @case('textarea')
+            <textarea class="form-control" name="respostas[{{ $pergunta->id }}]" rows="3" {{ $pergunta->obrigatoria ? 'required' : '' }}
+                                      @if($pergunta->min) minlength="{{ $pergunta->min }}" @endif
+                                      @if($pergunta->max) maxlength="{{ $pergunta->max }}" @endif
+                                      placeholder="Digite sua resposta..."></textarea>
+
+            {{-- Infozinho para Textarea --}}
+            @if($pergunta->min || $pergunta->max)
+            <div class="form-text text-muted">
+              @if($pergunta->min) Mín: {{ $pergunta->min }} caracteres. @endif
+              @if($pergunta->max) Máx: {{ $pergunta->max }} caracteres. @endif
+            </div>
+            @endif
+            @break
+
+            @case('number')
+            <input type="number" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            'required' : '' }}
+            @if($pergunta->min) min="{{ $pergunta->min }}" @endif
+            @if($pergunta->max) max="{{ $pergunta->max }}" @endif
+            @if($pergunta->step) step="{{ $pergunta->step }}" @endif
+            placeholder="Apenas números">
+
+            {{-- Infozinho para Number --}}
+            @if($pergunta->min || $pergunta->max || $pergunta->step)
+            <div class="form-text text-muted">
+              @if($pergunta->min) Valor mín: {{ $pergunta->min }}. @endif
+              @if($pergunta->max) Valor máx: {{ $pergunta->max }}. @endif
+              @if($pergunta->step) Intervalo numérico: {{ $pergunta->step }}. @endif
+            </div>
+            @endif
+            @break
+
+            @case('file')
+            <input type="file" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            'required' : '' }}
+            @if($pergunta->accept) accept="{{ $pergunta->accept }}" @endif>
+
+            {{-- Infozinho para File --}}
+            @if($pergunta->accept)
+            <div class="form-text text-muted">
+              Formatos aceitos: {{ str_replace(',', ', ', $pergunta->accept) }}
+            </div>
+            @endif
+            @break
+
+            @case('select')
+            <select class="form-select" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ? 'required' :
+              '' }}>
+              <option value="" disabled selected>Selecione uma opção</option>
+              @foreach($pergunta->opcoes as $opcao)
+              <option value="{{ $opcao->id }}">{{ $opcao->rotulo }}</option>
+              @endforeach
+            </select>
+            @break
+
+            @case('radio')
+            <div>
+              @foreach($pergunta->opcoes as $opcao)
+              <div class="form-check mb-1">
+                <input class="form-check-input" type="radio" name="respostas[{{ $pergunta->id }}]"
+                  id="opcao_{{ $opcao->id }}" value="{{ $opcao->id }}" {{ $pergunta->obrigatoria ? 'required' : '' }}>
+                <label class="form-check-label" for="opcao_{{ $opcao->id }}">
+                  {{ $opcao->rotulo }}
+                </label>
+              </div>
+              @endforeach
+            </div>
+            @break
+
+            @case('checkbox')
+            <div>
+              @foreach($pergunta->opcoes as $opcao)
+              <div class="form-check mb-1">
+                <input class="form-check-input" type="checkbox" name="respostas[{{ $pergunta->id }}][]"
+                  id="opcao_{{ $opcao->id }}" value="{{ $opcao->id }}">
+                <label class="form-check-label" for="opcao_{{ $opcao->id }}">
+                  {{ $opcao->rotulo }}
+                </label>
+              </div>
+              @endforeach
+            </div>
+            @break
+
+            @case('date')
+            <input type="date" class="form-control" name="respostas[{{ $pergunta->id }}]" {{ $pergunta->obrigatoria ?
+            'required' : '' }}
+            placeholder="Sua resposta aqui">
+            @break
+
+            @case('datetime-local')
+            <input type="datetime-local" class="form-control" name="respostas[{{ $pergunta->id }}]" {{
+              $pergunta->obrigatoria ?
+            'required' : '' }}
+            placeholder="Sua resposta aqui">
+            @break
+
+            @case('tabela')
+            <div class="p-3 border rounded bg-light bg-opacity-50">
+              <div class="d-flex align-items-center mb-3 text-muted" style="font-size: 0.85rem;">
+                <span>Pré-visualização do Grupo Repetidor (O usuário poderá preencher este bloco múltiplas vezes)</span>
+              </div>
+
+              <div class="card shadow-sm mb-0">
+                <div class="card-body p-3">
+                  <div class="row g-3">
+                    @php
+                    $qtdColunas = $pergunta->filhas->count();
+                    $gridClass = $qtdColunas > 3 ? 'col-12 col-md-6 col-lg-4' : 'col-12 col-md';
+                    @endphp
+                    <!-- Loop para gerar as colunas dentro da row -->
+                    @foreach($pergunta->filhas as $coluna)
+                    <div class="{{ $gridClass }}">
+                      <label class="form-label fw-semibold mb-1" style="font-size: 0.85rem;">
+                        {{ $coluna->enunciado }}
+                        @if($coluna->obrigatoria)
+                        <span class="text-danger" title="Obrigatório">*</span>
+                        @endif
+                      </label>
+
+                      @if(in_array($coluna->tipo, ['select', 'radio', 'checkbox']))
+                      <select class="form-select form-select-sm text-muted">
+                        <option>Opções de resposta...</option>
+                        @foreach($coluna->opcoes as $opcao)
+                        <option value="{{ $opcao->id }}">{{ $opcao->rotulo }}</option>
+                        @endforeach
+                      </select>
+                      @elseif($coluna->tipo == 'textarea')
+                      <textarea class="form-control form-control-sm text-muted" rows="2"
+                        placeholder="Texto..."></textarea>
+                      @elseif($coluna->tipo == 'file')
+                      <input type="file" class="form-control form-control-sm text-muted">
+                      @else
+                      <input type="{{ $coluna->tipo }}" class="form-control form-control-sm text-muted"
+                        placeholder="Resposta...">
+                      @endif
+
+                      {{-- Mostra se tem validação configurada --}}
+                      @if($coluna->min || $coluna->max || $coluna->accept)
+                      <div class="form-text mt-1" style="font-size: 0.7rem;">
+                        @if($coluna->min) Mín: {{ $coluna->min }}. @endif
+                        @if($coluna->max) Máx: {{ $coluna->max }}. @endif
+                        @if($coluna->accept) Formatos aceitos: {{ str_replace(',', ', ', $coluna->accept) }} @endif
+                      </div>
+                      @endif
+                    </div>
+                    @endforeach
+                  </div>
+                </div>
+              </div>
+            </div>
+            @break
+
+            @default
+            <p class="text-muted">Tipo de pergunta não suportado.</p>
+
+            @endswitch
+          </div>
+
+          {{-- Adiciona uma linha divisória entre as perguntas, mas ignora na última --}}
+          @if(!$loop->last)
+          <hr class="text-muted opacity-25 my-4">
+          @endif
+          @if($form->published == 0)
+
+          <x-modal.modal-alert route="{{ route('sessions.deleteQuestion', $pergunta->id) }}"
+            id="deletar-pergunta-{{$pergunta->id}}" class="modal-dialog-centered modal-sm" background="bg-danger"
+            classBody="text-center py-4" title="Excluír seção" typeBtnClose="button" classBtnClose="me-auto w-100"
+            textBtnClose="Cancelar" typeBtnSave="submit" classBtnSave="btn-danger w-100" textBtnSave="Deletar">
+            <x-slot:content>
+              <i class="ti ti-alert-triangle icon icon-lg text-danger"></i>
+              <h3>Tem certeza?</h3>
+              <div class="text-secondary">
+                Você realmente deseja remover esse registro? Não será possível restaurá-lo depois!
+              </div>
+            </x-slot:content>
+          </x-modal.modal-alert>
+          @endif
+          @endforeach
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md m-0 p-0">
+      <div class="card pb-0 mb-0">
+        @if($form->published == 0)
+        <form method="post" action="{{route('sessions.storeQuestion', $session->id)}}" class="card-body">
+          @csrf
+          <p class="fw-bold">Adicionar nova pergunta</p>
+
+          <x-form-elements.select.select title="Tipo de pergunta" id="tipo" name="tipo" class="col-12" required="true">
+            <x-slot:options>
+              <option value="" disabled selected>Selecione</option>
+              <option value="text">Texto normal</option>
+              <option value="textarea">Texto grande</option>
+              <option value="select">Seletor</option>
+              <option value="checkbox">Múltiplas opções com várias alternativas certas</option>
+              <option value="radio">Múltiplas opções com uma alternativa certa</option>
+              <option value="file">Arquivo</option>
+              <option value="number">Número</option>
+              <option value="location">Localização</option>
+              <option value="date">Data</option>
+              <option value="datetime-local">Data e hora</option>
+              <option value="tabela">Tabela / Lista Dinâmica</option>
+            </x-slot:options>
+          </x-form-elements.select.select>
+
+          @include('components.form-elements.input.input', [
+          'title' => 'Enunciado',
+          'type' => 'text',
+          'class' => 'mb-3 col-12',
+          'name' => 'enunciado',
+          'required' => 'true',
+          'placeholder' => 'Enunciado da pergunta'
+          ])
+
+          <x-form-elements.select.select title="A pergunta é obrigatória?" id="obrigatoria" name="obrigatoria"
+            class="col-12 mb-3" required="true">
+            <x-slot:options>
+              <option value="" disabled selected>Selecione</option>
+              <option value="0">Não</option>
+              <option value="1">Sim</option>
+            </x-slot:options>
+          </x-form-elements.select.select>
+
+          <div id="area-validacoes" class="row mb-3 d-none">
+            <p class="fw-bold mb-2">Configurações de Validação (Opcional)</p>
+
+            <div id="container-min-max" class="col-12 d-none">
+              <div class="row">
+                <div class="col-6">
+                  <label id="label-min" class="form-label">Mínimo</label>
+                  <input type="number" name="min" class="form-control" placeholder="Ex: 0">
+                </div>
+                <div class="col-6">
+                  <label id="label-max" class="form-label">Máximo</label>
+                  <input type="number" name="max" class="form-control" placeholder="Ex: 100">
+                </div>
+              </div>
+            </div>
+
+            <div id="container-step" class="col-12 d-none">
+              <label class="form-label">Intervalo (Step)</label>
+              <input type="number" name="step" step="any" class="form-control" placeholder="Ex: 0.1">
+            </div>
+
+            <div id="container-accept" class="col-12 d-none mb-3">
+              <label class="form-label fw-bold">Tipos de Arquivos Aceitos</label>
+              <div class="row">
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="accept[]" value="image/*" id="accept-image">
+                    <label class="form-check-label" for="accept-image">Imagens (PNG, JPG, etc)</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="accept[]" value=".pdf" id="accept-pdf">
+                    <label class="form-check-label" for="accept-pdf">Documentos PDF</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="accept[]" value=".doc,.docx" id="accept-word">
+                    <label class="form-check-label" for="accept-word">Microsoft Word</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="accept[]" value=".zip,.rar,.7z"
+                      id="accept-zip">
+                    <label class="form-check-label" for="accept-zip">Arquivos Compactados</label>
+                  </div>
+                </div>
+
+                <div class="col-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="accept[]" value=".xls,.xlsx"
+                      id="accept-excel">
+                    <label class="form-check-label" for="accept-excel">Microsoft Excel</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="accept[]" value="video/*" id="accept-video">
+                    <label class="form-check-label" for="accept-video">Vídeos (MP4, AVI, etc)</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="accept[]" value="audio/*" id="accept-audio">
+                    <label class="form-check-label" for="accept-audio">Áudios (MP3, WAV, etc)</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="accept[]" value=".csv" id="accept-csv">
+                    <label class="form-check-label" for="accept-csv">Arquivos CSV</label>
+                  </div>
+                </div>
+              </div>
+              <small class="text-muted mt-1 d-block">Se nenhuma opção for marcada, todos os tipos de arquivos serão
+                aceitos.</small>
+            </div>
+
+            <div id="container-regex" class="col-12 d-none mt-2">
+              <label class="form-label">Regex (Máscara/Padrão)</label>
+              <input type="text" name="regex" class="form-control" placeholder="Ex: (00) 00000-0000">
+            </div>
+          </div>
+
+          <div id="area-opcoes" class="mb-3 d-none">
+            <p class="fw-bold mb-2">Opções de Resposta</p>
+            <div id="lista-opcoes">
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="adicionarOpcao()">
+              + Adicionar Opção
+            </button>
+          </div>
+
+          <div id="area-colunas-tabela" class="mb-3 d-none">
+            <p class="fw-bold mb-2">Configuração das Colunas (Sub-perguntas)</p>
+            <div class="alert alert-info py-2">
+              <small>Adicione as colunas que formarão esta tabela. Se for apenas uma lista de itens, adicione apenas uma
+                coluna.</small>
+            </div>
+
+            <div id="lista-colunas">
+            </div>
+
+            <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="adicionarColunaTabela()">
+              <i class="ti ti-plus"></i> Adicionar Coluna
+            </button>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-success" type="submit">Salvar</button>
+          </div>
+
+        </form>
+        @else
+        <div class="alert alert-danger mb-0">
+          Esse formulário já foi publicado, logo não é possível adicionar mais perguntas a essa seção, editá-la ou
+          excluí-la.
+        </div>
+        @endif
+      </div>
+    </div>
+  </div>
+</div>
+@endsection
+@section('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+        const selectTipo = document.getElementById('tipo');
+        
+        const areaValidacoes = document.getElementById('area-validacoes');
+        const areaOpcoes = document.getElementById('area-opcoes');
+        
+        const containerMinMax = document.getElementById('container-min-max');
+        const containerStep = document.getElementById('container-step');
+        const containerAccept = document.getElementById('container-accept');
+        const containerRegex = document.getElementById('container-regex');
+        
+        const labelMin = document.getElementById('label-min');
+        const labelMax = document.getElementById('label-max');
+
+        selectTipo.addEventListener('change', function () {
+            const tipo = this.value;
+            const areaColunas = document.getElementById('area-colunas-tabela');
+            const listaColunas = document.getElementById('lista-colunas');
+
+            document.querySelector('input[name="min"]').value = '';
+            document.querySelector('input[name="max"]').value = '';
+            document.querySelector('input[name="step"]').value = '';
+            document.querySelector('input[name="regex"]').value = '';
+
+            const checkboxesAccept = document.querySelectorAll('input[name="accept[]"]');
+            checkboxesAccept.forEach(checkbox => checkbox.checked = false);
+
+            const listaOpcoes = document.getElementById('lista-opcoes');
+            listaOpcoes.innerHTML = ''; 
+
+            areaColunas.classList.add('d-none');
+            listaColunas.innerHTML = '';
+
+            areaValidacoes.classList.add('d-none');
+            areaOpcoes.classList.add('d-none');
+            containerMinMax.classList.add('d-none');
+            containerStep.classList.add('d-none');
+            containerAccept.classList.add('d-none');
+            containerRegex.classList.add('d-none');
+
+            if (['text', 'textarea'].includes(tipo)) {
+                areaValidacoes.classList.remove('d-none');
+                containerMinMax.classList.remove('d-none');
+                containerRegex.classList.remove('d-none');
+                
+                labelMin.innerText = "Mín. Caracteres";
+                labelMax.innerText = "Máx. Caracteres";
+
+            } else if (tipo === 'number') {
+                areaValidacoes.classList.remove('d-none');
+                containerMinMax.classList.remove('d-none');
+                containerStep.classList.remove('d-none');
+                
+                labelMin.innerText = "Valor Mínimo";
+                labelMax.innerText = "Valor Máximo";
+
+            } else if (tipo === 'file') {
+                areaValidacoes.classList.remove('d-none');
+                containerAccept.classList.remove('d-none');
+
+            } else if (['select', 'checkbox', 'radio'].includes(tipo)) {
+                areaOpcoes.classList.remove('d-none');
+                
+                adicionarOpcao();
+            } else if (tipo === 'tabela') {
+                areaColunas.classList.remove('d-none');
+                adicionarColunaTabela();
+            }
+        });
+    });
+
+    function adicionarOpcao() {
+        const lista = document.getElementById('lista-opcoes');
+        const index = lista.children.length; 
+
+        const divRow = document.createElement('div');
+        divRow.className = 'input-group mb-2';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'opcoes[]'; 
+        input.className = 'form-control';
+        input.placeholder = `Opção ${index + 1}`;
+        input.required = true;
+
+        const btnRemove = document.createElement('button');
+        btnRemove.type = 'button';
+        btnRemove.className = 'btn btn-outline-danger';
+        btnRemove.innerHTML = 'Remover';
+        btnRemove.onclick = function () {
+            divRow.remove();
+        };
+
+        divRow.appendChild(input);
+        divRow.appendChild(btnRemove);
+        lista.appendChild(divRow);
+    }
+
+    let colunaIndex = 0;
+
+    function adicionarColunaTabela() {
+        const lista = document.getElementById('lista-colunas');
+
+        const divCard = document.createElement('div');
+        // Adicionamos a classe 'coluna-item' para o JS se localizar dentro deste card específico
+        divCard.className = 'card card-body bg-light mb-3 border coluna-item';
+        
+        divCard.innerHTML = `
+            <div class="row g-2 mb-2">
+                <div class="col-md-5">
+                    <label class="form-label mb-1" style="font-size: 0.8rem;">Enunciado da Coluna</label>
+                    <input type="text" name="colunas[${colunaIndex}][enunciado]" class="form-control form-control-sm" placeholder="Ex: Nome do Curso" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label mb-1" style="font-size: 0.8rem;">Tipo de Campo</label>
+                    <!-- O onchange chama a função passando o próprio select (this) -->
+                    <select name="colunas[${colunaIndex}][tipo]" class="form-select form-select-sm" onchange="tratarValidacoesColuna(this, ${colunaIndex})" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="text">Texto normal</option>
+                        <option value="textarea">Texto grande</option>
+                        <option value="select">Seletor</option>
+                        <option value="checkbox">Múltiplas opções (várias certas)</option>
+                        <option value="radio">Múltiplas opções (uma certa)</option>
+                        <option value="file">Arquivo</option>
+                        <option value="number">Número</option>
+                        <option value="location">Localização</option>
+                        <option value="date">Data</option>
+                        <option value="datetime-local">Data e hora</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-1" style="font-size: 0.8rem;">Obrigatório?</label>
+                    <select name="colunas[${colunaIndex}][obrigatoria]" class="form-select form-select-sm" required>
+                        <option value="1">Sim</option>
+                        <option value="0">Não</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ÁREA DE VALIDAÇÕES EXCLUSIVA DESTA COLUNA (usando classes em vez de IDs) -->
+            <div class="area-validacoes-coluna d-none bg-white p-2 border rounded mt-2">
+                <p class="fw-bold mb-2" style="font-size: 0.85rem;">Validações da Coluna</p>
+
+                <div class="container-min-max col-12 d-none mb-2">
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label label-min" style="font-size: 0.8rem;">Mínimo</label>
+                            <input type="number" name="colunas[${colunaIndex}][min]" class="form-control form-control-sm input-min">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label label-max" style="font-size: 0.8rem;">Máximo</label>
+                            <input type="number" name="colunas[${colunaIndex}][max]" class="form-control form-control-sm input-max">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container-step col-12 d-none mb-2">
+                    <label class="form-label" style="font-size: 0.8rem;">Intervalo (Step)</label>
+                    <input type="number" name="colunas[${colunaIndex}][step]" step="any" class="form-control form-control-sm input-step">
+                </div>
+
+                <div class="container-regex col-12 d-none mb-2">
+                    <label class="form-label" style="font-size: 0.8rem;">Regex</label>
+                    <input type="text" name="colunas[${colunaIndex}][regex]" class="form-control form-control-sm input-regex">
+                </div>
+
+                <div class="container-accept col-12 d-none mb-2">
+                    <label class="form-label fw-bold" style="font-size: 0.8rem;">Tipos Aceitos</label>
+                    <div class="row" style="font-size: 0.8rem;">
+                        <div class="col-6">
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value="image/*"> <label class="form-check-label">Imagens</label></div>
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value=".pdf"> <label class="form-check-label">PDF</label></div>
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value=".doc,.docx"> <label class="form-check-label">Word</label></div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value=".xls,.xlsx"> <label class="form-check-label">Excel</label></div>
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value=".zip,.rar"> <label class="form-check-label">ZIP/RAR</label></div>
+                            <div class="form-check"><input class="form-check-input input-accept" type="checkbox" name="colunas[${colunaIndex}][accept][]" value="video/*,audio/*"> <label class="form-check-label">Áudio/Vídeo</label></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ÁREA DE OPÇÕES (SELECT/RADIO/CHECKBOX) EXCLUSIVA DESTA COLUNA -->
+            <div class="area-opcoes-coluna d-none bg-white p-2 border rounded mt-2">
+                <p class="fw-bold mb-2" style="font-size: 0.85rem;">Opções de Resposta</p>
+                <div class="lista-opcoes-coluna"></div>
+                <button type="button" class="btn btn-sm btn-outline-primary mt-1" onclick="adicionarOpcaoColuna(this, ${colunaIndex})">+ Adicionar Opção</button>
+            </div>
+
+            <div class="col-12 text-end mt-2">
+                <button type="button" class="btn btn-sm text-danger p-0 fw-bold" onclick="this.closest('.card').remove()">Remover Coluna</button>
+            </div>
+        `;
+
+        lista.appendChild(divCard);
+        colunaIndex++; // Prepara o index para a próxima coluna
+    }
+
+    // Função que lida com as validações de uma coluna específica quando o tipo dela muda
+    function tratarValidacoesColuna(selectElement, currIndex) {
+        // Pega o "card" principal onde este select está dentro
+        const card = selectElement.closest('.coluna-item');
+        const tipo = selectElement.value;
+
+        // Busca as áreas dentro apenas Deste card
+        const areaValidacoes = card.querySelector('.area-validacoes-coluna');
+        const areaOpcoes = card.querySelector('.area-opcoes-coluna');
+        
+        const containerMinMax = card.querySelector('.container-min-max');
+        const containerStep = card.querySelector('.container-step');
+        const containerAccept = card.querySelector('.container-accept');
+        const containerRegex = card.querySelector('.container-regex');
+        
+        const labelMin = card.querySelector('.label-min');
+        const labelMax = card.querySelector('.label-max');
+        const listaOpcoes = card.querySelector('.lista-opcoes-coluna');
+
+        // Limpa os valores antigos
+        card.querySelector('.input-min').value = '';
+        card.querySelector('.input-max').value = '';
+        card.querySelector('.input-step').value = '';
+        card.querySelector('.input-regex').value = '';
+        card.querySelectorAll('.input-accept').forEach(checkbox => checkbox.checked = false);
+        listaOpcoes.innerHTML = ''; 
+
+        // Esconde tudo por padrão
+        areaValidacoes.classList.add('d-none');
+        areaOpcoes.classList.add('d-none');
+        containerMinMax.classList.add('d-none');
+        containerStep.classList.add('d-none');
+        containerAccept.classList.add('d-none');
+        containerRegex.classList.add('d-none');
+
+        // Mostra as opções com base no tipo selecionado da coluna
+        if (['text', 'textarea'].includes(tipo)) {
+            areaValidacoes.classList.remove('d-none');
+            containerMinMax.classList.remove('d-none');
+            containerRegex.classList.remove('d-none');
+            labelMin.innerText = "Mín. Caracteres";
+            labelMax.innerText = "Máx. Caracteres";
+
+        } else if (tipo === 'number') {
+            areaValidacoes.classList.remove('d-none');
+            containerMinMax.classList.remove('d-none');
+            containerStep.classList.remove('d-none');
+            labelMin.innerText = "Valor Mínimo";
+            labelMax.innerText = "Valor Máximo";
+
+        } else if (tipo === 'file') {
+            areaValidacoes.classList.remove('d-none');
+            containerAccept.classList.remove('d-none');
+
+        } else if (['select', 'checkbox', 'radio'].includes(tipo)) {
+            areaOpcoes.classList.remove('d-none');
+            adicionarOpcaoColuna(selectElement, currIndex); // Já joga 1 input de opção padrão
+        }
+    }
+
+    // Função para adicionar os inputs de "Opção 1, Opção 2" dentro daquela coluna
+    function adicionarOpcaoColuna(elementoHtml, currIndex) {
+        const card = elementoHtml.closest('.coluna-item');
+        const lista = card.querySelector('.lista-opcoes-coluna');
+        const count = lista.children.length; 
+
+        const divRow = document.createElement('div');
+        divRow.className = 'input-group input-group-sm mb-1';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        // O name fica assim: colunas[0][opcoes][]
+        input.name = `colunas[${currIndex}][opcoes][]`; 
+        input.className = 'form-control';
+        input.placeholder = `Opção ${count + 1}`;
+        input.required = true;
+
+        const btnRemove = document.createElement('button');
+        btnRemove.type = 'button';
+        btnRemove.className = 'btn btn-outline-danger';
+        btnRemove.innerHTML = 'X';
+        btnRemove.onclick = function () {
+            divRow.remove();
+        };
+
+        divRow.appendChild(input);
+        divRow.appendChild(btnRemove);
+        lista.appendChild(divRow);
+    }
+</script>
+@endsection

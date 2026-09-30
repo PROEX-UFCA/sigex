@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('instituicao_externa_agenda')) {
+            return;
+        }
+
         Schema::create('instituicao_externa_agenda', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('id_instituicao');
+            $table->foreign('id_instituicao')->references('id')->on('instituicao_externa')->onDelete('cascade');
             $table->date('data_disponivel');
-            $table->time('hora_inicio');
-            $table->time('hora_fim');
             $table->string('observacao');
             $table->timestamps();
             $table->softDeletes();

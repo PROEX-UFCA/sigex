@@ -58,9 +58,12 @@
                 <td>{{ date('d/m/Y H:i:s', strtotime($log->created_at)) }}</td>
                 <td>{{ $log->subject_type }}</td>
                 <td>
-                  <button class="btn btn-secondary" data-bs-target="#modal-details{{ $log->id }}"
-                    data-bs-toggle="offcanvas" aria-controls="offcanvasExample"><i
-                      class="ti ti-list-details icon "></i>Detalhes</button>
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" title="Detalhar">
+                    <button class="btn btn-sm btn-info btn-icon" data-bs-target="#modal-details{{ $log->id }}"
+                      data-bs-toggle="offcanvas" aria-controls="offcanvasExample">
+                      <i class="ti ti-eye"></i>
+                    </button>
+                  </span>
                 </td>
               </tr>
             @endforeach

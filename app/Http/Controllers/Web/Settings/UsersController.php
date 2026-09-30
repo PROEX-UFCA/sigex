@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Settings\Users\StoreRequest;
 use App\Http\Requests\Web\Settings\Users\UpdateRequest;
 use App\Jobs\Auth\SendEmailToDoFirstAccess;
+use App\Jobs\Auth\SendEmailToDoFirstAccessOther;
+use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\Roles\RolesRepository;
 use App\Repositories\Settings\User\UsersRepository;
 use App\Repositories\Tokens\UserTokens\UsersTokensRepository;
@@ -19,21 +21,31 @@ class UsersController extends Controller
     private $usersRepository;
     private $rolesRepository;
     private $userTokensRepository;
+    private $parametrosRepository;
 
     public function __construct(
         UsersRepository $usersRepository,
         RolesRepository $rolesRepository,
-        UsersTokensRepository $userTokensRepository
+        UsersTokensRepository $userTokensRepository,
+        ParametrosRepository $parametrosRepository
     ) {
         $this->usersRepository = $usersRepository;
         $this->rolesRepository = $rolesRepository;
         $this->userTokensRepository = $userTokensRepository;
+        $this->parametrosRepository = $parametrosRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $sort = $request->get('sort', 'name');
+        $direction = $request->get('dir', 'desc') === 'asc' ? 'asc' : 'desc';
 
-        $this->data['users'] = $this->usersRepository->getAll();
+        $allowedFields = ['name', 'email', 'phone', 'centro_departamento', 'matricula_siape', 'group', 'status'];
+
+        if (!in_array($sort, $allowedFields)) $sort = 'name';
+
+        $this->data['users'] = $this->usersRepository->getAll($request->query(), $sort, $direction);
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO'])->groupBy('function');
         $this->data['roles'] = $this->rolesRepository->getAll();
 
         return view('pages.users.index')->with($this->data);
@@ -63,16 +75,25 @@ class UsersController extends Controller
             }
 
             $this->rolesRepository->set($user, $request->role);
-
             $token = $this->userTokensRepository->store($user, "first_access");
 
-            SendEmailToDoFirstAccess::dispatch(
-                $user,
-                $token->created_at,
-                $token->id,
-                $password,
-                $request->method
-            );
+            if($request->method == "1"){
+                SendEmailToDoFirstAccess::dispatch(
+                    $user,
+                    $token->created_at,
+                    $token->id,
+                    $password
+                );
+            }
+
+            if($request->method == "2"){
+                SendEmailToDoFirstAccessOther::dispatch(
+                    $user,
+                    $token->created_at,
+                    $token->id
+                );
+            }
+            
 
             return redirect()->back()->with("success", "Usuário inserido, peça-o para verificar o email para cadastrar uma senha.");
         } catch (\Throwable $th) {
@@ -97,15 +118,58 @@ class UsersController extends Controller
     {
         try {
             $this->usersRepository->delete($id);
-            return redirect()->back()->with('success', 'Registro removido com sucesso.');
+            return redirect()->route('users.index')->with('success', 'Usuário removido com sucesso.');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('error', 'Registro não encontrado.');
+            return redirect()->route('users.index')->with('error', 'Usuário não encontrado.');
         }
     }
 
     public function logout()
     {
         Auth::logout();
-        return to_route('login');
+        return to_route('vitrine.vitrine');
+    }
+
+    public function show($id)
+    {
+        try {
+            $user = $this->usersRepository->getByUuid($id);
+            
+            if (!$user) {
+                throw new \Exception('Usuário não encontrado.');
+            }
+
+            $this->data['user'] = $user;
+            $this->data['roles'] = $this->rolesRepository->getAll();
+
+            return view('pages.users.show')->with($this->data);
+            
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Usuário não encontrado.');
+        }
+    }
+
+    public function updateRole(Request $request, $uuid){
+        try {
+            $user = $this->usersRepository->getByUuid($uuid);
+        
+        if (!$user) {
+            throw new \Exception('User not found');
+        }
+
+        if ($user->hasRole($request->role)) {
+            return redirect()->back()->with('warning', 'O usuário já pertence a este grupo de permissões. Nenhuma alteração foi feita.');
+        }
+
+        $request->validate([
+            'role' => 'required|string|exists:roles,name'
+        ]);
+
+        $this->rolesRepository->update($user, $request->role);
+
+        return redirect()->back()->with('success', 'Grupo de permissões atualizado com sucesso!');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Erro ao alterar permissões do usuário');
+        }
     }
 }

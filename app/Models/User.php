@@ -6,9 +6,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Str;
 use Spatie\Activitylog\LogOptions;
@@ -17,7 +19,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, SoftDeletes, LogsActivity;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -25,14 +27,15 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'id_instituicao',
         'name',
         'email',
         'password',
         'uuid',
         'status',
-        'id_instituicao',
+        'centro',
+        'curso',
         'cpf',
-        'centro_departamento',
         'matricula_siape',
         'perfil_ativo',
         'phone',
@@ -74,9 +77,14 @@ class User extends Authenticatable
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'email', 'password', 'uuid', 'status', 'id_instituicao', 'cpf', 'centro_departamento', 'matricula_siape', 'perfil_ativo', 'phone',])
+            ->logOnly(['id_instituicao', 'name', 'email', 'password', 'uuid', 'status', 'centro', 'curso', 'cpf', 'matricula_siape', 'perfil_ativo', 'phone'])
             ->useLogName('users')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
+    // public function getActivitylogSubjectId()
+    // {
+    //     return $this->id; // força a usar o ID como subject_id
+    // }
 }

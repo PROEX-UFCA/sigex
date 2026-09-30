@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Web\System;
 
 use App\Http\Controllers\Controller;
+use App\Models\Submissao;
+use App\Models\Match_Acao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,7 +14,10 @@ class HomeController extends Controller
 
     public function index()
     {
-        $this->data['user'] = Auth::user();
+        $user = Auth::user();
+        $this->data['user'] = $user;
+        $user = Auth::user();
+        $this->data['user'] = $user;
 
         $diff = $this->data['user']->updated_at->diffInMonths();
 
@@ -41,18 +46,38 @@ class HomeController extends Controller
 
         $profile = 100;
 
-        if($this->data['user']->cpf == null){
-            $profile -= 20;
+        if($this->data['user']->centro == null){
+            $profile -= 10;
         }
-        if($this->data['user']->birth == null){
-            $profile -= 20;
+        if($this->data['user']->curso == null){
+            $profile -= 10;
+        }
+        if($this->data['user']->cpf == null){
+            $profile -= 10;
+        }
+        if($this->data['user']->matricula_siape == null){
+            $profile -= 10;
         }
         if($this->data['user']->phone == null){
-            $profile -= 20;
+            $profile -= 10;
         }
 
         $this->data['profile'] = $profile;
 
+        $this->data['pendingMatches'] = Match_Acao::with(['instituicao', 'acao'])
+        ->where('mutual', false)
+        ->whereHas('acao.equipe', function ($query) use ($user) {
+            $query->where('id_usuario', $user->uuid)
+                    ->whereIn('categoria_membro', [
+                        'COORDENADOR', 
+                        'COORDENADOR(A)', 
+                        'COORDENADOR(A) ADJUNTO(A)', 
+                        'COORDENADORA', 
+                        'COORDENADOR ADJUNTO'
+                    ]);
+        })->latest()->get();
+
+        $this->data['submissoes'] = Submissao::where(['id_usuario' => $user->uuid, 'id_acao' => null])->get();
         return view('pages.home.index', $this->data);
     }
 }

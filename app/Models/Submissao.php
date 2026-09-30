@@ -1,0 +1,125 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+
+class Submissao extends Model
+{
+    use HasUuids, LogsActivity;
+
+    protected $table = 'submissao';
+    protected $fillable = ['id_relatorio', 'id_acao', 'finalizada_em', 'id_usuario'];
+
+    public function relatorio() :BelongsTo{
+        return $this->belongsTo(Relatorio::class, 'id_relatorio', 'id');
+    }
+
+    public function acao() :BelongsTo{
+        return $this->belongsTo(Acao::class, 'id_acao', 'id');
+    }
+
+    public function respostas() :HasMany{
+        return $this->hasMany(Resposta::class, 'id_submissao', 'id');
+    }
+
+    public function user() :HasOne{
+        return $this->hasOne(User::class, 'uuid', 'id_usuario');
+    }
+
+    public function getProgressAttribute() : float
+    {
+        $secoes = $this->relatorio->formulario->secoes;
+
+        $qtdPerguntas = 0;
+        $qtdPerguntasRespondidas = 0;
+
+        foreach($secoes as $secao){
+            
+            foreach ($secao->perguntas->whereNull('id_pergunta_pai') as $pergunta){
+
+                if($pergunta->obrigatoria == 1){
+                    $qtdPerguntas++;
+    
+                    if ($pergunta->tipo === 'tabela') {
+                        $temRespostaNaTabela = \App\Models\Resposta::whereIn('id_pergunta', $pergunta->filhas->pluck('id'))
+                            ->where('id_submissao', $this->id)
+                            ->whereNotNull('valor')
+                            ->where('valor', '!=', '')
+                            ->exists();
+    
+                        if ($temRespostaNaTabela) {
+                            $qtdPerguntasRespondidas++;
+                        }
+    
+                    } else {
+                        $resposta = $pergunta->getRespostaPorSubmissao($this->id);
+    
+                        if ($resposta && $resposta->valor !== null && $resposta->valor !== '') {
+                            $qtdPerguntasRespondidas++; 
+                        }
+                        
+                    }
+                }
+
+            }
+        }
+
+        return $qtdPerguntas > 0 ? (float) round(($qtdPerguntasRespondidas / $qtdPerguntas) * 100, 2) : 0;
+    }
+
+    public function getEvaluationProgressAttribute() : float
+    {
+        $respostas = \App\Models\Resposta::where('id_submissao', $this->id)->get();
+
+        $qtdTotalParaAvaliar = $respostas->count();
+        $qtdAvaliadasAprovadas = 0;
+
+        if ($qtdTotalParaAvaliar === 0) {
+            return 0;
+        }
+
+        foreach ($respostas as $resposta) {
+            if ($resposta->validacao && $resposta->validacao->status == 1) {
+                $qtdAvaliadasAprovadas++;
+            }
+        }
+
+        return (float) round(($qtdAvaliadasAprovadas / $qtdTotalParaAvaliar) * 100, 2);
+    }
+
+    public function getQtdProgressAttribute() : float
+    {
+        $respostas = \App\Models\Resposta::where('id_submissao', $this->id)->get();
+
+        $qtdTotalParaAvaliar = $respostas->count();
+        $qtdAvaliadasAprovadas = 0;
+
+        if ($qtdTotalParaAvaliar === 0) {
+            return 0;
+        }
+
+        foreach ($respostas as $resposta) {
+            if ($resposta->validacao && $resposta->validacao->status == 1) {
+                $qtdAvaliadasAprovadas++;
+            }
+        }
+
+        return $qtdAvaliadasAprovadas;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['id_relatorio', 'id_acao', 'finalizada_em', 'id_usuario'])
+            ->useLogName('submissao')
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+}

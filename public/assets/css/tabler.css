@@ -18378,6 +18378,11 @@ a.badge {
   --tblr-btn-disabled-border-color: var(--tblr-danger);
 }
 
+.btn-deletar-custom:hover{
+  background-color: var(--tblr-danger);
+  color: transparent;
+}
+
 .btn-light {
   --tblr-btn-border-color: transparent;
   --tblr-btn-hover-border-color: transparent;

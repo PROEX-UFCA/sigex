@@ -5,7 +5,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>Docker-Laravel</title>
+  <title>SIGEx</title>
   <!-- CSS files -->
 
   @yield('styles')
@@ -15,7 +15,7 @@
   <link href="{{ asset('assets/css/tabler-payments.min.css') }}" rel="stylesheet" />
   <link href="{{ asset('assets/css/tabler-vendors.min.css') }}" rel="stylesheet" />
   <link href="{{ asset('assets/css/demo.min.css') }}" rel="stylesheet" />
-
+  <link rel="shortcut icon" href="{{asset('assets/img/illustrations/favicon.png')}}" type="image/x-icon">
 
   <style>
     @import url('https://rsms.me/inter/inter.css');
@@ -31,22 +31,30 @@
 </head>
 
 <body>
+  <div id="loading-overlay"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px); z-index: 9999; display: none; justify-content: center; align-items: center;">
+    <div class="text-center">
+      <div class="spinner-border text-light" style="width: 3rem; height: 3rem;" role="status">
+      </div>
+      <span class="text-white d-block mt-3">Carregando...</span>
+    </div>
+  </div>
   <script src="{{ asset('assets/js/demo-theme.min.js?1684106062') }}"></script>
   <div class="page">
-    <header class="navbar navbar-expand-md d-print-none">
+    <header class="navbar navbar-expand-md d-print-none" style="background: #48362f">
       <div class="container-xl">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu"
           aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-          <a href="/dashboard">
-            <img src="{{ asset('assets/img/illustrations/logo.svg') }}" width="90" height="26" alt="InterSuite"
-              class="navbar-brand-image">
+        <h1 class="navbar-brand text-blue navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
+          <a href="/home" class="text-decoration-none text-light">
+            <img src="{{asset('assets/img/illustrations/logo_proex_top.png')}}" alt=""
+              style="width: 150px; filter: brightness(0) invert(1);">
           </a>
         </h1>
         <div class="navbar-nav flex-row order-md-last">
-          <div class="d-none d-md-flex me-3">
+          {{-- <div class="d-none d-md-flex me-3">
             <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="Mudar para tema escuro"
               data-bs-toggle="tooltip" data-bs-placement="bottom">
               <i class="ti ti-moon icon"></i>
@@ -55,20 +63,24 @@
               data-bs-toggle="tooltip" data-bs-placement="bottom">
               <i class="ti ti-sun icon"></i>
             </a>
-          </div>
-          <div class="nav-item dropdown">
+          </div> --}}
+          <div class="nav-item dropdown text-light">
             <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
               aria-label="Open user menu">
-              <span class="avatar avatar-sm">
+              {{-- <span class="avatar avatar-sm">
                 <i class="ti ti-user icon"></i>
-              </span>
+              </span> --}}
               <div class="d-none d-xl-block ps-2">
                 <div>{{ Auth::user()->name }}</div>
-                <div class="mt-1 fs-6 text-muted">{{ ucfirst(Auth::user()->roles->first()->name) }}</div>
+                <div class="mt-1 fs-6 ">{{ ucfirst(Auth::user()->roles->first()->name) ?? '' }}</div>
               </div>
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              <a href="{{ route('profile.index') }}" class="dropdown-item m-0">Perfil</a>
+                @if(Auth::user()->id_instituicao)
+                <a href="{{ route('vitrine.profile') }}" class="dropdown-item m-0">Perfil</a>
+                @else
+                <a href="{{ route('profile.index') }}" class="dropdown-item m-0">Perfil</a>
+                @endif
               <div class="dropdown-divider m-0"></div>
               <a href="{{ route('logout') }}" class="dropdown-item">Sair</a>
             </div>
@@ -85,33 +97,64 @@
                 isActive="{{ request()->routeIs(['home.*']) ? true : false }}" icon="ti-home">
               </x-navbar.navbar-item>
 
-              @canany(['adicionar_usuário', 'adicionar_grupo', 'adicionar_permissões'])
-                <x-navbar.navbar-item route="" title="Configurações"
-                  isActive="{{ request()->routeIs(['users.*', 'roles.*', 'permissions.*']) ? true : false }}"
-                  icon="ti-settings">
-                  <x-slot:links>
-                    @can('adicionar_usuário')
-                      <a class="dropdown-item" href="{{ route('users.index') }}">Usuários</a>
-                    @endcan
-                    @can('adicionar_grupo')
-                      <a class="dropdown-item" href="{{ route('roles.index') }}">Grupos</a>
-                    @endcan
-                  </x-slot:links>
-                </x-navbar.navbar-item>
+              @can('ver_dashboard')
+              <x-navbar.navbar-item route="{{ route('dashboard.index') }}" title="Painel"
+                isActive="{{ request()->routeIs(['dashboard.index']) ? true : false }}" icon="ti ti-layout-dashboard  ">
+              </x-navbar.navbar-item>
+              @endcan
+
+              @can('ver_suas_ações')
+              <x-navbar.navbar-item route="{{ route('actions.my') }}" title="Minhas ações"
+                isActive="{{ request()->routeIs(['actions.my', 'actions.details', 'actions.report']) ? true : false }}"
+                icon="ti-clipboard-list">
+              </x-navbar.navbar-item>
+              @endcan
+
+              @canany(['ver_formulários', 'ver_relatórios'])
+              <x-navbar.navbar-item route="" title="Módulos"
+                isActive="{{ request()->routeIs(['actions.index', 'actions.editLot', 'actions.create', 'users.*', 'forms.index', 'sessions.*', 'report.*', 'vitrine.*']) ? true : false }}"
+                icon="ti-hexagons">
+                <x-slot:links>
+                  @can('ver_todas_as_ações')
+                  <a class="dropdown-item" href="{{ route('actions.index') }}">Ações e Relatórios</a>
+                  @endcan
+                  @can('ver_usuários')
+                  <a class="dropdown-item" href="{{ route('users.index') }}">Gestão de Usuários</a>
+                  @endcan
+                  @can('gerenciar_vitrine')
+                  <a href="{{route('vitrine.index')}}" class="dropdown-item" href="">Vitrine</a>
+                  @endcan
+                </x-slot:links>
+              </x-navbar.navbar-item>
               @endcanany
 
-              @canany(['ver_todos_os_logs', 'ver_seus_logs'])
-                <x-navbar.navbar-item route="" title="Ferramentas"
-                  isActive="{{ request()->routeIs(['logs.*']) ? true : false }}" icon="ti-tools">
-                  <x-slot:links>
-                    @can('ver_todos_os_logs')
-                      <a class="dropdown-item" href="{{ route('logs.index') }}">Logs</a>
-                    @endcan
-                    @can('ver_seus_logs')
-                      <a class="dropdown-item" href="{{ route('logs.user') }}">Registros de atividade</a>
-                    @endcan
-                  </x-slot:links>
-                </x-navbar.navbar-item>
+              @canany(['ver_formulários', 'ver_relatórios'])
+              <x-navbar.navbar-item route="" title="Ferramentas" isActive="{{ request()->routeIs([]) ? true : false }}"
+                icon="ti-tools">
+                <x-slot:links>
+                  {{-- @can('ver_formulários')
+                  <a class="dropdown-item" href="{{ route('forms.index') }}">Formulários</a>
+                  @endcan --}}
+                </x-slot:links>
+              </x-navbar.navbar-item>
+              @endcanany
+
+              @canany(['adicionar_e_editar_grupo', 'ver_todos_os_logs', 'ver_seus_logs'])
+              <x-navbar.navbar-item route="" title="Dev Tools"
+                isActive="{{ request()->routeIs(['roles.*', 'permissions.*', 'logs.*']) ? true : false }}"
+                icon="ti-code">
+                <x-slot:links>
+                  @can('adicionar_e_editar_grupo')
+                  <a class="dropdown-item" href="{{ route('roles.index') }}">Grupos de permissões</a>
+                  @endcan
+                  @can('ver_todos_os_logs')
+                  <a class="dropdown-item" href="{{ route('logs.index') }}">Registros de Logs</a>
+                  @endcan
+                  @can('ver_seus_logs')
+                  <a class="dropdown-item" href="{{ route('logs.user') }}">Sua atividade</a>
+                  @endcan
+                </x-slot:links>
+              </x-navbar.navbar-item>
               @endcanany
             </ul>
           </div>
@@ -129,14 +172,14 @@
           <div class="row text-center align-items-center flex-row-reverse">
             <div class="col-lg-auto ms-lg-auto">
               <ul class="list-inline list-inline-dots mb-0">
-                <li class="list-inline-item"><a href="" target="_blank" class="link-secondary"
-                    rel="noopener">Suport</a></li>
+                <li class="list-inline-item"><a href="" target="_blank" class="link-secondary" rel="noopener">Suport</a>
+                </li>
               </ul>
             </div>
             <div class="col-12 col-lg-auto mt-3 mt-lg-0">
               <ul class="list-inline list-inline-dots mb-0">
                 <li class="list-inline-item">
-                  <a href="." class="link-secondary">Otavio</a>&copy; 2025.
+                  <a href="." class="link-secondary">Proex</a>&copy; 2026.
                   All rights reserved.
                 </li>
                 <li class="list-inline-item">
@@ -153,15 +196,23 @@
   </div>
 
   <script src="{{ asset('assets/js/jquery-3.5.1.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script src="{{ asset('assets/js/echarts.min.js') }}"></script>
   <script src="{{ asset('assets/js/tabler.min.js?1684106062') }}" defer></script>
   <script src="{{ asset('assets/js/demo.min.js?1684106062') }}" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
   <script src="{{ asset('assets/js/kanban/dataTables.min.js') }}"></script>
-  {{-- <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script> --}}
+  <script src="{{ asset('assets/libs/apexcharts/dist/apexcharts.min.js') }}"></script>
   @yield('scripts')
 
 </body>
 
 </html>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+      })
+  });
+</script>

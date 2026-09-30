@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+
+class Pergunta extends Model
+{
+    use HasUuids, SoftDeletes, LogsActivity;
+
+    protected $table = 'pergunta';
+    protected $fillable = ['id_secao', 'id_pergunta_pai', 'tipo', 'enunciado', 'obrigatoria', 'min', 'max', 'step', 'accept', 'regex'];
+
+    public function opcoes() : HasMany{
+        return $this->hasMany(Opcao_Pergunta::class, 'id_pergunta', 'id');
+    }
+
+    public function respostas() {
+        return $this->hasMany(Resposta::class, 'id_pergunta', 'id');
+    }
+
+    public function getRespostaPorSubmissao($id_submissao) {
+        return $this->respostas()->where('id_submissao', $id_submissao)->first();
+    }
+
+    public function filhas()
+    {
+        return $this->hasMany(Pergunta::class, 'id_pergunta_pai', 'id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['id_secao', 'id_pergunta_pai', 'tipo', 'enunciado', 'obrigatoria', 'min', 'max', 'step', 'accept', 'regex'])
+            ->useLogName('pergunta')
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
+}
