@@ -121,7 +121,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer bg-light">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                        <button id="btn-cancel-interest" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                                         <form id="form-express-interest" action="{{ route('vitrine.match.interest', $acao->id) }}" method="POST" class="m-0">
                                             @csrf
                                             <button id="btn-submit-interest" type="submit" class="btn btn-yellow fw-bold shadow-sm">
@@ -227,15 +227,28 @@
         <h3 class="mt-5 border-bottom border-brown">Local de atuação</h3>
         <div class="px-4 py-2">
             @php
-                $localDaAcao = $acao->localizacao ?? null;
-                $cidadeId = $localDaAcao ? str_replace(' ', '_', $localDaAcao) : null;
-            @endphp
-                
-                <div class="mx-auto">
-                    <p class="text-muted border-start border-3 border-warning ps-3">Nenhum dado disponível no momento.</p>
-                </div>
+                $cidadesRaw = $acao->localidade->pluck('cidade')->filter()->map(function ($cidade) {
+                    return str_replace(' ', '_', trim($cidade));
+                })->toArray();
 
-                <div style="opacity: {{ $localDaAcao ? '1' : '0.5' }}; transition: opacity 0.3s; width:75%;" class="mx-auto     ">
+                $cidadesSuportadas = [
+                    'Abaiara', 'Altaneira', 'Antonina_do_Norte', 'Araripe', 'Assaré', 'Aurora', 
+                    'Barbalha', 'Barro', 'Brejo_Santo', 'Campos_Sales', 'Caririaçu', 'Crato', 
+                    'Farias_Brito', 'Granjeiro', 'Icó', 'Jardim', 'Jati', 'Juazeiro_do_Norte', 
+                    'Lavras_da_Mangabeira', 'Mauriti', 'Milagres', 'Missão_Velha', 'Nova_Olinda', 
+                    'Penaforte', 'Porteiras', 'Potengi', 'Salitre', 'Santana_do_Cariri', 'Tarrafas', 
+                    'Várzea_Alegre'
+                ];
+
+                $cidadesArray = array_intersect($cidadesRaw, $cidadesSuportadas);
+            @endphp
+
+            @if(empty($cidadesArray))
+                <div class="mx-auto">
+                    <p class="text-muted">Nenhum dado disponível no momento.</p>
+                </div>
+            @else
+                <div style="transition: opacity 0.3s; width:75%;" class="mx-auto     ">
                     <svg id="mapa-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280.58 204.7">
                         <defs>
                             <style>
@@ -419,6 +432,7 @@
                         </g>
                     </svg>
                 </div>
+            @endif
         </div>
 
         </div>
@@ -428,37 +442,37 @@
 @section('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const cidadeId = "{{ $cidadeId }}";
+        const cidadesIds = @json($cidadesArray);
         
-        if (cidadeId) {
+        if (cidadesIds.length > 0) {
             document.querySelectorAll('#mapa-svg .cls-8').forEach(cidade => {
                 cidade.style.fill = '#ffffff';
-                cidade.style.stroke = '#cccccc';
+                cidade.style.stroke = '#cccccc'; 
             });
             
-            const targetCity = document.getElementById(cidadeId);
-            if (targetCity) {
-                targetCity.style.fill = 'var(--tblr-brown)'; 
-                
-                targetCity.innerHTML = `<title>${cidadeId.replace(/_/g, ' ')}</title>`;
-            }
+            cidadesIds.forEach(id => {
+                const targetCity = document.getElementById(id);
+                if (targetCity) {
+                    targetCity.style.fill = 'var(--tblr-yellow)'; 
+                    targetCity.innerHTML = `<title>${id.replace(/_/g, ' ')}</title>`;
+                }
+            });
         }
 
         const form = document.getElementById('form-express-interest');
         const submitBtn = document.getElementById('btn-submit-interest');
+        const cancelBtn = document.getElementById('btn-cancel-interest');
         const container = document.getElementById('match-button-container');
     
         if (form) {
             form.addEventListener('submit', function(e) {
-                // Prevent the default page reload
                 e.preventDefault();
                 
-                // Show loading state to prevent double-clicks
                 const originalText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processando...';
                 submitBtn.disabled = true;
+                cancelBtn.disabled = true;
     
-                // Send the background request
                 fetch(form.action, {
                     method: 'POST',
                     body: new FormData(form),

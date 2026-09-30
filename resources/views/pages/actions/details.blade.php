@@ -925,11 +925,11 @@
                                           <div class="text-muted">Tem certeza que deseja finalizar esta parceria com <strong>{{ $item->instituicao->nome }}</strong>? Esta operação não pode ser desfeita.</div>
                                         </div>
                                         <div class="modal-footer">
-                                          <button type="button" class="btn btn-secondary me-auto" data-bs-dismiss="modal">Cancelar</button>
-                                          <form action="{{ route('actions.match.end', $item->id) }}" method="POST" class="m-0">
+                                          <button type="button" class="btn btn-secondary me-auto btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                                          <form action="{{ route('actions.match.end', $item->id) }}" class="form-end-match" method="POST" class="m-0">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">Sim, concluir</button>
+                                            <button type="submit" class="btn btn-danger btn-end-match">Sim, concluir</button>
                                           </form>
                                         </div>
                                       </div>
@@ -961,6 +961,25 @@
 @section('scripts')
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    
+  document.querySelectorAll('.form-end-match').forEach(function(form) {
+      
+      form.addEventListener('submit', function() {
+          const submitBtn = this.querySelector('.btn-end-match');
+          const cancelBtn = this.closest('.modal-footer').querySelector('.btn-cancel');
+
+          if (submitBtn) {
+              submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processando...';
+              submitBtn.disabled = true;
+          }
+          
+          if (cancelBtn) {
+              cancelBtn.disabled = true;
+          }
+          
+      });
+  });
+
     let hash = window.location.hash;
     if (hash) {
         let tabTarget = document.querySelector('button[data-bs-target="' + hash + '"]');
@@ -996,7 +1015,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-document.getElementById('imagens-galeria').addEventListener('change', function(e) {
+  document.getElementById('imagens-galeria').addEventListener('change', function(e) {
     const container = document.getElementById('galeria-alt-container');
     container.innerHTML = '';
 

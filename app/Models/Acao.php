@@ -58,4 +58,9 @@ class Acao extends Model
     {
         return $this->hasMany(Match_Acao::class, 'id_acao', 'id');
     }
+
+    public function localidade()
+    {
+        return $this->hasMany(Localidade_Acao::class, 'id_projeto', 'id_projeto');
+    }
 }
