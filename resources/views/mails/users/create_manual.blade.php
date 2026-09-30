@@ -8,7 +8,7 @@
   <title>Cadastrar senha</title>
 </head>
 
-<body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: Arial, Helvetica, sans-serif;">
+<body style="margin: 0; padding: 0; background-color: #F5F5F5; font-family: 'Alegreya', Arial, Helvetica, sans-serif;">
 
   <!-- Tabela Container Principal -->
   <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F5F5F5; padding: 20px 0;">
