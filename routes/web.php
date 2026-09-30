@@ -85,9 +85,11 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);
 
+        Route::get('membros/importar', [MembersController::class, 'previewImport'])->middleware(['auth' => 'permission:importar_membros']);
+
         Route::post('membros/importar', [MembersController::class, 'previewImport'])->name('membros.previewImport')->middleware(['auth' => 'permission:importar_membros']);
 
-        Route::post('membros/importar/salvar', [MembersController::class, 'storeImport'])->name('membros.storeImport')->middleware(['auth' => 'permission:importar_membros']);
+        Route::post('importar/membros/salvar', [MembersController::class, 'storeImport'])->name('membros.storeImport')->middleware(['auth' => 'permission:importar_membros']);
     });
         
     Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {

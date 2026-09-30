@@ -106,13 +106,13 @@
                     <span class="badge badge-dark mb-1">ID_PROJETO</span>
                     <span class="badge badge-dark mb-1">ID_PESSOA</span>
                     <span class="badge badge-dark mb-1">NOME</span>
-                    <span class="badge badge-dark mb-1">TIPO_MEMBRO</span>
-                    <span class="badge badge-dark mb-1">CATEGORIA_MEMBRO</span>
+                    <span class="badge badge-dark mb-1">SEXO</span>
                     <span class="badge badge-dark mb-1">E-MAIL</span>
-                    <span class="badge badge-dark mb-1">STATUS</span>
                     <span class="badge badge-dark mb-1">DATA_INICIO</span>
                     <span class="badge badge-dark mb-1">DATA_FIM</span>
-                    <span class="badge badge-dark mb-1">TIPO_VINCULO</span>
+                    <span class="badge badge-dark mb-1">STATUS</span>
+                    <span class="badge badge-dark mb-1">TIPO_MEMBRO</span>
+                    <span class="badge badge-dark mb-1">CATEGORIA_MEMBRO</span>
                   </div>
 
                   <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter

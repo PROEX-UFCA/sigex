@@ -19,7 +19,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('id_acao');
             $table->foreign('id_acao')->references('id')->on('acao')->onDelete('cascade');
-            $table->uuid('id_usuario');
+            $table->uuid('id_usuario')->nullable();
             $table->foreign('id_usuario')->references('uuid')->on('users')->onDelete('cascade');
             $table->string('id_projeto')->nullable();
             $table->string('id_pessoa')->nullable();
