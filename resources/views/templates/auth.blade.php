@@ -37,7 +37,7 @@
 </head>
 
 <body class="row m-0 p-0 vh-100">
-  <div class="d-none d-lg-flex col-6 flex-wrap justify-content-center align-content-center bg-primary bg-gradient">
+  <div class="d-none d-lg-flex col-6 flex-wrap justify-content-center align-content-center bg-gradient" style="background: #532B1D">
     <img src="{{ asset('assets/img/illustrations/logo_proex_top.png') }}" class="w-50" alt="" style="filter: brightness(0) invert(1);">
   </div>
   <div class="col-12 col-lg-6 bg-white">
