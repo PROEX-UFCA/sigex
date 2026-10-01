@@ -83,7 +83,7 @@ class VitrineController extends Controller
         $this->data['instituicoesConectando'] = (clone $currentMonth)
         ->whereHas('user', function ($query) {
             $query->whereNotNull('id_instituicao')
-                  ->whereRaw("TRIM(id_instituicao) != ''");
+                    ->whereRaw("TRIM(id_instituicao) != ''");
         })
         ->distinct('user_id')
         ->count('user_id');
@@ -92,7 +92,7 @@ class VitrineController extends Controller
         ->whereHas('user', function ($query) {
             $query->where(function ($q) {
                 $q->whereNull('id_instituicao')
-                  ->orWhereRaw("TRIM(id_instituicao) = ''");
+                    ->orWhereRaw("TRIM(id_instituicao) = ''");
             });
         })
         ->distinct('user_id')
@@ -147,10 +147,9 @@ class VitrineController extends Controller
 
     public function catalogo(Request $request)
     {
-        $subQuery = DB::table('acao')
-            ->select('id')
-            ->selectRaw('ROW_NUMBER() OVER (PARTITION BY titulo ORDER BY data_fim DESC) as rn')
-            ->whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
+        $subQuery = Acao::select('id')
+                ->selectRaw('ROW_NUMBER() OVER (PARTITION BY titulo ORDER BY data_fim DESC) as rn')
+                ->whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
 
         $query = Acao::whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
 
@@ -166,6 +165,11 @@ class VitrineController extends Controller
             })
             ->when($request->ods, function ($q, $ods) {
                 return $q->where('ods', 'like', "%{$ods}%");
+            })
+            ->when($request->cidade, function ($q, $cidade) {
+                return $q->whereHas('localidade', function ($subQuery) use ($cidade) {
+                    $subQuery->where('cidade', $cidade);
+                });
             })
             ->when($request->search, function ($q, $search) {
                 return $q->where(function ($subQuery) use ($search) {
