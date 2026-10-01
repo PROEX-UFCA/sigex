@@ -59,7 +59,7 @@ class LoginController extends Controller
                 session(['last_login_temp' => Auth::user()->last_login_at]);
                 $this->userRepository->updateLastLogin(Auth::user()->uuid);
 
-                return redirect()->route('vitrine.vitrine')->with('success', 'Você está logado.');
+                return redirect()->route('home.index')->with('success', 'Você está logado.');
             } else {
                 Auth::logout();
                 return back()->with("error", "verifique se o email e senha foram digitados corretamente.")
