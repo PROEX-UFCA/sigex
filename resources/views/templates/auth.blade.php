@@ -22,12 +22,14 @@
   <link href="{{ asset('assets/css/demo.min.css?1684106062') }}" rel="stylesheet" />
   <link href="{{ asset('assets/css/tabler-icons.min.css') }}" rel="stylesheet" />
   <link rel="shortcut icon" href="{{asset('assets/img/illustrations/favicon.png')}}" type="image/x-icon">
+  <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" />
+  @yield('styles')
 
   <style>
     @import url('https://rsms.me/inter/inter.css');
 
     :root {
-      --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+      --tblr-font-sans-serif: 'Alegreya', 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
     }
 
     body {

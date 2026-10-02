@@ -33,7 +33,7 @@ class VitrineController extends Controller
         'ip_address' => $request->ip(),
         'user_agent' => $request->userAgent(),
         'user_id'    => auth()->id()
-    ]);
+        ]);
 
         
         $this->data['mainCarousel'] = Acao::where('situacao', 'EM EXECUÇÃO')
@@ -51,7 +51,7 @@ class VitrineController extends Controller
         ->groupBy('area_tematica');
         
         return view('pages.vitrine.vitrine', $this->data);
-        }
+    }
         
     public function index(Request $request)
     {
@@ -195,4 +195,8 @@ class VitrineController extends Controller
         return view('pages.vitrine.catalogo', $this->data);
     }
 
+    public function mapa()
+    {
+        return view('pages.vitrine.mapa');
+    }
 }

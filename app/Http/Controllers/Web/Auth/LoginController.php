@@ -59,7 +59,12 @@ class LoginController extends Controller
                 session(['last_login_temp' => Auth::user()->last_login_at]);
                 $this->userRepository->updateLastLogin(Auth::user()->uuid);
 
-                return redirect()->route('vitrine.vitrine')->with('success', 'Você está logado.');
+                if(Auth::user()->id_instituicao != null){
+                    return redirect()->route('vitrine.home')->with('success', 'Você está logado.');
+                }
+                else{
+                return redirect()->route('home.index')->with('success', 'Você está logado.');
+                }
             } else {
                 Auth::logout();
                 return back()->with("error", "verifique se o email e senha foram digitados corretamente.")
@@ -157,7 +162,7 @@ class LoginController extends Controller
 
                     return redirect()->back()->with(
                         'success',
-                        'Sua solicitação foi enviada! Enviaremos um e-mail quando for aprovado. Clique <a href="' . route('vitrine.vitrine') . '" class="fw-bold"><strong>Aqui</strong></a> para retomar a página das ações.'
+                        'Sua solicitação foi enviada! Enviaremos um e-mail quando for aprovado. Clique <a href="' . route('vitrine.home') . '" class="fw-bold"><strong>Aqui</strong></a> para retomar a página das ações.'
                     )->with('first_access_modal', true);
                 } catch (\Throwable $th) {
                     return redirect()->back()->with("error", "Erro ao fazer primeiro acesso, entre em contato com a proex.")
