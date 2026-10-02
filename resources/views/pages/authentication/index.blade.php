@@ -1,5 +1,13 @@
 @extends('templates.auth')
 
+@section('styles')
+<style>
+  .page-center {
+      --tblr-link-color-rgb: 209, 165, 82; 
+      --tblr-link-hover-color-rgb: 255, 175, 36;
+  }
+</style>
+@endsection
 @section('content')
 <div class="page page-center">
   <div class="container container-tight py-4">
@@ -9,13 +17,20 @@
         <form action="{{ route('login.store') }}" method="post" autocomplete="off" novalidate>
           @csrf
           <div class="mb-3">
-            <label class="form-label">Email</label>
+            
+            <label class="form-label">
+              <i class="ti ti-mail me-1"></i>
+              Email
+            </label>
             <input type="email" class="form-control" placeholder="Digite seu email" name="email"
               value="{{ old('email') }}" autocomplete="transaction-currency" required>
           </div>
           <div class="mb-2">
             <label class="form-label">
-              Senha
+              <div>
+                <i class="ti ti-lock me-1"></i>
+                Senha
+              </div>
               <span class="form-label-description">
                 <a href="{{ route('login.reset') }}">Esqueceu sua senha?</a>
               </span>
@@ -31,7 +46,7 @@
             </div>
           </div>
           <div class="form-footer">
-            <button type="submit" class="btn btn-primary w-100">Fazer login</button>
+            <button type="submit" class="btn btn-yellow w-100">Fazer login</button>
           </div>
           <div class="text-center mt-3">
             <a href="{{ route('access.index') }}">Primeiro Acesso</a>
