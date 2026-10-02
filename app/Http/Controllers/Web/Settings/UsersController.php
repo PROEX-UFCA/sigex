@@ -127,7 +127,7 @@ class UsersController extends Controller
     public function logout()
     {
         Auth::logout();
-        return to_route('vitrine.vitrine');
+        return to_route('vitrine.home');
     }
 
     public function show($id)

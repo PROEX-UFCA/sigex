@@ -30,7 +30,7 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         if (!empty($user->id_instituicao)) {
-            return redirect()->route('vitrine.profile');
+            return redirect()->route('vitrine.profile.index');
         }
 
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CENTRO', 'CURSO'])->groupBy('function');

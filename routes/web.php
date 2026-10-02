@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/vitrine');
 
-
 Route::get('login', [LoginController::class, 'index'])->name('login');
 Route::post('login/enviar', [LoginController::class, 'store'])->name('login.store');
 
@@ -165,30 +164,47 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar');
     
     Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index')->middleware(['auth' => 'permission:ver_dashboard']);
-    
-    Route::get('/modulo/vitrine', [VitrineController::class, 'index'])->name('vitrine.index')->middleware(['auth' => 'permission:gerenciar_vitrine']);
-    Route::post('/modulo/vitrine/aprovar/{uuid}', [VitrineController::class, 'aprovar'])->name('vitrine.aprovar')->middleware(['auth' => 'permission:gerenciar_vitrine']);
 
     Route::group(['middleware' => ['auth', 'permission:editar_acoes_em_massa']], function () {
         Route::get('edicao_em_massa', [SuportActionController::class, 'indexEditLot'])->name('actions.editLot');
         Route::post('edicao_em_massa', [SuportActionController::class, 'storeEditLot'])->name('actions.editLotStore');
     });
-    Route::get('/vitrine/perfil', [ProfileController::class, 'vitrineIndex'])->name('vitrine.profile');
-    Route::put('/vitrine/perfil/atualizar', [ProfileController::class, 'vitrineUpdate'])->name('vitrine.profile.update');
 });
+
+// VITRINE (PÚBLICO)
+Route::prefix('vitrine')->name('vitrine.')->group(function () {
     
-Route::get('/vitrine', [VitrineController::class, 'vitrine'])->name('vitrine.vitrine');
-Route::get('/vitrine/detalhar/{uuid}', [VitrineController::class, 'show'])->name('vitrine.show');
-Route::get('/vitrine/catalogo', [VitrineController::class, 'catalogo'])->name('vitrine.catalogo');
+    Route::controller(VitrineController::class)->group(function () {
+        Route::get('/', 'vitrine')->name('home');
+        Route::get('/detalhar/{uuid}', 'show')->name('show');
+        Route::get('/catalogo', 'catalogo')->name('catalogo');
+        Route::get('/mapa', 'mapa')->name('mapa');
+    });
 
-Route::post('/vitrine/acoes/{id_acao}/interesse', [MatchController::class, 'expressInterest'])
-    ->name('vitrine.match.interest')
-    ->middleware(['auth', 'role:Instituição']);
+});
 
-Route::post('/acoes/match/{id_match}/confirmar', [MatchController::class, 'confirmMatch'])
-    ->name('actions.match.confirm')
-    ->middleware(['auth', 'permission:editar_ação']);
+// VITRINE (AUTENTICADO)
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('vitrine/perfil')->name('vitrine.profile.')->controller(ProfileController::class)->group(function () {
+        Route::get('/', 'vitrineIndex')->name('index'); 
+        Route::put('/atualizar', 'vitrineUpdate')->name('update');
+    });
 
-Route::delete('/acoes/match/{id_match}/encerrar', [MatchController::class, 'endMatch'])
-    ->name('actions.match.end')
-    ->middleware(['auth', 'permission:editar_ação']);
+    Route::prefix('modulo/vitrine')->name('vitrine.')->middleware(['permission:gerenciar_vitrine'])->controller(VitrineController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/aprovar/{uuid}', 'aprovar')->name('aprovar');
+    });
+
+    Route::controller(MatchController::class)->group(function () {
+        
+        Route::post('/vitrine/acoes/{id_acao}/interesse', 'expressInterest')
+            ->name('vitrine.match.interest')
+            ->middleware('role:Instituição');
+
+        Route::middleware(['permission:editar_ação'])->group(function () {
+            Route::post('/acoes/match/{id_match}/confirmar', 'confirmMatch')->name('actions.match.confirm');
+            Route::delete('/acoes/match/{id_match}/encerrar', 'endMatch')->name('actions.match.end');
+        });
+        
+    });
+});

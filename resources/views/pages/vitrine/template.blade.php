@@ -165,8 +165,8 @@
                     <nav class="navbar-nav ms-auto gap-3 align-items-center">
 
                         <div class="nav-item">
-                            <a class="row nav-link active px-1 px-xl-3 {{ request()->routeIs('vitrine.vitrine') ? 'border-bottom border-1 border-yellow' : '' }}"
-                                href="{{ route('vitrine.vitrine') }}">
+                            <a class="row nav-link active px-1 px-xl-3 {{ request()->routeIs('vitrine.home') ? 'border-bottom border-1 border-yellow' : '' }}"
+                                href="{{ route('vitrine.home') }}">
                                 <i class="col-auto ti ti-home icon fs-2 m-0 p-0"></i>
                                 <span class="fw-bold col nav-link-title">Início</span>
                             </a>
@@ -177,6 +177,14 @@
                                 href="{{ route('vitrine.catalogo') }}" title="Catálogo">
                                 <i class="col-auto ti ti-layout-grid icon fs-2 m-0 p-0"></i>
                                 <span class="fw-bold col nav-link-title">Catálogo</span>
+                            </a>
+                        </div>
+
+                        <div class="nav-item">
+                            <a class="row nav-link text-yellow px-1 px-xl-3 {{ request()->routeIs('vitrine.mapa') ? 'border-bottom border-1 border-yellow' : '' }}"
+                                href="{{ route('vitrine.mapa') }}" title="Mapa da extensão">
+                                <i class="col-auto ti ti-layout-grid icon fs-2 m-0 p-0"></i>
+                                <span class="fw-bold col nav-link-title">Mapa da extensão</span>
                             </a>
                         </div>
 
@@ -200,7 +208,7 @@
 
                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                                     @if(Auth::user()->id_instituicao)
-                                        <a href="{{ route('vitrine.profile') }}" class="dropdown-item m-0">Perfil</a>
+                                        <a href="{{ route('profile.index') }}" class="dropdown-item m-0">Perfil</a>
                                     @else
                                         <a href="{{ route('profile.index') }}" class="dropdown-item m-0">Perfil</a>
                                     @endif
