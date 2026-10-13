@@ -24,6 +24,7 @@ use App\Repositories\Settings\User\UsersRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -328,11 +329,17 @@ class ReportController extends Controller
     }
     
     public function report($uuid){
+        $previousUrl = url()->previous();
+
+        if (!\Illuminate\Support\Str::contains($previousUrl, 'relatorio')) {
+        session()->put('report_origin', $previousUrl);
+    }
+    
         $this->data['submissao'] = $this->reportRepository->getSubmissionById($uuid);
         $this->data['progresso'] = $this->getProgress($this->data['submissao']->id);
 
         if($this->data['submissao']->relatorio->data_inicio > now()){
-            return redirect()->back()->with('warning', "Esse relatório ainda não está liberado!");
+            return redirect()->route('home.index')->with('warning', "Esse relatório ainda não está liberado!");
         }
 
         $precisaCorrecao = Resposta::where('id_submissao', $this->data['submissao']->id)
@@ -343,22 +350,22 @@ class ReportController extends Controller
         $this->data['emCorrecao'] = $precisaCorrecao;
         
         if($this->data['submissao']->finalizada_em != null && !$precisaCorrecao){
-            return redirect()->back()->with('warning', "Esse relatório já foi enviado e está em análise, não é possível mais acessá-lo!");
+            return redirect()->route('home.index')->with('warning', "Esse relatório já foi enviado e está em análise, não é possível mais acessá-lo!");
         }
         
         if($this->data['submissao']->relatorio->prazo < now() && !$precisaCorrecao){        
-            return redirect()->back()->with('warning', "O prazo para enviar esse relatório já passou!");
+            return redirect()->route('home.index')->with('warning', "O prazo para enviar esse relatório já passou!");
         }
 
         if($this->data['submissao']->relatorio->status == 2 || $this->data['submissao']->relatorio->status == 0){
-            return redirect()->back()->with('warning', "Esse relatório não está liberado!");
+            return redirect()->route('home.index')->with('warning', "Esse relatório não está liberado!");
         }
 
         return view('pages.actions.report', $this->data);
     }
 
-    public function finish(Request $request, $uuid){
-        
+    public function finish(Request $request, $uuid)
+    {
         $request->validate(['aceite' => 'required|accepted'], [
             'aceite.required' => 'Você precisa marcar a caixa de consentimento para prosseguir.',
             'aceite.accepted' => 'O termo de ciência deve ser aceito.',
@@ -367,36 +374,53 @@ class ReportController extends Controller
         try {
             $submissao = $this->reportRepository->getSubmissionById($uuid);
 
-            // 1. Validação robusta de campos obrigatórios no Backend
-            if(!$this->validarObrigatorias($submissao)) {
+            // 1. Validação de campos obrigatórios no backend
+            if (!$this->validarObrigatorias($submissao)) {
                 return redirect()->back()->with('warning', "Existem campos obrigatórios não preenchidos. Verifique todas as seções e tabelas.");
             }
 
-            // 2. Garante que perguntas opcionais ou não tocadas sejam salvas como null para gerar o id_resposta
-            $this->salvarRespostasNulasEIgnoradas($submissao);
+            // 2. Tudo que altera o banco roda junto: ou finaliza por completo, ou nada é gravado
+            DB::transaction(function () use ($submissao) {
+                // Garante que perguntas opcionais ou não tocadas sejam salvas como null
+                $this->salvarRespostasNulasEIgnoradas($submissao);
 
-            // 3. Ao re-enviar, apagamos os status 0 para que a tela volte a bloquear (o avaliador vai gerar novos status 0 ou 1)
-            $respostasIds = Resposta::where('id_submissao', $submissao->id)->pluck('id');
-            ValidacaoResposta::whereIn('id_resposta', $respostasIds)->where('status', 0)->delete();
+                // Ao reenviar, apaga os status 0 para a tela voltar a bloquear
+                $respostasIds = Resposta::where('id_submissao', $submissao->id)->pluck('id');
+                ValidacaoResposta::whereIn('id_resposta', $respostasIds)->where('status', 0)->delete();
 
-            $submissao->finalizada_em = now();
-            $submissao->save();
+                $submissao->finalizada_em = now();
+                $submissao->save();
+            });
 
-            $title = 'Relatorio_' . date('Y-m-d_H-i');
-            $pdf = Pdf::loadView('pages.report.exports.pdf2', compact('title', 'submissao'));
-            // return view('pages.report.exports.pdf2', compact('title', 'submissao'));
-
-            $pdfContent = base64_encode($pdf->setPaper('a4', 'landscape')->output());
-
-            return to_route('actions.my')
-                ->with('success', "Relatório finalizado com sucesso. Clique <a href='https://sig.ufca.edu.br/sigaa/public/home.jsf' class='fw-bol' target='_blank'><strong>Aqui</strong></a> e anexe no sigaa caso seja um relatório relacionado a ações.")
-                ->with('pdf_content', $pdfContent)
-                ->with('pdf_name', "{$title}.pdf");
-
-        }
-        catch (\Throwable $th) {
+        } catch (\Throwable $th) {
+            report($th);
             return redirect()->back()->with('error', "Erro ao finalizar formulário, tente novamente mais tarde! " . $th->getMessage());
         }
+
+        // 3. A partir daqui a submissão já está finalizada. Nada abaixo pode derrubar o fluxo.
+        $flash = [
+            'success' => "Relatório finalizado com sucesso. Clique <a href='https://sig.ufca.edu.br/sigaa/public/home.jsf' class='fw-bol' target='_blank'><strong>Aqui</strong></a> e anexe no sigaa caso seja um relatório relacionado a ações.",
+        ];
+
+        try {
+            $title = 'Relatorio_' . date('Y-m-d_H-i');
+            $pdf = Pdf::loadView('pages.report.exports.pdf2', compact('title', 'submissao'));
+            $pdfContent = base64_encode($pdf->setPaper('a4', 'landscape')->output());
+
+            // O PDF vai para o cache, e só a chave vai na sessão
+            $pdfKey = 'pdf_finalizacao_' . $submissao->id;
+            Cache::put($pdfKey, $pdfContent, now()->addMinutes(10));
+
+            $flash['pdf_key']  = $pdfKey;
+            $flash['pdf_name'] = "{$title}.pdf";
+        } catch (\Throwable $th) {
+            report($th);
+            $flash['warning'] = "Relatório enviado, mas não foi possível gerar o PDF agora.";
+        }
+
+        $redirectUrl = session()->pull('report_origin', route('home.index'));
+
+        return redirect($redirectUrl)->with($flash);
     }
 
     public function autoSave(Request $request)
