@@ -156,20 +156,5 @@
 </div>
 @endsection
 @section('scripts')
-@if (session('pdf_content'))
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const base64Data = @json(session('pdf_content'));
-    const fileName = @json(session('pdf_name'));
-
-    // Cria um link temporário para forçar o download no navegador
-    const link = document.createElement('a');
-    link.href = 'data:application/pdf;base64,' + base64Data;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
-</script>
-@endif
+  @include('partials.download-pdf-finalizacao')
 @endsection
