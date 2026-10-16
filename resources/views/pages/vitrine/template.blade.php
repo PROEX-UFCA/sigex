@@ -389,9 +389,6 @@
                 if (radio.checked) toggleFirstAccessForm(radio.value);
             });
 
-            $('#modal-cnpj').mask('00.000.000/0000-00');
-            $('#modal-phone').mask('(00) 00000-0000');
-            $('#modal-cep').mask('00000-000');
         }
     });
 </script>

@@ -16,7 +16,7 @@
               value="{{ old('email') }}" required>
           </div>
           <div class="form-footer">
-            <button type="submit" class="btn btn-primary w-100">
+            <button type="submit" class="btn btn-yellow w-100">
               <i class="icon ti ti-mail"></i>
               Enviar email
             </button>
@@ -25,7 +25,7 @@
         </div>
       </form>
       <div class="text-center text-muted mt-3">
-        Esquecer, <a href="{{ route('login') }}">me envie de volta</a> para a página de login.
+        Esquecer, <a href="{{ route('vitrine.home') }}" class="text-yellow">me envie de volta</a> para a página de login.
       </div>
     </div>
   </div>

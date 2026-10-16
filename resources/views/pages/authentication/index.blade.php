@@ -49,14 +49,14 @@
             <button type="submit" class="btn btn-yellow w-100">Fazer login</button>
           </div>
           <div class="text-center mt-3">
-            <a href="{{ route('access.index') }}">Primeiro Acesso</a>
+            <a href="{{ route('vitrine.home') }}">Primeiro Acesso</a>
           </div>
           @include('components.message.message')
         </form>
       </div>
     </div>
     <div class="text-center text-muted mt-3">
-      Desenvolvido por <a href="" tabindex="-1">Otavio &copy2025</a>
+      Desenvolvido por <a href="" tabindex="-1">Proex &copy2026</a>
     </div>
   </div>
 </div>
