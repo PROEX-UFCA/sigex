@@ -196,7 +196,7 @@ class DashboardController extends Controller
                 CASE
                     WHEN UPPER(TRIM(centro_departamento_sigla)) IN (?, ?, ?, ?, ?, ?)
                         THEN UPPER(TRIM(centro_departamento_sigla))
-                    ELSE 'Demais registros'
+                    ELSE 'Unid. administrativas'
                 END as departamento_grupo,
                 COUNT(*) as total
             ", $departamentosPrincipais)
