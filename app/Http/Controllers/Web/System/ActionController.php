@@ -190,8 +190,8 @@ class ActionController extends Controller
                 if (empty($row[10])) $errors['data_inicio'] = 'Campo obrigatório';
                 if (empty($row[11])) $errors['data_fim'] = 'Campo obrigatório';
                 if (empty($row[12])) $errors['data_atualizacao'] = 'Campo obrigatório';
-                if (empty($row[13])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
-                if (empty($row[14])) $errors['tipo_acao'] = 'Campo obrigatório';
+                if (empty($row[13])) $errors['tipo_acao'] = 'Campo obrigatório';
+                if (empty($row[14])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
                 if (empty($row[15])) $errors['area_tematica'] = 'Campo obrigatório';
                 // if (empty($row[16])) $errors['resumo'] = 'Campo obrigatório';
                 // if (empty($row[17])) $errors['palavras_chave'] = 'Campo obrigatório';
@@ -212,8 +212,8 @@ class ActionController extends Controller
                     'data_inicio' => $row[10] ?? null,
                     'data_fim' => $row[11] ?? null,
                     'data_atualizacao' => $row[12] ?? null,
-                    'centro_departamento_sigla' => $row[13] ?? null,
-                    'tipo_acao' => $row[14] ?? null,
+                    'tipo_acao' => $row[13] ?? null,
+                    'centro_departamento_sigla' => $row[14] ?? null,
                     'area_tematica' => $row[15] ?? null,
                     'resumo' => $row[16] ?? null,
                     'palavras_chave' => $row[17] ?? null,
@@ -270,8 +270,8 @@ class ActionController extends Controller
                         if (empty($allProjects[$index]['data_inicio'])) $errors['data_inicio'] = 'Campo obrigatório';
                         if (empty($allProjects[$index]['data_fim'])) $errors['data_fim'] = 'Campo obrigatório';
                         if (empty($allProjects[$index]['data_atualizacao'])) $errors['data_atualizacao'] = 'Campo obrigatório';
-                        if (empty($allProjects[$index]['centro_departamento_sigla'])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
                         if (empty($allProjects[$index]['tipo_acao'])) $errors['tipo_acao'] = 'Campo obrigatório';
+                        if (empty($allProjects[$index]['centro_departamento_sigla'])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
                         if (empty($allProjects[$index]['area_tematica'])) $errors['area_tematica'] = 'Campo obrigatório';
                         // if (empty($allProjects[$index]['resumo'])) $errors['resumo'] = 'Campo obrigatório';
                         // if (empty($allProjects[$index]['palavras_chave'])) $errors['palavras_chave'] = 'Campo obrigatório';
@@ -353,8 +353,8 @@ class ActionController extends Controller
                     if (empty($allProjects[$index]['data_inicio'])) $errors['data_inicio'] = 'Campo obrigatório';
                     if (empty($allProjects[$index]['data_fim'])) $errors['data_fim'] = 'Campo obrigatório';
                     if (empty($allProjects[$index]['data_atualizacao'])) $errors['data_atualizacao'] = 'Campo obrigatório';
-                    if (empty($allProjects[$index]['centro_departamento_sigla'])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
                     if (empty($allProjects[$index]['tipo_acao'])) $errors['tipo_acao'] = 'Campo obrigatório';
+                    if (empty($allProjects[$index]['centro_departamento_sigla'])) $errors['centro_departamento_sigla'] = 'Campo obrigatório';
                     if (empty($allProjects[$index]['area_tematica'])) $errors['area_tematica'] = 'Campo obrigatório';
                     // if (empty($allProjects[$index]['resumo'])) $errors['resumo'] = 'Campo obrigatório';
                     // if (empty($allProjects[$index]['palavras_chave'])) $errors['palavras_chave'] = 'Campo obrigatório';
@@ -438,8 +438,8 @@ class ActionController extends Controller
                     'data_inicio' => $linha['data_inicio'] ?? null,
                     'data_fim' => $linha['data_fim'] ?? null,
                     'data_atualizacao' => $linha['data_atualizacao'] ?? null,
-                    'centro_departamento_sigla' => $centroDepartamento ? $centroDepartamento->value : null,
                     'tipo_acao' => $tipoAcao ? $tipoAcao->value : null,
+                    'centro_departamento_sigla' => $centroDepartamento ? $centroDepartamento->value : null,
                     'area_tematica' => $areaTematica ? $areaTematica->value : null,
                     'resumo' => $linha['resumo'] ?? null,
                     'palavras_chave' => $linha['palavras_chave'] ?? null,
