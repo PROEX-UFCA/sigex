@@ -1,5 +1,15 @@
 @extends('templates.template')
 
+@section('styles')
+  <style>
+    /* .avatar do Tabler aplica margin-right negativo (pensado para listas de avatares),
+       o que desalinha o ícone do número abaixo. Aqui zeramos para manter os 3 KPIs centrados. */
+    .kpi-avatar {
+      margin-right: 0 !important;
+    }
+  </style>
+@endsection
+
 @section('content')
 <div class="container-xl">
   <div class="page-header d-print-none mb-4">
@@ -62,30 +72,32 @@
               <div class="tab-content">
                 
             <!-- 1a tab: geral -->
-                <div class="tab-pane active show mt-2" id="tabs-resumo">
+                <div class="tab-pane active show mt-4" id="tabs-resumo">
 
                     <div class="row align-items-baseline text-center">
 
                         <div class="col">
-                            <div class="justify-middle pe-lg-0">
-                              <span class="bg-primary text-white avatar avatar-xs"><i class="ti ti-briefcase fs-3"></i></span>
-                              <div class="font-weight-medium">{{ $totalAcoes }}</div>
-                              <div class="text-muted fs-6">Ações Ativas</div>
+                            <div class="pe-lg-0">
+                              <span class="bg-primary text-white avatar avatar-sm kpi-avatar mb-2"><i class="ti ti-briefcase fs-2"></i></span>
+                              <div class="h1 fw-bold mb-1">{{ $totalAcoes }}</div>
+                              <div class="text-muted fs-3" style="min-height: 3rem">Ações Ativas</div>
                             </div>
                         </div>
 
                         <div class="col">
                               <div class="pe-lg-0">
-                                  <span class="bg-success text-white avatar avatar-xs"><i class="ti ti-currency-dollar fs-3"></i></span>
-                                  <div class="font-weight-medium">{{ $totalBolsas }}</div>
-                                  <div class="text-muted fs-6">Bolsas Ativas</div>
+                                  <span class="bg-success text-white avatar avatar-sm kpi-avatar mb-2"><i class="ti ti-currency-dollar fs-2"></i></span>
+                                  <div class="h1 fw-bold mb-1">{{ $totalBolsas }}</div>
+                                  <div class="text-muted fs-3" style="min-height: 3rem">Bolsas Ativas</div>
                               </div>
                         </div>
 
                         <div class="col">
-                            <span class="bg-info text-white avatar avatar-xs"><i class="ti ti-clock fs-3"></i></span>
-                            <div class="font-weight-medium">{{ $duracaoMedia }} dias</div>
-                            <div class="text-muted fs-6">Duração média das ações</div>
+                            <div class="pe-lg-0">
+                                <span class="bg-info text-white avatar avatar-sm kpi-avatar mb-2"><i class="ti ti-clock fs-2"></i></span>
+                                <div class="h1 fw-bold mb-1">{{ $duracaoMedia }} <span class="fs-4">dias</span></div>
+                                <div class="text-muted fs-3" style="min-height: 3rem">Duração média das ações</div>
+                            </div>
                         </div>
 
                     </div>
@@ -95,8 +107,8 @@
                     <!-- fluxo de cadastro, inicio e término de ações -->
                     <div class="col-12 mt-3 border-top">
                         <div class="my-3">
-                            <h3 class="card-title mb-4 text-start">Fluxo Mensal de Ações</h3>
-                            <div style="position: relative; height: 250px; width: 100%;">
+                            <h3 class="card-title mb-4 text-start">Fluxo Mensal de Ações <span class="fw-normal text-muted fs-3">(saldo acumulado)</span></h3>
+                            <div style="position: relative; height: 300px; width: 100%;">
                                 <canvas id="fluxoAcoesChart"></canvas>
                             </div>
                         </div>
@@ -271,39 +283,37 @@
             type: 'line',
             data: {
                 labels: dadosFluxo.map(item => item.mes),
-                datasets: [
-                    {
-                        label: 'Cadastradas',
-                        data: dadosFluxo.map(item => item.cadastradas),
-                        borderColor: '#94a3b8',
-                        borderWidth: 2,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Iniciadas',
-                        data: dadosFluxo.map(item => item.iniciadas),
-                        borderColor: '#10b981',
-                        borderWidth: 2,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Finalizadas',
-                        data: dadosFluxo.map(item => item.finalizadas),
-                        borderColor: '#f43f5e',
-                        borderWidth: 2,
-                        tension: 0.3
-                    }
-                ]
+                datasets: [{
+                    label: 'Ações em andamento (acumulado)',
+                    data: dadosFluxo.map(item => item.saldo),
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                    fill: true,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom' }
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const item = dadosFluxo[context.dataIndex];
+                                const variacao = item.iniciadas - item.finalizadas;
+                                return [
+                                    `Saldo acumulado: ${item.saldo}`,
+                                    `No mês: ${item.iniciadas} iniciadas / ${item.finalizadas} finalizadas`,
+                                    `Variação do mês: ${variacao > 0 ? '+' : ''}${variacao}`
+                                ];
+                            }
+                        }
+                    }
                 },
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                }
+                scales: { y: { ticks: { precision: 0 } } }
             }
         });
 
