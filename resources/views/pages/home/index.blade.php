@@ -7,12 +7,9 @@
   <div class="">
     <div class="row g-2 align-items-center">
       <div class="col">
-        <div class="page-pretitle">
+        <div class="page-title">
           <a href="{{ route('home.index') }}">Início</a>
         </div>
-        <h2 class="page-title">
-          Início
-        </h2>
       </div>
       <div class="col-auto ms-auto">
       </div>
@@ -124,7 +121,7 @@
         <div class="d-flex align-items-center">
           <div class="subheader">Perfil Atualizado há</div>
         </div>
-        <div class="h1 mb-3">{{ $user->updated_at->diffForHumans() }}</div>
+        <div class="h1 mb-3">{{ $user->updated_at->diffForHumans(['locale' => 'pt_BR', 'syntax' => \Carbon\CarbonInterface::DIFF_ABSOLUTE]) }}</div>
         <div class="d-flex mb-2">
           <div>Nível de segurança do perfil</div>
           <div class="ms-auto">
