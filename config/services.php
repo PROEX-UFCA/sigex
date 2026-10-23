@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'sigex' => [
+        'url' => env('SIGEX_API_URL'),
+        'email' => env('SIGEX_API_EMAIL'),
+        'password' => env('SIGEX_API_PASSWORD'),
+    ],
+
 ];
