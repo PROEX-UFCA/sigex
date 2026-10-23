@@ -2,7 +2,7 @@
     <div class="input-icon">
         <input type="text" 
         name="search" 
-        class="form-control text-brown fw-bold" 
+        class="form-control text-brown fw-bold fs-5" 
         placeholder="Pesquisar..." 
         value="{{ request('search') }}">
         <span class="input-icon-addon">
