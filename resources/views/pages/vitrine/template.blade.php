@@ -145,14 +145,27 @@
                 margin: 0.5rem auto;
             }
         }
+        
+        @media (min-width: 768px) and (max-width: 1199.98px) {
+            .nav-item-collapse{
+                font-size: 12px;
+            }
+            .responsive-search input {
+                width: 100px;
+                transition: width 0.3s ease-in-out;
+            }
+            .responsive-search input:focus {
+                width: 180px;
+            }
+        }
     </style>
 </head>
 
 <body class="body-marketing body-gradient">
     <script src="{{ asset('assets/js/demo-theme.min.js?1684106062') }}"></script>
     <div class="page">
-        <header class="navbar navbar-expand-lg py-3 bg-brown text-yellow">
-            <div class="container">
+        <header class="navbar navbar-expand-md py-3 bg-brown text-yellow">
+            <div class="container-xl">
                 <a href="/vitrine" aria-label="Tabler" class="navbar-brand navbar-brand-autodark">
                     <img src="{{asset('assets/img/illustrations/logo_proex_top.png')}}" alt="" style="width: 225px;">
                 </a>
@@ -164,7 +177,7 @@
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
                     <nav class="navbar-nav ms-auto gap-3 align-items-center">
 
-                        <div class="nav-item">
+                        <div class="nav-item nav-item-collapse">
                             <a class="row nav-link active px-1 px-xl-3 {{ request()->routeIs('vitrine.home') ? 'border-bottom border-1 border-yellow' : '' }}"
                                 href="{{ route('vitrine.home') }}">
                                 <i class="col-auto ti ti-home icon fs-2 m-0 p-0"></i>
@@ -172,7 +185,7 @@
                             </a>
                         </div>
 
-                        <div class="nav-item">
+                        <div class="nav-item nav-item-collapse">
                             <a class="row nav-link text-yellow px-1 px-xl-3 {{ request()->routeIs('vitrine.catalogo') ? 'border-bottom border-1 border-yellow' : '' }}"
                                 href="{{ route('vitrine.catalogo') }}" title="Catálogo">
                                 <i class="col-auto ti ti-layout-grid icon fs-2 m-0 p-0"></i>
@@ -180,15 +193,18 @@
                             </a>
                         </div>
 
-                        <div class="nav-item">
-                            <a class="row nav-link text-yellow px-1 px-xl-3 {{ request()->routeIs('vitrine.mapa') ? 'border-bottom border-1 border-yellow' : '' }}"
+                        <div class="nav-item nav-item-collapse">
+                            <a class="d-flex align-items-center gap-1 nav-link text-yellow px-1 px-xl-3 {{ request()->routeIs('vitrine.mapa') ? 'border-bottom border-1 border-yellow' : '' }}"
                                 href="{{ route('vitrine.mapa') }}" title="Mapa da extensão">
-                                <i class="col-auto ti ti-layout-grid icon fs-2 m-0 p-0"></i>
-                                <span class="fw-bold col nav-link-title">Mapa da extensão</span>
+                                <i class="ti ti-map icon fs-2 m-0 p-0"></i>
+                                <span class="fw-bold nav-link-title text-start lh-sm">
+                                    <span class="d-lg-none d-xl-inline text-nowrap">Mapa da Extensão</span>
+                                    <span class="d-none d-lg-inline d-xl-none">Mapa da<br>Extensão</span>
+                                </span>
                             </a>
                         </div>
 
-                        <div class="d-flex p-0">
+                        <div class="d-flex p-0 responsive-search">
                             <x-table.vitrine-search route="{{ route('vitrine.catalogo') }}"></x-table.vitrine-search>
                         </div>
 
@@ -197,12 +213,14 @@
                                 <a href="#" class="nav-link d-flex lh-1 p-0" data-bs-toggle="dropdown">
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="ti ti-user icon fs-2 m-0 p-0"></i>
-                                        <div class="d-flex flex-column text-start gap-0" style="max-width: 140px;">
+                                        
+                                        <div class="d-flex d-md-none d-lg-flex flex-column text-start gap-0" style="max-width: 140px;">
                                             <div class="fw-bold fs-5 text-truncate">{{ Auth::user()->name }}</div>
                                             <div class="fw-light mt-1 fs-6 text-truncate">
                                                 {{ ucfirst(Auth::user()->roles->first()->name) ?? '' }}
                                             </div>
                                         </div>
+                                        
                                     </div>
                                 </a>
 
@@ -218,10 +236,11 @@
                             </div>
                         @else
                             <div class="nav-item m-0">
-                                <button type="button" class="btn btn-yellow" data-bs-toggle="modal"
+                                <button type="button" class="btn btn-yellow d-flex align-items-center" data-bs-toggle="modal"
                                     data-bs-target="#loginModal">
-                                    <i class="ti ti-user icon"></i>
-                                    Faça seu login
+                                    <i class="ti ti-user icon m-0 p-0"></i>
+                                    
+                                    <span class="d-inline d-md-none d-lg-inline ms-2">Faça seu login</span>
                                 </button>
                             </div>
                         @endauth
@@ -230,7 +249,7 @@
             </div>
         </header>
         <div class="page-wrapper">
-            <div class="container">
+            <div class="container-xl">
                 @if (!session()->has('login_modal') && !session()->has('first_access_modal') && !$errors->has('email') && !$errors->has('password'))
                     @include('components.message.message')
                 @endif
