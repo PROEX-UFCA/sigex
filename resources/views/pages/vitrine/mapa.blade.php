@@ -140,14 +140,37 @@
                         <option value="Tecnologia e Produção" {{ request('area_tematica') == 'Tecnologia e Produção' ? 'selected' : '' }}>Tecnologia e Produção</option>
                         <option value="Trabalho" {{ request('area_tematica') == 'Trabalho' ? 'selected' : '' }}>Trabalho</option>
                     </select>
-
                     <label class="form-label fw-bold text-muted small">ODS</label>
-                    <select name="ods" class="form-select mb-4">
-                        <option value="">Todos os ODS</option>
-                        @for($i = 1; $i <= 17; $i++)
-                            <option value="{{ $i }}" {{ request('ods') == (string)$i ? 'selected' : '' }}>ODS {{ $i }}</option>
-                        @endfor
-                    </select>
+                        <select name="ods" class="form-select mb-4">
+                            <option value="">Todos os ODS</option>
+                                @php
+                                    $odsNomes = [
+                                        1 => 'Erradicação da Pobreza',
+                                        2 => 'Fome Zero e Agricultura Sustentável',
+                                        3 => 'Saúde e Bem-Estar',
+                                        4 => 'Educação de Qualidade',
+                                        5 => 'Igualdade de Gênero',
+                                        6 => 'Água Potável e Saneamento',
+                                        7 => 'Energia Limpa e Acessível',
+                                        8 => 'Trabalho Decente e Crescimento Econômico',
+                                        9 => 'Indústria, Inovação e Infraestrutura',
+                                        10 => 'Redução das Desigualdades',
+                                        11 => 'Cidades e Comunidades Sustentáveis',
+                                        12 => 'Consumo e Produção Responsáveis',
+                                        13 => 'Ação Contra a Mudança Global do Clima',
+                                        14 => 'Vida na Água',
+                                        15 => 'Vida Terrestre',
+                                        16 => 'Paz, Justiça e Instituições Eficazes',
+                                        17 => 'Parcerias e Meios de Implementação',
+                                    ];
+                                @endphp
+                                
+                                @for($i = 1; $i <= 17; $i++)
+                                    <option value="{{ $i }}" {{ request('ods') == (string)$i ? 'selected' : '' }}>
+                                        ODS {{ $i }}: {{ $odsNomes[$i] }}
+                                    </option>
+                                @endfor
+                        </select>
 
                     <div class="d-flex flex-column gap-2">
                         <button type="submit" class="btn btn-brown w-100">
@@ -175,12 +198,12 @@
                 <hr>
                 
                 <div id="chart-tema-container" class="mx-auto mb-4 w-75">
-                    <h5 class="text-muted mb-2 small">Por Área Temática</h5>
+                    <h4 class="text-muted mb-2">Por Área Temática</h4>
                     <canvas id="chartTemas"></canvas>
                 </div>
                 
                 <div id="chart-ods-container" class="mx-auto mb-4 w-75">
-                    <h5 class="text-muted mb-2 small">Por ODS</h5>
+                    <h4 class="text-muted mb-2">Por ODS</h4>
                     <canvas id="chartOds"></canvas>
                 </div>
 
@@ -205,6 +228,60 @@
         const panelInsights = document.getElementById('panel-insights');
         let chartTemaInstance = null;
         let chartOdsInstance = null;
+
+        //essa reproducao do chart das ods é o mesmo que eu ifz na dashboard!
+        const coresOficiaisOds = {
+            '1': '#E5243B', '2': '#DDA63A', '3': '#4C9F38', '4': '#C5192D', '5': '#FF3A21', '6': '#26BDE2', '7': '#FCC30B',
+            '8': '#A21942', '9': '#FD6925', '10': '#DD1367', '11': '#FD9D24', '12': '#BF8B2E', '13': '#3F7E44', '14': '#0A97D9',
+            '15': '#56C02B', '16': '#00689D', '17': '#19486A'
+        };
+
+        const nomesOdsPT = {
+            '1': 'Erradicação da Pobreza', '2': 'Fome Zero', '3': 'Saúde e Bem-Estar', '4': 'Educação de Qualidade',
+            '5': 'Igualdade de Gênero', '6': 'Água Potável e Saneamento', '7': 'Energia Limpa e Acessível',
+            '8': 'Trabalho Decente e Crescimento Econômico', '9': 'Indústria, Inovação e Infraestrutura',
+            '10': 'Redução das Desigualdades', '11': 'Cidades e Comunidades Sustentáveis',
+            '12': 'Consumo e Produção Responsáveis', '13': 'Ação Contra a Mudança Global do Clima',
+            '14': 'Vida na Água', '15': 'Vida Terrestre', '16': 'Paz, Justiça e Instituições Eficazes',
+            '17': 'Parcerias e Meios de Implementação'
+        };
+
+        const iconesPreCarregados = {};
+        for (let i = 1; i <= 17; i++) {
+            iconesPreCarregados[i] = new Image();
+            iconesPreCarregados[i].src = `{{ asset('assets/img/ods') }}/${i}.png`;
+        }
+
+        const odsIconPlugin = {
+            id: 'odsIcon',
+            afterDatasetsDraw: function(chart) {
+                const ctx = chart.ctx;
+                const meta = chart.getDatasetMeta(0);
+                if (!meta || !meta.data) return;
+
+                ctx.save();
+                meta.data.forEach((arc, index) => {
+                    const odsNumero = chart.data.labels[index].replace('ODS ', '');
+                    const angulo = (arc.startAngle + arc.endAngle) / 2;
+
+                    const innerRadius = arc.innerRadius;
+                    const outerRadius = arc.outerRadius;
+                    const midRadius = innerRadius + ((outerRadius - innerRadius) / 2);
+
+                    const inX = arc.x + Math.cos(angulo) * midRadius;
+                    const inY = arc.y + Math.sin(angulo) * midRadius;
+
+                    const icone = iconesPreCarregados[odsNumero];
+                    if (icone && icone.complete && icone.naturalHeight !== 0) {
+                        ctx.save();
+                        ctx.filter = 'brightness(0) invert(1)'; // Força o ícone a ficar branco
+                        ctx.drawImage(icone, inX - 11, inY - 11, 22, 22); // Centraliza um ícone de 22x22px
+                        ctx.restore();
+                    }
+                });
+                ctx.restore();
+            }
+        };
 
         document.querySelectorAll('.municipio').forEach(path => {
             const rawName = path.getAttribute('data-cidade');
@@ -301,18 +378,38 @@
             const ctx = document.getElementById('chartOds');
             if (chartOdsInstance) chartOdsInstance.destroy();
 
+            const chaves = Object.keys(dadosOds);
+            const backgroundColors = chaves.map(num => coresOficiaisOds[num] || '#532B1D');
+
             chartOdsInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(dadosOds).map(num => `ODS ${num}`),
+                    labels: chaves.map(num => `ODS ${num}`),
                     datasets: [{
                         data: Object.values(dadosOds),
-                        backgroundColor: '#532B1D', 
-                        borderWidth: 1,
-                        borderColor: '#F5BE56'
+                        backgroundColor: backgroundColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
                     }]
                 },
-                options: { cutout: '70%', plugins: { legend: { display: false } } }
+                plugins: [odsIconPlugin], 
+                options: { 
+                    cutout: '65%', 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    const rawNum = chaves[context[0].dataIndex];
+                                    return nomesOdsPT[rawNum];
+                                },
+                                label: function(context) {
+                                    return ` ${context.raw} ações`;
+                                }
+                            }
+                        }
+                    } 
+                }
             });
         };
     });
