@@ -87,19 +87,28 @@ class DashboardController extends Controller
                 ->toArray();
         };
 
-        $cadastradasRaw = $agruparPorMes('data_cadastro');
         $iniciadasRaw = $agruparPorMes('data_inicio');
         $finalizadasRaw = $agruparPorMes('data_fim');
 
         $mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         $distribuicaoAcoes = [];
+        $acumIniciadas = 0;
+        $acumFinalizadas = 0;
 
         for ($i = 1; $i <= 12; $i++) {
+            $iniciadas = $iniciadasRaw[$i] ?? 0;
+            $finalizadas = $finalizadasRaw[$i] ?? 0;
+
+            $acumIniciadas += $iniciadas;
+            $acumFinalizadas += $finalizadas;
+
             $distribuicaoAcoes[] = [
                 'mes' => $mesesNomes[$i - 1],
-                'cadastradas' => $cadastradasRaw[$i] ?? 0,
-                'iniciadas' => $iniciadasRaw[$i] ?? 0,
-                'finalizadas' => $finalizadasRaw[$i] ?? 0,
+                'iniciadas' => $iniciadas,
+                'finalizadas' => $finalizadas,
+                'acumuladoIniciadas' => $acumIniciadas,
+                'acumuladoFinalizadas' => $acumFinalizadas,
+                'saldo' => $acumIniciadas - $acumFinalizadas,
             ];
         }
 
