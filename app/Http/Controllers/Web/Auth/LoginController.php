@@ -63,8 +63,8 @@ class LoginController extends Controller
                     return redirect()->route('vitrine.home')->with('success', 'Você está logado.');
                 }
                 else{
-                return redirect()->route('home.index')->with('success', 'Você está logado.');
-                }
+                    return redirect()->route('home.index')->with('success', 'Você está logado.');
+                    }
             } else {
                 Auth::logout();
                 return back()->with("error", "verifique se o email e senha foram digitados corretamente.")
