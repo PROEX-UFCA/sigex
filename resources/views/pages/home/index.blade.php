@@ -175,4 +175,5 @@
 </div>
 @endsection
 @section('scripts')
+  @include('partials.download-pdf-finalizacao')
 @endsection

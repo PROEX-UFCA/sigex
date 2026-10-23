@@ -70,6 +70,7 @@ class DatabaseSeeder extends Seeder
             "ver_dashboard",
 
             "editar_acoes_em_massa",
+            "sincronizar_dados",
         ];
 
         $roles = [
@@ -115,7 +116,9 @@ class DatabaseSeeder extends Seeder
 
                     "gerenciar_vitrine",
 
-                    "editar_acoes_em_massa"
+                    "editar_acoes_em_massa",
+                    
+                    "sincronizar_dados"
                 ]
             ],
             [
@@ -272,9 +275,9 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        $this->call([
-            LocationSeeder::class,
-        ]);
+        // $this->call([
+        //     LocationSeeder::class,
+        // ]);
     }
 }
 

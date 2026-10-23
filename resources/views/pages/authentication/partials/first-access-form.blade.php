@@ -54,14 +54,14 @@
       </div>
       <div class="col-md-6 mb-3">
         <label class="form-label required">CNPJ</label>
-        <input type="text" class="form-control" placeholder="00.000.000/0000-00" id="modal-cnpj" name="cnpj"
+        <input type="text" class="form-control" placeholder="00.000.000/0000-00" data-mask="00.000.000/0000-00" id="modal-cnpj" name="cnpj"
           value="{{ old('cnpj') }}" data-required>
       </div>
     </div>
     <div class="row">
       <div class="col-md-4 mb-3">
         <label class="form-label required">CEP</label>
-        <input type="text" class="form-control" placeholder="00000-000" id="modal-cep" name="cep"
+        <input type="text" class="form-control" placeholder="00000-000" data-mask="00000-000" id="modal-cep" name="cep"
           value="{{ old('cep') }}" data-required>
       </div>
       <div class="col-md-8 mb-3">
@@ -84,7 +84,7 @@
     </div>
     <div class="mb-3">
       <label class="form-label required">Telefone de Contato</label>
-      <input type="tel" class="form-control" placeholder="(00) 00000-0000" id="modal-phone" name="telefone_contato"
+      <input type="tel" class="form-control" placeholder="(00) 00000-0000" data-mask="(00) 00000-0000" id="modal-phone" name="telefone_contato"
         value="{{ old('telefone_contato') }}" data-required>
     </div>
     <div class="mb-3">

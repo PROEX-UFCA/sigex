@@ -28,7 +28,7 @@ Route::get('login/editar/{token}', [LoginController::class, 'edit'])->name('logi
 Route::get('login/registrar/{token}', [LoginController::class, 'register'])->name('login.register');
 Route::post('login/atualizar/{token}', [LoginController::class, 'update'])->name('login.update');
 
-Route::get('acessar', [LoginController::class, 'firstAccess'])->name('access.index');
+// Route::get('acessar', [LoginController::class, 'firstAccess'])->name('access.index');
 Route::post('acessar', [LoginController::class, 'storeFirstAccess'])->name('access.store');
 
 Route::get('termos_de_uso', function () {
@@ -201,9 +201,10 @@ Route::middleware(['auth'])->group(function () {
             ->name('vitrine.match.interest')
             ->middleware('role:Instituição');
 
+        Route::post('/acoes/match/{id_match}/confirmar', 'confirmMatch')->name('actions.match.confirm');
+        Route::delete('/acoes/match/{id_match}/encerrar', 'endMatch')->name('actions.match.end');
+        
         Route::middleware(['permission:editar_ação'])->group(function () {
-            Route::post('/acoes/match/{id_match}/confirmar', 'confirmMatch')->name('actions.match.confirm');
-            Route::delete('/acoes/match/{id_match}/encerrar', 'endMatch')->name('actions.match.end');
         });
         
     });
