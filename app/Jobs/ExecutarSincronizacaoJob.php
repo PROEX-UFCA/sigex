@@ -2,11 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Models\Acao;
+use App\Models\Equipe_Acao;
+use App\Models\Localidade_Acao;
 use App\Models\Sincronizacao;
+use App\Models\User;
 use App\Services\ApiSigexService;
 use Throwable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Str;
 
 class ExecutarSincronizacaoJob implements ShouldQueue
 {
@@ -51,13 +56,29 @@ class ExecutarSincronizacaoJob implements ShouldQueue
             $dados = $api->buscarAcoes();
 
             foreach ($dados as $item) {
-
+                $item = (object) $item;
                 Acao::updateOrCreate(
-                    ['id_externo' => $item['id']],
+                    ['id_projeto' => $item->id_projeto],
                     [
-                        'titulo' => $item['titulo'],
-                        'descricao' => $item['descricao'],
-                        'status' => $item['status'],
+                        'ano' => $item->ano ?? null,
+                        'titulo' => $item->titulo ?? null,
+                        'modalidade_edital' => $item->edital ?? null,
+                        'bolsas_solicitadas' => $item->bolsas_solicitadas ?? 0,
+                        'bolsas_concedidas' => $item->bolsas_concedidas ?? 0,
+                        'financiamento_interno' => $item->financiamento_interno ?? null,
+                        'financiamento_externo' => $item->financiamento_externo ?? null,
+                        'situacao' => $item->situacao ?? null,
+                        'data_cadastro' => $item->data_cadastro ?? null,
+                        'data_inicio' => $item->data_inicio ?? null,
+                        'data_fim' => $item->data_fim ?? null,
+                        'data_atualizacao' => $item->data_atualizacao ?? null,
+                        'centro_departamento_sigla' => $item->sigla ?? null,
+                        'tipo_acao' => $item->tipo_acao ?? null,
+                        'area_tematica' => $item->area_tematica ?? null,
+                        'resumo' => $item->resumo ?? null,
+                        'palavras_chave' => $item->palavras_chave ?? null,
+                        'ods' => $item->ods ?? null,
+                        'contexto' => $item->contexto ?? null,
                     ]
                 );
             }
@@ -78,12 +99,14 @@ class ExecutarSincronizacaoJob implements ShouldQueue
             $dados = $api->buscarLocalidades();
 
             foreach ($dados as $item) {
-
-                Localidade::updateOrCreate(
-                    ['id_externo' => $item['id']],
+                $item = (object) $item;
+                Localidade_Acao::updateOrCreate(
                     [
-                        'nome' => $item['nome'],
-                        'cidade' => $item['cidade'],
+                        'id_projeto' => $item->id_projeto ?? null, 
+                        'cidade' => $item->cidade ?? null,
+                    ],
+                    [
+                        'estado' => $item->estado ?? null,
                     ]
                 );
             }
@@ -104,13 +127,37 @@ class ExecutarSincronizacaoJob implements ShouldQueue
             $dados = $api->buscarMembros();
 
             foreach ($dados as $item) {
+                $item = (object) $item;
+                $agora = now();
 
-                Membro::updateOrCreate(
-                    ['id_externo' => $item['id']],
+                $usuario = User::firstOrCreate(
+                    ['email' => $item->email],
                     [
-                        'nome' => $item['nome'],
-                        'email' => $item['email'],
-                        'cpf' => $item['cpf'],
+                        'uuid' => (string) Str::uuid(),
+                        'email' => $item->email,
+                        'name' => $item->nome_ascii,
+                        'status' => 0,
+                        'created_at' => $agora,
+                        'updated_at' => $agora,
+                    ]
+                );
+
+                $id_acao = Acao::where('id_projeto', $item->id_projeto)->first()->id;
+
+                Equipe_Acao::updateOrCreate(
+                    [
+                        'id_projeto' => $item->id_projeto, 
+                        'id_pessoa' => $item->id_pessoa, 
+                    ],
+                    [
+                        "id_usuario" =>$usuario->uuid,
+                        "id_acao" =>$id_acao,
+                        'tipo_membro' => $item->tipo_membro, 
+                        'categoria_membro' => $item->categoria_membro, 
+                        'status' => $item->status, 
+                        'data_inicio' => $item->data_inicio, 
+                        'data_fim' => $item->data_fim,
+                        'sexo' => $item->sexo, 
                     ]
                 );
             }

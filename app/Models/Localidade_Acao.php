@@ -13,12 +13,12 @@ class Localidade_Acao extends Model
     use HasUuids, SoftDeletes, LogsActivity;
 
     protected $table = 'localidade_acao';
-    protected $fillable = ['id_projeto', 'cidade', 'estado', 'sim', 'area_tematica'];
+    protected $fillable = ['id_projeto', 'cidade', 'estado'];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['id_projeto', 'cidade', 'estado', 'sim', 'area_tematica'])
+            ->logOnly(['id_projeto', 'cidade', 'estado'])
             ->useLogName('localidade_acao')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

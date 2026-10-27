@@ -172,7 +172,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/gerenciar/dados', [DadosController::class, 'index'])->name('dados.index')->middleware(['auth' => 'permission:sincronizar_dados']);
-    Route::get('/dados/sincronizar', [DadosController::class, 'sincronizar'])->name('dados.sincronizar')->middleware(['auth' => 'permission:sincronizar_dados']);
+    Route::post('/dados/sincronizar', [DadosController::class, 'iniciar'])->name('dados.sincronizar')->middleware(['auth' => 'permission:sincronizar_dados']);
+    Route::get('/sincronizacoes/status', [DadosController::class, 'status'])->name('dados.status');
 
 });
 

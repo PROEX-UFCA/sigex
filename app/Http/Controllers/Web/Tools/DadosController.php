@@ -57,7 +57,8 @@ class DadosController extends Controller
     public function status(): JsonResponse
     {
         $sincronizacoes = Sincronizacao::latest('id')
-            ->paginate(20);
+            ->limit(20)
+            ->get();
 
         return response()->json($sincronizacoes);
     }
