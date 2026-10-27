@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Acao;
 use App\Models\Equipe_Acao;
 use App\Models\Localidade_Acao;
+use App\Models\Parametro;
 use App\Models\Sincronizacao;
 use App\Models\User;
 use App\Services\ApiSigexService;
@@ -57,6 +58,37 @@ class ExecutarSincronizacaoJob implements ShouldQueue
 
             foreach ($dados as $item) {
                 $item = (object) $item;
+
+                $centroDepartamento = !empty($item->sigla) ? Parametro::firstOrCreate([
+                    'function' => 'CENTRO_DEPARTAMENTO_SIGLA',
+                    'value' => mb_strtoupper(trim($item->sigla), 'UTF-8'),
+                ]) : null;
+
+                $tipoAcao = !empty($item->tipo_acao) ? Parametro::firstOrCreate([
+                    'function' => 'TIPO',
+                    'value' => mb_strtoupper(trim($item->tipo_acao), 'UTF-8'),
+                ]) : null;
+
+                $areaTematica = !empty($item->area_tematica) ? Parametro::firstOrCreate([
+                    'function' => 'AREA_TEMATICA',
+                    'value' => mb_strtoupper(trim($item->area_tematica), 'UTF-8'),
+                ]) : null;
+
+                $modalidade = !empty($item->edital) ? Parametro::firstOrCreate([
+                    'function' => 'MODALIDADE_EDITAL',
+                    'value' => mb_strtoupper(trim($item->edital), 'UTF-8'),
+                ]) : null;
+
+                $situacao = !empty($item->situacao) ? Parametro::firstOrCreate([
+                    'function' => 'SITUACAO',
+                    'value' => mb_strtoupper(trim($item->situacao), 'UTF-8'),
+                ]) : null;
+
+                $contexto = !empty($item->contexto) ? Parametro::firstOrCreate([
+                    'function' => 'CONTEXTO',
+                    'value' => mb_strtoupper(trim($item->contexto), 'UTF-8'),
+                ]) : null;
+
                 Acao::updateOrCreate(
                     ['id_projeto' => $item->id_projeto],
                     [
@@ -126,43 +158,90 @@ class ExecutarSincronizacaoJob implements ShouldQueue
 
             $dados = $api->buscarMembros();
 
+            $tiposMembrosReq = [];
+            $categoriasReq = [];
+            $sexosReq = [];
+            $statusReq = [];
+
             foreach ($dados as $item) {
                 $item = (object) $item;
                 $agora = now();
 
-                $usuario = User::firstOrCreate(
-                    ['email' => $item->email],
-                    [
-                        'uuid' => (string) Str::uuid(),
-                        'email' => $item->email,
-                        'name' => $item->nome_ascii,
-                        'status' => 0,
-                        'created_at' => $agora,
-                        'updated_at' => $agora,
-                    ]
-                );
+                if (!empty($item->tipo_membro)) {
+                    $tiposMembrosReq[] = mb_strtoupper(
+                        trim($item->tipo_membro),
+                        'UTF-8'
+                    );
+                }
 
-                $id_acao = Acao::where('id_projeto', $item->id_projeto)->first()->id;
+                if (!empty($item->categoria_membro)) {
+                    $categoriasReq[] = mb_strtoupper(
+                        trim($item->categoria_membro),
+                        'UTF-8'
+                    );
+                }
 
-                Equipe_Acao::updateOrCreate(
-                    [
-                        'id_projeto' => $item->id_projeto, 
-                        'id_pessoa' => $item->id_pessoa, 
-                    ],
-                    [
-                        "id_usuario" =>$usuario->uuid,
-                        "id_acao" =>$id_acao,
-                        'tipo_membro' => $item->tipo_membro, 
-                        'categoria_membro' => $item->categoria_membro, 
-                        'status' => $item->status, 
-                        'data_inicio' => $item->data_inicio, 
-                        'data_fim' => $item->data_fim,
-                        'sexo' => $item->sexo, 
-                    ]
-                );
+                if (!empty($item->sexo)) {
+                    $sexosReq[] = mb_strtoupper(
+                        trim($item->sexo),
+                        'UTF-8'
+                    );
+                }
+
+                if (!empty($item->status)) {
+                    $statusReq[] = mb_strtoupper(
+                        trim((string) $item->status),
+                        'UTF-8'
+                    );
+                }
+
+                if($item->email != null){
+                    $usuario = User::firstOrCreate(
+                        ['email' => $item->email],
+                        [
+                            'uuid' => (string) Str::uuid(),
+                            'email' => $item->email,
+                            'name' => $item->nome_ascii,
+                            'status' => 0,
+                            'created_at' => $agora,
+                            'updated_at' => $agora,
+                        ]
+                    );
+
+                    $usuario->assignRole('Perfil Acadêmico');
+    
+                    $id_acao = Acao::where('id_projeto', $item->id_projeto)->first()->id;
+    
+                    Equipe_Acao::updateOrCreate(
+                        [
+                            'id_projeto' => $item->id_projeto, 
+                            'id_pessoa' => $item->id_pessoa, 
+                        ],
+                        [
+                            "id_usuario" =>$usuario->uuid,
+                            "id_acao" =>$id_acao,
+                            'tipo_membro' => $item->tipo_membro, 
+                            'categoria_membro' => $item->categoria_membro, 
+                            'status' => $item->status, 
+                            'data_inicio' => $item->data_inicio, 
+                            'data_fim' => $item->data_fim,
+                            'sexo' => $item->sexo, 
+                        ]
+                    );
+                }
             }
 
             $resultados['membros'] = count($dados);
+
+            $tiposMembrosReq = array_values(array_unique($tiposMembrosReq));
+            $categoriasReq = array_values(array_unique($categoriasReq));
+            $sexosReq = array_values(array_unique($sexosReq));
+            $statusReq = array_values(array_unique($statusReq));
+
+            $this->garantirParametrosEmLote('TIPO_MEMBRO', $tiposMembrosReq);
+            $this->garantirParametrosEmLote('CATEGORIA_MEMBRO', $categoriasReq);
+            $this->garantirParametrosEmLote('SEXO', $sexosReq);
+            $this->garantirParametrosEmLote('STATUS_MEMBROS', $statusReq);
 
             // Finalização
             $sincronizacao->update([
@@ -211,4 +290,22 @@ class ExecutarSincronizacaoJob implements ShouldQueue
             'finalizado_em' => now(),
         ]);
     }
+
+    private function garantirParametrosEmLote(
+        string $funcao,
+        array $valores
+    ): void {
+        $valores = array_values(array_unique(array_filter(
+            $valores,
+            fn ($valor) => $valor !== null && $valor !== ''
+        )));
+
+        foreach ($valores as $valor) {
+            Parametro::firstOrCreate([
+                'function' => $funcao,
+                'value' => mb_strtoupper(trim((string) $valor), 'UTF-8'),
+            ]);
+        }
+    }
+
 }
