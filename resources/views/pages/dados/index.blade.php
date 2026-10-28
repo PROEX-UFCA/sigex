@@ -3,23 +3,142 @@
 @section('styles')
 @endsection
 @section('content')
-<div class="page-body">
-    <div class="">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2>Sincronização de dados</h2>
-                <p class="text-muted mb-0">
-                    Acompanhe as execuções do sistema.
-                </p>
+<div class="page-header">
+    <div>
+        <h2 class="mb-1">Sincronização de dados</h2>
+        <p class="text-muted mb-0 mt-0">
+            Página destiada para sincronizar os dados locais (ações, membros e localizações) com os dados do sigaa.
+        </p>
+    </div>
+</div>
+<div class="page-body row">
+    <div class="col-12 col-md-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="alert"><strong>Área temporária!</strong> Indicada para o desenvolvimento local.</div>
+                <small class="text-muted fw-bold text-uppercase d-block mb-2">Área das ações</small>
+        
+                @can('adicionar_ação')
+                <a href="{{route('actions.create')}}" class="btn btn-primary w-100 mb-2 btn-sm rounded-2">Inserir ação</a>
+                @endcan
+        
+                @can('importar_ações')
+                <bottom class="btn btn-outline-dark w-100 mb-2 btn-sm rounded-2" data-bs-toggle="modal"
+                    data-bs-target="#importar" aria-expanded="false" aria-controls="modalExample">Importar ações</bottom>
+                <x-modal.modal id="importar" class="modal-center" title="Importar dados"
+                    route="{{route('actions.previewImport')}}" textBtnClose="Cancelar" textBtnSave="Importar"
+                    classBtnSave="btn-primary">
+                    <x-slot:content>
+                        <div class="card-body mb-3">
+                            <h3>Atenção para a Importação de Dados</h3>
+                            <p>
+                                Para garantir que a importação ocorra sem erros, seu arquivo <strong>.csv</strong> precisa
+                                conter as
+                                seguintes <strong>20 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no
+                                cabeçalho:
+                            </p>
+        
+                            <div class="mb-3">
+                                <span class="badge badge-dark mb-1">ID_PROJETO</span>
+                                <span class="badge badge-dark mb-1">ANO</span>
+                                <span class="badge badge-dark mb-1">TITULO</span>
+                                <span class="badge badge-dark mb-1">EDITAL</span>
+                                <span class="badge badge-dark mb-1">BOLSAS_SOLICITADAS</span>
+                                <span class="badge badge-dark mb-1">BOLSAS_CONCEDIDAS</span>
+                                <span class="badge badge-dark mb-1">FINANCIAMENTO_INTERNO</span>
+                                <span class="badge badge-dark mb-1">FINANCIAMENTO_EXTERNO</span>
+                                <span class="badge badge-dark mb-1">SITUACAO</span>
+                                <span class="badge badge-dark mb-1">DATA_CADASTRO</span>
+                                <span class="badge badge-dark mb-1">DATA_INICIO</span>
+                                <span class="badge badge-dark mb-1">DATA_FIM</span>
+                                <span class="badge badge-dark mb-1">DATA_ATUALIZACAO</span>
+                                <span class="badge badge-dark mb-1">SIGLA</span>
+                                <span class="badge badge-dark mb-1">TIPO_ACAO</span>
+                                <span class="badge badge-dark mb-1">AREA_TEMATICA</span>
+                                <span class="badge badge-dark mb-1">RESUMO</span>
+                                <span class="badge badge-dark mb-1">PALAVRAS_CHAVE</span>
+                                <span class="badge badge-dark mb-1">ODS</span>
+                                <span class="badge badge-dark mb-1">CONTEXTO</span>
+                            </div>
+        
+                            <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter
+                                <strong>exatamente</strong> os nomes acima.
+                            </p>
+                        </div>
+                        <div id="drop-area"
+                            class="rounded-4 d-flex flex-column justify-content-center align-items-center bg-light p-4 text-center"
+                            style="height: 150px; cursor: pointer; border: dashed 2px gray">
+                            <p class="text-muted mb-2">Arraste o .csv aqui ou clique para selecionar</p>
+                            <p class="text-red mb-2">Máximo 10MB</p>
+                            <input type="file" name="csv" id="csv" accept=".csv" required hidden>
+                            <div id="file-info" class="text-muted small mt-2"></div>
+                        </div>
+                    </x-slot:content>
+                </x-modal.modal>
+                @endcan
+        
+                @can('importar_membros')
+                <bottom class="btn btn-outline-dark w-100 btn-sm rounded-2" data-bs-toggle="modal"
+                    data-bs-target="#importar-membros" aria-expanded="false" aria-controls="modalExample">Importar membros
+                </bottom>
+                <x-modal.modal id="importar-membros" class="modal-center" title="Importar dados"
+                    route="{{route('membros.previewImport')}}" textBtnClose="Cancelar" textBtnSave="Importar"
+                    classBtnSave="btn-primary">
+                    <x-slot:content>
+                        <div class="card-body mb-3">
+                            <h3>Atenção para a Importação de Dados</h3>
+                            <p>
+                                Para garantir que a importação ocorra sem erros, seu arquivo <strong>.csv</strong> precisa
+                                conter as
+                                seguintes <strong>10 colunas</strong>, exatamente nesta ordem e com esta nomenclatura no
+                                cabeçalho:
+                            </p>
+        
+                            <div class="mb-3">
+                                <span class="badge badge-dark mb-1">ID_PROJETO</span>
+                                <span class="badge badge-dark mb-1">ID_PESSOA</span>
+                                <span class="badge badge-dark mb-1">NOME</span>
+                                <span class="badge badge-dark mb-1">SEXO</span>
+                                <span class="badge badge-dark mb-1">E-MAIL</span>
+                                <span class="badge badge-dark mb-1">DATA_INICIO</span>
+                                <span class="badge badge-dark mb-1">DATA_FIM</span>
+                                <span class="badge badge-dark mb-1">STATUS</span>
+                                <span class="badge badge-dark mb-1">TIPO_MEMBRO</span>
+                                <span class="badge badge-dark mb-1">CATEGORIA_MEMBRO</span>
+                            </div>
+        
+                            <p><strong class="text-danger">Importante:</strong> O cabeçalho (primeira linha) do arquivo deve ter
+                                <strong>exatamente</strong> os nomes acima.
+                            </p>
+                        </div>
+                        <div id="drop-area-2"
+                            class="rounded-4 d-flex flex-column justify-content-center align-items-center bg-light p-4 text-center"
+                            style="height: 150px; cursor: pointer; border: dashed 2px gray">
+                            <p class="text-muted mb-2">Arraste o .csv aqui ou clique para selecionar</p>
+                            <p class="text-red mb-2">Máximo 10MB</p>
+                            <input type="file" name="csv" id="csv-2" accept=".csv" required hidden>
+                            <div id="file-info-2" class="text-muted small mt-2"></div>
+                        </div>
+                    </x-slot:content>
+                </x-modal.modal>
+                @endcan
             </div>
-
-            <form method="POST" action="{{ route('dados.sincronizar') }}">
-                @csrf
-                <button type="submit" class="btn btn-primary" id="btnSincronizar">
-                    <i class="fas fa-sync-alt"></i>
-                    Sincronizar
-                </button>
-            </form>
+        </div>
+    </div>
+    <div class="col-12 col-md-9">
+        <div class="mb-3 card">
+            <div class="card-body d-flex justify-content-between align-items-center p-3">
+                <div class="alert p-2 my-auto">
+                    Para sincronizar, certifique-se de que está conectado a rede local da UFCA.
+                </div>
+                <form method="POST" action="{{ route('dados.sincronizar') }}" class="p-0">
+                    @csrf
+                    <button type="submit" class="btn btn-green" id="btnSincronizar">
+                        <i class="icon ti ti-refresh"></i>
+                        Sincronizar
+                    </button>
+                </form>
+            </div>
         </div>
 
         <div id="listaSincronizacoes" class="row g-3">
@@ -116,7 +235,7 @@
           botao.disabled = ativos;
           botao.innerHTML = ativos
               ? '<span class="spinner-border spinner-border-sm me-1"></span> Sincronizando...'
-              : '<i class="fas fa-sync-alt"></i> Sincronizar';
+              : '<i class="icon ti ti-refresh"></i> Sincronizar';
 
           lista.replaceChildren();
 

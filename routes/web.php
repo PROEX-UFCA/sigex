@@ -166,10 +166,10 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index')->middleware(['auth' => 'permission:ver_dashboard']);
     
-    Route::group(['middleware' => ['auth', 'permission:editar_acoes_em_massa']], function () {
-        Route::get('edicao_em_massa', [SuportActionController::class, 'indexEditLot'])->name('actions.editLot');
-        Route::post('edicao_em_massa', [SuportActionController::class, 'storeEditLot'])->name('actions.editLotStore');
-    });
+    // Route::group(['middleware' => ['auth', 'permission:editar_acoes_em_massa']], function () {
+    //     Route::get('edicao_em_massa', [SuportActionController::class, 'indexEditLot'])->name('actions.editLot');
+    //     Route::post('edicao_em_massa', [SuportActionController::class, 'storeEditLot'])->name('actions.editLotStore');
+    // });
 
     Route::get('/gerenciar/dados', [DadosController::class, 'index'])->name('dados.index')->middleware(['auth' => 'permission:sincronizar_dados']);
     Route::post('/dados/sincronizar', [DadosController::class, 'iniciar'])->name('dados.sincronizar')->middleware(['auth' => 'permission:sincronizar_dados']);

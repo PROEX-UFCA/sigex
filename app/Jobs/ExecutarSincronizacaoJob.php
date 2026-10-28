@@ -59,9 +59,9 @@ class ExecutarSincronizacaoJob implements ShouldQueue
             foreach ($dados as $item) {
                 $item = (object) $item;
 
-                $centroDepartamento = !empty($item->sigla) ? Parametro::firstOrCreate([
+                $centroDepartamento = !empty($item->centro_departamento_sigla) ? Parametro::firstOrCreate([
                     'function' => 'CENTRO_DEPARTAMENTO_SIGLA',
-                    'value' => mb_strtoupper(trim($item->sigla), 'UTF-8'),
+                    'value' => mb_strtoupper(trim($item->centro_departamento_sigla), 'UTF-8'),
                 ]) : null;
 
                 $tipoAcao = !empty($item->tipo_acao) ? Parametro::firstOrCreate([
@@ -74,9 +74,9 @@ class ExecutarSincronizacaoJob implements ShouldQueue
                     'value' => mb_strtoupper(trim($item->area_tematica), 'UTF-8'),
                 ]) : null;
 
-                $modalidade = !empty($item->edital) ? Parametro::firstOrCreate([
+                $modalidade = !empty($item->modalidade_edital) ? Parametro::firstOrCreate([
                     'function' => 'MODALIDADE_EDITAL',
-                    'value' => mb_strtoupper(trim($item->edital), 'UTF-8'),
+                    'value' => mb_strtoupper(trim($item->modalidade_edital), 'UTF-8'),
                 ]) : null;
 
                 $situacao = !empty($item->situacao) ? Parametro::firstOrCreate([
@@ -94,23 +94,23 @@ class ExecutarSincronizacaoJob implements ShouldQueue
                     [
                         'ano' => $item->ano ?? null,
                         'titulo' => $item->titulo ?? null,
-                        'modalidade_edital' => $item->edital ?? null,
+                        'modalidade_edital' => $modalidade->value ?? null,
                         'bolsas_solicitadas' => $item->bolsas_solicitadas ?? 0,
                         'bolsas_concedidas' => $item->bolsas_concedidas ?? 0,
                         'financiamento_interno' => $item->financiamento_interno ?? null,
                         'financiamento_externo' => $item->financiamento_externo ?? null,
-                        'situacao' => $item->situacao ?? null,
+                        'situacao' => $situacao->value ?? null,
                         'data_cadastro' => $item->data_cadastro ?? null,
                         'data_inicio' => $item->data_inicio ?? null,
                         'data_fim' => $item->data_fim ?? null,
                         'data_atualizacao' => $item->data_atualizacao ?? null,
-                        'centro_departamento_sigla' => $item->sigla ?? null,
-                        'tipo_acao' => $item->tipo_acao ?? null,
-                        'area_tematica' => $item->area_tematica ?? null,
+                        'centro_departamento_sigla' => $centroDepartamento->value ?? null,
+                        'tipo_acao' => $tipoAcao->value ?? null,
+                        'area_tematica' => $areaTematica->value ?? null,
                         'resumo' => $item->resumo ?? null,
                         'palavras_chave' => $item->palavras_chave ?? null,
                         'ods' => $item->ods ?? null,
-                        'contexto' => $item->contexto ?? null,
+                        'contexto' => $contexto->value ?? null,
                     ]
                 );
             }
@@ -195,6 +195,8 @@ class ExecutarSincronizacaoJob implements ShouldQueue
                     );
                 }
 
+                $id_usuario = null;
+
                 if($item->email != null){
                     $usuario = User::firstOrCreate(
                         ['email' => $item->email],
@@ -209,26 +211,27 @@ class ExecutarSincronizacaoJob implements ShouldQueue
                     );
 
                     $usuario->assignRole('Perfil Acadêmico');
-    
-                    $id_acao = Acao::where('id_projeto', $item->id_projeto)->first()->id;
-    
-                    Equipe_Acao::updateOrCreate(
-                        [
-                            'id_projeto' => $item->id_projeto, 
-                            'id_pessoa' => $item->id_pessoa, 
-                        ],
-                        [
-                            "id_usuario" =>$usuario->uuid,
-                            "id_acao" =>$id_acao,
-                            'tipo_membro' => $item->tipo_membro, 
-                            'categoria_membro' => $item->categoria_membro, 
-                            'status' => $item->status, 
-                            'data_inicio' => $item->data_inicio, 
-                            'data_fim' => $item->data_fim,
-                            'sexo' => $item->sexo, 
-                        ]
-                    );
+                    $id_usuario = $usuario->uuid;
                 }
+
+                $id_acao = Acao::where('id_projeto', $item->id_projeto)->first()->id;
+
+                Equipe_Acao::updateOrCreate(
+                    [
+                        'id_projeto' => $item->id_projeto, 
+                        'id_pessoa' => $item->id_pessoa, 
+                    ],
+                    [
+                        "id_usuario" => $id_usuario,
+                        "id_acao" =>$id_acao,
+                        'tipo_membro' => $item->tipo_membro, 
+                        'categoria_membro' => $item->categoria_membro, 
+                        'status' => $item->status, 
+                        'data_inicio' => $item->data_inicio, 
+                        'data_fim' => $item->data_fim,
+                        'sexo' => $item->sexo, 
+                    ]
+                );
             }
 
             $resultados['membros'] = count($dados);
