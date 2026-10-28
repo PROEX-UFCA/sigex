@@ -231,7 +231,7 @@
         </header>
         <div class="page-wrapper">
             <div class="container">
-                @if (!session()->has('login_modal') && !session()->has('first_access_modal') && !$errors->has('email') && !$errors->has('password'))
+                @if (!session()->has('login_modal') && !session()->has('first_access_modal') && !$errors->has('email') && !$errors->has('password') && !$errors->has('g-recaptcha-response'))
                     @include('components.message.message')
                 @endif
                 @yield('content')
@@ -286,7 +286,8 @@
                             <input type="password" class="form-control" id="login-password" name="password"
                                 placeholder="Digite sua senha" required>
                         </div>
-                        @if (session()->has('login_modal') || $errors->has('email') || $errors->has('password'))
+                        <x-captcha action="login" />
+                        @if (session()->has('login_modal') || $errors->has('email') || $errors->has('password') || $errors->has('g-recaptcha-response'))
                             @include('components.message.message')
                         @endif
                     </div>
@@ -347,11 +348,11 @@
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
 
-        @if (session()->has('login_modal') || $errors->has('email') || $errors->has('password'))
+        @if (session()->has('login_modal') || $errors->has('email') || $errors->has('password') || $errors->has('g-recaptcha-response'))
             bootstrap.Modal.getOrCreateInstance(document.getElementById('loginModal')).show();
         @endif
 
-        @if (session()->has('first_access_modal') || $errors->hasAny(['is_external_institution', 'aceite', 'nome', 'cnpj', 'cep', 'logradouro', 'numero', 'complemento', 'telefone_contato']))
+        @if (session()->has('first_access_modal') || $errors->hasAny(['is_external_institution', 'aceite', 'nome', 'cnpj', 'cep', 'logradouro', 'numero', 'complemento', 'telefone_contato', 'captcha_first_access']))
             bootstrap.Modal.getOrCreateInstance(document.getElementById('firstAccessModal')).show();
         @endif
 

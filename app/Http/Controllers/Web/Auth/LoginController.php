@@ -40,37 +40,34 @@ class LoginController extends Controller
 
     public function store(StoreRequest $request)
     {
+        $key = 'login|' . Str::lower($request->input('email')) . '|' . $request->ip();
 
-        $key = 'login|' . $request->ip();
-
-        if (RateLimiter::tooManyAttempts($key, 3)) {
+        if (RateLimiter::tooManyAttempts($key, 5)) {
             $seconds = RateLimiter::availableIn($key);
 
             return back()->with('error', "Muitas tentativas. Tente novamente em {$seconds} segundos.")
-                ->with('login_modal', true);
+                ->with('login_modal', true)->withInput();
         }
-
-        RateLimiter::hit($key, 300);
 
         $credentials = $request->only(['email', 'password']);
 
         if (Auth::attempt($credentials)) {
             if (Auth::user()->status == 1) {
+                RateLimiter::clear($key);
+                $request->session()->regenerate();
+
                 session(['last_login_temp' => Auth::user()->last_login_at]);
                 $this->userRepository->updateLastLogin(Auth::user()->uuid);
 
-                if(Auth::user()->id_instituicao != null){
-                    return redirect()->route('vitrine.home')->with('success', 'Você está logado.');
-                }
-                else{
-                return redirect()->route('home.index')->with('success', 'Você está logado.');
-                }
-            } else {
-                Auth::logout();
-                return back()->with("error", "verifique se o email e senha foram digitados corretamente.")
-                    ->with('login_modal', true)->withInput();
+                return Auth::user()->id_instituicao != null
+                    ? redirect()->route('vitrine.home')->with('success', 'Você está logado.')
+                    : redirect()->route('home.index')->with('success', 'Você está logado.');
             }
+
+            Auth::logout();
         }
+
+        RateLimiter::hit($key, 60);
 
         return back()->with("error", "verifique se o email e senha foram digitados corretamente.")
             ->with('login_modal', true)->withInput();

@@ -15,6 +15,7 @@
             <input type="email" class="form-control" name="email" placeholder="Digite seu email"
               value="{{ old('email') }}" required>
           </div>
+          <x-captcha action="reset" />
           <div class="form-footer">
             <button type="submit" class="btn btn-primary w-100">
               <i class="icon ti ti-mail"></i>

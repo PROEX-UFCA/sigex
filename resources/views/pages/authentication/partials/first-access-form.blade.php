@@ -1,5 +1,6 @@
 <form action="{{ route('access.store') }}" method="post" autocomplete="off" novalidate>
   @csrf
+  <x-captcha action="first_access" name="captcha_first_access" />
   <div class="mb-3">
     <fieldset class="m-0 p-0 border-0">
       <legend class="form-label fw-semibold mb-3">Como você deseja participar das ações de extensão?</legend>

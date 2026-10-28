@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('perfil', [ProfileController::class, 'index'])->name('profile.index');
     Route::post('perfil', [ProfileController::class, 'update'])->name('profile.store');
+    Route::post('perfil/senha', [ProfileController::class, 'updatePassword'])->name('profile.password');
     
     Route::group(['middleware' => ['auth', 'permission:adicionar_e_editar_grupo']], function () {
         Route::get('gupos', [RolesController::class, 'index'])->name('roles.index');

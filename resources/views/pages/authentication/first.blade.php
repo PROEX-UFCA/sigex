@@ -8,6 +8,7 @@
         <h2 class="h2 text-center mb-4">Primeiro acesso</h2>
         <form action="{{ route('access.store') }}" method="post" autocomplete="off" novalidate>
           @csrf
+          <x-captcha action="first_access" name="captcha_first_access" />
           <div class="mb-3">
             <label class="form-label">Você tem vínculo institucional com a UFCA?</label>
             <div class="form-selectgroup">

@@ -21,7 +21,7 @@
 </div>
 <div class="page-body row">
   <div class="col-12 col-md-8">
-    <form action="{{ route('profile.store') }}" method="post" class="row">
+    <form action="{{ route('profile.store') }}" method="post" class="row" autocomplete="off">
       @csrf
       <div class="card">
         <div class="card-body row">
@@ -86,7 +86,11 @@
             <button type="submit" class="btn btn-success ms-auto">Salvar alterações</button>
           </div>
         </div>
-      </div>
+            </div>
+    </form>
+
+    <form action="{{ route('profile.password') }}" method="post" class="row">
+      @csrf
       <div class="card mt-3">
         <div class="card-body row">
           <div class="card-title">Alterar senha</div>
@@ -97,7 +101,7 @@
             </label>
             <div class="input-group input-group-flat">
               <input type="password" class="form-control" name="actual_password" id="actual_password"
-                placeholder="Digite sua senha atual" value="{{ old('actual_password') }}">
+                placeholder="Digite sua senha atual" autocomplete="current-password">
               <span class="input-group-text">
                 <a href="#" class="link-secondary text-decoration-none" onclick="change('actual_password')">
                   <i class="ti ti-eye" style="font-size: 20px;"></i>
@@ -112,7 +116,7 @@
             </label>
             <div class="input-group input-group-flat">
               <input type="password" class="form-control" name="password" id="password"
-                placeholder="Digite a nova senha" value="{{ old('password') }}">
+                placeholder="Digite a nova senha" autocomplete="new-password">
               <span class="input-group-text">
                 <a href="#" class="link-secondary text-decoration-none" onclick="change('password')">
                   <i class="ti ti-eye" style="font-size: 20px;"></i>
@@ -127,7 +131,7 @@
             </label>
             <div class="input-group input-group-flat">
               <input type="password" class="form-control" name="password_confirm" id="password_confirm"
-                placeholder="Confirme a nova senha" value="{{ old('password_confirm') }}">
+                placeholder="Confirme a nova senha" autocomplete="new-password">
               <span class="input-group-text">
                 <a href="#" class="link-secondary text-decoration-none" onclick="change('password_confirm')">
                   <i class="ti ti-eye" style="font-size: 20px;"></i>
@@ -137,7 +141,7 @@
           </div>
 
           <div class="d-flex w-100 justify-content-between mt-3">
-            <button type="submit" class="btn btn-success ms-auto">Salvar alterações</button>
+            <button type="submit" class="btn btn-success ms-auto">Alterar senha</button>
           </div>
         </div>
       </div>

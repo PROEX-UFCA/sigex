@@ -45,6 +45,7 @@
               </span>
             </div>
           </div>
+          <x-captcha action="login" />
           <div class="form-footer">
             <button type="submit" class="btn btn-yellow w-100">Fazer login</button>
           </div>
