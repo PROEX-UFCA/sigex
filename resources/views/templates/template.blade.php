@@ -110,7 +110,7 @@
               </x-navbar.navbar-item>
               @endcan
 
-              @canany(['ver_formulários', 'ver_relatórios'])
+              @canany(['ver_todas_as_ações', 'ver_usuários', 'gerenciar_vitrine'])
               <x-navbar.navbar-item route="" title="Módulos"
                 isActive="{{ request()->routeIs(['actions.index', 'actions.editLot', 'actions.create', 'users.*', 'forms.index', 'sessions.*', 'report.*', 'vitrine.*']) ? true : false }}"
                 icon="ti-hexagons">
@@ -132,14 +132,11 @@
               <x-navbar.navbar-item route="" title="Ferramentas" isActive="{{ request()->routeIs([]) ? true : false }}"
                 icon="ti-tools">
                 <x-slot:links>
-                  @can('ver_formulários')
-                  <a class="dropdown-item" href="{{ route('forms.index') }}">Formulários</a>
-                  @endcan
                 </x-slot:links>
               </x-navbar.navbar-item>
               @endcanany --}}
 
-              @canany(['adicionar_e_editar_grupo', 'ver_todos_os_logs', 'ver_seus_logs'])
+              @canany(['adicionar_e_editar_grupo', 'ver_todos_os_logs', 'ver_seus_logs', 'sincronizar_dados'])
               <x-navbar.navbar-item route="" title="Dev Tools"
                 isActive="{{ request()->routeIs(['roles.*', 'permissions.*', 'logs.*', 'dados.index']) ? true : false }}"
                 icon="ti-code">

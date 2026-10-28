@@ -68,29 +68,27 @@ Route::middleware(['auth'])->group(function () {
         Route::get('usuarios/atividade', [LogsController::class, 'getUserLogs'])->name('logs.user');
     });
     
-    Route::group(['middleware' => ['auth', 'permission:ver_todas_as_ações']], function () {
-        Route::get('acoes', [ActionController::class, 'index'])->name('actions.index');
-        
-        Route::get('acoes/adicionar', [ActionController::class, 'create'])->name('actions.create')->middleware(['auth' => 'permission:adicionar_ação']);
+    Route::get('acoes', [ActionController::class, 'index'])->name('actions.index')->middleware(['auth' => 'permission:ver_todas_as_ações']);
+    
+    Route::get('acoes/adicionar', [ActionController::class, 'create'])->name('actions.create')->middleware(['auth' => 'permission:adicionar_ação']);
 
-        Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);
+    Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);
 
-        Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.previewImport')->middleware(['auth' => 'permission:importar_ações']);
+    Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.previewImport')->middleware(['auth' => 'permission:importar_ações']);
 
-        Route::get('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
+    Route::get('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
 
-        Route::post('acoes/importar/salvar', [ActionController::class, 'storeImport'])->name('actions.storeImport')->middleware(['auth' => 'permission:importar_ações']);
-        
-        Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);
+    Route::post('acoes/importar/salvar', [ActionController::class, 'storeImport'])->name('actions.storeImport')->middleware(['auth' => 'permission:importar_ações']);
+    
+    Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);
 
-        Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);
+    Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);
 
-        Route::get('membros/importar', [MembersController::class, 'previewImport'])->middleware(['auth' => 'permission:importar_membros']);
+    Route::get('membros/importar', [MembersController::class, 'previewImport'])->middleware(['auth' => 'permission:importar_membros']);
 
-        Route::post('membros/importar', [MembersController::class, 'previewImport'])->name('membros.previewImport')->middleware(['auth' => 'permission:importar_membros']);
+    Route::post('membros/importar', [MembersController::class, 'previewImport'])->name('membros.previewImport')->middleware(['auth' => 'permission:importar_membros']);
 
-        Route::post('importar/membros/salvar', [MembersController::class, 'storeImport'])->name('membros.storeImport')->middleware(['auth' => 'permission:importar_membros']);
-    });
+    Route::post('importar/membros/salvar', [MembersController::class, 'storeImport'])->name('membros.storeImport')->middleware(['auth' => 'permission:importar_membros']);
         
     Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {
         Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
