@@ -128,20 +128,20 @@
               </x-navbar.navbar-item>
               @endcanany
 
-              @canany(['ver_formulários', 'ver_relatórios'])
+              {{-- @canany(['ver_formulários', 'ver_relatórios'])
               <x-navbar.navbar-item route="" title="Ferramentas" isActive="{{ request()->routeIs([]) ? true : false }}"
                 icon="ti-tools">
                 <x-slot:links>
-                  {{-- @can('ver_formulários')
+                  @can('ver_formulários')
                   <a class="dropdown-item" href="{{ route('forms.index') }}">Formulários</a>
-                  @endcan --}}
+                  @endcan
                 </x-slot:links>
               </x-navbar.navbar-item>
-              @endcanany
+              @endcanany --}}
 
               @canany(['adicionar_e_editar_grupo', 'ver_todos_os_logs', 'ver_seus_logs'])
               <x-navbar.navbar-item route="" title="Dev Tools"
-                isActive="{{ request()->routeIs(['roles.*', 'permissions.*', 'logs.*']) ? true : false }}"
+                isActive="{{ request()->routeIs(['roles.*', 'permissions.*', 'logs.*', 'dados.index']) ? true : false }}"
                 icon="ti-code">
                 <x-slot:links>
                   @can('adicionar_e_editar_grupo')
@@ -152,6 +152,9 @@
                   @endcan
                   @can('ver_seus_logs')
                   <a class="dropdown-item" href="{{ route('logs.user') }}">Sua atividade</a>
+                  @endcan
+                  @can('sincronizar_dados')
+                  <a class="dropdown-item" href="{{ route('dados.index') }}">Gerenciamento de dados</a>
                   @endcan
                 </x-slot:links>
               </x-navbar.navbar-item>

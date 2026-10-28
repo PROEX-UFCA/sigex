@@ -12,6 +12,7 @@ use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use App\Http\Controllers\Web\System\DashboardController;
 use App\Http\Controllers\Web\System\SuportActionController;
+use App\Http\Controllers\Web\Tools\DadosController;
 use App\Http\Controllers\Web\Vitrine\VitrineController;
 use App\Http\Controllers\Web\Vitrine\MatchController;
 use Illuminate\Support\Facades\Route;
@@ -164,11 +165,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar');
     
     Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index')->middleware(['auth' => 'permission:ver_dashboard']);
+    
+    // Route::group(['middleware' => ['auth', 'permission:editar_acoes_em_massa']], function () {
+    //     Route::get('edicao_em_massa', [SuportActionController::class, 'indexEditLot'])->name('actions.editLot');
+    //     Route::post('edicao_em_massa', [SuportActionController::class, 'storeEditLot'])->name('actions.editLotStore');
+    // });
 
-    Route::group(['middleware' => ['auth', 'permission:editar_acoes_em_massa']], function () {
-        Route::get('edicao_em_massa', [SuportActionController::class, 'indexEditLot'])->name('actions.editLot');
-        Route::post('edicao_em_massa', [SuportActionController::class, 'storeEditLot'])->name('actions.editLotStore');
-    });
+    Route::get('/gerenciar/dados', [DadosController::class, 'index'])->name('dados.index')->middleware(['auth' => 'permission:sincronizar_dados']);
+    Route::post('/dados/sincronizar', [DadosController::class, 'iniciar'])->name('dados.sincronizar')->middleware(['auth' => 'permission:sincronizar_dados']);
+    Route::get('/sincronizacoes/status', [DadosController::class, 'status'])->name('dados.status');
+
 });
 
 // VITRINE (PÚBLICO)
