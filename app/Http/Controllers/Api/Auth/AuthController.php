@@ -3,43 +3,53 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $dados = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+            'device_name' => ['nullable', 'string', 'max:255'],
         ]);
 
-        if (!Auth::guard('web')->attempt($credentials)) {
-            return response()->json(['message' => 'Credenciais inválidas'], 401);
+        $usuario = User::where('email', $dados['email'])->first();
+
+        if (
+            !$usuario ||
+            !Hash::check($dados['password'], $usuario->password)
+        ) {
+            return response()->json([
+                'message' => 'Credenciais inválidas.',
+            ], 401);
         }
 
-        $user = Auth::guard('web')->user();
+        $token = $usuario->createToken(
+            $dados['device_name'] ?? 'sigex-sgbd-api'
+        );
+
         return response()->json([
-            'role' => $user->getRoleNames()->first(),
+            'message' => 'Login realizado com sucesso.',
+            'token_type' => 'Bearer',
+            'token' => $token->plainTextToken,
+            'usuario' => [
+                'id' => $usuario->id,
+                'name' => $usuario->name,
+                'email' => $usuario->email,
+            ],
         ]);
     }
 
     public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logout realizado']);
-    }
-
-    public function me(Request $request)
-    {
         return response()->json([
-            'role' => $request->user()->getRoleNames()->first(),
+            'message' => 'Logout realizado com sucesso.',
         ]);
     }
 }
