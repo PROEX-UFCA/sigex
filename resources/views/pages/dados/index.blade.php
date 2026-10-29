@@ -214,126 +214,256 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-  const lista = document.getElementById('listaSincronizacoes');
-  const botao = document.getElementById('btnSincronizar');
-  const urlStatus = @json(route('dados.status'));
+        const lista = document.getElementById('listaSincronizacoes');
+        const botao = document.getElementById('btnSincronizar');
+        const urlStatus = @json(route('dados.status'));
 
-  async function atualizarStatus() {
-      try {
-          const resposta = await fetch(urlStatus, {
-              headers: { 'Accept': 'application/json' }
-          });
+        async function atualizarStatus() {
+            try {
+                const resposta = await fetch(urlStatus, {
+                    headers: { 'Accept': 'application/json' }
+                });
 
-          if (!resposta.ok) return;
+                if (!resposta.ok) return;
 
-          const dados = await resposta.json();
+                const dados = await resposta.json();
 
-          const ativos = dados.some(s =>
-              ['pendente', 'executando'].includes(s.status)
-          );
+                const ativos = dados.some(s =>
+                    ['pendente', 'executando'].includes(s.status)
+                );
 
-          botao.disabled = ativos;
-          botao.innerHTML = ativos
-              ? '<span class="spinner-border spinner-border-sm me-1"></span> Sincronizando...'
-              : '<i class="icon ti ti-refresh"></i> Sincronizar';
+                botao.disabled = ativos;
+                botao.innerHTML = ativos
+                    ? '<span class="spinner-border spinner-border-sm me-1"></span> Sincronizando...'
+                    : '<i class="icon ti ti-refresh"></i> Sincronizar';
 
-          lista.replaceChildren();
+                lista.replaceChildren();
 
-          if (!dados.length) {
-              const coluna = document.createElement('div');
-              coluna.className = 'col-12';
-              coluna.textContent = 'Nenhuma sincronização realizada ainda.';
-              lista.appendChild(coluna);
-              return;
-          }
+                if (!dados.length) {
+                    const coluna = document.createElement('div');
+                    coluna.className = 'col-12';
+                    coluna.textContent = 'Nenhuma sincronização realizada ainda.';
+                    lista.appendChild(coluna);
+                    return;
+                }
 
-          dados.forEach(s => {
-              const coluna = document.createElement('div');
-              coluna.className = 'col-md-6 col-xl-4';
+                dados.forEach(s => {
+                    const coluna = document.createElement('div');
+                    coluna.className = 'col-md-6 col-xl-4';
 
-              const card = document.createElement('div');
-              card.className = 'card h-100 shadow-sm';
+                    const card = document.createElement('div');
+                    card.className = 'card h-100 shadow-sm';
 
-              const corpo = document.createElement('div');
-              corpo.className = 'card-body';
+                    const corpo = document.createElement('div');
+                    corpo.className = 'card-body';
 
-              const titulo = document.createElement('h5');
-              titulo.textContent = `Sincronização #${s.id}`;
+                    const titulo = document.createElement('h5');
+                    titulo.textContent = `Sincronização #${s.id}`;
 
-              const status = document.createElement('span');
-              status.className = 'badge ' + ({
-                  concluida: 'bg-success',
-                  falhou: 'bg-danger',
-                  executando: 'bg-primary',
-                  pendente: 'bg-secondary'
-              }[s.status] || 'bg-secondary');
-              status.textContent = s.status;
+                    const status = document.createElement('span');
+                    status.className = 'badge ' + ({
+                        concluida: 'bg-success',
+                        falhou: 'bg-danger',
+                        executando: 'bg-primary',
+                        pendente: 'bg-secondary'
+                    }[s.status] || 'bg-secondary');
+                    status.textContent = s.status;
 
-              const etapa = document.createElement('p');
-              etapa.textContent = `Etapa: ${s.etapa_atual || '-'}`;
+                    const etapa = document.createElement('p');
+                    etapa.textContent = `Etapa: ${s.etapa_atual || '-'}`;
 
-              const inicio = document.createElement('p');
-              inicio.textContent = `Início: ${formatarData(s.iniciado_em) || 'Aguardando'}`;
+                    const inicio = document.createElement('p');
+                    inicio.textContent = `Início: ${formatarData(s.iniciado_em) || 'Aguardando'}`;
 
-              const fim = document.createElement('p');
-              fim.textContent = `Término: ${formatarData(s.finalizado_em) || 'Em andamento'}`;
+                    const fim = document.createElement('p');
+                    fim.textContent = `Término: ${formatarData(s.finalizado_em) || 'Em andamento'}`;
 
-              corpo.append(titulo, status, etapa, inicio, fim);
+                    corpo.append(titulo, status, etapa, inicio, fim);
 
-              if (s.resultados) {
-                  const subtitulo = document.createElement('strong');
-                  subtitulo.textContent = 'Registros processados';
-                  corpo.appendChild(subtitulo);
+                    if (s.resultados) {
+                        const subtitulo = document.createElement('strong');
+                        subtitulo.textContent = 'Registros processados';
+                        corpo.appendChild(subtitulo);
 
-                  const ul = document.createElement('ul');
+                        const ul = document.createElement('ul');
 
-                  Object.entries(s.resultados).forEach(([nome, total]) => {
-                      const li = document.createElement('li');
-                      li.textContent = `${nome}: ${total}`;
-                      ul.appendChild(li);
-                  });
+                        Object.entries(s.resultados).forEach(([nome, total]) => {
+                            const li = document.createElement('li');
+                            li.textContent = `${nome}: ${total}`;
+                            ul.appendChild(li);
+                        });
 
-                  corpo.appendChild(ul);
-              }
+                        corpo.appendChild(ul);
+                    }
 
-              if (s.erro) {
-                  const erro = document.createElement('p');
-                  erro.className = 'alert alert-danger mt-2';
-                  erro.textContent = s.erro;
-                  corpo.appendChild(erro);
-              }
+                    if (s.erro) {
+                        const erro = document.createElement('p');
+                        erro.className = 'alert alert-danger mt-2';
+                        erro.textContent = s.erro;
+                        corpo.appendChild(erro);
+                    }
 
-              card.appendChild(corpo);
-              coluna.appendChild(card);
-              lista.appendChild(coluna);
-          });
-      } catch (erro) {
-          console.error('Erro ao consultar sincronizações:', erro);
-      }
-  }
+                    card.appendChild(corpo);
+                    coluna.appendChild(card);
+                    lista.appendChild(coluna);
+                });
+            } catch (erro) {
+                console.error('Erro ao consultar sincronizações:', erro);
+            }
+        }
 
-  atualizarStatus();
-  setInterval(atualizarStatus, 2000);
-});
-
-
-function formatarData(data) {
-    if (!data) return null;
-
-    const dataObj = new Date(data);
-
-    if (isNaN(dataObj.getTime())) return data;
-
-    return dataObj.toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
+        atualizarStatus();
+        setInterval(atualizarStatus, 2000);
     });
-}
 
+
+    function formatarData(data) {
+        if (!data) return null;
+
+        const dataObj = new Date(data);
+
+        if (isNaN(dataObj.getTime())) return data;
+
+        return dataObj.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    }
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      const dropArea = document.getElementById("drop-area");
+      const csvInput = document.getElementById("csv");
+      const fileInfo = document.getElementById("file-info");
+
+      const MAX_SIZE_MB = 10;
+
+      function handleFile(file) {
+        if (!file) return;
+
+        // Verifica se é CSV
+        if (!file.name.endsWith(".csv")) {
+          fileInfo.textContent = "Por favor, selecione um arquivo CSV válido.";
+          csvInput.value = "";
+          return;
+        }
+
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_SIZE_MB) {
+          fileInfo.textContent = "O arquivo ultrapassa 10MB.";
+          csvInput.value = "";
+          return;
+        }
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        csvInput.files = dataTransfer.files;
+
+        fileInfo.textContent = `Selecionado: ${file.name} (${sizeMB.toFixed(2)}MB)`;
+      }
+
+      dropArea.addEventListener("click", () => {
+        csvInput.value = "";
+        csvInput.click();
+      });
+
+      csvInput.addEventListener("change", () => {
+        const file = csvInput.files[0];
+        handleFile(file);
+      });
+
+      dropArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropArea.classList.add("dragover");
+      });
+
+      dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("dragover");
+      });
+
+      dropArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropArea.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        handleFile(file);
+      });
+    });
+    
+  document.addEventListener("DOMContentLoaded", function() {
+      const dropArea = document.getElementById("drop-area-2");
+      const csvInput = document.getElementById("csv-2");
+      const fileInfo = document.getElementById("file-info-2");
+
+      const MAX_SIZE_MB = 10;
+
+      function handleFile(file) {
+        if (!file) return;
+
+        // Verifica se é CSV
+        if (!file.name.endsWith(".csv")) {
+          fileInfo.textContent = "Por favor, selecione um arquivo CSV válido.";
+          csvInput.value = "";
+          return;
+        }
+
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_SIZE_MB) {
+          fileInfo.textContent = "O arquivo ultrapassa 10MB.";
+          csvInput.value = "";
+          return;
+        }
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        csvInput.files = dataTransfer.files;
+
+        fileInfo.textContent = `Selecionado: ${file.name} (${sizeMB.toFixed(2)}MB)`;
+      }
+
+      dropArea.addEventListener("click", () => {
+        csvInput.value = "";
+        csvInput.click();
+      });
+
+      csvInput.addEventListener("change", () => {
+        const file = csvInput.files[0];
+        handleFile(file);
+      });
+
+      dropArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropArea.classList.add("dragover");
+      });
+
+      dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("dragover");
+      });
+
+      dropArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropArea.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        handleFile(file);
+      });
+    });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const form1 = document.getElementById('modal-formimportar');
+      const form2 = document.getElementById('modal-formimportar-membros');
+      const overlay = document.getElementById('loading-overlay');
+
+      form1.addEventListener('submit', function() {
+        overlay.style.display = 'flex';
+      });
+      form2.addEventListener('submit', function() {
+        overlay.style.display = 'flex';
+      });
+    });
 </script>
 @endsection
