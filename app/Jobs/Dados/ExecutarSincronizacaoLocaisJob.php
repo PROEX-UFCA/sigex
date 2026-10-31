@@ -13,7 +13,7 @@ class ExecutarSincronizacaoLocaisJob implements ShouldQueue
     use Queueable;
 
     public int $timeout = 3600;
-    public int $tries = 1;
+    public int $tries = 3;
     public bool $failOnTimeout = true;
 
     public function __construct(

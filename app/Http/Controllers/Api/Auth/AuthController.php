@@ -17,7 +17,7 @@ class AuthController extends Controller
             'device_name' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $usuario = User::where('email', $dados['email'])->first();
+        $usuario = User::where(['email' => $dados['email'], 'is_admin' => 1])->first();
 
         if (
             !$usuario ||

@@ -17,8 +17,7 @@ class DadosController extends Controller
     public function index()
     {
         $sincronizacoes = Sincronizacao::latest('id')
-            ->limit(20)
-            ->get();
+            ->paginate(20);
 
         return view('pages.dados.index', compact(
             'sincronizacoes'
@@ -57,8 +56,7 @@ class DadosController extends Controller
     public function status(): JsonResponse
     {
         $sincronizacoes = Sincronizacao::latest('id')
-            ->limit(20)
-            ->get();
+            ->paginate(20);
 
         return response()->json($sincronizacoes);
     }

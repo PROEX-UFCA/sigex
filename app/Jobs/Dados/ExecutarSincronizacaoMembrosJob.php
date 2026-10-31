@@ -17,7 +17,7 @@ class ExecutarSincronizacaoMembrosJob implements ShouldQueue
     use Queueable;
 
     public int $timeout = 3600;
-    public int $tries = 1;
+    public int $tries = 3;
     public bool $failOnTimeout = true;
 
     public function __construct(
@@ -32,6 +32,7 @@ class ExecutarSincronizacaoMembrosJob implements ShouldQueue
 
         $resultados = [];
         $etapaAtual = 'Inicializando - POST';
+        $indiceAtual = 0;
 
         try {
             $sincronizacao->update([
@@ -54,8 +55,9 @@ class ExecutarSincronizacaoMembrosJob implements ShouldQueue
             $categoriasReq = [];
             $sexosReq = [];
             $statusReq = [];
-
-            foreach ($dados as $item) {
+            
+            foreach ($dados as $indice => $item) {
+                $indiceAtual = $indice;
                 $item = (object) $item;
                 $agora = now();
 
@@ -108,22 +110,24 @@ class ExecutarSincronizacaoMembrosJob implements ShouldQueue
 
                 $id_acao = Acao::where('id_projeto', $item->id_projeto)->first()->id;
 
-                Equipe_Acao::updateOrCreate(
-                    [
-                        'id_projeto' => $item->id_projeto, 
-                        'id_pessoa' => $item->id_pessoa, 
-                    ],
-                    [
-                        "id_usuario" => $id_usuario,
-                        "id_acao" =>$id_acao,
-                        'tipo_membro' => $item->tipo_membro, 
-                        'categoria_membro' => $item->categoria_membro, 
-                        'status' => $item->status, 
-                        'data_inicio' => $item->data_inicio, 
-                        'data_fim' => $item->data_fim,
-                        'sexo' => $item->sexo, 
-                    ]
-                );
+                if($id_acao){
+                    Equipe_Acao::updateOrCreate(
+                        [
+                            'id_projeto' => $item->id_projeto, 
+                            'id_pessoa' => $item->id_pessoa, 
+                        ],
+                        [
+                            "id_usuario" => $id_usuario,
+                            "id_acao" =>$id_acao,
+                            'tipo_membro' => $item->tipo_membro, 
+                            'categoria_membro' => $item->categoria_membro, 
+                            'status' => $item->status, 
+                            'data_inicio' => $item->data_inicio, 
+                            'data_fim' => $item->data_fim,
+                            'sexo' => $item->sexo, 
+                        ]
+                    );
+                }
             }
 
             $resultados['membros'] = count($dados);
@@ -153,7 +157,10 @@ class ExecutarSincronizacaoMembrosJob implements ShouldQueue
             $sincronizacao->update([
                 'status' => 'falhou',
                 'etapa_atual' => $etapaAtual,
-                'resultados' => $resultados,
+                'resultados' => array_merge($resultados, [
+                    'indice_ultimo_registro' => $indiceAtual,
+                    'total_registros' => count($this->dados),
+                ]),
                 'erro' => mb_substr($e->getMessage(), 0, 60000),
                 'finalizado_em' => now(),
             ]);
