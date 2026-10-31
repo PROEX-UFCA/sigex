@@ -140,73 +140,77 @@
                 </form>
             </div>
         </div>
+        <div>
+            <div id="listaSincronizacoes" class="row g-3" style="position: relative; min-height: 200px;">
+                @forelse($sincronizacoes as $s)
+                {{-- <div class="col-md-6 col-xl-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>
+                                    Sincronização #{{ $s->id }}
+                                </strong>
 
-        <div id="listaSincronizacoes" class="row g-3">
-            @forelse($sincronizacoes as $s)
-            <div class="col-md-6 col-xl-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-3">
-                            <strong>
-                                Sincronização #{{ $s->id }}
-                            </strong>
+                                <span class="badge
+                    @if($s->status === 'concluida') bg-success
+                    @elseif($s->status === 'falhou') bg-danger
+                    @elseif($s->status === 'executando') bg-primary
+                    @else bg-secondary
+                    @endif">
+                                    {{ ucfirst($s->status) }}
+                                </span>
+                            </div>
 
-                            <span class="badge
-                @if($s->status === 'concluida') bg-success
-                @elseif($s->status === 'falhou') bg-danger
-                @elseif($s->status === 'executando') bg-primary
-                @else bg-secondary
-                @endif">
-                                {{ ucfirst($s->status) }}
-                            </span>
+                            <p class="mb-2">
+                                <strong>Etapa:</strong>
+                                {{ $s->etapa_atual }}
+                            </p>
+
+                            <p class="small text-muted mb-2">
+                                Início:
+                                {{ date('d/m/Y H:i:s', strtotime($s->iniciado_em))
+                                ?? 'Aguardando' }}
+                            </p>
+
+                            <p class="small text-muted mb-3">
+                                Término:
+                                {{ date('d/m/Y H:i:s', strtotime($s->finalizado_em))
+                                ?? 'Em andamento' }}
+                            </p>
+
+                            @if($s->resultados)
+                            <hr class="my-2">
+                            <strong>Registros processados</strong>
+
+                            <ul class="small mt-2 mb-0">
+                                @foreach($s->resultados as $etapa => $total)
+                                <li>
+                                    {{ ucfirst(str_replace('_', ' ', $etapa)) }}:
+                                    {{ $total }}
+                                </li>
+                                @endforeach
+                            </ul>
+                            @endif
+
+                            @if($s->erro)
+                            <div class="alert alert-danger mt-3 mb-0 small">
+                                {{ $s->erro }}
+                            </div>
+                            @endif
                         </div>
-
-                        <p class="mb-2">
-                            <strong>Etapa:</strong>
-                            {{ $s->etapa_atual }}
-                        </p>
-
-                        <p class="small text-muted mb-2">
-                            Início:
-                            {{ date('d/m/Y H:i:s', strtotime($s->iniciado_em))
-                            ?? 'Aguardando' }}
-                        </p>
-
-                        <p class="small text-muted mb-3">
-                            Término:
-                            {{ date('d/m/Y H:i:s', strtotime($s->finalizado_em))
-                            ?? 'Em andamento' }}
-                        </p>
-
-                        @if($s->resultados)
-                        <hr>
-                        <strong>Registros processados</strong>
-
-                        <ul class="small mt-2 mb-0">
-                            @foreach($s->resultados as $etapa => $total)
-                            <li>
-                                {{ ucfirst(str_replace('_', ' ', $etapa)) }}:
-                                {{ $total }}
-                            </li>
-                            @endforeach
-                        </ul>
-                        @endif
-
-                        @if($s->erro)
-                        <div class="alert alert-danger mt-3 mb-0 small">
-                            {{ $s->erro }}
-                        </div>
-                        @endif
+                    </div>
+                </div> --}}
+                @empty
+                <div class="col-12">
+                    <div class="alert alert-light border">
+                        Nenhuma sincronização realizada ainda.
                     </div>
                 </div>
+                @endforelse
             </div>
-            @empty
-            <div class="col-12">
-                <div class="alert alert-light border">
-                    Nenhuma sincronização realizada ainda.
-                </div>
+            <div class="d-flex justify-content-center mt-5">
+                {{ $sincronizacoes->links() }}
             </div>
-            @endforelse
         </div>
     </div>
 </div>
@@ -217,10 +221,15 @@
         const lista = document.getElementById('listaSincronizacoes');
         const botao = document.getElementById('btnSincronizar');
         const urlStatus = @json(route('dados.status'));
-
+        var paginaAtual = 1;  
+        
         async function atualizarStatus() {
             try {
-                const resposta = await fetch(urlStatus, {
+                const urlStatusBase = @json(route('dados.status'));
+        
+                const urlComPagina = `${urlStatusBase}?page=${paginaAtual}`;
+                
+                const resposta = await fetch(urlComPagina, {
                     headers: { 'Accept': 'application/json' }
                 });
 
@@ -228,9 +237,15 @@
 
                 const dados = await resposta.json();
 
-                const ativos = dados.some(s =>
+                // paginaAtual = dados.current_page;
+
+                paginaAtual = paginaAtual = new URLSearchParams(window.location.search).get('page') ?? '1';
+
+                const ativos = dados.data.some(s =>
                     ['pendente', 'executando'].includes(s.status)
                 );
+
+                console.log(paginaAtual)
 
                 botao.disabled = ativos;
                 botao.innerHTML = ativos
@@ -239,7 +254,7 @@
 
                 lista.replaceChildren();
 
-                if (!dados.length) {
+                if (!dados.data.length) {
                     const coluna = document.createElement('div');
                     coluna.className = 'col-12';
                     coluna.textContent = 'Nenhuma sincronização realizada ainda.';
@@ -247,7 +262,7 @@
                     return;
                 }
 
-                dados.forEach(s => {
+                dados.data.forEach(s => {
                     const coluna = document.createElement('div');
                     coluna.className = 'col-md-6 col-xl-4';
 
