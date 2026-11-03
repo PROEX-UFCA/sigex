@@ -108,6 +108,10 @@ class EloquentUsersRepository implements UsersRepository
     }
 
     public function updatePassword($request, $uuid){
+        if (blank($request->password)) {
+            throw new \InvalidArgumentException('Tentativa de definir senha vazia.');
+        }
+
         $user = $this->getByUuid($uuid);
         $user->password = Hash::make($request->password);
         $user->save();

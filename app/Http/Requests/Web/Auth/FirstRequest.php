@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Web\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\Captcha;
 
 class FirstRequest extends FormRequest
 {
@@ -22,6 +23,10 @@ class FirstRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'captcha_first_access' => filled(config('services.captcha.secret_key'))
+                ? ['required', new Captcha()]
+                : ['nullable'],
+
             'is_external_institution' => ['required', 'in:0,1'],
 
             // Campos obrigatórios para ambos os casos
@@ -65,6 +70,8 @@ class FirstRequest extends FormRequest
 
             'aceite.required' => 'Você precisa aceitar os termos de uso e a política de privacidade para continuar.',
             'aceite.accepted' => 'Você precisa aceitar os termos de uso e a política de privacidade para continuar.',
+
+            'captcha_first_access.required' => 'Não foi possível validar que você é humano. Recarregue a página e tente novamente.',
         ];
     }
 }
