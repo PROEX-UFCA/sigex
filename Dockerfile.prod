@@ -1,4 +1,4 @@
-FROM php:8.2-fpm AS vendor
+FROM php:8.4-fpm AS vendor
 
 RUN apt-get update && apt-get install -y \
     curl \
@@ -33,7 +33,7 @@ COPY . .
 
 RUN composer dump-autoload --no-dev --classmap-authoritative
 
-FROM php:8.2-fpm
+FROM php:8.4-fpm
 
 RUN apt-get update && apt-get install -y \
     curl \
