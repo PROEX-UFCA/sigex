@@ -88,13 +88,14 @@
       @if(auth()->user()->uuid !== $user->uuid)
       <div class="card">
         <div class="card-body">
-          <h3 class="mb-3">Alterar Grupo de Permissões</h3>
+          <h3 class="mb-3">Editar usuários</h3>
           
           <form action="{{ route('users.updateRole', $user->uuid) }}" method="POST">
               @csrf
               @method('PUT')
               
               <div class="mb-3">
+                  <label for="" class="form-label">Grupo de permissão</label>
                   <select class="form-select" id="role" name="role" required>
                       <option value="" disabled>Selecione um grupo...</option>
                       @foreach($roles as $role)
@@ -105,9 +106,16 @@
                       @endforeach
                   </select>
               </div>
-              
+              <div class="mb-3">
+                  <label for="" class="form-label">Usuário da API?</label>
+                  <select class="form-select" id="is_admin" name="is_admin" required>
+                      <option value="" disabled>Selecione...</option>
+                      <option value="1" {{$user->is_admin == 1 ? 'selected' : ''}}>Sim</option>
+                      <option value="0" {{$user->is_admin == 0 ? 'selected' : ''}}>Não</option>
+                  </select>
+              </div>
               <div class="d-flex justify-content-end">
-                  <button type="submit" class="btn btn-primary">Salvar Novo Grupo</button>
+                  <button type="submit" class="btn btn-primary">Salvar</button>
               </div>
           </form>
                 

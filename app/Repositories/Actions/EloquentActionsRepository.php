@@ -155,7 +155,7 @@ class EloquentActionsRepository implements ActionsRepository
             });
         })
         ->groupBy('id_acao', 'id_usuario')
-        ->orderBy('created_at', 'asc')
+        ->orderBy('created_at', 'desc')
         ->paginate(30)
         ->withQueryString();
 
