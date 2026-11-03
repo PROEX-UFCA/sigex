@@ -154,30 +154,30 @@ class VitrineController extends Controller
         $query = Acao::whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
 
         $aplicarFiltros = function ($q) use ($request) {
-            $q->when($request->area_tematica, function ($q, $area) {
-                return $q->where('area_tematica', $area);
-            })
-            ->when($request->situacao, function ($q, $situacao) {
-                return $q->where('situacao', $situacao);
-            })
-            ->when($request->tipo_acao, function ($q, $tipo) {
-                return $q->where('tipo_acao', $tipo);
-            })
-            ->when($request->ods, function ($q, $ods) {
-                return $q->where('ods', 'like', "%{$ods}%");
-            })
-            ->when($request->cidade, function ($q, $cidade) {
-                return $q->whereHas('localidade', function ($subQuery) use ($cidade) {
-                    $subQuery->where('cidade', $cidade);
-                });
-            })
-            ->when($request->search, function ($q, $search) {
-                return $q->where(function ($subQuery) use ($search) {
-                    $subQuery->where('titulo', 'like', "%{$search}%")
-                            ->orWhere('palavras_chave', 'like', "%{$search}%");
-                });
+        $q->when($request->area_tematica, function ($q, $area) {
+            return $q->where('area_tematica', $area);
+        })
+        ->when($request->situacao && $request->situacao !== 'TODAS', function ($q) use ($request) {
+            return $q->where('situacao', $request->situacao);
+        })
+        ->when($request->tipo_acao, function ($q, $tipo) {
+            return $q->where('tipo_acao', $tipo);
+        })
+        ->when($request->ods, function ($q, $ods) {
+            return $q->where('ods', 'like', "%{$ods}%");
+        })
+        ->when($request->cidade, function ($q, $cidade) {
+            return $q->whereHas('localidade', function ($subQuery) use ($cidade) {
+                $subQuery->where('cidade', $cidade);
             });
-        };
+        })
+        ->when($request->search, function ($q, $search) {
+            return $q->where(function ($subQuery) use ($search) {
+                $subQuery->where('titulo', 'like', "%{$search}%")
+                        ->orWhere('palavras_chave', 'like', "%{$search}%");
+            });
+        });
+    };
 
         $aplicarFiltros($subQuery);
         $aplicarFiltros($query);
@@ -195,8 +195,66 @@ class VitrineController extends Controller
         return view('pages.vitrine.catalogo', $this->data);
     }
 
-    public function mapa()
+    public function mapa(Request $request)
     {
-        return view('pages.vitrine.mapa');
+        $situacao = $request->has('situacao') ? $request->situacao : 'EM EXECUÇÃO';
+
+        $query = Acao::with('localidade')
+            ->whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
+
+        $query->when($situacao && $situacao !== 'TODAS', function ($q) use ($situacao) {
+            return $q->where('situacao', $situacao);
+        })
+        ->when($request->area_tematica, function ($q, $area) {
+            return $q->where('area_tematica', $area);
+        })
+        ->when($request->ods, function ($q, $ods) {
+            return $q->where('ods', 'like', "%{$ods}%");
+        });
+
+        $acoes = $query->get();
+
+        $cidadesAtivas = [];
+        $cidadesStats = [];
+
+        foreach ($acoes as $acao) {
+            foreach ($acao->localidade as $loc) {
+                if (empty(trim((string) $loc->cidade))) continue;
+                
+                $cidadeNome = trim((string) $loc->cidade);
+                
+                $cidadesAtivas[$cidadeNome] = true;
+
+                if (!isset($cidadesStats[$cidadeNome])) {
+                    $cidadesStats[$cidadeNome] = [
+                        'nome_limpo' => $cidadeNome,
+                        'total' => 0,
+                        'temas' => [],
+                        'ods' => []
+                    ];
+                }
+
+                $cidadesStats[$cidadeNome]['total']++;
+
+                $tema = $acao->area_tematica;
+                if ($tema) {
+                    $cidadesStats[$cidadeNome]['temas'][$tema] = ($cidadesStats[$cidadeNome]['temas'][$tema] ?? 0) + 1;
+                }
+
+                if (!empty($acao->ods)) {
+                    $odsArray = array_map('trim', explode(';', $acao->ods));
+                    foreach ($odsArray as $odsVal) {
+                        if (!empty($odsVal)) {
+                            $cidadesStats[$cidadeNome]['ods'][$odsVal] = ($cidadesStats[$cidadeNome]['ods'][$odsVal] ?? 0) + 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        $this->data['cidadesAtivas'] = array_keys($cidadesAtivas);
+        $this->data['cidadesStats'] = $cidadesStats;
+
+        return view('pages.vitrine.mapa', $this->data);
     }
 }
