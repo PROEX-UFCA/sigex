@@ -154,30 +154,30 @@ class VitrineController extends Controller
         $query = Acao::whereIn('situacao', ['EM EXECUÇÃO', 'CONCLUÍDA']);
 
         $aplicarFiltros = function ($q) use ($request) {
-        $q->when($request->area_tematica, function ($q, $area) {
-            return $q->where('area_tematica', $area);
-        })
-        ->when($request->situacao && $request->situacao !== 'TODAS', function ($q) use ($request) {
-            return $q->where('situacao', $request->situacao);
-        })
-        ->when($request->tipo_acao, function ($q, $tipo) {
-            return $q->where('tipo_acao', $tipo);
-        })
-        ->when($request->ods, function ($q, $ods) {
-            return $q->where('ods', 'like', "%{$ods}%");
-        })
-        ->when($request->cidade, function ($q, $cidade) {
-            return $q->whereHas('localidade', function ($subQuery) use ($cidade) {
-                $subQuery->where('cidade', $cidade);
+            $q->when($request->area_tematica, function ($q, $area) {
+                return $q->where('area_tematica', $area);
+            })
+            ->when($request->situacao && $request->situacao !== 'TODAS', function ($q) use ($request) {
+                return $q->where('situacao', $request->situacao);
+            })
+            ->when($request->tipo_acao, function ($q, $tipo) {
+                return $q->where('tipo_acao', $tipo);
+            })
+            ->when($request->ods, function ($q, $ods) {
+                return $q->where('ods', 'like', "%{$ods}%");
+            })
+            ->when($request->cidade, function ($q, $cidade) {
+                return $q->whereHas('localidade', function ($subQuery) use ($cidade) {
+                    $subQuery->where('cidade', $cidade);
+                });
+            })
+            ->when($request->search, function ($q, $search) {
+                return $q->where(function ($subQuery) use ($search) {
+                    $subQuery->where('titulo', 'like', "%{$search}%")
+                            ->orWhere('palavras_chave', 'like', "%{$search}%");
+                });
             });
-        })
-        ->when($request->search, function ($q, $search) {
-            return $q->where(function ($subQuery) use ($search) {
-                $subQuery->where('titulo', 'like', "%{$search}%")
-                        ->orWhere('palavras_chave', 'like', "%{$search}%");
-            });
-        });
-    };
+        };
 
         $aplicarFiltros($subQuery);
         $aplicarFiltros($query);
@@ -197,6 +197,74 @@ class VitrineController extends Controller
 
     public function mapa(Request $request)
     {
+        $regioes = [
+            'Cariri' => [
+                'Abaiara', 'Altaneira', 'Antonina do Norte', 'Araripe', 'Assaré', 'Aurora',
+                'Barbalha', 'Barro', 'Brejo Santo', 'Campos Sales', 'Caririaçu', 'Crato',
+                'Farias Brito', 'Granjeiro', 'Jardim', 'Jati', 'Juazeiro do Norte', 'Lavras da Mangabeira',
+                'Mauriti', 'Milagres', 'Missão Velha', 'Nova Olinda', 'Penaforte', 'Porteiras',
+                'Potengi', 'Salitre', 'Santana do Cariri', 'Tarrafas', 'Várzea Alegre'
+            ],
+            'Centro Sul' => [
+                'Acopiara', 'Baixio', 'Cariús', 'Catarina', 'Cedro', 'Icó',
+                'Iguatu', 'Ipaumirim', 'Jucás', 'Orós', 'Quixelô', 'Saboeiro',
+                'Umari'
+            ],
+            'Grande Fortaleza' => [
+                'Aquiraz', 'Cascavel', 'Caucaia', 'Chorozinho', 'Eusébio', 'Fortaleza',
+                'Guaiúba', 'Horizonte', 'Itaitinga', 'Maracanaú', 'Maranguape', 'Pacajus',
+                'Pacatuba', 'Paracuru', 'Paraipaba', 'Pindoretama', 'São Gonçalo do Amarante', 'São Luís do Curu',
+                'Trairi'
+            ],
+            'Litoral Leste' => [
+                'Aracati', 'Beberibe', 'Fortim', 'Icapuí', 'Itaiçaba', 'Jaguaruana'
+            ],
+            'Litoral Norte' => [
+                'Acaraú', 'Barroquinha', 'Bela Cruz', 'Camocim', 'Chaval', 'Cruz',
+                'Granja', 'Itarema', 'Jijoca de Jericoacoara', 'Marco', 'Martinópole', 'Morrinhos',
+                'Uruoca'
+            ],
+            'Litoral Oeste / Vale do Curu' => [
+                'Amontada', 'Apuiarés', 'General Sampaio', 'Irauçuba', 'Itapajé', 'Itapipoca',
+                'Miraíma', 'Pentecoste', 'Tejuçuoca', 'Tururu', 'Umirim', 'Uruburetama'
+            ],
+            'Maciço de Baturité' => [
+                'Acarape', 'Aracoiaba', 'Aratuba', 'Barreira', 'Baturité', 'Capistrano',
+                'Guaramiranga', 'Itapiúna', 'Mulungu', 'Ocara', 'Pacoti', 'Palmácia',
+                'Redenção'
+            ],
+            'Serra da Ibiapaba' => [
+                'Carnaubal', 'Croatá', 'Guaraciaba do Norte', 'Ibiapina', 'Ipu', 'São Benedito',
+                'Tianguá', 'Ubajara', 'Viçosa do Ceará'
+            ],
+            'Sertão Central' => [
+                'Banabuiú', 'Choró', 'Deputado Irapuan Pinheiro', 'Ibaretama', 'Ibicuitinga', 'Milhã',
+                'Mombaça', 'Pedra Branca', 'Piquet Carneiro', 'Quixadá', 'Quixeramobim', 'Senador Pompeu',
+                'Solonópole'
+            ],
+            'Sertão de Canindé' => [
+                'Boa Viagem', 'Canindé', 'Caridade', 'Itatira', 'Madalena', 'Paramoti'
+            ],
+            'Sertão de Sobral' => [
+                'Alcântaras', 'Cariré', 'Coreaú', 'Forquilha', 'Frecheirinha', 'Graça',
+                'Groaíras', 'Massapê', 'Meruoca', 'Moraújo', 'Mucambo', 'Pacujá',
+                'Pires Ferreira', 'Reriutaba', 'Santana do Acaraú', 'Senador Sá', 'Sobral', 'Varjota'
+            ],
+            'Sertão dos Crateús' => [
+                'Ararendá', 'Catunda', 'Crateús', 'Hidrolândia', 'Independência', 'Ipaporanga',
+                'Ipueiras', 'Monsenhor Tabosa', 'Nova Russas', 'Novo Oriente', 'Poranga', 'Santa Quitéria',
+                'Tamboril'
+            ],
+            'Sertão dos Inhamuns' => [
+                'Aiuaba', 'Arneiroz', 'Parambu', 'Quiterianópolis', 'Tauá'
+            ],
+            'Vale do Jaguaribe' => [
+                'Alto Santo', 'Ererê', 'Iracema', 'Jaguaretama', 'Jaguaribara', 'Jaguaribe',
+                'Limoeiro do Norte', 'Morada Nova', 'Palhano', 'Pereiro', 'Potiretama', 'Quixeré',
+                'Russas', 'São João do Jaguaribe', 'Tabuleiro do Norte'
+            ]
+        ];
+
         $situacao = $request->has('situacao') ? $request->situacao : 'EM EXECUÇÃO';
 
         $query = Acao::with('localidade')
@@ -222,12 +290,28 @@ class VitrineController extends Controller
                 if (empty(trim((string) $loc->cidade))) continue;
                 
                 $cidadeNome = trim((string) $loc->cidade);
+                $estado = trim((string) $loc->estado); 
                 
                 $cidadesAtivas[$cidadeNome] = true;
 
                 if (!isset($cidadesStats[$cidadeNome])) {
+                    
+                    $macroregiao = 'Outras regiões';
+                    
+                    if ($estado === 'PE' || $estado === 'Pernambuco') {
+                        $macroregiao = 'Pernambuco';
+                    } else if ($estado === 'CE' || $estado === 'Ceará') {
+                        foreach ($regioes as $regiaoNome => $cidades) {
+                            if (in_array($cidadeNome, $cidades)) {
+                                $macroregiao = $regiaoNome;
+                                break;
+                            }
+                        }
+                    }
+
                     $cidadesStats[$cidadeNome] = [
                         'nome_limpo' => $cidadeNome,
+                        'macroregiao' => $macroregiao,
                         'total' => 0,
                         'temas' => [],
                         'ods' => []
