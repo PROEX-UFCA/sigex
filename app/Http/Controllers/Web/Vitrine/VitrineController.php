@@ -292,14 +292,28 @@ class VitrineController extends Controller
                 $cidadeNome = trim((string) $loc->cidade);
                 $estado = trim((string) $loc->estado); 
                 
-                $cidadesAtivas[$cidadeNome] = true;
+                if ($estado === 'Ceará') $estado = 'CE';
+                else if ($estado === 'Pernambuco') $estado = 'PE';
+                else if ($estado === 'Paraíba') $estado = 'PB';
+                else if ($estado === 'Rio Grande do Norte') $estado = 'RN';
+                
+                $uniqueKey = $cidadeNome . '-' . $estado;
 
-                if (!isset($cidadesStats[$cidadeNome])) {
+                $cidadesAtivas[$uniqueKey] = [
+                    'cidade' => $cidadeNome,
+                    'estado' => $estado
+                ];
+
+                if (!isset($cidadesStats[$uniqueKey])) {
                     
                     $macroregiao = 'Outras regiões';
                     
                     if ($estado === 'PE' || $estado === 'Pernambuco') {
                         $macroregiao = 'Pernambuco';
+                    } else if ($estado === 'PB' || $estado === 'Paraíba') {
+                        $macroregiao = 'Paraíba';
+                    } else if ($estado === 'RN' || $estado === 'Rio Grande do Norte') {
+                        $macroregiao = 'Rio Grande do Norte';
                     } else if ($estado === 'CE' || $estado === 'Ceará') {
                         foreach ($regioes as $regiaoNome => $cidades) {
                             if (in_array($cidadeNome, $cidades)) {
@@ -309,8 +323,9 @@ class VitrineController extends Controller
                         }
                     }
 
-                    $cidadesStats[$cidadeNome] = [
+                    $cidadesStats[$uniqueKey] = [
                         'nome_limpo' => $cidadeNome,
+                        'estado' => $estado,
                         'macroregiao' => $macroregiao,
                         'total' => 0,
                         'temas' => [],
@@ -318,25 +333,25 @@ class VitrineController extends Controller
                     ];
                 }
 
-                $cidadesStats[$cidadeNome]['total']++;
+                $cidadesStats[$uniqueKey]['total']++;
 
                 $tema = $acao->area_tematica;
                 if ($tema) {
-                    $cidadesStats[$cidadeNome]['temas'][$tema] = ($cidadesStats[$cidadeNome]['temas'][$tema] ?? 0) + 1;
+                    $cidadesStats[$uniqueKey]['temas'][$tema] = ($cidadesStats[$uniqueKey]['temas'][$tema] ?? 0) + 1;
                 }
 
                 if (!empty($acao->ods)) {
                     $odsArray = array_map('trim', explode(';', $acao->ods));
                     foreach ($odsArray as $odsVal) {
                         if (!empty($odsVal)) {
-                            $cidadesStats[$cidadeNome]['ods'][$odsVal] = ($cidadesStats[$cidadeNome]['ods'][$odsVal] ?? 0) + 1;
+                            $cidadesStats[$uniqueKey]['ods'][$odsVal] = ($cidadesStats[$uniqueKey]['ods'][$odsVal] ?? 0) + 1;
                         }
                     }
                 }
             }
         }
 
-        $this->data['cidadesAtivas'] = array_keys($cidadesAtivas);
+        $this->data['cidadesAtivas'] = array_values($cidadesAtivas);
         $this->data['cidadesStats'] = $cidadesStats;
 
         return view('pages.vitrine.mapa', $this->data);
