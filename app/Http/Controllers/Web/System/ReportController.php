@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Web\System;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Report\StoreRequest;
 use App\Http\Requests\Web\Report\UpdateRequest;
+use App\Jobs\SendReportConfirmation;
+use App\Jobs\SendReportConfirmationJob;
 use App\Jobs\SendReportNotificationsJob;
 use App\Mail\ReportCreatedMail;
 use App\Models\Acao;
@@ -333,7 +335,7 @@ class ReportController extends Controller
 
         if (!\Illuminate\Support\Str::contains($previousUrl, 'relatorio')) {
         session()->put('report_origin', $previousUrl);
-    }
+        }
     
         $this->data['submissao'] = $this->reportRepository->getSubmissionById($uuid);
         $this->data['progresso'] = $this->getProgress($this->data['submissao']->id);
@@ -370,6 +372,8 @@ class ReportController extends Controller
             'aceite.required' => 'Você precisa marcar a caixa de consentimento para prosseguir.',
             'aceite.accepted' => 'O termo de ciência deve ser aceito.',
         ]);
+
+            $submissao = $this->reportRepository->getSubmissionById($uuid);
 
         try {
             $submissao = $this->reportRepository->getSubmissionById($uuid);
@@ -413,6 +417,13 @@ class ReportController extends Controller
 
             $flash['pdf_key']  = $pdfKey;
             $flash['pdf_name'] = "{$title}.pdf";
+
+            SendReportConfirmationJob::dispatch(
+                $submissao->id,
+                $pdfContent,
+                $flash['pdf_name'] 
+            );
+
         } catch (\Throwable $th) {
             report($th);
             $flash['warning'] = "Relatório enviado, mas não foi possível gerar o PDF agora.";

@@ -71,7 +71,7 @@
                 <i class="ti ti-user icon"></i>
               </span> --}}
               <div class="d-none d-xl-block ps-2">
-                <div>{{ Auth::user()->name }}</div>
+                <div>{{ ucwords(explode(" ", Auth::user()->name)[0]) }}</div>
                 <div class="mt-1 fs-6 ">{{ ucfirst(Auth::user()->roles->first()->name) ?? '' }}</div>
               </div>
             </a>
