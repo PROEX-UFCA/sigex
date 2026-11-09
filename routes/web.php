@@ -12,6 +12,7 @@ use App\Http\Controllers\Web\System\ReportController;
 use App\Http\Controllers\Web\Tools\LogsController;
 use App\Http\Controllers\Web\System\DashboardController;
 use App\Http\Controllers\Web\System\SuportActionController;
+use App\Http\Controllers\Web\Tools\DadosController;
 use App\Http\Controllers\Web\Vitrine\VitrineController;
 use App\Http\Controllers\Web\Vitrine\MatchController;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('perfil', [ProfileController::class, 'index'])->name('profile.index');
     Route::post('perfil', [ProfileController::class, 'update'])->name('profile.store');
+    Route::post('perfil/senha', [ProfileController::class, 'updatePassword'])->name('profile.password');
     
     Route::group(['middleware' => ['auth', 'permission:adicionar_e_editar_grupo']], function () {
         Route::get('gupos', [RolesController::class, 'index'])->name('roles.index');
@@ -67,29 +69,27 @@ Route::middleware(['auth'])->group(function () {
         Route::get('usuarios/atividade', [LogsController::class, 'getUserLogs'])->name('logs.user');
     });
     
-    Route::group(['middleware' => ['auth', 'permission:ver_todas_as_ações']], function () {
-        Route::get('acoes', [ActionController::class, 'index'])->name('actions.index');
-        
-        Route::get('acoes/adicionar', [ActionController::class, 'create'])->name('actions.create')->middleware(['auth' => 'permission:adicionar_ação']);
+    Route::get('acoes', [ActionController::class, 'index'])->name('actions.index')->middleware(['auth' => 'permission:ver_todas_as_ações']);
+    
+    Route::get('acoes/adicionar', [ActionController::class, 'create'])->name('actions.create')->middleware(['auth' => 'permission:adicionar_ação']);
 
-        Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);
+    Route::post('acoes/adicionar', [ActionController::class, 'store'])->name('actions.store')->middleware(['auth' => 'permission:adicionar_ação']);
 
-        Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.previewImport')->middleware(['auth' => 'permission:importar_ações']);
+    Route::post('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.previewImport')->middleware(['auth' => 'permission:importar_ações']);
 
-        Route::get('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
+    Route::get('acoes/importar', [ActionController::class, 'previewImport'])->name('actions.import')->middleware(['auth' => 'permission:importar_ações']);
 
-        Route::post('acoes/importar/salvar', [ActionController::class, 'storeImport'])->name('actions.storeImport')->middleware(['auth' => 'permission:importar_ações']);
-        
-        Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);
+    Route::post('acoes/importar/salvar', [ActionController::class, 'storeImport'])->name('actions.storeImport')->middleware(['auth' => 'permission:importar_ações']);
+    
+    Route::get('acoes/editar/{uuid}', [ActionController::class, 'edit'])->name('actions.edit')->middleware(['auth' => 'permission:editar_ação']);
 
-        Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);
+    Route::post('acoes/atualizar/{uuid}', [ActionController::class, 'update'])->name('actions.update')->middleware(['auth' => 'permission:editar_ação']);
 
-        Route::get('membros/importar', [MembersController::class, 'previewImport'])->middleware(['auth' => 'permission:importar_membros']);
+    Route::get('membros/importar', [MembersController::class, 'previewImport'])->middleware(['auth' => 'permission:importar_membros']);
 
-        Route::post('membros/importar', [MembersController::class, 'previewImport'])->name('membros.previewImport')->middleware(['auth' => 'permission:importar_membros']);
+    Route::post('membros/importar', [MembersController::class, 'previewImport'])->name('membros.previewImport')->middleware(['auth' => 'permission:importar_membros']);
 
-        Route::post('importar/membros/salvar', [MembersController::class, 'storeImport'])->name('membros.storeImport')->middleware(['auth' => 'permission:importar_membros']);
-    });
+    Route::post('importar/membros/salvar', [MembersController::class, 'storeImport'])->name('membros.storeImport')->middleware(['auth' => 'permission:importar_membros']);
         
     Route::group(['middleware' => ['auth', 'permission:ver_suas_ações']], function () {
         Route::get('acoes/minhas', [ActionController::class, 'my'])->name('actions.my');
@@ -164,11 +164,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/arquivo/visualizar', [ReportController::class, 'visualizarArquivo'])->name('arquivo.visualizar');
     
     Route::get('/painel', [DashboardController::class, 'index'])->name('dashboard.index')->middleware(['auth' => 'permission:ver_dashboard']);
+    
+    // Route::group(['middleware' => ['auth', 'permission:editar_acoes_em_massa']], function () {
+    //     Route::get('edicao_em_massa', [SuportActionController::class, 'indexEditLot'])->name('actions.editLot');
+    //     Route::post('edicao_em_massa', [SuportActionController::class, 'storeEditLot'])->name('actions.editLotStore');
+    // });
 
-    Route::group(['middleware' => ['auth', 'permission:editar_acoes_em_massa']], function () {
-        Route::get('edicao_em_massa', [SuportActionController::class, 'indexEditLot'])->name('actions.editLot');
-        Route::post('edicao_em_massa', [SuportActionController::class, 'storeEditLot'])->name('actions.editLotStore');
-    });
+    Route::get('/gerenciar/dados', [DadosController::class, 'index'])->name('dados.index')->middleware(['auth' => 'permission:sincronizar_dados']);
+    Route::post('/dados/sincronizar', [DadosController::class, 'iniciar'])->name('dados.sincronizar')->middleware(['auth' => 'permission:sincronizar_dados']);
+    Route::get('/sincronizacoes/status', [DadosController::class, 'status'])->name('dados.status');
+
 });
 
 // VITRINE (PÚBLICO)

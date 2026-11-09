@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'captcha' => [
+        'site_key'   => env('CAPTCHA_SITE_KEY'),
+        'secret_key' => env('CAPTCHA_SECRET_KEY'),
+        'verify_url' => env('CAPTCHA_VERIFY_URL', 'https://www.google.com/recaptcha/api/siteverify'),
+        'threshold'  => env('CAPTCHA_SCORE_THRESHOLD', 0.5),
+    ],
+
+    'sigex' => [
+        'url' => env('SIGEX_API_URL'),
+        'email' => env('SIGEX_API_EMAIL'),
+        'password' => env('SIGEX_API_PASSWORD'),
+    ],
+
 ];

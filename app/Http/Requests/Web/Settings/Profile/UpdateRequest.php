@@ -24,11 +24,6 @@ class UpdateRequest extends FormRequest
         return [
             'name' => 'nullable|string|max:255',
 
-            // Senhas
-            'actual_password' => 'nullable|string|max:255|required_with:password,password_confirm',
-            'password' => 'nullable|string|max:255|required_with:actual_password,password_confirm|same:password_confirm',
-            'password_confirm' => 'nullable|string|max:255|required_with:actual_password,password|same:password',
-
             // Novos campos
             // 'birth' => 'nullable|date|before:today',
             'phone' => 'nullable|string|max:20|regex:/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/',
@@ -47,27 +42,6 @@ class UpdateRequest extends FormRequest
             'name.max' => 'O nome não pode ter mais de 255 caracteres.',
 
             'matricula_siape.string' => 'A matrícula ou siape deve ser um texto.',
-
-            // Senha atual
-            'actual_password.required_with' => 'A senha atual é obrigatória para alterar a senha.',
-            'actual_password.string' => 'A senha atual deve ser um texto.',
-            'actual_password.max' => 'A senha atual não pode ter mais de 255 caracteres.',
-
-            // Nova senha
-            'password.required_with' => 'A nova senha é obrigatória se for alterar a senha.',
-            'password.same' => 'A confirmação da nova senha não corresponde.',
-            'password.string' => 'A nova senha deve ser um texto.',
-            'password.max' => 'A nova senha não pode ter mais de 255 caracteres.',
-
-            // Confirmação da nova senha
-            'password_confirm.required_with' => 'A confirmação da nova senha é obrigatória.',
-            'password_confirm.same' => 'A confirmação da nova senha não corresponde.',
-            'password_confirm.string' => 'A confirmação da nova senha deve ser um texto.',
-            'password_confirm.max' => 'A confirmação da nova senha não pode ter mais de 255 caracteres.',
-
-            // Data de nascimento
-            // 'birth.date' => 'A data de nascimento deve ser uma data válida.',
-            // 'birth.before' => 'A data de nascimento deve ser anterior à data atual.',
 
             // Telefone
             'phone.string' => 'O telefone deve ser um texto.',

@@ -39,6 +39,7 @@ class User extends Authenticatable
         'matricula_siape',
         'perfil_ativo',
         'phone',
+        'is_admin',
     ];
     /**
      * The attributes that should be hidden for serialization.
@@ -77,7 +78,7 @@ class User extends Authenticatable
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['id_instituicao', 'name', 'email', 'password', 'uuid', 'status', 'centro', 'curso', 'cpf', 'matricula_siape', 'perfil_ativo', 'phone'])
+            ->logOnly(['id_instituicao', 'name', 'email', 'password', 'uuid', 'status', 'centro', 'curso', 'cpf', 'matricula_siape', 'perfil_ativo', 'phone', 'is_admin'])
             ->useLogName('users')
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();

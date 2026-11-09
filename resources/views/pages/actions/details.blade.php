@@ -50,7 +50,7 @@
                 <i class="ti ti-library-photo me-2"></i>Galeria
               </button>
               <button class="nav-link text-start" id="membros-tab" data-bs-toggle="tab" data-bs-target="#membros-pane" type="button" role="tab" aria-selected="false">
-                <i class="ti ti-users me-2"></i>Membros
+                <i class="ti ti-users me-2"></i>Equipe
               </button>
               <button class="nav-link text-start" id="cronograma-externo-tab" data-bs-toggle="tab" data-bs-target="#cronograma-externo-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-calendar me-2"></i>Cronograma
@@ -417,7 +417,7 @@
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
                   <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
-                    <h3 class="m-0">Membros da ação</h3>
+                    <h3 class="m-0">Equipe da ação</h3>
                   </div>
                   <div class="table-responsive p-0 mb-5">
                     <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">

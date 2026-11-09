@@ -153,21 +153,25 @@ class UsersController extends Controller
         try {
             $user = $this->usersRepository->getByUuid($uuid);
         
-        if (!$user) {
-            throw new \Exception('User not found');
-        }
+            if (!$user) {
+                throw new \Exception('User not found');
+            }
 
-        if ($user->hasRole($request->role)) {
-            return redirect()->back()->with('warning', 'O usuário já pertence a este grupo de permissões. Nenhuma alteração foi feita.');
-        }
+            $request->validate([
+                'role' => 'required|string|exists:roles,name',
+                'is_admin' => 'required|in:1,0'
+            ]);
+            
+            $user->is_admin = $request->is_admin;
+            $user->save();
 
-        $request->validate([
-            'role' => 'required|string|exists:roles,name'
-        ]);
+            if ($user->hasRole($request->role)) {
+                return redirect()->back()->with('warning', 'O usuário já pertence a este grupo de permissões. Nenhuma alteração foi feita.');
+            }
 
-        $this->rolesRepository->update($user, $request->role);
+            $this->rolesRepository->update($user, $request->role);
 
-        return redirect()->back()->with('success', 'Grupo de permissões atualizado com sucesso!');
+            return redirect()->back()->with('success', 'Grupo de permissões atualizado com sucesso!');
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'Erro ao alterar permissões do usuário');
         }

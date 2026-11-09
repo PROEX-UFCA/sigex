@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Web\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\Captcha;
 
 class SendRequest extends FormRequest
 {
@@ -23,6 +24,9 @@ class SendRequest extends FormRequest
     {
         return [
             'email' => 'required|email',
+            'g-recaptcha-response' => filled(config('services.captcha.secret_key'))
+                ? ['required', new Captcha()]
+                : ['nullable'],
         ];
     }
 
@@ -31,6 +35,7 @@ class SendRequest extends FormRequest
         return [
             'email.required' => 'O campo e-mail é obrigatório.',
             'email.email' => 'Informe um e-mail válido.',
+            'g-recaptcha-response.required' => 'Não foi possível validar que você é humano. Recarregue a página e tente novamente.',
         ];
     }
 }

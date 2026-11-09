@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Web\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\Settings\Profile\UpdateRequest;
+use App\Http\Requests\Web\Settings\Profile\PasswordRequest;
 use App\Repositories\Parametros\ParametrosRepository;
 use App\Repositories\Settings\User\UsersRepository;
 use App\Models\Match_Acao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Instituicao_Externa;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -43,27 +45,30 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        $credentials = [
-            'email' => $user->email,
-            'password' => $request->actual_password,
-        ];
-
         try {
-            if ($request->actual_password != null) {
-                if (Auth::attempt($credentials)) {
-                    $this->usersRepository->update($user->uuid, $request);
-                    $this->usersRepository->updatePassword($request, $user->uuid);
-                } else {
-                    return redirect()->back()->with('error', 'Senha atual não correspondente, tente novamente.');
-                }
-            } else {
-                $this->usersRepository->update($user->uuid, $request);
-                return redirect()->back()->with('success', 'Informações atualizadas com sucesso.');
-            }
+            $this->usersRepository->update($user->uuid, $request);
 
             return redirect()->back()->with('success', 'Informações atualizadas com sucesso.');
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', 'Erro ao tentar atualizar informações, tente novamente mais tarde.');
+        }
+    }
+
+    public function updatePassword(PasswordRequest $request)
+    {
+        $user = Auth::user();
+
+        if (! Hash::check($request->actual_password, $user->password)) {
+            return redirect()->back()->with('error', 'Senha atual não correspondente, tente novamente.');
+        }
+
+        try {
+            $this->usersRepository->updatePassword($request, $user->uuid);
+            $request->session()->regenerate();
+
+            return redirect()->back()->with('success', 'Senha alterada com sucesso.');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', 'Erro ao tentar alterar a senha, tente novamente mais tarde.');
         }
     }
 
