@@ -126,11 +126,22 @@ class ActionController extends Controller
 
     public function details($uuid){
 
-        $this->data['action'] = $this->actionsRepository->getByUuid($uuid);
+        $action = $this->actionsRepository->getByUuid($uuid);
+        $this->data['action'] = $action;
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CATEGORIA_MEMBRO', 'TIPO_MEMBRO', 'STATUS_MEMBROS', 'TIPO_VINCULO'])->groupBy('function');
 
-        return view('pages.actions.details', $this->data);
+        $userId = (string) auth()->user()->uuid;
+
+        $isEquipe = $action->equipe->contains(function ($membro) use ($userId) {
+            return trim((string) $membro->id_usuario) === $userId;
+        });
+
+        if(auth()->user()->can("detalhar_todas_as_acoes") || $isEquipe){
+            return view('pages.actions.details', $this->data);
+        } else {
+            return redirect()->back(); 
+        }
     }
 
     public function previewImport(Request $request)
@@ -542,6 +553,40 @@ class ActionController extends Controller
 
         } catch (\Throwable $th) {
             return redirect()->to(url()->previous() . '#imagem-destaque-pane')->with('error', 'Erro ao tentar adicionar capa, tente novamente mais tarde.');
+        }
+    }
+
+    public function deleteBanner($uuid)
+    {
+        try {
+            $action = $this->actionsRepository->getByUuid($uuid);
+
+            $userId = (string) auth()->user()->uuid;
+            $isCoordinator = $action->equipe->contains(function ($membro) use ($userId) {
+                $isSameUser = trim((string) $membro->id_usuario) === $userId;
+                $categoria = trim(strtoupper($membro->categoria_membro));
+                return $isSameUser && in_array($categoria, ['COORDENADOR(A)', 'COORDENADOR(A) ADJUNTO(A)']);
+            });
+
+            if (!auth()->user()->can('editar_imagens') || !$isCoordinator) {
+                return redirect()->to(url()->previous() . '#imagem-destaque-pane')
+                    ->with('error', 'Você não tem permissão para remover a capa desta ação.');
+            }
+
+            if ($action->img && Storage::disk('public')->exists($action->img)) {
+                Storage::disk('public')->delete($action->img);
+            }
+
+            $action->img = null;
+            $action->alt_capa = null;
+            $action->save();
+
+            return redirect()->to(url()->previous() . '#imagem-destaque-pane')
+                ->with('success', 'Capa removida com sucesso!');
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+            return redirect()->to(url()->previous() . '#imagem-destaque-pane')
+                ->with('error', 'Erro ao tentar remover a capa, tente novamente mais tarde.');
         }
     }
 

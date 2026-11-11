@@ -46,7 +46,7 @@
               <button class="nav-link text-start" id="imagem-destaque-tab" data-bs-toggle="tab" data-bs-target="#imagem-destaque-pane" type="button" role="tab" aria-selected="false">
                 <i class="ti ti-photo me-2"></i>Capa
               </button>
-              <button class="nav-link text-start" id="galeria-tab" data-bs-toggle="tab" data-bs-target="#galeria-pane" type="button" role="tab" aria-selected="false">
+              <button class="nav-link text-start" id="galeria-tab" data-bs-toggle="tab" data-bs-target="#galeria-pane" type="button" role="tab" aFria-selected="false">
                 <i class="ti ti-library-photo me-2"></i>Galeria
               </button>
               <button class="nav-link text-start" id="membros-tab" data-bs-toggle="tab" data-bs-target="#membros-pane" type="button" role="tab" aria-selected="false">
@@ -216,30 +216,64 @@
                   <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
                     <h3 class="m-0">Capa Ilustrativa da Ação</h3>
                     @if($canEditImages)
-                    <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-imagem-destaque"
-                      aria-controls="offcanvasExample">
-                      Inserir
-                    </button>
-                    <x-modal.offcanvas route="{{ route('actions.addBanner', $action->id) }}" id="modal-add-imagem-destaque"
-                    class="offcanvas-end" title="Adicionar imagem">
-                      <x-slot:content>
-                        <div class="text-start">
-                          <label for="imagem-destaque" class="form-label fw-bold">Anexe uma imagem que será a capa do seu projeto no portal.</label>
-                          <div class="input-group">
-                            <input type="file" class="form-control" id="imagem-destaque" name="imagem-destaque" accept=".jpg,.png,.jpeg,.webp">
+                    <div>
+                      <button class="btn" data-bs-toggle="offcanvas" data-bs-target="#modal-add-imagem-destaque"
+                        aria-controls="offcanvasExample">
+                        Inserir
+                      </button>
+                      <x-modal.offcanvas route="{{ route('actions.addBanner', $action->id) }}" id="modal-add-imagem-destaque"
+                      class="offcanvas-end" title="Adicionar imagem">
+                        <x-slot:content>
+                          <div class="text-start">
+                            <label for="imagem-destaque" class="form-label fw-bold">Anexe uma imagem que será a capa do seu projeto no portal.</label>
+                            <div class="input-group">
+                              <input type="file" class="form-control" id="imagem-destaque" name="imagem-destaque" accept=".jpg,.png,.jpeg,.webp">
+                            </div>
+                            <div>
+                              <p class="text-muted mt-3 border-start border-3 border-info ps-3">
+                                O texto alternativo é essencial para que usuários com deficiencias visuais possam também entender o que a imagem diz sobre seu projeto. Inserir essa descrição garante que leitores de tela possam indicar à pessoa o que está sendo representado.
+                              </p>
+                              <label for="alt_capa" class="form-label fw-bold mt-3">Texto Alternativo (Recurso de Acessibilidade)</label>
+                              <input type="text" class="form-control" id="alt_capa" name="alt_capa" placeholder="Ex: Fotografia de estudantes em sala de aula...">
+                            </div>
+                            <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
+                            <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
                           </div>
-                          <div>
-                            <p class="text-muted mt-3 border-start border-3 border-info ps-3">
-                              O texto alternativo é essencial para que usuários com deficiencias visuais possam também entender o que a imagem diz sobre seu projeto. Inserir essa descrição garante que leitores de tela possam indicar à pessoa o que está sendo representado.
-                            </p>
-                            <label for="alt_capa" class="form-label fw-bold mt-3">Texto Alternativo (Recurso de Acessibilidade)</label>
-                            <input type="text" class="form-control" id="alt_capa" name="alt_capa" placeholder="Ex: Fotografia de estudantes em sala de aula...">
+                        </x-slot:content>
+                      </x-modal.offcanvas>
+  
+                      @if($action->img)
+                      <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-trigger="hover" title="Remover capa">
+                        <button type="button" class="btn btn-sm btn-danger py-2 px-2" data-bs-toggle="modal" data-bs-target="#modal-delete-capa">
+                          <i class="ti ti-trash"></i>
+                        </button>
+                      </span>
+  
+                      <div class="modal fade" id="modal-delete-capa" tabindex="-1" aria-labelledby="modalLabelDeleteCapa" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                          <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                              <h5 class="modal-title" id="modalLabelDeleteCapa">Confirmar Exclusão</h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-start text-wrap">
+                              Tem certeza que deseja remover a capa ilustrativa desta ação?<br><br>
+                              <span class="text-muted small">Esta ação removerá a imagem atual e o projeto voltará a exibir a imagem padrão no portal.</span>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                              <form action="{{ route('actions.deleteBanner', $action->id) }}" method="POST" class="m-0 p-0">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger">Sim, remover capa</button>
+                              </form>
+                            </div>
                           </div>
-                          <small class="text-muted mt-1 d-block italic">Formatos aceitos: JPG, PNG ou WEBP.</small>
-                          <small class="text-muted mt-1 d-block italic">Tamanho máximo: 2MB</small>
                         </div>
-                      </x-slot:content>
-                    </x-modal.offcanvas>
+                      </div>
+                      @endif
+                    </div>
+
                     <div>
                       <p class="text-muted mt-3 border-start border-3 border-info ps-3">
                         A imagem escolhida será a capa da ação no portal SIGEX. Certifique-se de inserir uma imagem com o formato "paisagem" para uma melhor visualização.
@@ -250,8 +284,8 @@
                   @if ($action->img)
                   <p><img src="{{ asset('storage/' . $action->img) }}" alt="{{ $action->alt_capa }}" style="max-height: 300px; object-fit: cover;"></p>
 
-                  <div class="d-flex align-items-center gap-3 mt-3">
-                    <p class="mb-0"><strong>Texto alternativo: </strong>{{ $action->alt_capa ?? 'Sem texto alternativo' }}</p>
+                  <div class="d-flex align-items-center gap-2 mt-3">
+                    <p class="mb-0 me-2"><strong>Texto alternativo: </strong>{{ $action->alt_capa ?? 'Sem texto alternativo' }}</p>
                     
                     @if($canEditImages)
                       <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" data-bs-toggle="modal" data-bs-target="#modal-edit-capa-alt" title="Editar texto alternativo">
@@ -282,11 +316,11 @@
                       </div>
                     @endif
                   </div>
-                  @else
-                    <div class="alert alert-warning">
-                      Ainda não foi enviada uma capa.
-                    </div>
-                  @endif
+                @else
+                  <div class="alert alert-warning">
+                    Ainda não foi enviada uma capa.
+                  </div>
+                @endif
                 </div>
               </div>
             </div>

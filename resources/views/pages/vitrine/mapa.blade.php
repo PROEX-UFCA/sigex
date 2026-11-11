@@ -23,8 +23,8 @@
     }
 
     .municipio.cidade-ativa {
-        fill: var(--tblr-yellow, #F5BE56); 
-        stroke: var(--tblr-brown, #532B1D);
+        fill: var(--tblr-yellow, #F5BE56) !important; 
+        stroke: var(--tblr-brown, #532B1D) !important;
         stroke-width: 1.5px;
     }
 
@@ -53,58 +53,121 @@
             padding-bottom: 13px;
         }
     }
+    .minimap-wrapper {
+        width: 100%;
+        min-width: 350px;
+        transition: transform 0.2s ease;
+    }
+    .minimap-wrapper:hover {
+        transform: scale(1.02);
+    }
+    
+    }
+    .macro-regiao {
+        cursor: pointer;
+        transition: fill 0.2s ease;
+    }
+    .macro-regiao:hover {
+        filter: brightness(0.8);
+    }
+    .macro-regiao.has-projects {
+        fill: var(--tblr-yellow, #F5BE56) !important;
+        
+        stroke: var(--tblr-brown, #532B1D) !important;
+        stroke-width: 3px !important;
+        stroke-linejoin: round;
+        
+        animation: pulse-yellow 2s infinite;
+    }
+
+    @keyframes pulse-yellow {
+        0% { filter: drop-shadow(0 0 0 rgba(245, 190, 86, 0.7)); }
+        70% { filter: drop-shadow(0 0 8px rgba(245, 190, 86, 0)); }
+        100% { filter: drop-shadow(0 0 0 rgba(245, 190, 86, 0)); }
+    }
 </style>
 @endsection
 
 @section('content')
 <div class="row g-4 mt-2">
     <div class="col-12 col-lg-9">
-        <div class="card shadow-sm">
-            <div class="map-container map-responsive mx-auto p-4">
-                <x-mapas.mapa-regiao />
-                
-                <div class="mt-4 pt-4 border-top d-flex flex-wrap justify-content-center gap-3 gap-md-4" style="font-size: 0.85rem;">
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="width: 18px; height: 18px; background-color: var(--tblr-yellow, #F5BE56); border: 1.5px solid var(--tblr-brown, #532B1D); border-radius: 4px;"></span>
-                        <span class="fw-bold text-dark">Cidades com ações</span>
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h3 class="card-title text-brown m-0 fw-bold">
+                    Você está visualizando a região: <span id="current-region-name" class="text-yellow">Cariri</span>
+                </h3>
+                <button id="btn-reset-map" class="btn btn-sm btn-outline-brown d-none bg-white shadow-sm">
+                    <i class="ti ti-arrow-left me-1"></i> Voltar para Cariri
+                </button>
+            </div>
+            
+            <div class="card-body p-4">
+                <div class="row align-items-center h-100">
+                    
+                    <div class="col-12 col-md-8 col-lg-8">
+                        <div class="map-container w-100 mx-auto" style="min-height: 350px;">
+                            <div id="view-cariri" class="region-view">
+                                <x-mapas.mapa-cariri />
+                            </div>
+                            <div id="view-centro-sul" class="region-view d-none">
+                                <x-mapas.mapa-centro-sul />
+                            </div>
+                            <div id="view-sertao-dos-inhamuns" class="region-view d-none">
+                                <x-mapas.mapa-sertao-dos-inhamuns />
+                            </div>
+                            <div id="view-sertao-central" class="region-view d-none">
+                                <x-mapas.mapa-sertao-central />
+                            </div>
+                            <div id="view-vale-do-jaguaribe" class="region-view d-none">
+                                <x-mapas.mapa-vale-do-jaguaribe />
+                            </div>
+                            <div id="view-sertao-dos-crateus" class="region-view d-none">
+                                <x-mapas.mapa-sertao-dos-crateus />
+                            </div>
+                            <div id="view-sertao-de-sobral" class="region-view d-none">
+                                <x-mapas.mapa-sertao-de-sobral />
+                            </div>
+                            <div id="view-litoral-norte" class="region-view d-none">
+                                <x-mapas.mapa-litoral-norte />
+                            </div>
+                            <div id="view-serra-da-ibiapaba" class="region-view d-none">
+                                <x-mapas.mapa-serra-da-ibiapaba />
+                            </div>
+                            <div id="view-macico-de-baturite" class="region-view d-none">
+                                <x-mapas.mapa-macico-de-baturite />
+                            </div>
+                            <div id="view-litoral-leste" class="region-view d-none">
+                                <x-mapas.mapa-litoral-leste />
+                            </div>
+                            <div id="view-litoral-oeste-vale-do-curu" class="region-view d-none">
+                                <x-mapas.mapa-litoral-oeste-vale-do-curu />
+                            </div>
+                            <div id="view-grande-fortaleza" class="region-view d-none">
+                                <x-mapas.mapa-grande-fortaleza />
+                            </div>
+                            <div id="view-sertao-de-caninde" class="region-view d-none">
+                                <x-mapas.mapa-sertao-de-caninde />
+                            </div>
+                            <div id="view-pernambuco" class="region-view d-none">
+                                <x-mapas.mapa-pernambuco />
+                            </div>
+                            <div id="view-paraiba" class="region-view d-none">
+                                <x-mapas.mapa-paraiba />
+                            </div>
+                            <div id="view-rio-grande-do-norte" class="region-view d-none">
+                                <x-mapas.mapa-rio-grande-do-norte />
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="width: 16px; height: 16px; background-color: #f8cab4; border-radius: 4px; border: 1px solid #dee2e6;"></span>
-                        <span class="text-muted">Cariri</span>
+                    <div class="col-12 col-md-4 col-lg-4 border-start">
+                        <h4 class="text-center text-muted mb-3 small fw-bold text-uppercase">Navegação</h4>
+                        <div class="minimap-wrapper mx-auto">
+                            <x-mapas.mapa-minimapa />
+                        </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="width: 16px; height: 16px; background-color: #d3e8c4; border-radius: 4px; border: 1px solid #dee2e6;"></span>
-                        <span class="text-muted">Centro-Sul</span>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="width: 16px; height: 16px; background-color: #eacec3; border-radius: 4px; border: 1px solid #dee2e6;"></span>
-                        <span class="text-muted">Vale dos Inhamuns</span>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="width: 16px; height: 16px; background-color: #fbe1b1; border-radius: 4px; border: 1px solid #dee2e6;"></span>
-                        <span class="text-muted">Sertão Central</span>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="width: 16px; height: 16px; background-color: #c0e9ec; border-radius: 4px; border: 1px solid #dee2e6;"></span>
-                        <span class="text-muted">Vale do Jaguaribe</span>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="width: 16px; height: 16px; background-color: #c9f0e0; border-radius: 4px; border: 1px solid #dee2e6;"></span>
-                        <span class="text-muted">Pernambuco</span>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="width: 16px; height: 16px; background-color: #f8fafc; border-radius: 4px; border: 1px solid #dee2e6;"></span>
-                        <span class="text-muted">Outras regiões</span>
-                    </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -172,7 +235,8 @@
                                 @endfor
                         </select>
 
-                    <div class="d-flex flex-column gap-2">
+                    <div class="d-flex flex-column gap-2"
+                // Pass both the formatted ID and the raw name to the switcher>
                         <button type="submit" class="btn btn-brown w-100">
                             Aplicar Filtros
                         </button>
@@ -220,14 +284,180 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    const normalizeToId = (str) => {
+        if (!str) return '';
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    };
+
     document.addEventListener("DOMContentLoaded", () => {
         const cidadesComProjetos = {!! json_encode($cidadesAtivas) !!};
         const statsPorCidade = {!! json_encode($cidadesStats) !!};
         
+        const btnReset = document.getElementById('btn-reset-map');
+        const regionTitle = document.getElementById('current-region-name');
+        const regionViews = document.querySelectorAll('.region-view');
+
+        const switchRegionView = (viewFormat, rawName) => {
+            const targetView = document.getElementById(`view-${viewFormat}`);
+            regionViews.forEach(view => view.classList.add('d-none'));
+            
+            if (targetView) {
+                targetView.classList.remove('d-none');
+                regionTitle.innerText = rawName;
+                
+                if (viewFormat !== 'cariri') {
+                    btnReset.classList.remove('d-none');
+                } else {
+                    btnReset.classList.add('d-none');
+                }
+            } else {
+                document.getElementById('view-cariri').classList.remove('d-none');
+                btnReset.classList.add('d-none');
+                regionTitle.innerText = 'Cariri';
+                console.warn(`O mapa detalhado para view-${viewFormat} ainda não foi incluído no HTML.`);
+            }
+        };
+
+        btnReset.addEventListener('click', () => switchRegionView('cariri', 'Cariri'));
+
+        document.querySelectorAll('.minimap-wrapper .macro-regiao').forEach(chunk => {
+            const regiaoNome = chunk.getAttribute('data-regiao');
+            
+            let isActive = false;
+            Object.values(statsPorCidade).forEach(dados => {
+                if (dados.macroregiao === regiaoNome) isActive = true;
+            });
+
+            chunk.setAttribute('data-bs-toggle', 'tooltip');
+
+            if (isActive) {
+                chunk.classList.add('has-projects');
+                chunk.setAttribute('title', `Ver ações em: ${regiaoNome}`);
+                
+                chunk.parentNode.appendChild(chunk);
+            } else {
+                chunk.setAttribute('title', regiaoNome);
+            }
+
+            chunk.addEventListener('click', function() {
+                const normalizedId = normalizeToId(regiaoNome);
+                switchRegionView(normalizedId, regiaoNome);
+                
+                const tooltipInstance = bootstrap.Tooltip.getInstance(this);
+                if (tooltipInstance) tooltipInstance.hide();
+            });
+        });
+
+        console.log("Cidades Ativas Data:", cidadesComProjetos);
+
+        cidadesComProjetos.forEach(local => {
+            let nomeCidade = '';
+            let nomeEstado = '';
+
+            if (local.cidade && local.estado) {
+                nomeCidade = local.cidade;
+                nomeEstado = local.estado;
+            } else if (Array.isArray(local) && local.length >= 2) {
+                nomeCidade = local[0];
+                nomeEstado = local[1];
+            } else {
+                return; 
+            }
+
+            const query = `.municipio[data-cidade="${nomeCidade}" i][data-estado="${nomeEstado}" i]`;
+            const paths = document.querySelectorAll(query);
+            
+            if (paths.length > 0) {
+                paths.forEach(path => {
+                    path.classList.add('cidade-ativa');
+                    
+                    path.parentNode.appendChild(path);
+                });
+            } else {
+                console.warn(`Cidade não encontrada no SVG: ${nomeCidade} (${nomeEstado})`);
+            }
+        });
+
+        const bindMunicipalityEvents = () => {
+             document.querySelectorAll('.municipio').forEach(path => {
+                const rawName = path.getAttribute('data-cidade');
+                const rawEstado = path.getAttribute('data-estado'); 
+                
+                if (!rawName) return; 
+                
+                const tooltipText = rawEstado ? `${rawName} (${rawEstado})` : rawName;
+                
+                path.setAttribute('data-bs-toggle', 'tooltip');
+                path.setAttribute('title', tooltipText); 
+                
+                path.addEventListener('mouseenter', function() {
+                    if (this.classList.contains('cidade-ativa') && this.parentNode.lastElementChild !== this) {
+                        this.parentNode.appendChild(this);
+                    }
+                });
+
+                path.addEventListener('click', function() {
+                    if (!this.classList.contains('cidade-ativa')) return;
+                    
+                    document.querySelectorAll('.tooltip').forEach(t => t.remove());
+                    
+                    const uniqueKey = this.getAttribute('data-cidade') + '-' + this.getAttribute('data-estado');
+                    carregarInsights(uniqueKey);
+                });
+            });
+        };
+        
+        bindMunicipalityEvents();
+
+        new bootstrap.Tooltip(document.body, {
+            selector: '[data-bs-toggle="tooltip"]',
+            container: 'body',
+            trigger: 'hover'
+        });
+
+        document.body.addEventListener('mouseleave', (event) => {
+            if (event.target && typeof event.target.matches === 'function' && event.target.matches('[data-bs-toggle="tooltip"]')) {
+                document.querySelectorAll('.tooltip').forEach(t => t.remove());
+            }
+        }, true);
+
         const panelFiltros = document.getElementById('panel-filtros');
         const panelInsights = document.getElementById('panel-insights');
         let chartTemaInstance = null;
         let chartOdsInstance = null;
+
+        const carregarInsights = (cidadeId) => {
+            const dados = statsPorCidade[cidadeId];
+            if (!dados) return;
+
+            document.getElementById('insight-cidade-nome').innerText = dados.nome_limpo;
+            document.getElementById('insight-total').innerText = dados.total;
+
+            const currentParams = new URLSearchParams(window.location.search);
+            currentParams.set('cidade', dados.nome_limpo);
+            if (currentParams.get('situacao') === 'TODAS') {
+                currentParams.delete('situacao');
+            }
+            document.getElementById('btn-detalhar-acoes').href = `/vitrine/catalogo?${currentParams.toString()}`;
+
+            panelFiltros.classList.add('d-none');
+            panelInsights.classList.remove('d-none');
+
+            const temaDropdown = document.getElementById('filter-tema');
+            if (temaDropdown && temaDropdown.value !== '') {
+                document.getElementById('chart-tema-container').classList.add('d-none');
+            } else {
+                document.getElementById('chart-tema-container').classList.remove('d-none');
+                desenharGraficoTema(dados.temas);
+            }
+
+            desenharGraficoOds(dados.ods);
+        };
+
+        document.getElementById('btn-voltar-filtros').addEventListener('click', () => {
+            panelInsights.classList.add('d-none');
+            panelFiltros.classList.remove('d-none');
+        });
 
         //essa reproducao do chart das ods é o mesmo que eu ifz na dashboard!
         const coresOficiaisOds = {
@@ -274,87 +504,14 @@
                     const icone = iconesPreCarregados[odsNumero];
                     if (icone && icone.complete && icone.naturalHeight !== 0) {
                         ctx.save();
-                        ctx.filter = 'brightness(0) invert(1)'; // Força o ícone a ficar branco
-                        ctx.drawImage(icone, inX - 11, inY - 11, 22, 22); // Centraliza um ícone de 22x22px
+                        ctx.filter = 'brightness(0) invert(1)';
+                        ctx.drawImage(icone, inX - 11, inY - 11, 22, 22);
                         ctx.restore();
                     }
                 });
                 ctx.restore();
             }
         };
-
-        document.querySelectorAll('.municipio').forEach(path => {
-            const rawName = path.getAttribute('data-cidade');
-            if (rawName) {
-                path.setAttribute('data-bs-toggle', 'tooltip');
-                path.setAttribute('data-bs-animation', 'false'); 
-                path.setAttribute('title', rawName);
-            }
-            
-            path.addEventListener('mouseenter', function() {
-                if (this.classList.contains('cidade-ativa') && this.parentNode.lastElementChild !== this) {
-                    this.parentNode.appendChild(this);
-                }
-            });
-
-            path.addEventListener('mouseleave', function() {
-                const tooltipInstance = bootstrap.Tooltip.getInstance(this);
-                if (tooltipInstance) tooltipInstance.hide();
-                document.querySelectorAll('.tooltip').forEach(t => t.remove());
-            });
-
-            path.addEventListener('click', function() {
-                if (!this.classList.contains('cidade-ativa')) return;
-                carregarInsights(this.getAttribute('data-cidade'));
-            });
-        });
-
-        cidadesComProjetos.forEach(cidade => {
-            const path = document.querySelector(`.municipio[data-cidade="${cidade}"]`);
-            if (path) {
-                path.classList.add('cidade-ativa');
-                path.parentNode.appendChild(path);
-            }
-        });
-
-        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        const tooltipList = [...tooltipTriggerList].map(el => new bootstrap.Tooltip(el));
-
-        const carregarInsights = (cidadeId) => {
-            const dados = statsPorCidade[cidadeId];
-            if (!dados) return;
-
-            document.getElementById('insight-cidade-nome').innerText = dados.nome_limpo;
-            document.getElementById('insight-total').innerText = dados.total;
-
-            const currentParams = new URLSearchParams(window.location.search);
-            
-            currentParams.set('cidade', dados.nome_limpo);
-            
-            if (currentParams.get('situacao') === 'TODAS') {
-                currentParams.delete('situacao');
-            }
-
-            document.getElementById('btn-detalhar-acoes').href = `/vitrine/catalogo?${currentParams.toString()}`;
-
-            panelFiltros.classList.add('d-none');
-            panelInsights.classList.remove('d-none');
-
-            const temaDropdown = document.getElementById('filter-tema');
-            if (temaDropdown && temaDropdown.value !== '') {
-                document.getElementById('chart-tema-container').classList.add('d-none');
-            } else {
-                document.getElementById('chart-tema-container').classList.remove('d-none');
-                desenharGraficoTema(dados.temas);
-            }
-
-            desenharGraficoOds(dados.ods);
-        };
-
-        document.getElementById('btn-voltar-filtros').addEventListener('click', () => {
-            panelInsights.classList.add('d-none');
-            panelFiltros.classList.remove('d-none');
-        });
 
         const desenharGraficoTema = (dadosTemas) => {
             const ctx = document.getElementById('chartTemas');

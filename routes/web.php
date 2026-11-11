@@ -123,6 +123,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('acoes/galeria/{id_imagem}', [ActionController::class, 'deleteGalleryImage'])->name('actions.deleteGalleryImage')->middleware(['auth' => 'permission:editar_imagens']);    
 
         Route::put('acoes/banner/{uuid}/alt', [ActionController::class, 'updateBannerAlt'])->name('actions.updateBannerAlt')->middleware(['auth' => 'permission:editar_imagens']);
+
+        Route::delete('acoes/banner/{uuid}', [ActionController::class, 'deleteBanner'])->name('actions.deleteBanner')->middleware(['auth', 'permission:editar_imagens']);
     });
 
     Route::get('formularios', [FormController::class, 'index'])->name('forms.index')->middleware(['auth' => 'permission:ver_formulários']);
