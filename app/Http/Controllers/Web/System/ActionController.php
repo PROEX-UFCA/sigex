@@ -127,10 +127,21 @@ class ActionController extends Controller
     public function details($uuid){
 
         $this->data['action'] = $this->actionsRepository->getByUuid($uuid);
+        $this->data['action'] = $action;
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
         $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CATEGORIA_MEMBRO', 'TIPO_MEMBRO', 'STATUS_MEMBROS', 'TIPO_VINCULO'])->groupBy('function');
 
-        return view('pages.actions.details', $this->data);
+        $userId = (string) auth()->user()->uuid;
+
+        $isEquipe = $action->equipe->contains(function ($membro) use ($userId) {
+            return trim((string) $membro->id_usuario) === $userId;
+        });
+
+        if(auth()->user()->can("detalhar_todas_as_acoes") || $isEquipe){
+            return view('pages.actions.details', $this->data);
+        } else {
+            return redirect()->back(); 
+        }
     }
 
     public function previewImport(Request $request)
