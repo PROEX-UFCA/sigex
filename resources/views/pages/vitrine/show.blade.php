@@ -56,12 +56,34 @@
         opacity: 1;
     }
 
+    .modal-galeria-viewport {
+        position: relative;
+        width: 100%;
+        height: 78dvh;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .modal-galeria-img {
         max-width: 100%;
-        max-height: 82dvh;
+        max-height: 100%;
         width: auto;
         height: auto;
         object-fit: contain;
+        transform-origin: center center;
+        cursor: zoom-in;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .modal-galeria-img.is-zoomed {
+        cursor: grab;
+    }
+
+    .modal-galeria-img.is-dragging {
+        cursor: grabbing;
     }
 </style>
 @endsection
@@ -283,13 +305,31 @@
 
             <div class="modal fade" id="modal-galeria-imagem" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered">
-                    <div class="modal-content border-0 shadow-lg text-white" style="background-color: rgba(250, 226, 182, 0.5);">
-                        <div class="modal-header border-0 pb-0">
-                            <p id="modal-galeria-caption" class="modal-title fs-4 text-brown mb-0"></p>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    <div class="modal-content border-0 shadow-lg text-white" style="background-color: rgba(255, 238, 205, 0.5);">
+                        <div class="modal-header border-0 pb-2 d-flex align-items-center justify-content-between gap-3">
+                            <p id="modal-galeria-caption" class="modal-title fs-4 text-brown mb-0 text-truncate"></p>
+
+                            <div class="d-flex align-items-center gap-2 ms-auto">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Controles de zoom">
+                                    <button type="button" id="btn-zoom-out" class="btn btn-outline-dark" title="Diminuir zoom" disabled>
+                                        <i class="ti ti-zoom-out"></i>
+                                    </button>
+                                    <button type="button" id="btn-zoom-reset" class="btn btn-outline-dark px-2" title="Restaurar tamanho original">
+                                        100%
+                                    </button>
+                                    <button type="button" id="btn-zoom-in" class="btn btn-outline-dark" title="Aumentar zoom">
+                                        <i class="ti ti-zoom-in"></i>
+                                    </button>
+                                </div>
+
+                                <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
                         </div>
-                        <div class="modal-body text-center p-3">
-                            <img id="modal-galeria-preview" src="" alt="" class="modal-galeria-img rounded">
+
+                        <div class="modal-body p-2">
+                            <div id="modal-galeria-viewport" class="modal-galeria-viewport rounded bg-black bg-opacity-25">
+                                <img id="modal-galeria-preview" src="" alt="" class="modal-galeria-img rounded">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -502,22 +542,144 @@
         const modalGaleria = document.getElementById('modal-galeria-imagem');
         if (!modalGaleria) return;
 
+        const viewport = document.getElementById('modal-galeria-viewport');
         const imgPreview = document.getElementById('modal-galeria-preview');
         const imgCaption = document.getElementById('modal-galeria-caption');
+        const btnZoomIn = document.getElementById('btn-zoom-in');
+        const btnZoomOut = document.getElementById('btn-zoom-out');
+        const btnZoomReset = document.getElementById('btn-zoom-reset');
 
+        const MIN_SCALE = 1;
+        const MAX_SCALE = 4;
+        const STEP = 0.5;
+
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+
+        function clampTranslation() {
+            if (scale <= 1) {
+                translateX = 0;
+                translateY = 0;
+                return;
+            }
+            const rect = imgPreview.getBoundingClientRect();
+            const baseWidth = rect.width / scale;
+            const baseHeight = rect.height / scale;
+            const maxX = Math.max(0, (baseWidth * scale - viewport.clientWidth) / 2 + 40);
+            const maxY = Math.max(0, (baseHeight * scale - viewport.clientHeight) / 2 + 40);
+
+            translateX = Math.min(maxX, Math.max(-maxX, translateX));
+            translateY = Math.min(maxY, Math.max(-maxY, translateY));
+        }
+
+        function applyTransform(smooth = false) {
+            clampTranslation();
+            imgPreview.style.transition = smooth ? 'transform 0.2s ease' : 'none';
+            imgPreview.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+
+            btnZoomReset.textContent = `${Math.round(scale * 100)}%`;
+            btnZoomOut.disabled = scale <= MIN_SCALE;
+            btnZoomIn.disabled = scale >= MAX_SCALE;
+
+            imgPreview.classList.toggle('is-zoomed', scale > 1);
+            if (scale <= 1) imgPreview.classList.remove('is-dragging');
+        }
+
+        function setZoom(newScale, smooth = true) {
+            scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Number(newScale.toFixed(2))));
+            if (scale === 1) {
+                translateX = 0;
+                translateY = 0;
+            }
+            applyTransform(smooth);
+        }
+
+        function resetZoom() {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            isDragging = false;
+            applyTransform(false);
+        }
+
+        //botoeszinhos
+        btnZoomIn.addEventListener('click', () => setZoom(scale + STEP, true));
+        btnZoomOut.addEventListener('click', () => setZoom(scale - STEP, true));
+        btnZoomReset.addEventListener('click', () => setZoom(1, true));
+
+        //double click
+        imgPreview.addEventListener('dblclick', function (e) {
+            e.preventDefault();
+            setZoom(scale > 1 ? 1 : 2.5, true);
+        });
+
+        //responsividade com a rodinha do mouse
+        viewport.addEventListener('wheel', function (e) {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.25 : -0.25;
+            setZoom(scale + delta, false);
+        }, { passive: false });
+
+        //responsividade com mouse
+        imgPreview.addEventListener('mousedown', function (e) {
+            if (scale <= 1) return;
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            imgPreview.classList.add('is-dragging');
+        });
+
+        window.addEventListener('mousemove', function (e) {
+            if (!isDragging) return;
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            applyTransform(false);
+        });
+
+        window.addEventListener('mouseup', function () {
+            if (!isDragging) return;
+            isDragging = false;
+            imgPreview.classList.remove('is-dragging');
+        });
+
+        //responsividade com touch
+        imgPreview.addEventListener('touchstart', function (e) {
+            if (scale <= 1 || e.touches.length !== 1) return;
+            isDragging = true;
+            startX = e.touches[0].clientX - translateX;
+            startY = e.touches[0].clientY - translateY;
+        }, { passive: true });
+
+        imgPreview.addEventListener('touchmove', function (e) {
+            if (!isDragging || e.touches.length !== 1) return;
+            e.preventDefault();
+            translateX = e.touches[0].clientX - startX;
+            translateY = e.touches[0].clientY - startY;
+            applyTransform(false);
+        }, { passive: false });
+
+        imgPreview.addEventListener('touchend', function () {
+            isDragging = false;
+        });
+
+        //modal
         modalGaleria.addEventListener('show.bs.modal', function (event) {
             const trigger = event.relatedTarget;
             if (!trigger) return;
 
-            const src = trigger.getAttribute('data-img-src');
-            const alt = trigger.getAttribute('data-img-alt') || '';
-
-            imgPreview.src = src;
-            imgPreview.alt = alt;
-            imgCaption.textContent = alt;
+            resetZoom();
+            imgPreview.src = trigger.getAttribute('data-img-src');
+            imgPreview.alt = trigger.getAttribute('data-img-alt') || '';
+            imgCaption.textContent = trigger.getAttribute('data-img-alt') || '';
         });
 
         modalGaleria.addEventListener('hidden.bs.modal', function () {
+            resetZoom();
             imgPreview.src = '';
             imgPreview.alt = '';
             imgCaption.textContent = '';
