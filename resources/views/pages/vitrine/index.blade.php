@@ -5,68 +5,84 @@
 @section('content')
 <div class="page-body row">
 
-    <div class="row mb-3">
-        <div class="card col-6">
-            <h3 class="card-title text-brown fw-bold my-3 ms-3 text-uppercase"><i class="ti ti-calendar-stats"></i> Dados mensais</h3>
-            <div class="shadow-sm border-secondary border-top border-1">
-                <div class="fs-4">
-                    <div class="d-flex justify-content-between align-items-center p-3 bg-light border-bottom border-1">
-                        <span><i class="ti ti-click text-muted me-2"></i> Acessos</span>
-                        <span class="badge bg-secondary text-white rounded-pill fs-5 px-3 py-1">{{ $acessosGerais }}</span>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-1">
-                        <span><i class="ti ti-world text-muted me-2"></i> Visitantes</span>
-                        <span class="badge bg-blue text-white rounded-pill fs-5 px-3 py-1">{{ $visitantesUnicos }}</span>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center p-3">
-                        <span><i class="ti ti-building-community text-muted me-2"></i> Instituições externas conectadas</span>
-                        <span class="badge bg-success text-white rounded-pill fs-5 px-3 py-1">{{ $instituicoesConectando }}</span>
-                    </div>
-                    
-                </div>
-            </div>
+    @php
+    $meses = [
+        1 => 'Janeiro',
+        2 => 'Fevereiro',
+        3 => 'Março',
+        4 => 'Abril',
+        5 => 'Maio',
+        6 => 'Junho',
+        7 => 'Julho',
+        8 => 'Agosto',
+        9 => 'Setembro',
+        10 => 'Outubro',
+        11 => 'Novembro',
+        12 => 'Dezembro',
+    ];
+    $ehPeriodoAtual = ($mesSelecionado === now()->month && $anoSelecionado === now()->year);
+    @endphp
+
+    <div class="card shadow-sm col-6 mb-3">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h3 class="card-title m-0 fw-bold">
+                <i class="ti ti-calendar-stats me-2"></i>DADOS MENSAIS
+            </h3>
+
+            <form action="{{ route('vitrine.index') }}" method="GET" class="d-flex align-items-center gap-2 m-0">
+                {{-- Preserva busca e ordenação da listagem caso estejam ativos --}}
+                @if(request('search'))
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
+                @if(request('sort'))
+                    <input type="hidden" name="sort" value="{{ request('sort') }}">
+                @endif
+                @if(request('dir'))
+                    <input type="hidden" name="dir" value="{{ request('dir') }}">
+                @endif
+
+                <select name="mes" class="form-select w-auto" aria-label="Filtrar por mês" onchange="this.form.submit()">
+                    @foreach($meses as $numero => $nomeMes)
+                        <option value="{{ $numero }}" {{ $mesSelecionado === $numero ? 'selected' : '' }}>
+                            {{ $nomeMes }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <select name="ano" class="form-select w-auto" aria-label="Filtrar por ano" onchange="this.form.submit()">
+                    @foreach($anosDisponiveis as $ano)
+                        <option value="{{ $ano }}" {{ $anoSelecionado === $ano ? 'selected' : '' }}>
+                            {{ $ano }}
+                        </option>
+                    @endforeach
+                </select>
+
+                @unless($ehPeriodoAtual)
+                    <a href="{{ route('vitrine.index', request()->only(['search', 'sort', 'dir'])) }}"
+                    class="btn btn-sm btn-ghost-secondary"
+                    title="Voltar para o mês atual">
+                        <i class="ti ti-rotate-clockwise"></i>
+                    </a>
+                @endunless
+            </form>
         </div>
 
-        <div class="col-6">
-            <div class="ms-2 row row-cards p-0">
-                <div class="card col-12">
-                    <div class="card card-sm shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-auto">
-                                    <span class="bg-blue text-white avatar">
-                                        <i class="ti ti-building-community fs-2"></i>
-                                    </span>
-                                </div>
-                                <div class="col">
-                                    <div class="font-weight-medium fs-3">Total Ativas</div>
-                                    <div class="text-muted">{{ $totalInstituicoes }} {{ $totalInstituicoes == 1 ? 'instituição' : 'instituições' }} na base</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card card-sm shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-auto">
-                                    <span class="bg-yellow text-white avatar">
-                                        <i class="ti ti-clock-exclamation fs-2"></i>
-                                    </span>
-                                </div>
-                                <div class="col">
-                                    <div class="font-weight-medium fs-3">Aguardando Aprovação</div>
-                                    <div class="text-muted">{{ $pendentesInstituicoes }} {{ $pendentesInstituicoes == 1 ? 'pendente' : 'pendentes' }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                <span><i class="ti ti-click text-muted me-2"></i> Acessos</span>
+                <span class="badge bg-secondary text-white rounded-pill px-3">{{ $acessosGerais }}</span>
+            </div>
+
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                <span><i class="ti ti-world text-muted me-2"></i> Visitantes</span>
+                <span class="badge bg-blue text-white rounded-pill px-3">{{ $visitantesUnicos }}</span>
+            </div>
+
+            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                <span><i class="ti ti-building-community text-muted me-2"></i> Instituições externas conectadas</span>
+                <span class="badge bg-success text-white rounded-pill px-3">{{ $instituicoesConectando }}</span>
             </div>
         </div>
-
-
     </div>
 
     <div class="card mb-3 row">
