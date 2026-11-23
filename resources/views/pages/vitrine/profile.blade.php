@@ -44,6 +44,18 @@
                 <p>{{ $instituicao->complemento }}</p>
                 <p><strong>CEP:</strong> {{ $instituicao->cep }}</p>
             </div>
+            <div class="col-12 mt-4">
+                <h4 class="border-bottom border-brown pb-2">Áreas Temáticas de Interesse</h4>
+                @if(!empty($instituicao->areas_interesse))
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach($instituicao->areas_interesse as $area)
+                            <span class="badge bg-yellow-lt text-dark fs-4 px-3 py-2">{{ $area }}</span>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-muted">Nenhuma área temática selecionada. Clique em <strong>Editar Perfil</strong> para informar seus interesses.</p>
+                @endif
+            </div>
         </div>
     </div>
 </div>
@@ -65,13 +77,25 @@
                     </li>
                 </ul>
                 <div class="tab-content p-4">
-                    <!-- Tab 1: Active & Pending -->
                     <div class="tab-pane active show" id="tabs-ativas">
                         @forelse($matches->where('concluida', false) as $match)
                             @if($match->mutual == true)
                                 <div class="alert alert-success shadow-sm mb-3 border-0">
                                     <i class="ti ti-check me-2"></i>
-                                    <strong>Conexão firmada!</strong> A coordenação de <strong>{{ $match->acao->titulo }}</strong> aceitou sua parceria.
+                                    <strong>Conexão firmada!</strong> Parceria ativa com a ação <strong>{{ $match->acao->titulo }}</strong>.
+                                </div>
+                            @elseif($match->solicitante === 'coordenador')
+                                <div class="alert alert-warning shadow-sm mb-3 border-0 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                    <div>
+                                        <i class="ti ti-sparkles me-2"></i>
+                                        <strong>Convite de Parceria!</strong> A coordenação de <strong>{{ $match->acao->titulo }}</strong> gostaria de firmar parceria com sua instituição.
+                                    </div>
+                                    <form action="{{ route('vitrine.match.accept', $match->id) }}" method="POST" class="m-0">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success fw-bold">
+                                            <i class="ti ti-check me-1"></i> Aceitar Parceria
+                                        </button>
+                                    </form>
                                 </div>
                             @else
                                 <div class="alert alert-info shadow-sm mb-3 border-0 opacity-75">
@@ -87,7 +111,6 @@
                         @endforelse
                     </div>
 
-                    <!-- Tab 2: Finished -->
                     <div class="tab-pane" id="tabs-finalizadas">
                         @forelse($matches->where('concluida', true) as $match)
                             <div class="alert alert-secondary shadow-sm mb-3 border-0">
@@ -162,6 +185,36 @@
                             <label class="form-label">Complemento</label>
                             <input type="text" class="form-control" name="complemento" value="{{ old('complemento', $instituicao->complemento) }}">
                         </div>
+                    </div>
+
+                    @php
+                        $todasAreas = [
+                            'Saúde',
+                            'Educação',
+                            'Meio Ambiente',
+                            'Cultura',
+                            'Comunicação',
+                            'Direitos Humanos e Justiça',
+                            'Tecnologia e Produção',
+                            'Trabalho',
+                        ];
+                        $interessesAtuais = old('areas_interesse', $instituicao->areas_interesse ?? []);
+                    @endphp
+
+                    <h4 class="mb-3 border-bottom border-brown pb-2">Áreas Temáticas de Interesse</h4>
+                    <div class="row g-2 mb-4">
+                        @foreach($todasAreas as $area)
+                            <div class="col-md-6">
+                                <label class="form-check">
+                                    <input class="form-check-input"
+                                        type="checkbox"
+                                        name="areas_interesse[]"
+                                        value="{{ $area }}"
+                                        {{ in_array($area, $interessesAtuais) ? 'checked' : '' }}>
+                                    <span class="form-check-label">{{ $area }}</span>
+                                </label>
+                            </div>
+                        @endforeach
                     </div>
 
                     <h4 class="mb-3 border-bottom border-brown pb-2">Alterar Senha <span class="text-muted fs-5 fw-normal">(Opcional)</span></h4>

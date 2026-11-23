@@ -911,9 +911,117 @@
             <div class="tab-pane fade" id="parcerias-pane" role="tabpanel" tabindex="0">
               <div class="card card-lg mb-3">
                 <div class="card-body p-5">
-                  <div class="d-flex align-items-center flex-wrap justify-content-between mb-2">
+                  <div class="d-flex align-items-center flex-wrap justify-content-between mb-3 gap-2">
                     <h3 class="m-0">Parcerias da ação</h3>
-                  </div>
+
+                    <button type="button" class="btn btn-yellow fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modal-buscar-parcerias">
+                        <i class="ti ti-search me-2"></i> Buscar parcerias?
+                    </button>
+                </div>
+
+                <div class="modal fade" id="modal-buscar-parcerias" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header bg-light">
+                                <div>
+                                    <h5 class="modal-title fs-3 text-brown m-0">
+                                        <i class="ti ti-building-community me-2"></i> Instituições Externas Disponíveis
+                                    </h5>
+                                    <small class="text-muted">Área temática desta ação: <strong>{{ $action->area_tematica }}</strong></small>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+
+                            <div class="modal-body p-4">
+                                <div class="mb-3">
+                                    <input type="text" id="filtro-instituicoes-parceria" class="form-control" placeholder="Filtrar por nome ou área de interesse...">
+                                </div>
+
+                                @forelse($instituicoesExternas as $inst)
+                                    @php
+                                        $cleanInstId = trim((string) $inst->id);
+                                        $matchExistente = $action->matches->first(function ($m) use ($cleanInstId) {
+                                            return trim((string) $m->id_instituicao) === $cleanInstId;
+                                        });
+                                        $temAfinidade = in_array($action->area_tematica, $inst->areas_interesse ?? []);
+                                    @endphp
+
+                                    <div class="card mb-3 shadow-sm instituicao-parceria-card {{ $temAfinidade ? 'border-start border-4 border-yellow' : '' }}">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                                        <h4 class="m-0 text-brown">{{ $inst->nome }}</h4>
+                                                        @if($temAfinidade)
+                                                            <span class="badge bg-yellow-lt text-dark">
+                                                                <i class="ti ti-star me-1"></i> Interesse na área da ação
+                                                            </span>
+                                                        @endif
+                                                    </div>
+
+                                                    <div class="text-muted small mb-2">
+                                                        <span class="me-3"><i class="ti ti-mail me-1"></i> {{ $inst->email }}</span>
+                                                        <span class="me-3"><i class="ti ti-phone me-1"></i> {{ $inst->telefone_contato }}</span>
+                                                        <span><i class="ti ti-map-pin me-1"></i> {{ $inst->logradouro }}, {{ $inst->numero }} - CEP: {{ $inst->cep }}</span>
+                                                    </div>
+
+                                                    <div>
+                                                        <strong class="small text-muted d-block mb-1">Áreas temáticas de interesse:</strong>
+                                                        @if(!empty($inst->areas_interesse))
+                                                            <div class="d-flex flex-wrap gap-1">
+                                                                @foreach($inst->areas_interesse as $interesse)
+                                                                    <span class="badge {{ $interesse === $action->area_tematica ? 'bg-yellow text-dark' : 'bg-secondary-lt' }}">
+                                                                        {{ $interesse }}
+                                                                    </span>
+                                                                @endforeach
+                                                            </div>
+                                                        @else
+                                                            <span class="text-muted fst-italic small">Nenhuma área de interesse informada.</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <div class="align-self-center">
+                                                    @if(!$matchExistente)
+                                                        <form action="{{ route('actions.match.propose', ['id_acao' => $action->id, 'id_instituicao' => $cleanInstId]) }}" method="POST" class="m-0">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-yellow fw-bold shadow-sm">
+                                                                <i class="ti ti-heart-handshake me-1"></i> Propor Parceria
+                                                            </button>
+                                                        </form>
+                                                    @elseif($matchExistente->concluida)
+                                                        <span class="badge bg-secondary p-2">Parceria Concluída</span>
+                                                    @elseif($matchExistente->mutual)
+                                                        <span class="badge bg-success p-2"><i class="ti ti-check me-1"></i> Parceria Ativa</span>
+                                                    @elseif($matchExistente->solicitante === 'instituicao')
+                                                        <form action="{{ route('actions.match.confirm', $matchExistente->id) }}" method="POST" class="m-0">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-success btn-sm fw-bold">
+                                                                <i class="ti ti-check me-1"></i> Aceitar Interesse da Instituição
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <button class="btn btn-secondary btn-sm opacity-75" disabled>
+                                                            <i class="ti ti-clock me-1"></i> Convite Enviado
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="alert alert-secondary mb-0">
+                                        Nenhuma instituição externa ativa cadastrada no momento.
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                   @if($action->matches->where('mutual', true)->count() > 0)
                     <div class="table-responsive p-0 mb-5">
                       <table class="table table-striped table-bordered align-middle mb-0 text-nowrap">
@@ -1061,6 +1169,13 @@ document.addEventListener("DOMContentLoaded", function() {
             </div>
         `;
     });
+
+    document.getElementById('filtro-instituicoes-parceria')?.addEventListener('input', function (e) {
+    const termo = e.target.value.toLowerCase();
+    document.querySelectorAll('.instituicao-parceria-card').forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(termo) ? '' : 'none';
+    });
+});
 });
 </script>
 @endsection
