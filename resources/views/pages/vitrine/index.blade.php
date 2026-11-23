@@ -23,10 +23,10 @@
     $ehPeriodoAtual = ($mesSelecionado === now()->month && $anoSelecionado === now()->year);
     @endphp
 
-    <div class="card shadow-sm col-6 mb-3">
+    <div class="card shadow-sm mx-1 col-6 mb-3">
         <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h3 class="card-title m-0 fw-bold">
-                <i class="ti ti-calendar-stats me-2"></i>DADOS MENSAIS
+                DADOS MENSAIS
             </h3>
 
             <form action="{{ route('vitrine.index') }}" method="GET" class="d-flex align-items-center gap-2 m-0">
@@ -85,10 +85,10 @@
         </div>
     </div>
 
-    <div class="card mb-3 row">
+    <div class="card shadow-sm mx-1 row mb-3">
         <div class="row p-2">
             <div class="col-5 m-0 mt-3 text-uppercase">
-                <h3>Listagem das Instituições Externas</h3>
+                <h3 class="ms-3">Listagem das Instituições Externas</h3>
             </div>
             <div class="d-flex justify-content-end col-7 p-0 m-0">
                 <x-table.search route="{{ route('vitrine.index') }}"></x-table.search>
