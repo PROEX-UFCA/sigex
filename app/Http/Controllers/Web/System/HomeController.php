@@ -66,6 +66,7 @@ class HomeController extends Controller
 
         $this->data['pendingMatches'] = Match_Acao::with(['instituicao', 'acao'])
         ->where('mutual', false)
+        ->where('solicitante', 'instituicao')
         ->whereHas('acao.equipe', function ($query) use ($user) {
             $query->where('id_usuario', $user->uuid)
                     ->whereIn('categoria_membro', [

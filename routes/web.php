@@ -210,6 +210,11 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/acoes/match/{id_match}/confirmar', 'confirmMatch')->name('actions.match.confirm');
         Route::delete('/acoes/match/{id_match}/encerrar', 'endMatch')->name('actions.match.end');
+        Route::post('/acoes/{id_acao}/propor-parceria/{id_instituicao}', 'proposeMatch')
+            ->name('actions.match.propose')
+            ->middleware(['permission:editar_ação']);
+        Route::post('/vitrine/match/{id_match}/aceitar', 'confirmMatch') //é diferente do confirmar, mesmo usando a mesma função
+            ->name('vitrine.match.accept');
         
         Route::middleware(['permission:editar_ação'])->group(function () {
         });

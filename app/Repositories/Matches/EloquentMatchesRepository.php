@@ -37,4 +37,15 @@ class EloquentMatchesRepository implements MatchesRepository
 
         return back()->with('success', 'Parceria concluída com sucesso!'); 
     }
+
+    public function proposeMatch($id_instituicao, $id_acao)
+    {
+        return Match_Acao::firstOrCreate([
+            'id_instituicao' => trim((string) $id_instituicao),
+            'id_acao' => trim((string) $id_acao),
+        ], [
+            'solicitante' => 'coordenador',
+            'mutual' => false,
+        ]);
+    }
 }

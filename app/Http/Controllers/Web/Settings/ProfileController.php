@@ -106,6 +106,8 @@ class ProfileController extends Controller
             'cep' => 'required|string|max:20',
             'actual_password' => 'nullable|string',
             'new_password' => 'nullable|string|min:8|confirmed',
+            'areas_interesse' => 'nullable|array',
+            'areas_interesse.*' => 'string|max:100',
         ]);
 
         try {
@@ -128,10 +130,11 @@ class ProfileController extends Controller
                 'nome' => $request->nome,
                 'email' => $request->email,
                 'telefone_contato' => $request->telefone_contato,
+                'cep' => $request->cep,
                 'logradouro' => $request->logradouro,
                 'numero' => $request->numero,
                 'complemento' => $request->complemento,
-                'cep' => $request->cep,
+                'areas_interesse' => $request->input('areas_interesse', []),
             ]);
 
             return redirect()->back()->with('success', 'Perfil atualizado com sucesso!');

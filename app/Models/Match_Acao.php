@@ -16,6 +16,7 @@ class Match_Acao extends Model
     protected $fillable = [
         'id_instituicao',
         'id_acao',
+        'solicitante',
         'mutual',
         'concluida',
     ];
