@@ -13,7 +13,15 @@ class Instituicao_Externa extends Model
     use HasUuids, SoftDeletes, LogsActivity;
 
     protected $table = 'instituicao_externa';
-    protected $fillable = ['nome', 'email', 'cnpj', 'cep', 'logradouro', 'numero', 'complemento', 'status', 'telefone_contato'];
+    protected $fillable = [
+        'nome', 'email', 'cnpj', 'cep', 'logradouro',
+        'numero', 'complemento', 'status', 'telefone_contato',
+        'areas_interesse',
+    ];
+
+    protected $casts = [
+        'areas_interesse' => 'array',
+    ];
 
     public function getActivitylogOptions(): LogOptions
     {

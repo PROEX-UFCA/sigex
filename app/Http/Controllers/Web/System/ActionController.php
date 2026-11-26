@@ -124,24 +124,25 @@ class ActionController extends Controller
         return view('pages.actions.my', $this->data);
     }
 
-    public function details($uuid){
-
+    public function details($uuid)
+    {
         $action = $this->actionsRepository->getByUuid($uuid);
         $this->data['action'] = $action;
+
         $this->data['coordinators'] = $this->usersRepository->getForCoordinator();
-        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions(['CATEGORIA_MEMBRO', 'TIPO_MEMBRO', 'STATUS_MEMBROS', 'TIPO_VINCULO'])->groupBy('function');
+        $this->data['parametros'] = $this->parametrosRepository->getAllActiveByFunctions([
+            'CATEGORIA_MEMBRO', 'TIPO_MEMBRO', 'STATUS_MEMBROS', 'TIPO_VINCULO'
+        ])->groupBy('function');
 
-        $userId = (string) auth()->user()->uuid;
+        // Lista todas as instituições externas aprovadas (status = 1)
+        $this->data['instituicoesExternas'] = \App\Models\Instituicao_Externa::where('status', 1)
+            ->orderBy('nome')
+            ->get()
+            ->sortByDesc(function ($inst) use ($action) {
+                return in_array($action->area_tematica, $inst->areas_interesse ?? []) ? 1 : 0;
+            });
 
-        $isEquipe = $action->equipe->contains(function ($membro) use ($userId) {
-            return trim((string) $membro->id_usuario) === $userId;
-        });
-
-        if(auth()->user()->can("detalhar_todas_as_acoes") || $isEquipe){
-            return view('pages.actions.details', $this->data);
-        } else {
-            return redirect()->back(); 
-        }
+        return view('pages.actions.details', $this->data);
     }
 
     public function previewImport(Request $request)

@@ -71,33 +71,53 @@ class VitrineController extends Controller
             ->paginate(30)
             ->appends($request->all());
 
-        $currentMonth = Vitrine_Access::whereMonth('created_at', Carbon::now()->month)
-            ->whereYear('created_at', Carbon::now()->year);
+        $agora = Carbon::now();
+        $mesInput = (int) $request->input('mes', $agora->month);
+        $mesSelecionado = ($mesInput >= 1 && $mesInput <= 12) ? $mesInput : $agora->month;
+        $anoSelecionado = (int) $request->input('ano', $agora->year);
 
-        $this->data['acessosGerais'] = (clone $currentMonth)->count();
+        $anosDisponiveis = Vitrine_Access::selectRaw('DISTINCT YEAR(created_at) as ano')
+            ->whereNotNull('created_at')
+            ->orderByDesc('ano')
+            ->pluck('ano')
+            ->map(fn ($ano) => (int) $ano)
+            ->toArray();
 
-        $this->data['visitantesUnicos'] = (clone $currentMonth)
-        ->distinct('ip_address')
-        ->count('ip_address');
+        if (!in_array($agora->year, $anosDisponiveis, true)) {
+            array_unshift($anosDisponiveis, $agora->year);
+            rsort($anosDisponiveis);
+        }
 
-        $this->data['instituicoesConectando'] = (clone $currentMonth)
-        ->whereHas('user', function ($query) {
-            $query->whereNotNull('id_instituicao')
+        $periodoSelecionado = Vitrine_Access::whereMonth('created_at', $mesSelecionado)
+            ->whereYear('created_at', $anoSelecionado);
+
+        $this->data['acessosGerais'] = (clone $periodoSelecionado)->count();
+
+        $this->data['visitantesUnicos'] = (clone $periodoSelecionado)
+            ->distinct('ip_address')
+            ->count('ip_address');
+
+        $this->data['instituicoesConectando'] = (clone $periodoSelecionado)
+            ->whereHas('user', function ($query) {
+                $query->whereNotNull('id_instituicao')
                     ->whereRaw("TRIM(id_instituicao) != ''");
-        })
-        ->distinct('user_id')
-        ->count('user_id');
+            })
+            ->distinct('user_id')
+            ->count('user_id');
 
-        $this->data['internosConectando'] = (clone $currentMonth)
-        ->whereHas('user', function ($query) {
-            $query->where(function ($q) {
-                $q->whereNull('id_instituicao')
+        $this->data['internosConectando'] = (clone $periodoSelecionado)
+            ->whereHas('user', function ($query) {
+                $query->where(function ($q) {
+                    $q->whereNull('id_instituicao')
                     ->orWhereRaw("TRIM(id_instituicao) = ''");
-            });
-        })
-        ->distinct('user_id')
-        ->count('user_id');
+                });
+            })
+            ->distinct('user_id')
+            ->count('user_id');
 
+        $this->data['mesSelecionado'] = $mesSelecionado;
+        $this->data['anoSelecionado'] = $anoSelecionado;
+        $this->data['anosDisponiveis'] = $anosDisponiveis;
         $this->data['totalInstituicoes'] = Instituicao_Externa::where('status', 1)->count();
         $this->data['pendentesInstituicoes'] = Instituicao_Externa::where('status', 0)->count();
 
